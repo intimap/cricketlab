@@ -1,7 +1,7 @@
 /**
  * Grounds as data. Each view is built from layers (see ground.js):
- *   - scenery: the painting the hand-drawn parts come from (sky, trees,
- *     stands, fence) - for now, slices of the two original paintings;
+ *   - scenery: the hand-made parts (sky, clouds, trees, stands, fence) -
+ *     either one painting or a stack of art layers, by asset id (assets.js);
  *   - everything the game's geometry touches (outfield, pitch, creases,
  *     stumps, rope) is drawn in code from these numbers, so it always
  *     lines up with the camera and can vary from ground to ground.
@@ -18,7 +18,7 @@ export const GROUNDS = {
     crease: "#efeedd",
     stumps: { wood: "#9a6a2c", shade: "#5e3d17", bail: "#c8955a" },
     close: {
-      scenery: "close",
+      scenery: "ground-close",
       // First row of the painting (file rows) drawn in code: just below the fence.
       groundFrom: 124,
       // Mowing stripes as distances down the ground (m) where light and dark swap,
@@ -28,7 +28,7 @@ export const GROUNDS = {
       haze: { colour: "#7cbc3c", rows: 14, amount: 0.35 },
     },
     wide: {
-      scenery: "wide",
+      scenery: "ground-wide",
       grass: { light: "#5d9c3f", dark: "#4a8c3d" },
       // Stripes across the wide view: screen rows where light and dark swap.
       stripes: { edgesY: [132, 146, 161, 176, 193, 210, 228, 245, 263, 281, 301, 315, 329], firstLight: true },
@@ -40,6 +40,30 @@ export const GROUNDS = {
     },
   },
 };
+
+/** A ground built from layered close-view art (tools/art/make_scenery.py), with a choice of fence. */
+function parklands(name, fence) {
+  const oval = GROUNDS.oval;
+  return {
+    ...oval,
+    name,
+    close: {
+      ...oval.close,
+      // Layers in the painting's rows: sky, clouds, trees, stands, fence; the ground starts at row 124.
+      scenery: [
+        { image: "close/sky", y: 0 },
+        // Rows 0-23 are above the top of the screen, so the clouds and trees start below that.
+        { clouds: "close/clouds", count: 5, top: 25, bottom: 62 },
+        { image: "close/treeline", y: 40 },
+        { image: "close/stands", y: 58 },
+        { image: fence, y: 112 },
+      ],
+    },
+  };
+}
+
+GROUNDS.parklands = parklands("PARKLANDS OVAL", "close/fence-picket");
+GROUNDS.parklandsBoards = parklands("PARKLANDS (BOARDS)", "close/fence-ads");
 
 /**
  * How each pitch type looks: base colour, its specks, how wear changes it,

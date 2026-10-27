@@ -11,7 +11,6 @@ import {
   hitsStumps,
   lengthName,
   lineName,
-  releaseSweetSpot,
 } from "../sim/delivery.js";
 import { SWING_TIME, NORMAL_CHARGE, CONTACT_Z_BACK } from "../sim/batting.js";
 import { PRESET_LABELS, keeperSpot } from "../sim/field.js";
@@ -28,6 +27,7 @@ import {
 } from "../render/camera.js";
 import { BATTER_POSES, lerpPose, drawBatter, drawFigure, drawTinyFigure, drawBall, drawShadow } from "../render/sprites.js";
 import { drawBooth, boothShowing } from "../render/booth.js";
+import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import { HUD_Y, staminaColor, drawScoreBar, drawMiniMap, drawBanners, drawScorecard, drawSpeechBubble } from "../render/hud.js";
 
 const FOLLOW_THROUGH_TIME = 0.15;
@@ -566,19 +566,20 @@ function drawPanels(scene) {
 /** Bar showing the run-up against the release window, and where the last release landed. */
 function drawReleaseMeter(scene) {
   const cur = scene.cur;
-  const from = cur.runupDur * 0.4;
-  const to = cur.runupDur + 0.3;
+  const r = cur.runup;
+  const from = METER_FROM;
+  const to = 1 + 0.3 / r.dur;
   const x0 = 200;
   const w = 240;
   const y = 22;
-  const toX = (t) => x0 + ((t - from) / (to - from)) * w;
+  const toX = (pos) => x0 + ((pos - from) / (to - from)) * w;
   fillRect(x0 - 1, y - 1, w + 2, 8, COLORS.black);
   fillRect(x0, y, w, 6, "#203a2a");
   // Too late: no-ball territory.
-  fillRect(toX(cur.runupDur + 0.11), y, toX(to) - toX(cur.runupDur + 0.11), 6, COLORS.red);
-  const sweet = releaseSweetSpot(scene.inn.bowler.stamina);
-  fillRect(toX(cur.runupDur - sweet), y, Math.max(2, toX(cur.runupDur + sweet) - toX(cur.runupDur - sweet)), 6, COLORS.gold);
-  const at = cur.delivery ? cur.runupDur + (cur.releaseMark ?? 0) : cur.tRun;
+  fillRect(toX(noBallPos(r)), y, toX(to) - toX(noBallPos(r)), 6, COLORS.red);
+  const half = r.zone / r.dur;
+  fillRect(toX(1 - half), y, Math.max(2, toX(1 + half) - toX(1 - half)), 6, COLORS.gold);
+  const at = cur.delivery ? cur.releaseMark : meterPos(r, cur.tRun);
   fillRect(clamp(toX(at), x0, x0 + w) - 1, y - 3, 3, 12, COLORS.white);
   // Aftertouch, shown the way it was pushed on screen.
   const touch = (cur.aftertouch ?? 0) * scene.screenTurn;

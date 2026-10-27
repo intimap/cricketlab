@@ -26,7 +26,11 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
   x += 7;
   x += drawText(`${striker.p.short.toUpperCase()} ${striker.runs}(${striker.balls})`, x, y1, { color: COLORS.cream }) + 10;
   x += drawText(`${other.p.short.toUpperCase()} ${other.runs}(${other.balls})`, x, y1, { color: COLORS.dim }) + 10;
-  drawText(`P'SHIP ${inn.partnership.runs}(${inn.partnership.balls})`, x, y1, { color: COLORS.dim });
+  if (inn.target !== null) {
+    drawText(`NEED ${inn.runsNeeded} OFF ${inn.ballsLeft}`, x, y1, { color: COLORS.gold });
+  } else {
+    drawText(`P'SHIP ${inn.partnership.runs}(${inn.partnership.balls})`, x, y1, { color: COLORS.dim });
+  }
 
   let right = 636;
   const balls = inn.overBalls.slice(-8);
@@ -144,7 +148,9 @@ export function drawScorecard(inn, x, y, w, h, title) {
     const notOut = !b.out && (i === inn.striker || i === inn.nonStriker);
     const color = notOut ? COLORS.gold : COLORS.cream;
     drawText(`${b.p.name.toUpperCase()}${notOut ? "*" : ""}`, x + 10, row, { color });
-    drawText(b.out ? b.how.toUpperCase() : notOut ? "NOT OUT" : "", x + 170, row, dim);
+    // The dismissal has to fit before the runs column.
+    const how = b.out ? b.how.toUpperCase() : notOut ? "NOT OUT" : "";
+    drawText(how.length > 19 ? how.slice(0, 18) + "." : how, x + 170, row, dim);
     drawText(String(b.runs), x + 300, row, { color, align: "right" });
     drawText(String(b.balls), x + 330, row, dimRight);
     drawText(String(b.fours), x + 352, row, dimRight);

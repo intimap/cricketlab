@@ -474,7 +474,10 @@ function drawPanels(scene) {
   }
 
   if (scene.phase === "runup" && scene.human === "bowl" && scene.cur && scene.cur.tRun < 0.6) {
-    drawText("SPACE TO RELEASE - AT THE DELIVERY STRIDE", WIDTH / 2, 6, { ...PANEL_TEXT, color: COLORS.gold });
+    drawText("SPACE TO RELEASE AT THE DELIVERY STRIDE  -  HOLD LEFT/RIGHT FOR AFTERTOUCH", WIDTH / 2, 6, {
+      ...PANEL_TEXT,
+      color: COLORS.gold,
+    });
   }
   // Release meter: the marker runs towards the delivery stride; hit the gold zone.
   if (scene.human === "bowl" && scene.cur && (scene.phase === "runup" || (scene.phase === "flight" && scene.phaseT < 0.9))) {
@@ -553,8 +556,10 @@ function drawPanels(scene) {
   if (scene.phase === "pause") scene.pauseMenu.draw(inn, scene.closeEnd);
 
   if (scene.phase === "inningsEnd") {
-    drawScorecard(inn, 20, 18, 600, 290, inn.wkts >= 10 ? "ALL OUT" : "END OF SPELL");
-    drawText("ENTER = MENU", WIDTH / 2, 296, { align: "center", color: COLORS.gold });
+    const ending = scene.ending;
+    drawScorecard(inn, 20, 18, 600, 290, ending.title);
+    drawText(ending.sub, WIDTH / 2, 284, { align: "center", color: COLORS.cream });
+    drawText(ending.next ? "ENTER = START THE CHASE" : "ENTER = MENU", WIDTH / 2, 296, { align: "center", color: COLORS.gold });
   }
 }
 
@@ -575,6 +580,13 @@ function drawReleaseMeter(scene) {
   fillRect(toX(cur.runupDur - sweet), y, Math.max(2, toX(cur.runupDur + sweet) - toX(cur.runupDur - sweet)), 6, COLORS.gold);
   const at = cur.delivery ? cur.runupDur + (cur.releaseMark ?? 0) : cur.tRun;
   fillRect(clamp(toX(at), x0, x0 + w) - 1, y - 3, 3, 12, COLORS.white);
+  // Aftertouch, shown the way it was pushed on screen.
+  const touch = (cur.aftertouch ?? 0) * scene.screenTurn;
+  if (touch) {
+    const mid = x0 + w / 2;
+    fillRect(touch > 0 ? mid : mid + touch * 60, y + 10, Math.abs(touch) * 60, 3, COLORS.gold);
+    drawText(scene.spinner ? "EXTRA SPIN" : "EXTRA SWING", mid, y + 15, { ...PANEL_TEXT, color: COLORS.gold });
+  }
 }
 
 /** DRS ball-tracking: replay the ball's path to the stumps, then the three verdicts. */

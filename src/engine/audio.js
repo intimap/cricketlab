@@ -1,11 +1,13 @@
 // Every sound is synthesised: filtered noise bursts and short oscillator
 // tones, over a looping crowd murmur whose level swells on big moments.
 
+import { load, save } from "./storage.js";
+
 let ac = null;
 let master;
 let crowd;
 let noise;
-let muted = false;
+let muted = load("muted", false);
 
 /** Create (or resume) the audio context. Must run from a user gesture. */
 export function unlockAudio() {
@@ -51,6 +53,7 @@ export const isMuted = () => muted;
 
 export function toggleMute() {
   muted = !muted;
+  save("muted", muted);
   if (master) master.gain.value = muted ? 0 : 0.6;
 }
 

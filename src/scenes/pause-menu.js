@@ -39,6 +39,7 @@ const PAGES = [
       ["V", "DRAG FIELDERS WITH THE MOUSE"],
       ["SPACE", "RUN IN"],
       ["SPACE AGAIN", "RELEASE IN THE GOLD ZONE OF THE METER"],
+      ["HOLD LEFT/RIGHT", "AFTERTOUCH IN THE RUN-UP: EXTRA SWING OR SPIN"],
       ["H", "APPEAL"],
       ["R", "REVIEW A DECISION (2 PER INNINGS)"],
       ["", ""],

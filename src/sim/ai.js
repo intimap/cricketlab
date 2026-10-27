@@ -9,6 +9,14 @@ import { describeBall, readAgainst, exploits, difficulty } from "./plans.js";
 const PRESSURE_AGGRESSION = 0.15;
 const SLOG_FROM = 0.45;
 const SLOG_RATE = 0.35;
+/** Chasing: the required rate (runs per over) at which batters play their normal game. */
+const CHASE_PAR_RATE = 4.5;
+/** Chasing: extra aggression per run an over above (or below) par. */
+const CHASE_PUSH_PER_RUN = 0.08;
+/** Chasing: the most the run rate can push aggression either way. */
+const CHASE_MAX_PUSH = 0.45;
+/** Extra aggression at full limited-overs tempo (see Innings.tempo). */
+const LIMITED_OVERS_PUSH = 0.3;
 
 /** Pick the best available bowler for the next over, given conditions and fatigue. */
 export function pickBowler(inn) {
@@ -207,7 +215,21 @@ export function battingAggression(inn, index) {
   // Pressure gets to the impatient ones.
   a += inn.pressure * PRESSURE_AGGRESSION * (1.1 - b.p.bat.temperament);
   if (inn.freeHit) a += 0.5;
+  a += chaseAggression(inn) + inn.tempo * LIMITED_OVERS_PUSH;
   return clamp(a, 0.05, 0.98);
+}
+
+/**
+ * How the state of a chase pushes the batters: above par they go harder, well
+ * below it they knock it around, and with few wickets left they temper both.
+ */
+function chaseAggression(inn) {
+  const rate = inn.requiredRate;
+  if (rate === null) return 0;
+  if (rate === Infinity || inn.runsNeeded > inn.ballsLeft * 3) return CHASE_MAX_PUSH;
+  const push = clamp((rate - CHASE_PAR_RATE) * CHASE_PUSH_PER_RUN, -CHASE_MAX_PUSH, CHASE_MAX_PUSH);
+  const wicketsLeft = 10 - inn.wkts;
+  return push * (wicketsLeft <= 2 ? 0.6 : 1);
 }
 
 /** The computer batter's shot to delivery `d`, judged from an early read of it. */

@@ -1,10 +1,11 @@
 import { COLORS } from "../engine/screen.js";
 import { keys, mouse, arrowBearing } from "../engine/input.js";
 import { sfx } from "../engine/audio.js";
+import { load, save } from "../engine/storage.js";
 import { clamp } from "../math.js";
 import { Rng } from "../sim/rng.js";
-import { australia, england, isSpinner } from "../sim/teams.js";
-import { Match } from "../sim/match.js";
+import { isSpinner } from "../sim/teams.js";
+import { createMatch } from "../sim/formats.js";
 import { PITCH_LENGTH } from "../sim/geometry.js";
 import { EFFORTS, crossingAtZ, releaseSweetSpot } from "../sim/delivery.js";
 import { CONTACT_Z_FRONT, CONTACT_Z_BACK, SWING_TIME, NORMAL_CHARGE } from "../sim/batting.js";
@@ -31,6 +32,8 @@ const SHOT_KEYS = { KeyS: "drive", KeyQ: "cutpull", KeyW: "loft" };
 const WICKET_PAUSE = 6.5;
 const MAX_SLEDGES = 3;
 const SLEDGE_GAP = 1.5;
+/** Seconds of holding left/right in the run-up for full aftertouch. */
+const AFTERTOUCH_BUILD = 0.5;
 
 /**
  * One innings, played ball by ball. Phases:
@@ -74,24 +77,56 @@ export class MatchScene {
   pausedFrom = "ready";
   pauseMenu = new PauseMenu();
 
-  constructor(game, cfg) {
+  /** cfg: the menu choice (see createMatch); `match`: carry on an existing match into its next innings. */
+  constructor(game, cfg, match = null) {
     this.game = game;
-    const aus = australia();
-    const eng = england();
-    this.human = cfg.mode;
-    const batTeam = cfg.mode === "bat" ? aus : eng;
-    const bowlTeam = cfg.mode === "bat" ? eng : aus;
-    this.match = new Match(batTeam, bowlTeam, cfg.pitch, cfg.overs, new Rng(), cfg.mode);
-    this.kitBat = makeKit(batTeam.colour, batTeam.colour2);
-    this.kitBowl = makeKit(bowlTeam.colour, bowlTeam.colour2);
-    const pitch = this.match.inn.pitch.type;
-    this.commentary = `${batTeam.name} to bat on a ${pitch.name.toLowerCase()}. ${pitch.blurb}`;
+    this.cfg = cfg;
+    this.match = match ?? createMatch(cfg, new Rng());
+    this.human = this.match.human;
+    const inn = this.match.inn;
+    this.kitBat = makeKit(inn.batTeam.colour, inn.batTeam.colour2);
+    this.kitBowl = makeKit(inn.bowlTeam.colour, inn.bowlTeam.colour2);
+    const pitch = inn.pitch.type;
+    this.commentary =
+      inn.target !== null
+        ? `${inn.batTeam.name} need ${inn.runsNeeded} to win off ${inn.ballsLeft} balls.`
+        : `${inn.batTeam.name} to bat on a ${pitch.name.toLowerCase()}. ${pitch.blurb}`;
     if (this.human === "bowl") {
       this.match.inn.setPreset("attacking");
       this.toChooseBowler();
     } else {
       this.nextBall();
     }
+  }
+
+  endInnings() {
+    this.setPhase("inningsEnd");
+    if (this.ending.good === true && this.cfg.format === "classic") {
+      save("classicsWon", { ...load("classicsWon", {}), [this.cfg.classic]: true });
+    }
+    if (this.ending.good === true) sfx.cheer(1);
+    else if (this.ending.good === false) sfx.groan();
+  }
+
+  /** How the innings (or match) ended, for the end screen: { title, sub, good?, next }. */
+  get ending() {
+    const match = this.match;
+    const inn = this.inn;
+    if (match.hasNextInnings) {
+      return { title: "INNINGS BREAK", sub: `${inn.bowlTeam.name.toUpperCase()} NEED ${inn.runs + 1} TO WIN`, next: true };
+    }
+    const result = match.result;
+    if (!result) return { title: inn.wkts >= 10 ? "ALL OUT" : "END OF SPELL", sub: `${inn.runs}/${inn.wkts}` };
+    const humanSide = this.human === "bat" ? inn.batTeam : inn.bowlTeam;
+    const good = result.winner === humanSide ? true : result.winner === null ? null : false;
+    if (this.cfg.format === "classic") {
+      return { title: good ? "CHALLENGE COMPLETE!" : "CHALLENGE FAILED", sub: result.text.toUpperCase(), good };
+    }
+    return {
+      title: result.text.toUpperCase(),
+      sub: good ? "WELL PLAYED!" : good === null ? "WHAT A FINISH!" : "BETTER LUCK NEXT TIME",
+      good,
+    };
   }
 
   setPhase(phase) {
@@ -110,7 +145,7 @@ export class MatchScene {
   nextBall() {
     const inn = this.inn;
     if (inn.isOver) {
-      this.setPhase("inningsEnd");
+      this.endInnings();
       return;
     }
     if (this.match.needOver) {
@@ -174,13 +209,19 @@ export class MatchScene {
     this.setPhase("chooseBowler");
   }
 
-  /** Which end the close camera sits at: "bat" (behind the striker) or "bowl" (behind the bowler). Kept between matches. */
+  /** Which end the close camera sits at: "bat" (behind the striker) or "bowl" (behind the bowler). Remembered. */
   get closeEnd() {
-    return this.game.closeEnd ?? "bat";
+    return (this.game.closeEnd ??= load("closeEnd", "bat"));
+  }
+
+  /** -1 when the close camera looks from the bowler's end (screen left/right is the world turned round), else 1. */
+  get screenTurn() {
+    return this.view === "close" && this.closeEnd === "bowl" ? -1 : 1;
   }
 
   toggleCloseEnd() {
     this.game.closeEnd = this.closeEnd === "bat" ? "bowl" : "bat";
+    save("closeEnd", this.game.closeEnd);
     this.flash(this.closeEnd === "bat" ? "VIEW: BEHIND THE BATTER" : "VIEW: BEHIND THE BOWLER");
   }
 
@@ -258,7 +299,14 @@ export class MatchScene {
         this.updateFieldEdit();
         break;
       case "inningsEnd":
-        if (keys.pressed("Enter") || keys.pressed("Space")) this.game.toMenu();
+        if (this.phaseT > 0.8 && (keys.pressed("Enter") || keys.pressed("Space"))) {
+          if (this.match.hasNextInnings) {
+            this.match.nextInnings();
+            this.game.scene = new MatchScene(this.game, this.cfg, this.match);
+          } else {
+            this.game.toMenu();
+          }
+        }
         break;
     }
 
@@ -325,7 +373,7 @@ export class MatchScene {
     const skills = this.inn.bowler.p.bowl;
     const step = keys.down("ShiftLeft") || keys.down("ShiftRight") ? 0.25 : 1;
     // Arrows move the crosshair the way you press on screen, whichever end the camera is at.
-    const turned = this.view === "close" && this.closeEnd === "bowl" ? -1 : 1;
+    const turned = this.screenTurn;
     if (keys.pressed("ArrowLeft")) this.target.line -= 0.05 * step * turned;
     if (keys.pressed("ArrowRight")) this.target.line += 0.05 * step * turned;
     if (keys.pressed("ArrowUp")) this.target.length += 0.5 * step * turned;
@@ -420,6 +468,11 @@ export class MatchScene {
     const cur = this.cur;
     cur.tRun += dt;
     if (this.human === "bowl") {
+      // Aftertouch: hold left or right through the run-up for extra swing or spin that way.
+      const held = (keys.down("ArrowRight") ? 1 : 0) - (keys.down("ArrowLeft") ? 1 : 0);
+      if (held && cur.tRun > cur.runupDur * 0.3) {
+        cur.aftertouch = clamp((cur.aftertouch ?? 0) + (held * this.screenTurn * dt) / AFTERTOUCH_BUILD, -1, 1);
+      }
       // Release on Space: early drops it short, late drags it full, very late is a no-ball.
       if (keys.pressed("Space") && cur.tRun > cur.runupDur * 0.4) {
         const stamina = this.inn.bowler.stamina;
@@ -444,6 +497,7 @@ export class MatchScene {
 
   release(releaseError) {
     const cur = this.cur;
+    if (cur.aftertouch) cur.intent = { ...cur.intent, aftertouch: cur.aftertouch };
     cur.delivery = this.match.deliver(cur.intent, releaseError);
     cur.t = 0;
     const atBat = crossingAtZ(cur.delivery.samples, CONTACT_Z_FRONT);
@@ -908,7 +962,7 @@ export class MatchScene {
     if ((!moving && this.phaseT > 0.5) || this.phaseT > (this.view === "wide" ? 1.8 : 0.6) || keys.pressed("Space")) {
       const applied = this.cur.done.applied;
       if (applied.inningsOver) {
-        this.setPhase("inningsEnd");
+        this.endInnings();
         return;
       }
       if (applied.overEnded) {

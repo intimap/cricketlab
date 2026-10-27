@@ -116,7 +116,7 @@ export class MomentTracker {
     return this.movementMoment(rec, m);
   }
 
-  /** A ball that did something special: a jaffa, big swing or turn, or real pace. n = cm (or km/h), k = which way. */
+  /** A ball that did something special: a jaffa, big swing or turn, or real pace (the speed gun shows the figures). */
   movementMoment(rec, m) {
     const mv = rec.movement;
     if (!mv) return null;

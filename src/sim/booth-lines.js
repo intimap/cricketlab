@@ -3,7 +3,8 @@
  * their own voices: Bunnings dry and sparing, Lorry beside himself, Grog
  * with an opinion on everything.
  * Placeholders: {b} batter, {w} bowler, {n} the number that matters, {k} a
- * count in words (wickets in a collapse) or a direction ("AWAY", "BACK IN").
+ * count in words (wickets in a collapse). Pace and movement are left to the
+ * speed gun on the HUD; the commentators just react to them.
  */
 export const MOMENT_LINES = {
   hatTrick: {
@@ -220,27 +221,27 @@ export const MOMENT_LINES = {
     grog: ["{n} FROM {k}. IT'S IN THE BALANCE.", "THEY NEED {n} OFF {k}. ONE BIG OVER CHANGES EVERYTHING."],
   },
   jaffa: {
-    bunnings: ["WHAT A DELIVERY. THAT MOVED {n} CM {k} AND {b} NEVER SAW IT.", "AN ABSOLUTE PEACH. {n} CM {k}, PAST THE BAT."],
-    lorry: ["OH, WHAT A BALL! A JAFFA! {n} CM {k}! HE'S BEATEN HIM COMPLETELY!", "UNPLAYABLE! THAT'S MOVED {n} CM {k}!"],
+    bunnings: ["WHAT A DELIVERY. {b} NEVER HAD A CHANCE WITH THAT.", "AN ABSOLUTE PEACH. YOU CAN ONLY APPLAUD THE BOWLER."],
+    lorry: ["OH, WHAT A BALL! A JAFFA! HE'S BEATEN HIM ALL ENDS UP!", "UNPLAYABLE! ABSOLUTELY UNPLAYABLE!"],
     grog: [
-      "THAT'S A JAFFA. {n} CM {k}. NOTHING {b} COULD DO ABOUT THAT.",
-      "WORLD-CLASS DELIVERY. {n} CM {k} AFTER IT LEFT {w}'S HAND.",
+      "THAT'S A JAFFA. NOTHING {b} COULD HAVE DONE ABOUT THAT ONE.",
+      "WORLD-CLASS DELIVERY FROM {w}. THAT'S THE BALL OF THE DAY.",
     ],
   },
   rapid: {
-    bunnings: ["{n} KILOMETRES AN HOUR. QUICK.", "THE SPEED GUN SAYS {n}. THAT'S HURRYING HIM."],
-    lorry: ["{n} K'S! THAT IS RAPID! FASTER THAN MY CAR!", "LOOK AT THE SPEED! {n}! HE'S FLYING IN!"],
-    grog: ["{n} KM/H. GENUINE PACE. THE BATTERS DON'T LIKE THAT.", "{w} IS CRANKING IT UP. {n} ON THE GUN."],
+    bunnings: ["THAT WAS QUICK. VERY QUICK.", "{w} IS SLIPPING THEM DOWN NOW. THAT HURRIED HIM."],
+    lorry: ["THAT IS RAPID! HE'S FLYING IN! LOOK AT THE KEEPER'S GLOVES!", "WHOA! THAT WAS SERIOUS PACE!"],
+    grog: ["GENUINE PACE. THE BATTERS DON'T LIKE THAT ONE BIT.", "{w} IS REALLY CRANKING IT UP NOW."],
   },
   bigSwing: {
-    bunnings: ["THAT SWUNG {n} CM {k}. LOVELY SHAPE.", "HANGING IN THE AIR, THEN {n} CM {k}. MARVELLOUS."],
-    lorry: ["LOOK AT THAT SWING! {n} CM {k}! IT'S BANANA-SHAPED!", "IT'S SWINGING LIKE A BOOMERANG! {n} CM!"],
-    grog: ["{n} CM OF SWING. THE CONDITIONS ARE PERFECT FOR {w}.", "PROPER SWING BOWLING. {n} CM {k}."],
+    bunnings: ["THAT SWUNG A LONG WAY. LOVELY SHAPE.", "HANGING IN THE AIR, THEN BENDING LATE. MARVELLOUS."],
+    lorry: ["LOOK AT THAT SWING! IT'S BANANA-SHAPED!", "IT'S SWINGING LIKE A BOOMERANG OUT THERE!"],
+    grog: ["THE CONDITIONS ARE PERFECT FOR {w}. IT'S HOOPING.", "PROPER SWING BOWLING. LATE AND BIG."],
   },
   bigTurn: {
-    bunnings: ["THAT SPUN {n} CM. THE PITCH IS STARTING TO HELP.", "BIG TURN THERE. {n} CM {k}."],
-    lorry: ["IT'S TURNED A MILE! {n} CM! LOOK AT THAT!", "SQUARE! IT'S SPUN SQUARE! {n} CM!"],
-    grog: ["{n} CM OF TURN. THAT'S A BIG RIP FROM {w}.", "IT GRIPPED AND SPUN {n} CM. BATTING'S GETTING HARD."],
+    bunnings: ["THAT SPUN A LONG WAY. THE PITCH IS STARTING TO HELP.", "BIG TURN THERE. {b} WILL HAVE NOTICED THAT."],
+    lorry: ["IT'S TURNED A MILE! LOOK AT THAT!", "SQUARE! IT'S SPUN SQUARE!"],
+    grog: ["THAT'S A BIG RIP FROM {w}. IT GRIPPED AND WENT.", "IT'S TURNING SHARPLY NOW. BATTING IS GETTING HARD."],
   },
   fifty: {
     bunnings: ["FIFTY FOR {b}. {n} BALLS. A VERY TIDY INNINGS.", "{b} RAISES HIS BAT. FIFTY, AND WELL EARNED."],

@@ -15,7 +15,7 @@ import { clamp } from "../math.js";
  * the player takes part in; simBall() plays a whole ball with both sides on the AI.
  *
  * human: "bat" or "bowl" (the side the player controls in the current innings).
- * opts:  { innings: 1 or 2, start: { overs, runs, wkts }, target } - see formats.js.
+ * opts:  { innings: 1 or 2, start: { overs, runs, wkts }, target, nets } - see formats.js.
  */
 export class Match {
   needOver = true;
@@ -29,6 +29,7 @@ export class Match {
     this.human = human;
     this.overs = overs;
     this.totalInnings = opts.innings ?? 1;
+    this.nets = !!opts.nets;
     // Limited-overs games (anything with a target to set or chase) are played in a hurry, more so the shorter they are.
     this.tempo = this.totalInnings > 1 || opts.target ? clamp((60 - overs) / 55, 0.15, 1) : 0;
     this.pitch = new Pitch(PITCH_TYPES[pitchId]);
@@ -42,6 +43,7 @@ export class Match {
     this.inn = new Innings(batTeam, bowlTeam, this.pitch, this.overs, this.rng);
     this.inn.target = target;
     this.inn.tempo = this.tempo;
+    this.inn.nets = this.nets;
     this.innings.push(this.inn);
     this.moments = new MomentTracker();
     this.needOver = true;

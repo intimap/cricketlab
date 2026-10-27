@@ -55,6 +55,14 @@ export class Menu {
         ["start", "", `START  >     (${done}/${CLASSICS.length} WON)`],
       ];
     }
+    if (cfg.format === "nets") {
+      return [
+        format,
+        ["mode", "PRACTISE", cfg.mode === "bat" ? "BATTING (AUSTRALIA)" : "BOWLING (AUSTRALIA)"],
+        ["pitch", "PITCH", PITCH_TYPES[cfg.pitch].name],
+        ["start", "", "START  >"],
+      ];
+    }
     const overs = `${cfg.overs} OVERS${cfg.overs === 90 ? " (A FULL DAY)" : cfg.format === "match" ? " EACH" : ""}`;
     return [
       format,
@@ -121,8 +129,8 @@ export class Menu {
     const blurb =
       cfg.format === "classic"
         ? `${this.classic.blurb} YOU ${this.classic.human === "bat" ? "BAT" : "BOWL"}.`
-        : cfg.format === "match"
-          ? FORMATS.match.blurb
+        : cfg.format === "match" || cfg.format === "nets"
+          ? FORMATS[cfg.format].blurb
           : PITCH_TYPES[cfg.pitch].blurb;
     wrapText(blurb, 60).forEach((line, i) =>
       drawText(line, 320, 112 + rows.length * 18 + 4 + i * 10, { align: "center", color: COLORS.dim }),

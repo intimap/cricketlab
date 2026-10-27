@@ -6,6 +6,7 @@ import { australia, england } from "./teams.js";
  *   spell   - one innings, then the scorecard (practice)
  *   match   - both sides bat the same overs; the second chases a target
  *   classic - a set piece dropped into the closing stages of a chase
+ *   nets    - endless practice: no innings to lose, a coach's verdict on every ball
  *
  * Classic Matches are pure data, so new ones (and their difficulty) can be
  * added or tuned without touching the game code. Each one sets:
@@ -24,6 +25,7 @@ export const FORMATS = {
   spell: { name: "SPELL", innings: 1, blurb: "ONE INNINGS. BAT OR BOWL A SPELL." },
   match: { name: "FULL MATCH", innings: 2, blurb: "BOTH SIDES BAT. THE SECOND CHASES THE TOTAL." },
   classic: { name: "CLASSIC MATCHES", innings: 1, blurb: "WIN FROM A TIGHT SPOT." },
+  nets: { name: "NETS", innings: 1, blurb: "PRACTICE AS LONG AS YOU LIKE. THE COACH RATES EVERY BALL." },
 };
 
 export const CLASSICS = [
@@ -95,6 +97,9 @@ export const CLASSICS = [
   },
 ];
 
+/** Nets go on as long as you like. */
+const NETS_OVERS = 9999;
+
 /** Overs choices on the menu, per format. */
 export const OVERS_CHOICES = { spell: [10, 20, 40, 90], match: [5, 10, 20, 50] };
 
@@ -111,5 +116,6 @@ export function createMatch(cfg, rng) {
     return new Match(bat, bowl, c.pitch, c.overs, rng, c.human, { start: c.start, target: c.target });
   }
   const [bat, bowl] = cfg.mode === "bat" ? [aus, eng] : [eng, aus];
+  if (cfg.format === "nets") return new Match(bat, bowl, cfg.pitch, NETS_OVERS, rng, cfg.mode, { nets: true });
   return new Match(bat, bowl, cfg.pitch, cfg.overs, rng, cfg.mode, { innings: FORMATS[cfg.format]?.innings ?? 1 });
 }

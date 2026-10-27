@@ -59,7 +59,7 @@ function expectedAt(d, readTime, z, bat) {
 }
 
 /** 0..1: how well the chosen shot suits the ball (height at contact, pitching length, line). */
-function shotSuitability(type, height, pitchZ, line, spinner) {
+export function shotSuitability(type, height, pitchZ, line, spinner) {
   let s = 1;
   // A yorker at the toes can be dug out, but it's very hard to hit.
   if (pitchZ > 1.2 && pitchZ < 2.6 && !spinner && type !== "defend" && type !== "leave") s -= 0.5;

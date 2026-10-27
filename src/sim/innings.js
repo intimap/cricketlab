@@ -96,6 +96,9 @@ export class Innings {
    * innings (bat time), 1 is a short slog. Set by the Match.
    */
   tempo = 0;
+  /** Nets practice: dismissals are counted but nobody walks off. */
+  nets = false;
+  netsOuts = 0;
 
   get chaseWon() {
     return this.target !== null && this.runs >= this.target;
@@ -166,7 +169,7 @@ export class Innings {
   }
 
   canBowl(index) {
-    return index !== this.lastOverBowler;
+    return this.nets || index !== this.lastOverBowler;
   }
 
   setBowler(index) {
@@ -247,7 +250,9 @@ export class Innings {
     if (rec.wicket) symbol = "W";
     this.overBalls.push(symbol);
 
-    if (rec.wicket) {
+    if (rec.wicket && this.nets) {
+      this.netsOuts++;
+    } else if (rec.wicket) {
       result.wicket = true;
       this.wkts++;
       const out = this.bat[rec.wicket.batter];

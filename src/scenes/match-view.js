@@ -196,6 +196,9 @@ function readyPose(scene, cur, t) {
 /** Follow-through for the shot being played, chosen by where the ball went (or was meant to go). */
 function finishPose(cur, type) {
   const contact = cur.play?.res.contact;
+  if (type === "ramp") return BATTER_POSES.rampEnd;
+  if (type === "sweep") return BATTER_POSES.sweepEnd;
+  if (type === "reverseSweep") return BATTER_POSES.reverseSweepEnd;
   if (type === "cutpull") {
     if (cur.lineAtBat > 0.2) return contact?.shotName === "late cut" ? BATTER_POSES.lateCutEnd : BATTER_POSES.cutEnd;
     const height = crossingAtZ(cur.delivery.samples, CONTACT_Z_BACK)?.y ?? 0;
@@ -229,7 +232,13 @@ function drawStriker(scene) {
     if (cur.swingAt !== null && t >= cur.swingAt && cur.swingType) {
       const type = cur.swingType;
       const top = lerpPose(BATTER_POSES.lift0, BATTER_POSES.lift1, cur.shot?.charge ?? 0.5);
-      const contact = type === "cutpull" ? BATTER_POSES.contactBack : BATTER_POSES.contactFront;
+      const contact =
+        {
+          cutpull: BATTER_POSES.contactBack,
+          ramp: BATTER_POSES.rampContact,
+          sweep: BATTER_POSES.sweepContact,
+          reverseSweep: BATTER_POSES.reverseSweepContact,
+        }[type] ?? BATTER_POSES.contactFront;
       const k = (t - cur.swingAt) / SWING_TIME[type];
       if (k < 1) pose = lerpPose(top, contact, easeIn(k));
       else pose = lerpPose(contact, finishPose(cur, type), easeOut((t - cur.swingAt - SWING_TIME[type]) / FOLLOW_THROUGH_TIME));
@@ -391,6 +400,7 @@ function drawPanels(scene) {
       ...PANEL_TEXT,
       color: COLORS.cream,
     });
+    drawText("DOWN+W RAMP   DOWN+LEFT+Q SWEEP   DOWN+RIGHT+Q REVERSE SWEEP", WIDTH / 2, 15, { ...PANEL_TEXT, color: COLORS.dim });
     if (Math.floor(scene.now * 2) % 2 === 0) {
       drawText("PRESS SPACE TO FACE UP", WIDTH / 2, 24, { ...PANEL_TEXT, color: COLORS.gold, scale: 2 });
     }

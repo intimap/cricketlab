@@ -228,7 +228,7 @@ export class BallInPlay {
           dive = null;
           break;
         }
-        if (!dive && dist <= reach + covered + 1 && p.t - startAt > -0.05) dive = { ...option, dive: true };
+        if (!dive && dist <= reach + covered + 1 && p.t - startAt > 0) dive = { ...option, dive: true };
       }
       if (dive && (!best || dive.t < best.t) && best?.fielder !== f.idx) best = dive;
     }

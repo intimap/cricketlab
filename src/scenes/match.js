@@ -420,7 +420,11 @@ export class MatchScene {
   arrival(shotType) {
     const d = this.cur.delivery;
     const pitchZ = d.pitchedAt?.z ?? 0;
-    const back = shotType === "cutpull" || (shotType === "defend" && pitchZ > 6.8) || (shotType === "leave" && pitchZ > 7);
+    const back =
+      shotType === "cutpull" ||
+      shotType === "ramp" ||
+      (shotType === "defend" && pitchZ > 6.8) ||
+      (shotType === "leave" && pitchZ > 7);
     return crossingAtZ(d.samples, back ? CONTACT_Z_BACK : CONTACT_Z_FRONT)?.t ?? 0.6;
   }
 
@@ -438,13 +442,23 @@ export class MatchScene {
     if (!cur.delivery) return;
     const power = keys.down("ShiftLeft") || keys.down("ShiftRight");
     for (const [key, type] of Object.entries(SHOT_KEYS)) {
-      if (keys.pressed(key) && !cur.shot) this.commitSwing(t, type, power);
+      if (keys.pressed(key) && !cur.shot) this.commitSwing(t, this.shotVariant(type), power);
     }
     if (keys.pressed("KeyA") && !cur.shot) this.commitDefend(t);
     if (cur.delivery && !cur.shot) {
       const arrive = crossingAtZ(cur.delivery.samples, CONTACT_Z_FRONT)?.t ?? 0.6;
       if (t > arrive + 0.05) this.commitLeave();
     }
+  }
+
+  /** Down + W is a ramp; down + left/right + Q is a sweep / reverse sweep. */
+  shotVariant(type) {
+    if (!keys.down("ArrowDown")) return type;
+    const left = keys.down("ArrowLeft");
+    const right = keys.down("ArrowRight");
+    if (type === "loft") return "ramp";
+    if (type === "cutpull" && left !== right) return left ? "sweep" : "reverseSweep";
+    return type;
   }
 
   commitSwing(t, type, power) {

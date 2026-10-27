@@ -40,6 +40,13 @@ export const BATTER_POSES = {
   defendFront: { px: 13, py: -42, angle: -4, step: 1.3, lean: 6, back: 0 },
   defendBack: { px: 12, py: -48, angle: 2, step: 0, lean: 2, back: 1 },
   leave: { px: 3, py: -88, angle: 172, step: 0.3, lean: -2, back: 0 },
+  // Ramp: bat face up over the shoulder. Sweeps: down on one knee.
+  rampContact: { px: 10, py: -64, angle: 165, step: 0.6, lean: 2, back: 0.3, drop: 6 },
+  rampEnd: { px: 6, py: -84, angle: 178, step: 0.6, lean: 0, back: 0.3, drop: 6 },
+  sweepContact: { px: 2, py: -24, angle: -75, step: 1.6, lean: 7, back: 0, drop: 14 },
+  sweepEnd: { px: -12, py: -48, angle: -140, step: 1.6, lean: 4, back: 0, drop: 14 },
+  reverseSweepContact: { px: 20, py: -26, angle: 75, step: 1.6, lean: 6, back: 0, drop: 14 },
+  reverseSweepEnd: { px: 30, py: -48, angle: 140, step: 1.6, lean: 5, back: 0, drop: 14 },
   // Reactions.
   beaten: { px: 9, py: -54, angle: 40, step: 0.6, lean: -3, back: 0.3 },
   padFlinch: { px: 6, py: -60, angle: 60, step: 0.4, lean: -4, back: 0.6 },
@@ -55,6 +62,7 @@ export function lerpPose(a, b, t) {
     step: a.step + (b.step - a.step) * k,
     lean: a.lean + (b.lean - a.lean) * k,
     back: a.back + (b.back - a.back) * k,
+    drop: (a.drop ?? 0) + ((b.drop ?? 0) - (a.drop ?? 0)) * k,
   };
 }
 
@@ -73,6 +81,8 @@ export function drawBatter(x, y, scale, pose, kit, number = 0) {
   const rect = (rx, ry, w, h, color) => fillRect(sx(rx), sy(ry), Math.max(1, w * scale), Math.max(1, h * scale), color);
   const frontLift = -7 * pose.step + 3 * pose.back;
   const stride = 2 * pose.step;
+  // Crouch: lowers the hips and everything above (down on one knee for a sweep).
+  const drop = pose.drop ?? 0;
 
   fillEllipse(sx(2), sy(1), 20 * scale, 4 * scale, "rgba(0,0,0,0.28)");
   // Back leg.
@@ -81,8 +91,8 @@ export function drawBatter(x, y, scale, pose, kit, number = 0) {
   rect(-10, -22, 8, 1, PAD_SHADE);
   rect(-10, -13, 8, 1, PAD_SHADE);
   rect(-11, -5, 10, 4, BOOT);
-  rect(-10, -48, 9, 19, kit.pants);
-  rect(-10, -48, 2, 19, kit.shade);
+  rect(-10, -48 + drop, 9, 19, kit.pants);
+  rect(-10, -48 + drop, 2, 19, kit.shade);
   // Front leg.
   const fx = 5 + stride;
   const fy = frontLift;
@@ -91,13 +101,13 @@ export function drawBatter(x, y, scale, pose, kit, number = 0) {
   rect(fx, -24 + fy, 8, 1, PAD_SHADE);
   rect(fx, -15 + fy, 8, 1, PAD_SHADE);
   rect(fx - 1, -7 + fy, 10, 4, BOOT);
-  rect(fx, -48 + fy * 0.5, 9, 18, kit.pants);
-  rect(fx + 7, -48 + fy * 0.5, 2, 18, kit.shade);
-  rect(-10, -52 + frontLift * 0.4, 24 + stride, 8, kit.pants);
+  rect(fx, -48 + fy * 0.5 + drop, 9, 18, kit.pants);
+  rect(fx + 7, -48 + fy * 0.5 + drop, 2, 18, kit.shade);
+  rect(-10, -52 + frontLift * 0.4 + drop, 24 + stride, 8, kit.pants);
 
   // Torso.
   const tx = -11 + pose.lean * 0.6;
-  const ty = -78 + frontLift * 0.5;
+  const ty = -78 + frontLift * 0.5 + drop;
   rect(tx, ty, 26, 28, kit.shirt);
   rect(tx, ty, 4, 28, kit.shade);
   rect(tx + 22, ty + 2, 4, 24, kit.shade);

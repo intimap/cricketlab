@@ -126,6 +126,12 @@ const LINES = {
     "Shot! That's four. The members in the pavilion approve.",
   ],
   fourCut: ["Cut hard! Four. Too short, too wide, and duly punished.", "Slapped through point. Four runs. Width is a gift."],
+  fourSweep: ["Swept! Down on one knee and it races away fine for four.", "Sweeps hard, gets it in the gap behind square. Four."],
+  fourReverseSweep: [
+    "Reverse swept! Cheeky, and it beats third man for four.",
+    "Switches the hands, reverse sweeps... four! Outrageous.",
+  ],
+  fourRamp: ["Ramped over the keeper! Four, and {w} can't believe it.", "Scooped fine off the pace. Audacious, and it's four."],
   fourPull: [
     "Pulled away! Four. Rolled the wrists over it nicely.",
     "Picked it up early and pulled it in front of square. Four.",
@@ -255,6 +261,9 @@ export class Commentary {
     else if (rec.boundary === 6) text = this.pick(LINES.six);
     else if (rec.boundary === 4) {
       if (rec.contact === "thinEdge" || rec.contact === "thickEdge") text = this.pick(LINES.edgeFour);
+      else if (rec.shotName.includes("reverse sweep")) text = this.pick(LINES.fourReverseSweep);
+      else if (rec.shotName.includes("sweep")) text = this.pick(LINES.fourSweep);
+      else if (rec.shotName.includes("ramp") || rec.shotName.includes("scoop")) text = this.pick(LINES.fourRamp);
       else if (rec.shotName.includes("cut")) text = this.pick(LINES.fourCut);
       else if (rec.shotName.includes("pull") || rec.shotName.includes("hook")) text = this.pick(LINES.fourPull);
       else text = this.pick(LINES.four);

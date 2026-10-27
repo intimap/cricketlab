@@ -74,7 +74,7 @@ export class Menu {
         ? [
             "BATTING: SPACE TO FACE UP, THEN S DRIVE / Q CUT-PULL / W LOFT AS IT ARRIVES",
             "A = DEFEND.  NO KEY = LEAVE.  HOLD SHIFT FOR POWER, BUT PLAY IT EARLIER",
-            "HOLD ARROWS AS YOU PLAY TO AIM THE SHOT.  UP / DOWN = RUN OR GET BACK",
+            "ARROWS AIM.  DOWN+W RAMP, DOWN+LEFT/RIGHT+Q SWEEP.  UP/DOWN = RUN",
             "O = SIMULATE THE OVER   C = CAMERA   V = VIEW FIELD   ESC = PAUSE / SCORECARD",
           ]
         : [

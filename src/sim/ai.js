@@ -186,6 +186,17 @@ export function pickShot(d, inn, rng) {
     softPush = true;
   }
   if (spinner && type === "drive" && rng.chance(aggression * 0.25)) type = "loft";
+  // Sweep the spinner when it's pitched up.
+  if (
+    spinner &&
+    (type === "drive" || type === "defend") &&
+    pitchZ > 1.5 &&
+    pitchZ < 6 &&
+    height < 0.8 &&
+    rng.chance(aggression * 0.2)
+  ) {
+    type = rng.chance(0.15) ? "reverseSweep" : "sweep";
+  }
 
   const charge =
     type === "defend" || type === "leave"
@@ -210,6 +221,8 @@ function pickGap(inn, type, line) {
     drive: line > 0.1 ? [-10, 85] : [-55, 40],
     loft: [-60, 50],
     cutpull: line > 0.2 ? [70, 135] : [-120, -50],
+    sweep: [-135, -70],
+    reverseSweep: [70, 135],
   }[type];
   if (!arc) return null;
   const fielders = inn.placements.map((p) => bearingOf(p.pos.x, p.pos.z));

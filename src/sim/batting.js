@@ -7,7 +7,18 @@ export const CONTACT_Z_FRONT = 1.95;
 export const CONTACT_Z_BACK = 0.85;
 
 /** Seconds from starting the downswing to the bat reaching the ball. */
-export const SWING_TIME = { drive: 0.085, cutpull: 0.075, loft: 0.1, defend: 0.12, leave: 0 };
+export const SWING_TIME = {
+  drive: 0.085,
+  cutpull: 0.075,
+  loft: 0.1,
+  ramp: 0.07,
+  sweep: 0.09,
+  reverseSweep: 0.1,
+  defend: 0.12,
+  leave: 0,
+};
+
+const isSweep = (type) => type === "sweep" || type === "reverseSweep";
 /** Shot power (0..1) of a normal, non-power player shot. */
 export const NORMAL_CHARGE = 0.35;
 
@@ -61,6 +72,19 @@ function shotSuitability(type, height, pitchZ, line, spinner) {
     if (pitchZ > 6.5) s -= 0.4;
     if (height > 1) s -= 0.3;
     if (spinner) s += 0.1;
+  } else if (type === "ramp") {
+    // Needs pace to work with, and a ball short enough to get under.
+    s -= 0.25;
+    if (spinner) s -= 0.45;
+    if (pitchZ < 4.5) s -= 0.4;
+    if (height < 0.5) s -= 0.3;
+    if (height > 1.4) s -= 0.2;
+  } else if (isSweep(type)) {
+    // A spinner's shot: full and low. Against pace or bounce it's a gamble.
+    if (!spinner) s -= 0.55;
+    if (pitchZ > 7) s -= 0.45;
+    if (height > 0.9) s -= 0.4;
+    if (type === "reverseSweep") s -= 0.1;
   } else if (type === "defend") {
     if (height > 1.35) s = 0.5;
     if (line > 0.6) s = Math.min(s, 0.8);
@@ -76,6 +100,12 @@ function shotBearing(type, line, height, cut) {
       return clamp(line * 75, -50, 70);
     case "cutpull":
       return cut ? 92 + line * 15 : -72 - clamp(height - 0.8, 0, 1) * 30;
+    case "ramp":
+      return line > 0.15 ? 160 : -165;
+    case "sweep":
+      return -115;
+    case "reverseSweep":
+      return 110;
     case "defend":
       return clamp(line * 40, -30, 40);
     default:
@@ -86,6 +116,10 @@ function shotBearing(type, line, height, cut) {
 function shotName(type, bearing, height, footBack, cut) {
   if (type === "defend") return footBack ? "back-foot defence" : "forward defence";
   if (type === "cutpull") return cut ? (bearing > 115 ? "late cut" : "cut") : height > 1.35 ? "hook" : "pull";
+  if (type === "ramp")
+    return Math.abs(bearing) > 168 ? "ramp over the keeper" : bearing > 0 ? "ramp over the slips" : "scoop over fine leg";
+  if (type === "sweep") return bearing < -125 ? "paddle sweep" : "sweep";
+  if (type === "reverseSweep") return "reverse sweep";
   const lofted = type === "loft" ? "lofted " : "";
   if (bearing > 80) return "square drive";
   if (bearing > 45) return lofted + "cover drive";
@@ -105,7 +139,11 @@ function shotName(type, bearing, height, footBack, cut) {
  */
 export function resolveDelivery(d, shot, bat, state, ball, spinner, rng) {
   const pitchZ = d.pitchedAt ? d.pitchedAt.z : 0;
-  const footBack = shot.type === "cutpull" || (shot.type === "defend" && pitchZ > 6.8) || (shot.type === "leave" && pitchZ > 7);
+  const footBack =
+    shot.type === "cutpull" ||
+    shot.type === "ramp" ||
+    (shot.type === "defend" && pitchZ > 6.8) ||
+    (shot.type === "leave" && pitchZ > 7);
   const at = crossingAtZ(d.samples, footBack ? CONTACT_Z_BACK : CONTACT_Z_FRONT);
   const contact = at ? batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rng) : noContact("beaten");
   const res = {
@@ -222,7 +260,8 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
       (0.75 + 0.5 * bat.timing) *
       (0.82 + 0.25 * state.settled) *
       (0.6 + 0.4 * suit) *
-      (spinner ? 1.25 : 1);
+      (spinner ? 1.25 : 1) *
+      (shot.type === "ramp" || (isSweep(shot.type) && !spinner) ? 0.7 : 1);
   const timing = shot.timingError / (window * (shot.windowMult ?? 1));
   if (Math.abs(timing) > 2.4) return noContact(timing < 0 ? "early" : "late");
 
@@ -254,22 +293,30 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
     case "middle": {
       if (defending) {
         speed = (2.2 + 0.12 * ballSpeed) * (1.25 - 0.5 * bat.defence) * (mistimed ? 1.3 : 1);
+      } else if (shot.type === "ramp") {
+        // Mostly the bowler's pace, redirected.
+        speed = (0.55 * ballSpeed + 4 + 6 * shot.charge) * (0.5 + 0.5 * quality) * ball.batPace;
+      } else if (isSweep(shot.type)) {
+        speed = (batSpeed + 0.25 * ballSpeed + 4) * (0.5 + 0.5 * quality) * ball.batPace;
       } else {
         speed = (batSpeed + 0.42 * ballSpeed) * (0.5 + 0.5 * quality) * ball.batPace;
-        if (mistimed) speed *= 0.7;
       }
+      if (mistimed && !defending) speed *= 0.7;
       let dir = natural;
       if (shot.aim !== null && !defending) dir = natural + angleDiff(shot.aim, natural) * (0.35 + 0.5 * quality);
       else if (shot.aim !== null && defending) dir = natural + angleDiff(shot.aim, natural) * 0.25;
       // Early timing drags it leg side, late pushes it off side.
-      dir += clamp(timing, -2, 2) * 16 + rng.normal(0, 5 + 18 * (1 - quality));
+      // (A sweep's direction is set by the bat angle across the line, so it strays less.)
+      dir += (clamp(timing, -2, 2) * 16 + rng.normal(0, 5 + 18 * (1 - quality))) * (isSweep(shot.type) ? 0.5 : 1);
       bearing = dir;
       if (defending) elevation = height > 1.25 ? rng.range(15, 40) : rng.range(-25, -5);
       else if (shot.type === "loft") elevation = 20 + 15 * shot.charge + rng.normal(0, 5);
+      else if (shot.type === "ramp") elevation = 28 + 12 * shot.charge + rng.normal(0, 6);
+      else if (isSweep(shot.type)) elevation = -2 + rng.normal(0, 2) + (height > 0.7 ? 12 : 0);
       else if (shot.type === "cutpull")
         elevation = cut ? 4 + rng.normal(0, 4) + (height > 1 ? 7 : 0) : 5 + (height - 0.7) * 22 + rng.normal(0, 5);
       else elevation = 1.5 + rng.normal(0, 3) + (height > 0.8 ? 7 : 0) + (timing < -1 ? rng.range(10, 30) : 0);
-      if (mistimed && !defending) elevation += rng.range(0, 22);
+      if (mistimed && !defending) elevation += rng.range(0, isSweep(shot.type) ? 8 : 22);
       break;
     }
     case "thinEdge":
@@ -294,8 +341,11 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
       break;
     case "topEdge":
       speed = 0.3 * ballSpeed + 0.25 * batSpeed + 2;
-      bearing = shot.type === "cutpull" && !cut ? -140 + rng.normal(0, 25) : natural + 150 + rng.normal(0, 30);
-      elevation = rng.range(42, 72);
+      if (shot.type === "ramp") bearing = 180 + rng.normal(0, 20);
+      else if (shot.type === "sweep") bearing = -150 + rng.normal(0, 25);
+      else if (shot.type === "reverseSweep") bearing = 150 + rng.normal(0, 25);
+      else bearing = shot.type === "cutpull" && !cut ? -140 + rng.normal(0, 25) : natural + 150 + rng.normal(0, 30);
+      elevation = shot.type === "ramp" ? rng.range(55, 80) : rng.range(42, 72);
       break;
     case "gloved":
       speed = 0.3 * ballSpeed;

@@ -39,7 +39,7 @@ const PRESETS = {
   ],
   spin: [
     spot("slip", 172, 3.2),
-    spot("short leg", -115, 5.5),
+    spot("short leg", -95, 5.5),
     spot("point", 95, 22),
     spot("cover", 50, 26),
     spot("mid-off", 10, 27),

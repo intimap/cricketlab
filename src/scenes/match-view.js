@@ -212,6 +212,34 @@ function finishPose(cur, type) {
   return BATTER_POSES.straightDriveEnd;
 }
 
+/** Distance from the hands to the middle of the bat, in sprite pixels. */
+const SWEET_SPOT = 27;
+
+/**
+ * Adjust a contact pose so the middle of the bat sits on the ball's screen
+ * position `ball` (sprite feet at origin). The hands stay within reach; the bat
+ * then points at the ball.
+ */
+function aimAtBall(pose, ball) {
+  const a = (pose.angle * Math.PI) / 180;
+  const lift = (-7 * pose.step + 3 * pose.back) * 0.5;
+  const hx = clamp(ball.x - SWEET_SPOT * Math.sin(a), -12, 36);
+  const hy = clamp(ball.y - SWEET_SPOT * Math.cos(a) - lift, -84, -24);
+  const angle = (Math.atan2(ball.x - hx, ball.y - (hy + lift)) * 180) / Math.PI;
+  return { ...pose, px: hx, py: hy, angle };
+}
+
+/** Where the ball is (sprite coordinates) when it reaches the bat, or would have. */
+function ballAtBat(cur, type, x, y) {
+  const res = cur.play?.res;
+  const at = res?.contact.at ?? crossingAtZ(cur.delivery.samples, type === "cutpull" ? CONTACT_Z_BACK : CONTACT_Z_FRONT);
+  if (!at) return null;
+  const p = projectClose(at.x, at.y, at.z);
+  // A clean miss: aim just past the ball so it visibly beats the bat.
+  const miss = res && !res.touchedBat && !res.padHit ? 10 : 0;
+  return { x: p.x - x - miss, y: p.y - y + miss * 0.5 };
+}
+
 /** The striker, animated through stance, backlift, swing, defence or leave, and reactions after. */
 function drawStriker(scene) {
   const cur = scene.cur;
@@ -223,30 +251,33 @@ function drawStriker(scene) {
   let pose = ready;
   if (cur) {
     const arrive = cur.delivery ? scene.arrival(cur.swingType ?? cur.shot?.type ?? "drive") : 0.6;
-    // Reach towards the line of the ball.
-    const reach = clamp((projectClose(cur.lineAtBat, 0, 1.9).x - (x + 12)) * 0.8, -8, 26);
+    const res = cur.play?.res;
+    // If the shot connects, the drawn swing lands exactly when the ball does.
+    const hitAt = res?.touchedBat ? res.start.t : null;
     let shotDoneAt = null;
-    if (cur.swingAt !== null && t >= cur.swingAt && cur.swingType) {
+    if (cur.swingType && cur.swingAt !== null) {
       const type = cur.swingType;
-      const top = lerpPose(BATTER_POSES.lift0, BATTER_POSES.lift1, cur.shot?.charge ?? 0.5);
-      const contact = type === "cutpull" ? BATTER_POSES.contactBack : BATTER_POSES.contactFront;
-      const k = (t - cur.swingAt) / SWING_TIME[type];
-      if (k < 1) pose = lerpPose(top, contact, easeIn(k));
-      else pose = lerpPose(contact, finishPose(cur, type), easeOut((t - cur.swingAt - SWING_TIME[type]) / FOLLOW_THROUGH_TIME));
-      if (k > 0.3 && k < 1.6) pose = { ...pose, px: pose.px + reach * Math.min(1, k) * (1.6 - k) };
-      shotDoneAt = cur.swingAt + SWING_TIME[type] + FOLLOW_THROUGH_TIME;
-    } else if (cur.swingType && cur.swingAt !== null && t >= cur.backliftAt) {
-      const charge = cur.shot?.charge ?? NORMAL_CHARGE;
-      pose = lerpPose(
-        ready,
-        lerpPose(BATTER_POSES.lift0, BATTER_POSES.lift1, charge),
-        easeOut((t - cur.backliftAt) / Math.max(0.01, cur.swingAt - cur.backliftAt)),
-      );
-    } else if (cur.defendAt !== null && t >= cur.defendAt) {
-      const block = (cur.delivery?.pitchedAt?.z ?? 5) > 6.8 ? BATTER_POSES.defendBack : BATTER_POSES.defendFront;
-      pose = lerpPose(ready, block, easeOut((t - cur.defendAt) / 0.09));
-      pose = { ...pose, px: pose.px + reach * clamp((t - cur.defendAt) / 0.15) };
-      shotDoneAt = cur.defendAt + 0.3;
+      const swingAt = hitAt !== null ? Math.max(cur.backliftAt + 0.02, hitAt - SWING_TIME[type]) : cur.swingAt;
+      const top = lerpPose(BATTER_POSES.lift0, BATTER_POSES.lift1, cur.shot?.charge ?? NORMAL_CHARGE);
+      if (t >= swingAt) {
+        const base = type === "cutpull" ? BATTER_POSES.contactBack : BATTER_POSES.contactFront;
+        const ball = cur.delivery ? ballAtBat(cur, type, x, y) : null;
+        const contact = ball ? aimAtBall(base, ball) : base;
+        const k = (t - swingAt) / SWING_TIME[type];
+        if (k < 1) pose = lerpPose(top, contact, easeIn(k));
+        else pose = lerpPose(contact, finishPose(cur, type), easeOut((t - swingAt - SWING_TIME[type]) / FOLLOW_THROUGH_TIME));
+        shotDoneAt = swingAt + SWING_TIME[type] + FOLLOW_THROUGH_TIME;
+      } else if (t >= cur.backliftAt) {
+        pose = lerpPose(ready, top, easeOut((t - cur.backliftAt) / Math.max(0.01, swingAt - cur.backliftAt)));
+      }
+    } else if (cur.defendAt !== null && t >= Math.min(cur.defendAt, hitAt ?? Infinity)) {
+      const back = (cur.delivery?.pitchedAt?.z ?? 5) > 6.8;
+      const base = back ? BATTER_POSES.defendBack : BATTER_POSES.defendFront;
+      const ball = cur.delivery ? ballAtBat(cur, back ? "cutpull" : "drive", x, y) : null;
+      const block = ball ? aimAtBall(base, ball) : base;
+      const start = hitAt !== null ? Math.min(cur.defendAt, hitAt - 0.09) : cur.defendAt;
+      pose = lerpPose(ready, block, easeOut((t - start) / 0.09));
+      shotDoneAt = start + 0.3;
     } else if (cur.leaveAt !== null && t >= cur.leaveAt) {
       pose = lerpPose(ready, BATTER_POSES.leave, (t - cur.leaveAt) / 0.18);
     } else if (scene.human === "bat" && cur.delivery && !cur.shot && t > arrive - 0.22) {
@@ -255,7 +286,6 @@ function drawStriker(scene) {
     }
 
     const play = cur.play;
-    const res = play?.res;
     // Reactions once the ball has gone past: flinch if hit on the pad, recoil if beaten.
     if (res && cur.contactDone && !res.touchedBat) {
       if (res.padHit) pose = lerpPose(pose, BATTER_POSES.padFlinch, easeOut((t - res.start.t) / 0.12));

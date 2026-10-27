@@ -11,6 +11,7 @@ import {
   hitsStumps,
   lengthName,
   lineName,
+  movementParts,
 } from "../sim/delivery.js";
 import { SWING_TIME, NORMAL_CHARGE, CONTACT_Z_BACK } from "../sim/batting.js";
 import { PRESET_LABELS, keeperSpot } from "../sim/field.js";
@@ -569,6 +570,7 @@ function drawPanels(scene) {
   }
 
   if (scene.feedback && (scene.phase === "after" || scene.phase === "return")) drawCoachCard(scene);
+  if (!scene.nets && SPEED_GUN_PHASES.has(scene.phase)) drawSpeedGun(scene);
   if (scene.phase === "pause") scene.pauseMenu.draw(inn, scene.closeEnd);
 
   if (scene.phase === "inningsEnd") {
@@ -577,6 +579,23 @@ function drawPanels(scene) {
     drawText(ending.sub, WIDTH / 2, 284, { align: "center", color: COLORS.cream });
     drawText(ending.next ? "ENTER = START THE CHASE" : "ENTER = MENU", WIDTH / 2, 296, { align: "center", color: COLORS.gold });
   }
+}
+
+const SPEED_GUN_PHASES = new Set(["flight", "after", "return", "appeal", "decision"]);
+
+/** Broadcast-style speed gun: pace as it's bowled, then the movement once it has passed the bat. */
+function drawSpeedGun(scene) {
+  const d = scene.cur?.delivery;
+  if (!d) return;
+  const parts = scene.cur.contactDone || scene.cur.t > 1.2 ? movementParts(d) : [];
+  const shown = scene.cur.contactDone || scene.cur.t > 1.2 ? (parts.length ? parts : ["STRAIGHT ON"]) : [];
+  const w = 108;
+  const h = 24 + shown.length * 9;
+  const x = WIDTH - w - 4;
+  const y = HUD_Y - h - 3;
+  drawPanel(x, y, w, h, "rgba(10,28,18,0.88)", COLORS.gold2);
+  drawText(`${Math.round(d.speed * 3.6)} KM/H`, x + w / 2, y + 5, { align: "center", color: COLORS.gold, scale: 2 });
+  shown.forEach((line, i) => drawText(line, x + w / 2, y + 21 + i * 9, { align: "center", color: COLORS.cream }));
 }
 
 /** Nets: the coach's verdict on the last ball. */

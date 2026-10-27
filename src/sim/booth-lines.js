@@ -3,7 +3,8 @@
  * their own voices: Bunnings dry and sparing, Lorry beside himself, Grog
  * with an opinion on everything.
  * Placeholders: {b} batter, {w} bowler, {n} the number that matters, {k} a
- * count in words (wickets in a collapse).
+ * count in words (wickets in a collapse). Pace and movement are left to the
+ * speed gun on the HUD; the commentators just react to them.
  */
 export const MOMENT_LINES = {
   hatTrick: {
@@ -218,6 +219,29 @@ export const MOMENT_LINES = {
     bunnings: ["{n} NEEDED FROM {k} BALLS. INTERESTING.", "THE EQUATION NOW: {n} FROM {k}."],
     lorry: ["{n} OFF {k}! IT'S ALL HAPPENING!", "{n} NEEDED, {k} BALLS LEFT! I CAN'T BEAR IT!"],
     grog: ["{n} FROM {k}. IT'S IN THE BALANCE.", "THEY NEED {n} OFF {k}. ONE BIG OVER CHANGES EVERYTHING."],
+  },
+  jaffa: {
+    bunnings: ["WHAT A DELIVERY. {b} NEVER HAD A CHANCE WITH THAT.", "AN ABSOLUTE PEACH. YOU CAN ONLY APPLAUD THE BOWLER."],
+    lorry: ["OH, WHAT A BALL! A JAFFA! HE'S BEATEN HIM ALL ENDS UP!", "UNPLAYABLE! ABSOLUTELY UNPLAYABLE!"],
+    grog: [
+      "THAT'S A JAFFA. NOTHING {b} COULD HAVE DONE ABOUT THAT ONE.",
+      "WORLD-CLASS DELIVERY FROM {w}. THAT'S THE BALL OF THE DAY.",
+    ],
+  },
+  rapid: {
+    bunnings: ["THAT WAS QUICK. VERY QUICK.", "{w} IS SLIPPING THEM DOWN NOW. THAT HURRIED HIM."],
+    lorry: ["THAT IS RAPID! HE'S FLYING IN! LOOK AT THE KEEPER'S GLOVES!", "WHOA! THAT WAS SERIOUS PACE!"],
+    grog: ["GENUINE PACE. THE BATTERS DON'T LIKE THAT ONE BIT.", "{w} IS REALLY CRANKING IT UP NOW."],
+  },
+  bigSwing: {
+    bunnings: ["THAT SWUNG A LONG WAY. LOVELY SHAPE.", "HANGING IN THE AIR, THEN BENDING LATE. MARVELLOUS."],
+    lorry: ["LOOK AT THAT SWING! IT'S BANANA-SHAPED!", "IT'S SWINGING LIKE A BOOMERANG OUT THERE!"],
+    grog: ["THE CONDITIONS ARE PERFECT FOR {w}. IT'S HOOPING.", "PROPER SWING BOWLING. LATE AND BIG."],
+  },
+  bigTurn: {
+    bunnings: ["THAT SPUN A LONG WAY. THE PITCH IS STARTING TO HELP.", "BIG TURN THERE. {b} WILL HAVE NOTICED THAT."],
+    lorry: ["IT'S TURNED A MILE! LOOK AT THAT!", "SQUARE! IT'S SPUN SQUARE!"],
+    grog: ["THAT'S A BIG RIP FROM {w}. IT GRIPPED AND WENT.", "IT'S TURNING SHARPLY NOW. BATTING IS GETTING HARD."],
   },
   fifty: {
     bunnings: ["FIFTY FOR {b}. {n} BALLS. A VERY TIDY INNINGS.", "{b} RAISES HIS BAT. FIFTY, AND WELL EARNED."],

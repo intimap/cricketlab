@@ -276,6 +276,35 @@ export function isWide(samples) {
   return p ? p.x > 0.93 || p.x < -0.78 || p.y > 2.05 : false;
 }
 
+/**
+ * How much a delivery moved, for speed guns, commentary and the coach:
+ * { kmh, swing, offPitch, spin } with distances in metres, positive = away
+ * from the right-hander (towards the off side). `offPitch` is seam or turn.
+ */
+export function movementOf(d) {
+  const pitchZ = d.pitchedAt?.z ?? 0;
+  const tAir = Math.max(0, (d.release.z - pitchZ) / d.speed);
+  const tAfter = pitchZ / Math.max(1, d.speed * d.paceKept);
+  return {
+    kmh: d.speed * 3.6,
+    swing: 0.5 * d.swingAcc * tAir * tAir,
+    offPitch: (d.spinKick + d.seamKick) * tAfter,
+    spin: d.spinKick !== 0,
+  };
+}
+
+/** ["SWING 18 CM AWAY", "SEAM 6 CM IN"] (empty when it went straight on). */
+export function movementParts(d) {
+  const m = movementOf(d);
+  const part = (label, v) => `${label} ${Math.round(Math.abs(v) * 100)} CM ${v > 0 ? "AWAY" : "IN"}`;
+  const parts = [];
+  if (Math.abs(m.swing) > 0.03) parts.push(part(d.reversing ? "REVERSE" : "SWING", m.swing));
+  if (Math.abs(m.offPitch) > 0.03) parts.push(part(m.spin ? "TURN" : "SEAM", m.offPitch));
+  return parts;
+}
+
+export const movementText = (d) => movementParts(d).join("  ");
+
 export function lengthName(length, spinner) {
   if (length < 1.3) return "full toss";
   if (length < 2.6) return "yorker";

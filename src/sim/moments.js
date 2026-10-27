@@ -7,6 +7,16 @@
  *
  * Returns { kind, n, k } (the numbers worth quoting) or null.
  */
+/** Movement worth a comment (metres), and pace (km/h). A jaffa needs less, as long as it beats the bat. */
+const BIG_SWING = 0.6;
+const BIG_TURN = 0.7;
+const RAPID_KMH = 157;
+const JAFFA_SWING = 0.4;
+const JAFFA_SEAM = 0.07;
+const JAFFA_TURN = 0.45;
+/** Balls before the same movement remark can come round again. */
+const MOVEMENT_COOLDOWN = 36;
+
 export class MomentTracker {
   /** Consecutive balls without a run, for the batting side. */
   teamDots = 0;
@@ -19,8 +29,12 @@ export class MomentTracker {
   /** Batter index -> times beaten this over. */
   beaten = new Map();
   over = -1;
+  /** Balls seen, and when each movement remark was last made. */
+  balls = 0;
+  saidAt = new Map();
 
   read(rec, inn) {
+    this.balls++;
     if (rec.over !== this.over) {
       this.over = rec.over;
       this.beaten.clear();
@@ -99,6 +113,31 @@ export class MomentTracker {
     if (s.overEnds && s.overRuns === 0) return m(s.maidenBefore ? "maidenAgain" : "maiden");
     if (rec.total === 0 && this.teamDots >= 12 && this.teamDots % 6 === 0) return m("dotsBuilding", this.teamDots);
     if (rec.beatBat && this.beaten.get(rec.striker) >= 2) return m("beatenAgain", this.beaten.get(rec.striker));
+    return this.movementMoment(rec, m);
+  }
+
+  /** A ball that did something special: a jaffa, big swing or turn, or real pace (the speed gun shows the figures). */
+  movementMoment(rec, m) {
+    const mv = rec.movement;
+    if (!mv) return null;
+    const fresh = (kind) => this.balls - (this.saidAt.get(kind) ?? -MOVEMENT_COOLDOWN) >= MOVEMENT_COOLDOWN;
+    const say = (kind, n, k) => {
+      this.saidAt.set(kind, this.balls);
+      return m(kind, n, k);
+    };
+    const cm = (v) => Math.round(Math.abs(v) * 100);
+    const way = (v) => (v > 0 ? "AWAY" : "BACK IN");
+    const big = Math.abs(mv.swing) >= Math.abs(mv.offPitch) ? mv.swing : mv.offPitch;
+    if (
+      rec.beatBat &&
+      (Math.abs(mv.swing) >= JAFFA_SWING || (mv.spin ? Math.abs(mv.offPitch) >= JAFFA_TURN : Math.abs(mv.offPitch) >= JAFFA_SEAM))
+    ) {
+      return say("jaffa", cm(big), way(big));
+    }
+    if (mv.kmh >= RAPID_KMH && fresh("rapid")) return say("rapid", Math.round(mv.kmh));
+    if (Math.abs(mv.swing) >= BIG_SWING && fresh("bigSwing")) return say("bigSwing", cm(mv.swing), way(mv.swing));
+    if (mv.spin && Math.abs(mv.offPitch) >= BIG_TURN && fresh("bigTurn"))
+      return say("bigTurn", cm(mv.offPitch), way(mv.offPitch));
     return null;
   }
 }

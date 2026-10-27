@@ -3,7 +3,7 @@ import { Innings } from "./innings.js";
 import { Commentary } from "./commentary.js";
 import { MomentTracker } from "./moments.js";
 import { isSpinner } from "./teams.js";
-import { bowlDelivery } from "./delivery.js";
+import { bowlDelivery, movementOf } from "./delivery.js";
 import { resolveDelivery } from "./batting.js";
 import { BallInPlay } from "./ball-in-play.js";
 import { pickBowler, pickOverPlan, pickFieldPreset, pickDeliveryPlan, pickShot, battingAggression } from "./ai.js";
@@ -272,6 +272,7 @@ export class Match {
       beatBat,
     };
     rec.nearRunout = out.nearRunout;
+    rec.movement = movementOf(delivery);
     rec.moment = this.moments.read(rec, inn);
     inn.settleStrike(out.strikerEnd === 1);
     rec.commentary = this.comm.line(rec, inn);

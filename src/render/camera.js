@@ -1,8 +1,10 @@
-import { MID_PITCH, BOUNDARY, STUMPS_HALF_WIDTH } from "../sim/geometry.js";
+import { MID_PITCH, BOUNDARY, STUMPS_HALF_WIDTH, PITCH_LENGTH } from "../sim/geometry.js";
 
 // Two hand-tuned projections, each matched to its background painting.
 
-// --- Close camera: behind the bowler's arm, looking at the striker. ---
+// --- Close camera: low behind one set of stumps, looking down the pitch. ---
+// It normally sits behind the striker; it can swap to behind the bowler, where
+// the same painting serves (the two ends look alike) with the world turned round.
 
 /** Vertical offset of the close-camera background and everything drawn on it. */
 export const CLOSE_Y_OFFSET = -24;
@@ -19,24 +21,43 @@ function warpLateral(x) {
   return Math.sign(x) * w;
 }
 
-function depthScale(z) {
-  return 1 / Math.max(0.6, z + CAMERA_Z);
+let fromBowlerEnd = false;
+
+/** Put the close camera behind the bowler (true) or behind the striker (false). */
+export function setCloseEnd(bowlerEnd) {
+  fromBowlerEnd = bowlerEnd;
 }
 
-/** Screen y of the ground at depth z. */
-export function closeGroundY(z) {
-  return HORIZON_Y + DEPTH_GAIN * depthScale(z) + CLOSE_Y_OFFSET;
+export const closeFromBowlerEnd = () => fromBowlerEnd;
+
+/** How far down the pitch a world z is from the camera's end (its stumps are at 0). */
+export function closeDepth(z) {
+  return fromBowlerEnd ? PITCH_LENGTH - z : z;
 }
 
-/** World point to screen: { x, y, s } where s is the depth scale. */
-export function projectClose(x, y, z) {
+function depthScale(depth) {
+  return 1 / Math.max(0.6, depth + CAMERA_Z);
+}
+
+/** Screen y of the ground at a depth from the camera's end. */
+export function closeGroundY(depth) {
+  return HORIZON_Y + DEPTH_GAIN * depthScale(depth) + CLOSE_Y_OFFSET;
+}
+
+/** World point to screen as seen from behind the striker, whichever end the camera is at. */
+export function projectFromStriker(x, y, z) {
   const s = depthScale(z);
   return { x: 320 + warpLateral(x) * LATERAL_GAIN * s, y: closeGroundY(z) - y * HEIGHT_GAIN * s, s };
 }
 
-/** Screen pixels per metre of height at depth z. */
+/** World point to screen: { x, y, s } where s is the depth scale. */
+export function projectClose(x, y, z) {
+  return fromBowlerEnd ? projectFromStriker(-x, y, PITCH_LENGTH - z) : projectFromStriker(x, y, z);
+}
+
+/** Screen pixels per metre of height at world z. */
 export function closePixelsPerMetre(z) {
-  return HEIGHT_GAIN * depthScale(z);
+  return HEIGHT_GAIN * depthScale(closeDepth(z));
 }
 
 // --- Wide camera: high behind the bowler's end, whole ground in view. ---

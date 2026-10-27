@@ -174,6 +174,16 @@ export class MatchScene {
     this.setPhase("chooseBowler");
   }
 
+  /** Which end the close camera sits at: "bat" (behind the striker) or "bowl" (behind the bowler). Kept between matches. */
+  get closeEnd() {
+    return this.game.closeEnd ?? "bat";
+  }
+
+  toggleCloseEnd() {
+    this.game.closeEnd = this.closeEnd === "bat" ? "bowl" : "bat";
+    this.flash(this.closeEnd === "bat" ? "VIEW: BEHIND THE BATTER" : "VIEW: BEHIND THE BOWLER");
+  }
+
   update(dt) {
     this.now += dt;
     this.phaseT += dt;
@@ -181,6 +191,7 @@ export class MatchScene {
 
     if (this.phase === "pause") {
       const action = this.pauseMenu.update();
+      if (action === "view") this.toggleCloseEnd();
       if (action === "resume") this.setPhase(this.pausedFrom);
       else if (action === "quit") this.game.toMenu();
       return;
@@ -196,6 +207,7 @@ export class MatchScene {
       this.flash(`CAMERA: ${this.cam.toUpperCase()}`);
       if (this.cam !== "auto") this.view = this.cam;
     }
+    if (keys.pressed("KeyB")) this.toggleCloseEnd();
 
     switch (this.phase) {
       case "ready":
@@ -312,10 +324,12 @@ export class MatchScene {
     if (this.betweenBalls()) return;
     const skills = this.inn.bowler.p.bowl;
     const step = keys.down("ShiftLeft") || keys.down("ShiftRight") ? 0.25 : 1;
-    if (keys.pressed("ArrowLeft")) this.target.line -= 0.05 * step;
-    if (keys.pressed("ArrowRight")) this.target.line += 0.05 * step;
-    if (keys.pressed("ArrowUp")) this.target.length += 0.5 * step;
-    if (keys.pressed("ArrowDown")) this.target.length -= 0.5 * step;
+    // Arrows move the crosshair the way you press on screen, whichever end the camera is at.
+    const turned = this.view === "close" && this.closeEnd === "bowl" ? -1 : 1;
+    if (keys.pressed("ArrowLeft")) this.target.line -= 0.05 * step * turned;
+    if (keys.pressed("ArrowRight")) this.target.line += 0.05 * step * turned;
+    if (keys.pressed("ArrowUp")) this.target.length += 0.5 * step * turned;
+    if (keys.pressed("ArrowDown")) this.target.length -= 0.5 * step * turned;
     this.target.line = clamp(this.target.line, -0.9, 1.1);
     this.target.length = clamp(this.target.length, 0.5, 12.5);
     for (let i = 0; i < skills.repertoire.length; i++) {

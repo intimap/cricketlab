@@ -72,7 +72,7 @@ src/
     booth-lines.js    each commentator's lines for every situation
     match.js          plays a ball end to end, ties the above together
   render/
-    camera.js         projections for the close and wide views
+    camera.js         projections for the close (either end) and wide views
     sprites.js        batter, figures, ball
     hud.js            score bar, mini-map, banners, scorecard, speech bubbles
     booth.js          commentator portraits and the commentary popup

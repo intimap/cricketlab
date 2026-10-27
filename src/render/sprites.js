@@ -291,130 +291,327 @@ export function drawBatter(x, y, scale, pose, kit, number = 0) {
 }
 
 /**
- * A full-size figure for the close view (bowler, umpire, non-striker), feet
- * at (x, y), `height` pixels tall.
- * opts: { kit, pose, phase (animation cycle), umpire?, bat? }
+ * Where a close-view figure's feet and hands go for each pose, in figure
+ * units (48 = standing height, feet at 0, y up the screen is negative).
+ * `top` is the top of the shoulders; bob lifts or sinks the whole body.
  */
-export function drawFigure(x, y, height, opts) {
-  const k = height / 48;
-  const rect = (rx, ry, w, h, color) =>
-    fillRect(x + rx * k, y + ry * k, Math.max(1, Math.round(w * k)), Math.max(1, Math.round(h * k)), color);
-  const limb = (x0, y0, x1, y1, w, color) =>
-    drawLine(x + x0 * k, y + y0 * k, x + x1 * k, y + y1 * k, Math.max(1, Math.round(w * k)), color);
-  const kit = opts.kit;
-  const shirt = opts.umpire ? "#f4f4f0" : kit.shirt;
-  const pants = opts.umpire ? "#2a2d36" : kit.pants;
-  const phase = opts.phase;
-  const pose = opts.pose;
-
-  fillEllipse(x, y, 9 * k, 2 * k, "rgba(0,0,0,0.3)");
-
-  // Legs.
+function figurePose(pose, phase) {
   let lean = 0;
   let bob = 0;
+  let feet = [
+    { x: -4, y: -1 },
+    { x: 4, y: -1 },
+  ];
   if (pose === "run" || pose === "walk" || pose === "backup") {
     const swing = Math.sin(phase * Math.PI * 2) * (pose === "run" ? 1 : 0.5);
-    limb(-3, -22, -3 - swing * 3, -2 + Math.max(0, swing) * -5, 5, pants);
-    limb(3, -22, 3 + swing * 3, -2 + Math.max(0, -swing) * -5, 5, pants);
-    rect(-6 - swing * 3, -3 + Math.max(0, swing) * -5, 6, 3, BOOT);
-    rect(1 + swing * 3, -3 + Math.max(0, -swing) * -5, 6, 3, BOOT);
-    bob = Math.abs(swing) * 1;
+    feet = [
+      { x: -3 - swing * 2, y: -1 - Math.max(0, swing) * 6 },
+      { x: 3 + swing * 2, y: -1 - Math.max(0, -swing) * 6 },
+    ];
+    bob = Math.abs(swing);
+    if (pose === "run") lean = 1;
   } else if (pose === "bound") {
-    limb(-3, -24, -4, -10, 5, pants);
-    limb(3, -24, 5, -12, 5, pants);
-    rect(-7, -11, 6, 3, BOOT);
-    rect(3, -13, 6, 3, BOOT);
+    feet = [
+      { x: -4, y: -9 },
+      { x: 5, y: -12 },
+    ];
     bob = -4;
   } else if (pose === "follow") {
-    limb(-3, -20, -6, -1, 5, pants);
-    limb(3, -20, 5, -1, 5, pants);
-    rect(-9, -3, 6, 3, BOOT);
-    rect(3, -3, 6, 3, BOOT);
+    feet = [
+      { x: -6, y: -1 },
+      { x: 5, y: -1 },
+    ];
     lean = 3;
     bob = 3;
-  } else {
-    limb(-3, -22, -4, -1, 5, pants);
-    limb(3, -22, 4, -1, 5, pants);
-    rect(-7, -3, 6, 3, BOOT);
-    rect(2, -3, 6, 3, BOOT);
+  } else if (pose === "celebrate") {
+    bob = -1;
   }
-  if (opts.bat) {
-    rect(-6, -18, 5, 16, PAD);
-    rect(2, -18, 5, 16, PAD);
-  }
-
-  // Body.
   const top = -42 + bob;
-  rect(-8 + lean, top, 16, 20, shirt);
-  rect(4 + lean, top, 4, 20, opts.umpire ? "#d8d8d0" : kit.shade);
-  if (opts.umpire) rect(-2 + lean, top, 4, 12, "#c8c8c0");
-
-  // Head and headwear.
-  const headX = lean;
-  const headY = top - 6;
-  fillCircle(x + headX * k, y + headY * k, 5 * k, kit.skin);
-  if (opts.umpire) {
-    rect(headX - 9, headY - 5, 18, 2, "#f4f4f0");
-    rect(headX - 5, headY - 9, 10, 5, "#f4f4f0");
-  } else if (opts.bat) {
-    fillCircle(x + headX * k, y + (headY - 1) * k, 5.4 * k, kit.cap);
-    rect(headX - 4, headY + 1, 8, 3, "#9aa0a6");
-  } else {
-    rect(headX - 5, headY - 6, 10, 4, kit.cap);
-    rect(headX - 6, headY - 3, 12, 2, kit.cap);
-  }
-
-  // Arms.
-  const left = { x: -8 + lean, y: top + 2 };
-  const right = { x: 8 + lean, y: top + 2 };
-  const arm = (from, hx, hy) => {
-    limb(from.x, from.y, hx, hy, 4, shirt);
-    fillCircle(x + hx * k, y + hy * k, 2 * k, kit.skin);
-  };
+  let hands;
   switch (pose) {
     case "run": {
       const swing = Math.sin(phase * Math.PI * 2);
-      arm(left, -11, top + 14 - swing * 6);
-      arm(right, 11, top + 14 + swing * 6);
+      hands = [
+        { x: -8, y: top + 15 - swing * 6 },
+        { x: 8, y: top + 15 + swing * 6 },
+      ];
       break;
     }
     case "bound":
-      arm(left, -10, top - 10);
-      arm(right, 9, top - 12);
+      hands = [
+        { x: -10, y: top - 10 },
+        { x: 9, y: top - 12 },
+      ];
       break;
     case "release":
-      arm(left, -4, top - 22);
-      arm(right, 13, top + 10);
+      hands = [
+        { x: -4, y: top - 21 },
+        { x: 13, y: top + 10 },
+      ];
       break;
     case "follow":
-      arm(left, 9 + lean, top + 20);
-      arm(right, 14, top + 12);
+      hands = [
+        { x: 9 + lean, y: top + 19 },
+        { x: 14, y: top + 11 },
+      ];
       break;
     case "celebrate":
-      arm(left, -12, top - 14);
-      arm(right, 12, top - 14);
+      hands = [
+        { x: -12, y: top - 14 },
+        { x: 12, y: top - 14 },
+      ];
       break;
     case "appeal":
-      arm(left, -9, top - 16);
-      arm(right, 12, top + 12);
+      hands = [
+        { x: -9, y: top - 16 },
+        { x: 12, y: top + 12 },
+      ];
       break;
     case "outFinger":
-      arm(left, -9, top + 16);
-      arm(right, 6, top - 16);
-      rect(5, top - 21, 2, 5, kit.skin);
+      hands = [
+        { x: -9, y: top + 16 },
+        { x: 6, y: top - 16 },
+      ];
       break;
     case "backup":
     case "walk": {
       const swing = Math.sin(phase * Math.PI * 2);
-      arm(left, -10, top + 15 - swing * 3);
-      arm(right, 10, top + 15 + swing * 3);
+      hands = [
+        { x: -9, y: top + 19 - swing * 3 },
+        { x: 9, y: top + 19 + swing * 3 },
+      ];
       break;
     }
     default:
-      arm(left, -10, top + 17);
-      arm(right, 10, top + 17);
+      hands = [
+        { x: -9, y: top + 19.5 },
+        { x: 9, y: top + 19.5 },
+      ];
   }
-  if (opts.bat) limb(-10, top + 17, -14, top + 34, 3, BAT_FACE);
+  return { lean, top, feet, hands };
+}
+
+/**
+ * A full-size figure for the close view (bowler, umpire, non-striker), feet
+ * at (x, y), `height` pixels tall, facing the camera. Built on the same kind
+ * of jointed skeleton as the striker.
+ * opts: { kit, pose, phase (animation cycle), umpire?, bat? }
+ */
+export function drawFigure(x, y, height, opts) {
+  const k = height / 48;
+  const at = (p) => ({ x: x + p.x * k, y: y + p.y * k });
+  const limb = (a, b, r0, r1, color, shade) => {
+    const n = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) * k) + 1;
+    for (const [c, off, trim] of shade
+      ? [
+          [shade, 0, 0],
+          [color, -0.4, 0.45],
+        ]
+      : [[color, 0, 0]]) {
+      for (let i = 0; i <= n; i++) {
+        const t = i / n;
+        const p = at({ x: a.x + (b.x - a.x) * t + off, y: a.y + (b.y - a.y) * t });
+        fillCircle(p.x, p.y, Math.max(0.5, (r0 + (r1 - r0) * t - trim) * k), c);
+      }
+    }
+  };
+  const poly = (points, color) => fillPolygon(points.map(at), color);
+  const kit = opts.kit;
+  const umpire = !!opts.umpire;
+  const shirt = umpire ? "#f4f4f0" : kit.shirt;
+  const shirtShade = umpire ? "#d8d8d0" : kit.shade;
+  const pants = umpire ? "#2a2d36" : kit.pants;
+  const pantsShade = umpire ? "#1c1e25" : kit.shade;
+  const skinShade = darken(kit.skin, 35);
+
+  const { lean, top, feet, hands } = figurePose(opts.pose, opts.phase);
+  const pelvis = { x: lean * 0.4, y: top + 19 };
+  const hips = [
+    { x: pelvis.x - 3, y: pelvis.y },
+    { x: pelvis.x + 3, y: pelvis.y },
+  ];
+  const shoulders = [
+    { x: lean - 7.5, y: top + 2 },
+    { x: lean + 7.5, y: top + 2 },
+  ];
+  const head = { x: lean, y: top - 6 };
+  const outward = (side) => (a, b) => ((a.x - b.x) * side > 0 ? a : b);
+  // Facing the camera a bent knee points at us, so it sits between hip and
+  // foot, nudged outwards a little more the more the leg is folded.
+  const knees = [0, 1].map((i) => {
+    const fold = Math.max(0, 22.4 - Math.hypot(feet[i].x - hips[i].x, feet[i].y - hips[i].y));
+    const side = i ? 1 : -1;
+    return { x: (hips[i].x + feet[i].x) / 2 + side * fold * 0.15, y: (hips[i].y + feet[i].y) / 2 - fold * 0.1 };
+  });
+  const elbows = [0, 1].map((i) => joint(shoulders[i], hands[i], 9.5, 9, outward(i ? 1 : -1)));
+
+  fillEllipse(x, y, 9 * k, 2 * k, "rgba(0,0,0,0.3)");
+
+  // Legs, with pads for a batter, then boots.
+  for (const i of [0, 1]) {
+    limb(hips[i], knees[i], 3, 2.5, pants, pantsShade);
+    if (opts.bat) {
+      const padTop = { x: knees[i].x + (hips[i].x - knees[i].x) * 0.2, y: knees[i].y + (hips[i].y - knees[i].y) * 0.2 };
+      limb(padTop, feet[i], 2.8, 2.5, PAD, PAD_SHADE);
+    } else {
+      limb(knees[i], feet[i], 2.5, 2, pants, pantsShade);
+    }
+    const f = feet[i];
+    poly(
+      [
+        { x: f.x - 3, y: f.y - 1 },
+        { x: f.x + 3, y: f.y - 1 },
+        { x: f.x + 3.2, y: f.y + 1.5 },
+        { x: f.x - 3.2, y: f.y + 1.5 },
+      ],
+      BOOT,
+    );
+  }
+  poly(
+    [
+      { x: pelvis.x - 5.5, y: pelvis.y - 4 },
+      { x: pelvis.x + 5.5, y: pelvis.y - 4 },
+      { x: hips[1].x + 3, y: pelvis.y + 2 },
+      { x: hips[0].x - 3, y: pelvis.y + 2 },
+    ],
+    pants,
+  );
+
+  // Torso: broad shoulders, narrow waist; the umpire's coat hangs straighter.
+  const waist = umpire ? 6.5 : 5;
+  const torso = [
+    { x: shoulders[0].x - 1, y: shoulders[0].y - 1 },
+    { x: lean - 2.5, y: top - 1.5 },
+    { x: lean + 2.5, y: top - 1.5 },
+    { x: shoulders[1].x + 1, y: shoulders[1].y - 1 },
+    { x: shoulders[1].x, y: shoulders[1].y + 5 },
+    { x: pelvis.x + waist, y: pelvis.y - (umpire ? 1 : 3) },
+    { x: pelvis.x - waist, y: pelvis.y - (umpire ? 1 : 3) },
+    { x: shoulders[0].x, y: shoulders[0].y + 5 },
+  ];
+  poly(torso, shirt);
+  poly(
+    [
+      { x: shoulders[1].x - 2, y: shoulders[1].y },
+      { x: shoulders[1].x + 1, y: shoulders[1].y - 1 },
+      { x: shoulders[1].x, y: shoulders[1].y + 5 },
+      { x: pelvis.x + waist, y: pelvis.y - (umpire ? 1 : 3) },
+      { x: pelvis.x + waist - 2, y: pelvis.y - (umpire ? 1 : 3) },
+    ],
+    shirtShade,
+  );
+  // Open collar (or the umpire's tie).
+  poly(
+    [
+      { x: lean - 2, y: top - 1.5 },
+      { x: lean + 2, y: top - 1.5 },
+      { x: lean, y: top + 2.5 },
+    ],
+    umpire ? "#2a2d36" : kit.skin,
+  );
+  if (umpire)
+    poly(
+      [
+        { x: lean - 0.6, y: top + 2 },
+        { x: lean + 0.6, y: top + 2 },
+        { x: lean, y: top + 9 },
+      ],
+      "#2a2d36",
+    );
+
+  // Neck, head and headwear.
+  limb({ x: head.x, y: head.y + 3 }, { x: lean, y: top }, 1.8, 2, kit.skin);
+  const h = at(head);
+  fillCircle(h.x, h.y, 4.6 * k, kit.skin);
+  fillCircle(h.x + 1.5 * k, h.y + 0.5 * k, 3 * k, kit.skin);
+  if (umpire) {
+    // Wide-brimmed white hat.
+    poly(
+      [
+        { x: head.x - 8, y: head.y - 3 },
+        { x: head.x + 8, y: head.y - 3 },
+        { x: head.x + 7, y: head.y - 1.5 },
+        { x: head.x - 7, y: head.y - 1.5 },
+      ],
+      "#f4f4f0",
+    );
+    poly(
+      [
+        { x: head.x - 4.5, y: head.y - 8 },
+        { x: head.x + 4.5, y: head.y - 8 },
+        { x: head.x + 5, y: head.y - 3 },
+        { x: head.x - 5, y: head.y - 3 },
+      ],
+      "#f4f4f0",
+    );
+    poly(
+      [
+        { x: head.x - 5, y: head.y - 4.5 },
+        { x: head.x + 5, y: head.y - 4.5 },
+        { x: head.x + 5, y: head.y - 3 },
+        { x: head.x - 5, y: head.y - 3 },
+      ],
+      "#2a2d36",
+    );
+  } else if (opts.bat) {
+    // Helmet with a grille over the face.
+    fillCircle(h.x, h.y - 0.8 * k, 5.4 * k, kit.cap);
+    fillCircle(h.x - 1.6 * k, h.y - 2.8 * k, 1.8 * k, lighten(kit.cap));
+    for (const dy of [0.8, 2.4]) {
+      const a = at({ x: head.x - 4, y: head.y + dy });
+      const b = at({ x: head.x + 4, y: head.y + dy });
+      drawLine(a.x, a.y, b.x, b.y, Math.max(1, Math.round(0.8 * k)), "#9aa0a6");
+    }
+  } else {
+    // Cap with a peak towards the camera.
+    poly(
+      [
+        { x: head.x - 4.8, y: head.y - 6 },
+        { x: head.x + 4.8, y: head.y - 6 },
+        { x: head.x + 5, y: head.y - 2 },
+        { x: head.x - 5, y: head.y - 2 },
+      ],
+      kit.cap,
+    );
+    poly(
+      [
+        { x: head.x - 5.5, y: head.y - 2.5 },
+        { x: head.x + 5.5, y: head.y - 2.5 },
+        { x: head.x + 4.5, y: head.y - 0.8 },
+        { x: head.x - 4.5, y: head.y - 0.8 },
+      ],
+      darken(kit.cap),
+    );
+  }
+
+  // Arms: players in short sleeves, the umpire in his coat.
+  for (const i of [0, 1]) {
+    const s = shoulders[i];
+    const e = elbows[i];
+    const sleeve = umpire ? e : { x: s.x + (e.x - s.x) * 0.6, y: s.y + (e.y - s.y) * 0.6 };
+    limb(s, e, 2.4, 2, kit.skin, skinShade);
+    limb(s, sleeve, 2.7, 2.3, shirt, shirtShade);
+    limb(e, hands[i], umpire ? 2 : 1.8, 1.5, umpire ? shirt : kit.skin, umpire ? shirtShade : skinShade);
+    const hand = at(hands[i]);
+    fillCircle(hand.x, hand.y, (opts.bat ? 2.2 : 1.8) * k, opts.bat ? "#f1f1f1" : kit.skin);
+  }
+  if (opts.pose === "outFinger")
+    poly(
+      [
+        { x: hands[1].x - 0.6, y: hands[1].y - 5 },
+        { x: hands[1].x + 0.6, y: hands[1].y - 5 },
+        { x: hands[1].x + 0.6, y: hands[1].y },
+        { x: hands[1].x - 0.6, y: hands[1].y },
+      ],
+      kit.skin,
+    );
+  if (opts.bat) {
+    // Bat carried in the left hand, toe down.
+    const a = at(hands[0]);
+    const b = at({ x: hands[0].x - 3, y: hands[0].y + 17 });
+    drawLine(a.x, a.y, b.x, b.y, Math.max(2, Math.round(3 * k)), BAT_EDGE);
+    drawLine(a.x + 0.5, a.y, b.x + 0.5, b.y, Math.max(1, Math.round(2 * k)), BAT_FACE);
+  }
 }
 
 /**

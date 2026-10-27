@@ -17,6 +17,8 @@ import { pickSledges, pickChirp } from "../sim/commentary.js";
 import { boothCall } from "../sim/commentators.js";
 import { makeKit } from "../render/sprites.js";
 import { scheduleCalls } from "../render/booth.js";
+import { buildGround } from "../render/ground.js";
+import { GROUNDS } from "../render/grounds.js";
 import { projectWide, unprojectWide } from "../render/camera.js";
 import { drawMatch } from "./match-view.js";
 import { PauseMenu } from "./pause-menu.js";
@@ -34,6 +36,8 @@ const SHOT_KEYS = { KeyS: "drive", KeyQ: "cutpull", KeyW: "loft" };
 const WICKET_PAUSE = 6.5;
 const MAX_SLEDGES = 3;
 const SLEDGE_GAP = 1.5;
+/** The pitch is redrawn each time its wear moves on by 1/GROUND_WEAR_STEPS. */
+const GROUND_WEAR_STEPS = 40;
 /** Nets: seconds the ball stays in play after reaching the bat. */
 const NETS_PLAY_TIME = 1.6;
 /** Seconds of holding left/right in the run-up for full aftertouch. */
@@ -88,6 +92,9 @@ export class MatchScene {
     this.match = match ?? createMatch(cfg, new Rng());
     this.human = this.match.human;
     this.nets = this.match.nets;
+    /** The ground's backgrounds, built from its data and the pitch (and rebuilt as it wears). */
+    this.ground = GROUNDS[cfg.ground] ?? GROUNDS.oval;
+    this.buildGround();
     /** Nets: balls faced or bowled, and how many the coach rated good. */
     this.netsTally = { balls: 0, good: 0 };
     /** Nets: the coach's verdict on the last ball. */
@@ -152,8 +159,16 @@ export class MatchScene {
     return isSpinner(this.inn.bowler?.p.bowl);
   }
 
+  /** (Re)build the ground's backgrounds for the pitch as it is now. */
+  buildGround() {
+    const pitch = this.inn.pitch;
+    this.groundWear = Math.floor(pitch.wear * GROUND_WEAR_STEPS);
+    this.groundArt = buildGround(this.ground, this.game.images, pitch);
+  }
+
   nextBall() {
     const inn = this.inn;
+    if (Math.floor(inn.pitch.wear * GROUND_WEAR_STEPS) !== this.groundWear) this.buildGround();
     if (inn.isOver) {
       this.endInnings();
       return;

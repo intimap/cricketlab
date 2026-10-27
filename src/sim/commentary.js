@@ -1,4 +1,5 @@
 import { isSpinner } from "./teams.js";
+import { WEAKNESSES } from "./plans.js";
 
 // Placeholders: {b} batter, {w} bowler, {f} fielder, {r} runs, {s} shot name,
 // {note} LBW verdict reason.
@@ -206,11 +207,30 @@ const COLOUR_LINES = {
   newBatter: ["New batter {b} gets off the mark. The first one is always the hardest."],
 };
 
+// The bowler-batter battle, free hits and captaincy.
+const BATTLE_LINES = {
+  setUp: [
+    "That's the one he's been setting up! Beautiful bowling.",
+    "Set up, and knocked over. That was a plan, executed.",
+    "He's been working on that for a few balls. Lovely.",
+  ],
+  surpriseBeaten: ["Ooh, that one did something different. {b} was expecting the same again."],
+  familiar: ["He'd seen that one before, and he was waiting for it.", "Same ball again, and {b} was all over it."],
+  freeHitSix: ["Free hit, and he's made it count! Into the crowd."],
+  freeHitNext: ["Free hit coming up."],
+  thirdBouncer: ["That's the third bouncer of the over. No ball!"],
+  tiredSpell: ["{w} is running on empty. Might be time for a change.", "That's a long spell from {w}. The legs are going."],
+  noSpinner: ["Up in the box they're wondering why {s} hasn't had a bowl yet. This pitch is begging for spin."],
+  pressure: ["The pressure is really building now. Something has to give."],
+};
+
 const capitalise = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /** Picks a line of commentary for each ball, avoiding recent repeats. */
 export class Commentary {
   recent = [];
+  /** When each batter's weakness was last hinted at (balls faced). */
+  hinted = new Map();
   /** One-off colour remarks already made this innings. */
   flags = new Set();
 
@@ -306,16 +326,55 @@ export class Commentary {
       colour("turning", inn.pitch.wear > 0.25 && spin) ||
       (bowler.stamina < 0.35 && this.rng.chance(0.25) ? fill(this.pick(COLOUR_LINES.tired)) : "") ||
       colour("settled", batter.balls > 150);
+    const battle = this.battleLine(rec, batter, fill);
+    if (battle) return `${text} ${battle}`;
     return extra ? `${text} ${extra}` : text;
+  }
+
+  /** A line about the battle: set-ups, repeats, weaknesses showing, free hits. */
+  battleLine(rec, batter, fill) {
+    const b = rec.battle;
+    if (rec.bouncerNoBall) return this.pick(BATTLE_LINES.thirdBouncer);
+    if (rec.extra.type === "nb") return this.pick(BATTLE_LINES.freeHitNext);
+    if (rec.freeHit && rec.boundary === 6) return this.pick(BATTLE_LINES.freeHitSix);
+    if (!b) return "";
+    if (rec.wicket && b.surprise) return this.pick(BATTLE_LINES.setUp);
+    if (rec.boundary && b.familiar >= 2) return fill(this.pick(BATTLE_LINES.familiar));
+    if (rec.beatBat && b.surprise) return fill(this.pick(BATTLE_LINES.surpriseBeaten));
+    // Let the weakness show now and then, without spelling it out every ball.
+    const struggled =
+      rec.beatBat || rec.contact === "thinEdge" || rec.contact === "topEdge" || rec.contact === "gloved" || rec.wicket;
+    const key = batter.p.name;
+    const since = batter.balls - (this.hinted.get(key) ?? -99);
+    if (b.weak > 0.5 && struggled && since >= 6 && this.rng.chance(0.6)) {
+      this.hinted.set(key, batter.balls);
+      return fill(this.pick(WEAKNESSES[batter.p.weakness].hints));
+    }
+    return "";
   }
 
   overSummary(inn) {
     const b = inn.bowl[inn.lastOverBowler];
     if (!b) return "";
     const runs = b.overRuns;
-    if (runs === 0) return `Maiden from ${b.p.short}. Tight.`;
-    if (runs >= 10) return `${runs} from the over. ${b.p.short} will want to forget that.`;
-    return `${runs} from the over.`;
+    let text;
+    if (runs === 0) text = `Maiden from ${b.p.short}. Tight.`;
+    else if (runs >= 10) text = `${runs} from the over. ${b.p.short} will want to forget that.`;
+    else text = `${runs} from the over.`;
+    const note = this.captaincyNote(inn, b);
+    return note ? `${text} ${note}` : text;
+  }
+
+  /** Between overs: is the bowler cooked, should the spinner be on, is the pressure telling? */
+  captaincyNote(inn, b) {
+    const spinner = isSpinner(b.p.bowl);
+    if (b.spell >= (spinner ? 10 : 6) && b.stamina < 0.45) return this.pick(BATTLE_LINES.tiredSpell).replace(/\{w\}/g, b.p.short);
+    const idle = inn.bowl.find((x) => isSpinner(x.p.bowl) && x.balls === 0);
+    if (idle && inn.pitch.wear > 0.12 && inn.overNo >= 15 && this.rng.chance(0.5)) {
+      return this.pick(BATTLE_LINES.noSpinner).replace(/\{s\}/g, idle.p.short);
+    }
+    if (inn.pressure > 0.6 && this.rng.chance(0.5)) return this.pick(BATTLE_LINES.pressure);
+    return "";
   }
 }
 
@@ -371,6 +430,21 @@ const ENGLISH_SLEDGES = [
   "SORRY! SORRY. WAS THAT TOO MUCH?",
   "CHIN UP, {N}. TOMORROW'S ANOTHER DAY.",
 ];
+
+// Chirps from the close fielders when the bat is beaten.
+const AUSSIE_CHIRPS = [
+  "TRY HITTING IT, MATE!",
+  "IS THAT BAT FOR DECORATION?",
+  "NOT EVEN CLOSE, CHAMP!",
+  "HE'S GOT NO IDEA, BOYS!",
+  "KEEP SWINGING, WE'LL GET YA!",
+];
+const ENGLISH_CHIRPS = ["OH, WELL LEFT. SORT OF.", "BAD LUCK, OLD CHAP. MISSED AGAIN.", "STEADY ON, NEARLY HAD IT."];
+
+export function pickChirp(fieldingAbbr) {
+  const pool = fieldingAbbr === "AUS" ? AUSSIE_CHIRPS : ENGLISH_CHIRPS;
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 /** Up to `count` different send-offs from the fielding side. */
 export function pickSledges(fieldingAbbr, batterName, count) {

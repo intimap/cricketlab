@@ -3,7 +3,16 @@ import { drawText } from "../engine/text.js";
 import { clamp, easeIn, easeOut } from "../math.js";
 import { CREASE, PITCH_LENGTH } from "../sim/geometry.js";
 import { isSpinner } from "../sim/teams.js";
-import { DELIVERY_NAMES, sampleAtTime, crossingAtZ, lengthName, lineName } from "../sim/delivery.js";
+import {
+  DELIVERY_NAMES,
+  SPIN_EFFORT_NAMES,
+  sampleAtTime,
+  crossingAtZ,
+  hitsStumps,
+  lengthName,
+  lineName,
+  releaseSweetSpot,
+} from "../sim/delivery.js";
 import { SWING_TIME, NORMAL_CHARGE, CONTACT_Z_BACK } from "../sim/batting.js";
 import { PRESET_LABELS, keeperSpot } from "../sim/field.js";
 import { CLOSE_Y_OFFSET, closeGroundY, projectClose, closePixelsPerMetre, projectWide } from "../render/camera.js";
@@ -16,10 +25,12 @@ const SLEDGE_TIME = 2.4;
 const PANEL_TEXT = { align: "center", outline: "rgba(0,0,0,0.7)" };
 
 export function drawMatch(scene) {
-  if (scene.view === "wide" || scene.phase === "fieldEdit") drawWide(scene);
+  const tracking = scene.phase === "review" || scene.phase === "appeal" || scene.phase === "decision";
+  if ((scene.view === "wide" || scene.phase === "fieldEdit") && !tracking) drawWide(scene);
   else drawClose(scene);
+  const effort = scene.cur?.intent.effort ?? scene.effort;
   const label = scene.inn.bowler
-    ? `${DELIVERY_NAMES[scene.cur?.intent.type ?? scene.deliveryType]} ${(scene.cur?.intent.effort ?? scene.effort).toUpperCase()}`
+    ? `${DELIVERY_NAMES[scene.cur?.intent.type ?? scene.deliveryType]} ${scene.spinner ? SPIN_EFFORT_NAMES[effort] : effort.toUpperCase()}`
     : "";
   // Commentary types itself out.
   drawScoreBar(scene.inn, scene.commentary.slice(0, Math.floor(scene.commT * 70)), label);
@@ -34,6 +45,7 @@ function drawClose(scene) {
   const cur = scene.cur;
   const inn = scene.inn;
   const live = cur?.play?.live;
+  drawRough(inn.pitch);
   const sprites = [];
   const figure = (x, z, height, opts) => {
     const p = projectClose(x, 0, z);
@@ -42,7 +54,8 @@ function drawClose(scene) {
 
   const rec = cur?.done?.rec;
   const umpirePose =
-    rec?.wicket && scene.phase === "after" && scene.phaseT > 0.5 && (rec.wicket.how === "lbw" || rec.wicket.how === "caught")
+    (rec?.wicket && scene.phase === "after" && scene.phaseT > 0.5 && (rec.wicket.how === "lbw" || rec.wicket.how === "caught")) ||
+    (scene.phase === "decision" && cur?.onField)
       ? "outFinger"
       : "stand";
   sprites.push({
@@ -116,6 +129,23 @@ function drawClose(scene) {
           { x: -1, z: 19 },
         ];
     drawMiniMap(552, 6, fielders, runners, live && cur?.contactDone ? { x: live.ball.pos.x, z: live.ball.pos.z } : null, keeper);
+  }
+  const chirp = scene.chirp;
+  if (chirp && scene.now >= chirp.t0 && scene.now - chirp.t0 < 2.2) drawSpeechBubble(chirp.text, 430, 150);
+}
+
+/** Footmarks: speckled, worn patches that grow as the pitch breaks up. */
+function drawRough(pitch) {
+  for (const r of pitch.roughPatches) {
+    for (let z = r.z0; z < r.z1; z += 0.12) {
+      for (let x = r.x0; x < r.x1; x += 0.04) {
+        // Deterministic speckle, denser as the rough deepens.
+        const h = Math.abs(Math.sin(x * 127.1 + z * 311.7) * 43758.5453) % 1;
+        if (h > r.strength * 0.55) continue;
+        const p = projectClose(x, 0, z);
+        fillRect(p.x, p.y, 1, 1, h < r.strength * 0.25 ? "#7d5f36" : "#a8865a");
+      }
+    }
   }
 }
 
@@ -419,6 +449,31 @@ function drawPanels(scene) {
   if (scene.phase === "runup" && scene.human === "bowl" && scene.cur && scene.cur.tRun < 0.6) {
     drawText("SPACE TO RELEASE - AT THE DELIVERY STRIDE", WIDTH / 2, 6, { ...PANEL_TEXT, color: COLORS.gold });
   }
+  // Release meter: the marker runs towards the delivery stride; hit the gold zone.
+  if (scene.human === "bowl" && scene.cur && (scene.phase === "runup" || (scene.phase === "flight" && scene.phaseT < 0.9))) {
+    drawReleaseMeter(scene);
+  }
+
+  // Appeals and reviews.
+  const cur = scene.cur;
+  const res = cur?.play?.res;
+  const blink = Math.floor(scene.now * 3) % 2 === 0;
+  if (scene.human === "bowl" && scene.phase === "flight" && cur?.contactDone && res?.padHit && !cur.appealed && blink) {
+    drawText("H: APPEAL!", WIDTH / 2, 6, { ...PANEL_TEXT, color: COLORS.gold, scale: 2 });
+  }
+  if (scene.phase === "appeal" && blink) drawText("H: APPEAL!", WIDTH / 2, 6, { ...PANEL_TEXT, color: COLORS.gold, scale: 2 });
+  if (scene.phase === "decision") {
+    const loser = cur.onField ? "bat" : "bowl";
+    const playerSide = scene.human === "bowl" ? "bowl" : "bat";
+    if (loser === playerSide && inn.reviews[loser] > 0) {
+      drawText(`R: REVIEW (${inn.reviews[loser]} LEFT)   SPACE: ACCEPT`, WIDTH / 2, 6, {
+        ...PANEL_TEXT,
+        color: COLORS.gold,
+        scale: 2,
+      });
+    }
+  }
+  if (scene.phase === "review") drawReview(scene);
 
   if (scene.phase === "chooseBowler") {
     drawPanel(150, 60, 340, 40 + inn.bowl.length * 22);
@@ -479,34 +534,101 @@ function drawPanels(scene) {
   }
 }
 
+/** Bar showing the run-up against the release window, and where the last release landed. */
+function drawReleaseMeter(scene) {
+  const cur = scene.cur;
+  const from = cur.runupDur * 0.4;
+  const to = cur.runupDur + 0.3;
+  const x0 = 200;
+  const w = 240;
+  const y = 22;
+  const toX = (t) => x0 + ((t - from) / (to - from)) * w;
+  fillRect(x0 - 1, y - 1, w + 2, 8, COLORS.black);
+  fillRect(x0, y, w, 6, "#203a2a");
+  // Too late: no-ball territory.
+  fillRect(toX(cur.runupDur + 0.11), y, toX(to) - toX(cur.runupDur + 0.11), 6, COLORS.red);
+  const sweet = releaseSweetSpot(scene.inn.bowler.stamina);
+  fillRect(toX(cur.runupDur - sweet), y, Math.max(2, toX(cur.runupDur + sweet) - toX(cur.runupDur - sweet)), 6, COLORS.gold);
+  const at = cur.delivery ? cur.runupDur + (cur.releaseMark ?? 0) : cur.tRun;
+  fillRect(clamp(toX(at), x0, x0 + w) - 1, y - 3, 3, 12, COLORS.white);
+}
+
+/** DRS ball-tracking: replay the ball's path to the stumps, then the three verdicts. */
+function drawReview(scene) {
+  const cur = scene.cur;
+  const res = cur.play.res;
+  const d = cur.delivery;
+  const k = clamp(scene.phaseT / 1.6);
+  const end = d.samples.findIndex((s) => s.z < 0);
+  const last = Math.floor((end < 0 ? d.samples.length : end) * k);
+  const impact = res.start.pos;
+  for (let i = 0; i < last; i += 3) {
+    const s = d.samples[i];
+    const p = projectClose(s.x, s.y, s.z);
+    // Real path up to the pad, projected path after it.
+    fillRect(p.x - 1, p.y - 1, 3, 3, s.z > impact.z ? "#7ec8ff" : "#ff8a7a");
+  }
+  if (d.pitchedAt && k > 0.5) {
+    const p = projectClose(d.pitchedAt.x, 0, d.pitchedAt.z);
+    fillRect(p.x - 4, p.y - 1, 9, 3, COLORS.white);
+  }
+  const lines = [
+    ["PITCHING", res.lbwNote === "pitched outside leg" ? "OUTSIDE LEG" : "IN LINE"],
+    ["IMPACT", res.lbwNote === "outside the line" ? "OUTSIDE OFF" : "IN LINE"],
+    [
+      "WICKETS",
+      cur.tracking.reason.startsWith("WICKETS: ") ? cur.tracking.reason.slice(9) : hitsStumps(d.samples) ? "HITTING" : "MISSING",
+    ],
+  ];
+  drawPanel(400, 60, 220, 60, "rgba(13,35,24,0.92)");
+  drawText("BALL TRACKING", 510, 66, { align: "center", color: COLORS.gold });
+  lines.forEach(([label, value], i) => {
+    if (scene.phaseT < 1 + i * 0.6) return;
+    const bad = value.startsWith("OUTSIDE") || value === "MISSING" || value === "GOING OVER";
+    drawText(label, 410, 80 + i * 11, { color: COLORS.dim });
+    drawText(value, 610, 80 + i * 11, {
+      align: "right",
+      color: bad ? COLORS.cream : value === "UMPIRE'S CALL" ? COLORS.gold : COLORS.red,
+    });
+  });
+}
+
+const MOVE_LABEL = { away: "AWAY", in: "IN", straight: "STRAIGHT" };
+const seenLabel = (b) => `${MOVE_LABEL[b.move]} ${b.length.toUpperCase()}`;
+
 /** Bowling controls: bowler, delivery type, effort, target and field. */
 function drawSetupPanel(scene) {
   const inn = scene.inn;
   const bowler = inn.bowler;
   const skills = bowler.p.bowl;
-  drawPanel(4, 4, 214, 104, "rgba(13,35,24,0.92)");
+  const spinner = isSpinner(skills);
+  drawPanel(4, 4, 240, 140, "rgba(13,35,24,0.92)");
   drawText(`${bowler.p.name.toUpperCase()}`, 10, 10, { color: COLORS.gold });
   drawText(`${skills.style.toUpperCase()}  ${inn.bowlerOvers(bowler)} OV  ${inn.bowlerFigures(bowler)}`, 10, 20, {
     color: COLORS.dim,
   });
   drawText("STAMINA", 10, 31, { color: COLORS.dim });
   drawBar(58, 32, 70, 5, bowler.stamina, staminaColor(bowler.stamina));
-  let x = 10;
+  // Deliveries, three to a line.
   skills.repertoire.forEach((type, i) => {
-    x +=
-      drawText(`${i + 1}.${DELIVERY_NAMES[type]}`, x, 43, { color: type === scene.deliveryType ? COLORS.gold : COLORS.grey }) + 6;
+    const x = 10 + (i % 3) * 78;
+    const y = 43 + Math.floor(i / 3) * 10;
+    drawText(`${i + 1}.${DELIVERY_NAMES[type]}`, x, y, { color: type === scene.deliveryType ? COLORS.gold : COLORS.grey });
   });
-  drawText(`EFFORT (E): ${scene.effort.toUpperCase()}`, 10, 54, { color: COLORS.cream });
-  drawText(
-    `${lengthName(scene.target.length, isSpinner(skills)).toUpperCase()}, ${lineName(scene.target.line).toUpperCase()}`,
-    10,
-    65,
-    {
-      color: COLORS.cream,
-    },
-  );
-  drawText(`FIELD (F): ${inn.customField ? "CUSTOM" : PRESET_LABELS[inn.preset]}   V = EDIT`, 10, 76, { color: COLORS.cream });
-  drawText("ARROWS AIM  SHIFT = FINE", 10, 87, { color: COLORS.dim });
-  drawText("SPACE = RUN IN", 10, 97, { color: COLORS.gold });
-  if (inn.newBallAvailable) drawText("N = TAKE THE NEW BALL", 230, 10, { color: COLORS.red, outline: COLORS.black });
+  const effort = spinner ? `FLIGHT (E): ${SPIN_EFFORT_NAMES[scene.effort]}` : `EFFORT (E): ${scene.effort.toUpperCase()}`;
+  drawText(effort, 10, 65, { color: COLORS.cream });
+  drawText(`${lengthName(scene.target.length, spinner).toUpperCase()}, ${lineName(scene.target.line).toUpperCase()}`, 10, 76, {
+    color: COLORS.cream,
+  });
+  drawText(`FIELD (F): ${inn.customField ? "CUSTOM" : PRESET_LABELS[inn.preset]}   V = EDIT`, 10, 87, { color: COLORS.cream });
+  // What the batter has just seen: set him up, then change it.
+  const seen = inn.bat[inn.striker].seen.slice(-3);
+  if (seen.length) drawText(`HE'S SEEN: ${seen.map(seenLabel).join(", ")}`, 10, 98, { color: COLORS.dim });
+  let notes = [];
+  if (!spinner) notes.push(`BOUNCERS ${inn.overBouncers}/2`);
+  if (inn.freeHit) notes.push("FREE HIT");
+  drawText(notes.join("   "), 10, 109, { color: inn.freeHit ? COLORS.gold : COLORS.dim });
+  drawText("ARROWS AIM  SHIFT = FINE", 10, 120, { color: COLORS.dim });
+  drawText("SPACE = RUN IN   H = APPEAL", 10, 131, { color: COLORS.gold });
+  if (inn.newBallAvailable) drawText("N = TAKE THE NEW BALL", 252, 10, { color: COLORS.red, outline: COLORS.black });
 }

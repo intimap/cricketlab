@@ -7,7 +7,30 @@ const EFFORT_SPEED = { low: 0.93, med: 1, high: 1.055 };
 const EFFORT_SPRAY = { low: 0.8, med: 1, high: 1.4 };
 export const EFFORT_STAMINA = { low: 0.65, med: 1, high: 1.6 };
 
-export const DELIVERY_NAMES = { seam: "SEAM", outswing: "OUTSWING", inswing: "INSWING", offspin: "OFFSPIN", legspin: "LEGSPIN" };
+export const DELIVERY_NAMES = {
+  seam: "SEAM",
+  outswing: "OUTSWING",
+  inswing: "INSWING",
+  bouncer: "BOUNCER",
+  yorker: "YORKER",
+  slower: "SLOWER BALL",
+  cutter: "CUTTER",
+  offspin: "OFFSPIN",
+  legspin: "LEGSPIN",
+  armBall: "ARM BALL",
+  googly: "GOOGLY",
+};
+
+/** Spinners use effort as flight: tossed up, stock, or fired in flat. */
+export const SPIN_EFFORT_NAMES = { low: "FLIGHTED", med: "STOCK", high: "FLAT" };
+const SPIN_EFFORT_TURN = { low: 1.15, med: 1, high: 0.85 };
+
+/** Seam-up variations that otherwise behave like a seam ball. */
+const SEAM_LIKE = new Set(["seam", "bouncer", "yorker", "slower", "cutter"]);
+const SPEED_FACTOR = { slower: 0.78, cutter: 0.9, armBall: 1.06 };
+
+/** Half-width (seconds) of the perfect-release window at the delivery stride; shrinks as the bowler tires. */
+export const releaseSweetSpot = (stamina) => 0.03 * (0.5 + stamina);
 
 /** Flight simulation time step (seconds). */
 const DT = 1 / 240;
@@ -24,15 +47,21 @@ const DT = 1 / 240;
 export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError, rng) {
   const spinner = isSpinner(skills);
   const tiredness = 1 - stamina;
-  let speed = bowlingSpeed(skills) * EFFORT_SPEED[intent.effort] * (0.88 + 0.12 * stamina);
+  const type = intent.type;
+  let speed = bowlingSpeed(skills) * EFFORT_SPEED[intent.effort] * (0.88 + 0.12 * stamina) * (SPEED_FACTOR[type] ?? 1);
   speed *= 1 + rng.normal(0, 0.012);
 
   const spray = (1.35 - skills.accuracy) * (1 + tiredness * 1.3) * EFFORT_SPRAY[intent.effort];
   const badRelease = Math.abs(releaseError) > 0.1 ? 2.2 : 1;
   const line =
     intent.line + rng.normal(0, 0.075 * spray * badRelease) + Math.abs(releaseError) * 1.6 * (rng.next() < 0.5 ? -1 : 1);
+  // A bouncer is banged in short; a yorker is aimed at the toes and is easy to over-pitch.
+  let target = intent.length;
+  if (type === "bouncer") target = Math.max(target, 11);
+  if (type === "yorker") target = Math.min(target, 2.2);
+  const lengthSpray = type === "yorker" ? 1.6 : 1;
   // Releasing late drags the ball fuller, early drops it shorter.
-  let length = intent.length + rng.normal(0, 0.55 * spray * badRelease) - releaseError * 26;
+  let length = target + rng.normal(0, 0.55 * spray * badRelease * lengthSpray) - releaseError * 26;
   length = clamp(length, -1.5, 15);
 
   const noBall =
@@ -43,13 +72,15 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
   let swingDir = 0;
   if (intent.type === "outswing") swingDir = 1;
   else if (intent.type === "inswing") swingDir = -1;
-  else if (intent.type === "seam") swingDir = rng.normal(0, 0.25);
+  else if (SEAM_LIKE.has(type)) swingDir = rng.normal(0, 0.25);
 
   // Lateral acceleration in the air (m/s^2).
   let swingAcc = 0;
   let reversing = false;
   if (spinner) {
-    swingAcc = (intent.type === "offspin" ? 0.9 : intent.type === "legspin" ? -0.9 : 0) * skills.spin * ball.grip * 0.6;
+    // Drift: the googly drifts like a leg-break, the arm ball comes in with the arm.
+    const drift = { offspin: 0.9, legspin: -0.9, googly: -0.9, armBall: -0.6 }[type] ?? 0;
+    swingAcc = drift * skills.spin * ball.grip * 0.6 * (intent.effort === "low" ? 1.3 : 1);
   } else {
     const conventional = ball.swing * pitch.type.swingAir;
     const reverse = speed > 32.5 ? ball.reverse * pitch.type.swingAir : 0;
@@ -69,15 +100,20 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
   const expectedSwingAcc = swingAcc * read;
 
   // Sideways kick off the pitch (m/s).
-  const seamFactor = intent.type === "seam" ? 1.25 : spinner ? 0.25 : 0.75;
-  const seamKick = rng.normal(0, 1) * 0.3 * skills.seam * ball.seam * pitch.seam * seamFactor * (speed / 36);
+  const seamFactor = type === "cutter" ? 3 : SEAM_LIKE.has(type) ? 1.25 : spinner ? 0.25 : 0.75;
+  let seamKick = rng.normal(0, 1) * 0.3 * skills.seam * ball.seam * pitch.seam * seamFactor * (speed / 36);
   let spinKick = 0;
-  if (intent.type === "offspin" || intent.type === "legspin") {
-    const dir = intent.type === "offspin" ? -1 : 1;
+  const turnBy = spinner ? SPIN_EFFORT_TURN[intent.effort] : 1;
+  const spinDir = { offspin: -1, legspin: 1, googly: -1 }[type] ?? 0;
+  if (spinDir) {
     const rip = clamp(rng.normal(1, 0.3 + 0.2 * (1 - skills.consistency)) * (0.85 + 0.15 * stamina), 0.3, 1.45);
-    spinKick = dir * Math.min(2.6, 0.85 * skills.spin * ball.grip * pitch.turn * rip);
+    spinKick = spinDir * Math.min(2.6, 0.85 * skills.spin * ball.grip * pitch.turn * rip * turnBy);
   }
-  const expectedSpinKick = spinKick === 0 ? 0 : Math.sign(spinKick) * Math.min(2.6, 0.85 * skills.spin * ball.grip * pitch.turn);
+  const usualTurn = Math.min(2.6, 0.85 * skills.spin * ball.grip * pitch.turn * turnBy);
+  const expectedSpinKick = spinDir * usualTurn;
+  // What a batter who doesn't pick the variation expects instead.
+  const decoySpinKick = type === "googly" ? usualTurn : type === "armBall" ? -usualTurn : expectedSpinKick;
+  const disguised = type === "googly" || type === "armBall" || type === "slower";
 
   // Coefficient of restitution at the bounce, with occasional shooters and lifters.
   const expectedBounce = 0.5 * pitch.bounce * ball.bounceFactor * (spinner ? 0.92 : 1);
@@ -100,7 +136,17 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
   const vx = (line - hand.x - 0.5 * swingAcc * 0.85 * flightTime * flightTime) / flightTime;
   const release = { t: 0, x: hand.x, y: hand.y, z: hand.z, vx, vy, vz: -speed };
 
-  const flight = simulateFlight(release, swingAcc, seamKick, spinKick, bounce, paceKept, []);
+  let flight = simulateFlight(release, swingAcc, seamKick, spinKick, bounce, paceKept, []);
+  // Landing in the footmarks: spin grips and rips, anything else does something odd.
+  const rough = flight.pitchedAt ? pitch.roughAt(flight.pitchedAt.x, flight.pitchedAt.z) : 0;
+  let inRough = false;
+  if (rough > 0.05) {
+    inRough = true;
+    if (spinKick) spinKick *= 1 + 0.45 * rough;
+    else seamKick += rng.normal(0, 0.4 * rough);
+    bounce *= 1 + rng.normal(0, 0.15 * rough);
+    flight = simulateFlight(release, swingAcc, seamKick, spinKick, bounce, paceKept, []);
+  }
   return {
     intent,
     speed,
@@ -110,6 +156,9 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
     seamKick,
     spinKick,
     expectedSpinKick,
+    decoySpinKick,
+    disguised,
+    inRough,
     bounce,
     expectedBounce,
     bounceNote,
@@ -120,6 +169,8 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
     samples: flight.samples,
     bounceIndex: flight.bounceIndex,
     pitchedAt: flight.pitchedAt,
+    /** Where the ball passes the batter (for the batter's memory of it). */
+    atCrease: crossingAtZ(flight.samples, CREASE),
   };
 }
 

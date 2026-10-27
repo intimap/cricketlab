@@ -61,8 +61,9 @@ function stepBall(b, dt, outfield) {
  * into sounds and banners.
  *
  * setup: { res, strikerIdx, nonStrikerIdx, striker, nonStriker, fielders,
- *          keeper, bowler, spinner, outfield, noBall, wide, aiRunning,
- *          aiAggression, rng }
+ *          keeper, bowler, spinner, outfield, noBall, freeHit, wide, aiRunning,
+ *          aiAggression, pressure, deferLbw, rng }
+ * deferLbw: don't give LBWs here; the scene handles the appeal (and DRS).
  */
 export class BallInPlay {
   fielders = [];
@@ -132,10 +133,12 @@ export class BallInPlay {
     ];
     this.idleSince = this.t;
 
-    if (res.bowled && !setup.noBall) {
+    // On a no-ball or a free hit the batter can only be run out.
+    this.safe = setup.noBall || setup.freeHit;
+    if (res.bowled && !this.safe) {
       this.endWithWicket({ how: "bowled", batter: setup.strikerIdx }, res.playedOn ? "played on" : "");
       this.emit("bowled");
-    } else if (res.lbw && !setup.noBall) {
+    } else if (res.lbw && !this.safe && !setup.deferLbw) {
       this.endWithWicket({ how: "lbw", batter: setup.strikerIdx });
       this.emit("lbw");
     } else {
@@ -216,7 +219,8 @@ export class BallInPlay {
         if ((this.boundaryAt !== null && p.t >= this.boundaryAt) || (best && p.t >= best.t)) break;
         const travelled = Math.hypot(p.x - this.origin.x, p.z - this.origin.z);
         const catchable = res.touchedBat && !p.bounced && p.y > 0.12 && p.y < 2.7 && travelled > 2.2;
-        const fieldable = p.y < (f.role === "keeper" ? 2.4 : 2.1);
+        // The keeper leaps for anything he can; others take it up to about head height.
+        const fieldable = p.y < (f.role === "keeper" ? 3.3 : 2.1);
         if (!catchable && !fieldable) continue;
         const dist = Math.hypot(f.pos.x - p.x, f.pos.z - p.z);
         const covered = runDistance(Math.max(0, p.t - startAt), f.speed);
@@ -409,7 +413,7 @@ export class BallInPlay {
       if (rng.chance(chance)) {
         this.ball.held = f.idx;
         this.ball.vel = { x: 0, y: 0, z: 0 };
-        if (this.setup.noBall) {
+        if (this.safe) {
           this.emit("gather", { fielder: f.idx, text: "no-ball" });
           this.pickupAt = this.t + 0.3;
         } else {
@@ -467,7 +471,7 @@ export class BallInPlay {
       f.curSpeed = 0;
       this.emit(keeper && plan.kind === "collect" ? "collect" : "stop", { fielder: f.idx });
 
-      if (keeper && this.setup.res.stumpingChance && !this.setup.noBall && !this.setup.wide) {
+      if (keeper && this.setup.res.stumpingChance && !this.safe && !this.setup.wide) {
         this.runners[0].progress = 0.08;
         this.emit("stumped", { fielder: f.idx });
         this.endWithWicket({ how: "stumped", batter: this.setup.strikerIdx, fielder: "the keeper" });
@@ -725,7 +729,8 @@ export class BallInPlay {
     const safety = 0.85 - 0.6 * aggression;
     if (this.misjudge === null) {
       const running = (this.setup.striker.bat.running + this.setup.nonStriker.bat.running) / 2;
-      this.misjudge = this.setup.rng.normal(0, RUN_MISJUDGE * (1.3 - running));
+      // Pressure makes them hurry their calls.
+      this.misjudge = this.setup.rng.normal(0, RUN_MISJUDGE * (1.3 - running) * (1 + 0.5 * (this.setup.pressure ?? 0)));
     }
     if (runTime + safety < ballBack + this.misjudge) this.requestRun();
   }

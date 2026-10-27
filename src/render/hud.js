@@ -54,6 +54,11 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
     drawBar(x, y2 + 1, 36, 5, bowler.stamina, staminaColor(bowler.stamina));
     x += 42;
   }
+  // Pressure on the batting side.
+  drawText("PRS", x, y2, { color: COLORS.dim });
+  x += 20;
+  drawBar(x, y2 + 1, 28, 5, inn.pressure, inn.pressure > 0.6 ? COLORS.red : inn.pressure > 0.35 ? COLORS.gold : "#7ec8ff");
+  x += 34;
   x = Math.max(x, 290);
   x += drawText(`PITCH ${inn.pitch.type.name}`, x, y2, { color: COLORS.dim }) + 8;
   const ball = inn.ball;

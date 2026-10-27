@@ -29,7 +29,18 @@ To publish it, turn on GitHub Pages (Settings → Pages → Deploy from branch �
 | Batting       | Space to face up. **S** drive, **Q** cut/pull, **W** loft, **A** defend, no key = leave. Arrows held when you play aim the shot. Hold **↓** with **W** to ramp over the keeper, or **↓** + **←**/**→** with **Q** to sweep / reverse sweep. Hold **Shift** for a power shot (play it earlier). **↑** / **↓** to run or turn back |
 | Bowling       | Arrows set line and length (Shift = fine), number keys pick the delivery, **E** effort, **F** field preset, **V** drag fielders with the mouse, **N** new ball (after 80 overs). Space to run in, Space again to release at the delivery stride: early pitches it shorter, late fuller, very late is a no-ball                   |
 | Between balls | **O** sim an over, **P** sim 5 overs, **V** view the field                                                                                                                                                                                                                                                                       |
+| Appeals       | **H** to appeal for LBW when bowling (appealing for nothing irritates the umpire). **R** to review a decision that goes against you (two unsuccessful reviews per innings)                                                                                                                                                       |
 | Anytime       | **C** camera, **M** sound, **Esc** pause and scorecard                                                                                                                                                                                                                                                                           |
+
+## Bowling: the battle
+
+Each computer batter has a hidden weakness (loose outside off, a compulsive hooker, hates the short ball, shaky against spin early on, or late on the full inswinger). Watch for plays and misses and listen to the commentary for hints.
+
+- **Memory:** bowl the same ball over and over and he lines it up. Break a pattern (three going away, then one back in; three short, then a full one) and he's more likely to edge or miss. The setup panel shows the last three balls he's seen.
+- **Pressure:** dots and maidens build the pressure meter (PRS on the score bar); boundaries release it. Under pressure batters get impatient: slogs, charges and bad calls for runs.
+- **Release timing:** release in the gold zone of the meter for a perfect delivery. The zone shrinks as the bowler tires; too late is a no-ball, followed by a free hit.
+- **Variations:** quicks have bouncers (two an over, a third is a no-ball), yorkers (overpitch it and it's a full toss), slower balls and cutters; spinners have an arm ball, a googly (leg-spinners), and flight (**E** cycles flighted, stock and flat). On a worn pitch, especially the dust bowl, footmarks appear outside leg (and off) and turn sharply.
+- **Fields:** **F** also cycles traps: bouncer trap, leg slip, ring field.
 
 ## How the code is organised
 

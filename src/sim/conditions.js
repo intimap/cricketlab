@@ -84,6 +84,26 @@ export class Pitch {
   get seam() {
     return this.type.seam * (1 - 0.35 * this.wear);
   }
+
+  /**
+   * Bowlers' footmarks at the striker's end, as rectangles in world x/z with
+   * a 0..1 strength. They appear as the pitch wears (fastest on a dust bowl).
+   * The bigger patch is outside the right-hander's leg stump.
+   */
+  get roughPatches() {
+    const s = clamp((this.wear - 0.06) * 3.5 * (this.type.id === "dust" ? 1.5 : 1));
+    if (s <= 0) return [];
+    return [
+      { x0: -0.85, x1: -0.25, z0: 2.6, z1: 6.4, strength: s },
+      { x0: 0.3, x1: 0.75, z0: 3.2, z1: 5.8, strength: s * 0.6 },
+    ];
+  }
+
+  /** Strength of the rough where a ball pitches, 0 if it misses the footmarks. */
+  roughAt(x, z) {
+    for (const r of this.roughPatches) if (x >= r.x0 && x <= r.x1 && z >= r.z0 && z <= r.z1) return r.strength;
+    return 0;
+  }
 }
 
 /**

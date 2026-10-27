@@ -4,6 +4,8 @@ import { keeperSpot } from "./field.js";
 
 /** How badly computer batters misjudge a run (seconds, standard deviation, for an average runner). */
 const RUN_MISJUDGE = 0.36;
+/** Seconds to spare inside which surviving a run-out counts as a near miss. */
+const NEAR_MISS = 0.35;
 
 /** Fielder acceleration (m/s^2). */
 const FIELDER_ACCEL = 5.5;
@@ -87,6 +89,8 @@ export class BallInPlay {
   misjudge = null;
   idleSince = 0;
   riskSince = null;
+  /** A run-out that nearly happened: { shy } (a missed shy, or made it just in time). */
+  nearMiss = null;
   /** How long a fielder holding the ball by the stumps takes to break them. */
   breakDelay = 0.28;
   crossedBoundary = false;
@@ -372,6 +376,10 @@ export class BallInPlay {
         if (this.riskSince === null) this.riskSince = this.t;
         if (this.t - this.riskSince > this.breakDelay) this.runOut(runner, b.atEnd, b.held);
       } else {
+        // Made his ground with the bails about to come off: a near miss worth talking about.
+        if (this.riskSince !== null && this.breakDelay - (this.t - this.riskSince) < NEAR_MISS && !this.nearMiss) {
+          this.nearMiss = { shy: false };
+        }
         this.riskSince = null;
       }
       if (!this.running && !this.dead && this.t - this.idleSince > 0.55) {
@@ -575,6 +583,7 @@ export class BallInPlay {
         return;
       }
       // Missed: the ball runs on past the stumps.
+      this.nearMiss = { shy: true };
       const dx = th.to.x - th.from.x;
       const dz = th.to.z - th.from.z;
       const len = Math.hypot(dx, dz) || 1;
@@ -783,6 +792,7 @@ export class BallInPlay {
       kind,
       wicket: this.wicket,
       catchDropped: this.catchDropped,
+      nearRunout: this.wicket ? null : this.nearMiss,
       strikerEnd: striker.from,
     };
   }

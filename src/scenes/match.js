@@ -13,6 +13,7 @@ import { pickBowler } from "../sim/ai.js";
 import { pickSledges, pickChirp } from "../sim/commentary.js";
 import { boothCall } from "../sim/commentators.js";
 import { makeKit } from "../render/sprites.js";
+import { scheduleCalls } from "../render/booth.js";
 import { projectWide, unprojectWide } from "../render/camera.js";
 import { drawMatch } from "./match-view.js";
 import { PauseMenu } from "./pause-menu.js";
@@ -53,7 +54,7 @@ export class MatchScene {
   cur = null;
   banners = [];
   commentary = "";
-  /** The commentator's popup for the last ball: { who, text, t0 }. */
+  /** The commentary box's calls for the last ball: [{ who, text, t0 }], in speaking order. */
   booth = null;
   commT = 0;
   timeScale = 1;
@@ -796,7 +797,7 @@ export class MatchScene {
     cur.done = done;
     this.commentary = done.rec.commentary ?? "";
     this.commT = 0;
-    this.booth = { ...this.callFromBooth(done), t0: this.now + 0.2 };
+    this.booth = scheduleCalls(this.callFromBooth(done), this.now + 0.2);
     const wicket = done.rec.wicket;
     if (wicket) {
       const how = {
@@ -851,9 +852,9 @@ export class MatchScene {
     this.setPhase("after");
   }
 
-  /** Who in the commentary box calls this ball, and what they say. */
+  /** Who in the commentary box calls this ball, and what they say (one or two voices). */
   callFromBooth(done) {
-    const { rec, applied } = done;
+    const { rec } = done;
     const inn = this.inn;
     const names = {
       batter: inn.bat[rec.wicket ? rec.wicket.batter : rec.striker].p.short,
@@ -862,7 +863,7 @@ export class MatchScene {
     };
     // Presentation only, so it draws on Math.random and leaves the match's dice alone.
     const rng = { pick: (list) => list[Math.floor(Math.random() * list.length)], chance: (p) => Math.random() < p };
-    return boothCall(rec, applied.milestones, rec.commentary ?? "", names, rng);
+    return boothCall(rec, rec.commentary ?? "", names, rng);
   }
 
   afterDuration() {

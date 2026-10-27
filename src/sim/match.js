@@ -8,24 +8,68 @@ import { resolveDelivery } from "./batting.js";
 import { BallInPlay } from "./ball-in-play.js";
 import { pickBowler, pickOverPlan, pickFieldPreset, pickDeliveryPlan, pickShot, battingAggression } from "./ai.js";
 import { describeBall } from "./plans.js";
+import { clamp } from "../math.js";
 
 /**
- * Runs an innings ball by ball. The scene drives it for balls the player
- * takes part in; simBall() plays a whole ball with both sides on the AI.
+ * Runs a game innings by innings, ball by ball. The scene drives it for balls
+ * the player takes part in; simBall() plays a whole ball with both sides on the AI.
  *
- * human: "bat" or "bowl" (the side the player controls).
+ * human: "bat" or "bowl" (the side the player controls in the current innings).
+ * opts:  { innings: 1 or 2, start: { overs, runs, wkts }, target } - see formats.js.
  */
 export class Match {
   needOver = true;
+  /** Every innings so far; `inn` is the one in progress. */
+  innings = [];
 
-  constructor(batTeam, bowlTeam, pitchId, overs, rng, human) {
+  constructor(batTeam, bowlTeam, pitchId, overs, rng, human, opts = {}) {
     this.batTeam = batTeam;
     this.bowlTeam = bowlTeam;
     this.rng = rng;
     this.human = human;
-    this.inn = new Innings(batTeam, bowlTeam, new Pitch(PITCH_TYPES[pitchId]), overs, rng);
+    this.overs = overs;
+    this.totalInnings = opts.innings ?? 1;
+    // Limited-overs games (anything with a target to set or chase) are played in a hurry, more so the shorter they are.
+    this.tempo = this.totalInnings > 1 || opts.target ? clamp((60 - overs) / 55, 0.15, 1) : 0;
+    this.pitch = new Pitch(PITCH_TYPES[pitchId]);
     this.comm = new Commentary(rng);
+    this.beginInnings(batTeam, bowlTeam, opts.target ?? null);
+    if (opts.start) this.inn.startFrom(opts.start);
+  }
+
+  beginInnings(batTeam, bowlTeam, target) {
+    // Same pitch throughout, so it keeps wearing; a new ball each innings.
+    this.inn = new Innings(batTeam, bowlTeam, this.pitch, this.overs, this.rng);
+    this.inn.target = target;
+    this.inn.tempo = this.tempo;
+    this.innings.push(this.inn);
     this.moments = new MomentTracker();
+    this.needOver = true;
+  }
+
+  /** Is there another innings to play once this one is over? */
+  get hasNextInnings() {
+    return this.inn.isOver && this.innings.length < this.totalInnings;
+  }
+
+  /** Swap sides: the team that bowled now chases one more than the total. */
+  nextInnings() {
+    const first = this.inn;
+    this.human = this.human === "bat" ? "bowl" : "bat";
+    this.beginInnings(first.bowlTeam, first.batTeam, first.runs + 1);
+  }
+
+  /** Once a chase is over: { winner (team or null for a tie), text }. Null before then. */
+  get result() {
+    const inn = this.inn;
+    if (inn.target === null || !inn.isOver) return null;
+    if (inn.chaseWon) {
+      const left = 10 - inn.wkts;
+      return { winner: inn.batTeam, text: `${inn.batTeam.name} win by ${left} wicket${left === 1 ? "" : "s"}` };
+    }
+    const margin = inn.target - 1 - inn.runs;
+    if (margin === 0) return { winner: null, text: "Match tied" };
+    return { winner: inn.bowlTeam, text: `${inn.bowlTeam.name} win by ${margin} run${margin === 1 ? "" : "s"}` };
   }
 
   get spinner() {

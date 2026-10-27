@@ -3,8 +3,8 @@ import { keys, mouse, arrowBearing } from "../engine/input.js";
 import { sfx } from "../engine/audio.js";
 import { clamp } from "../math.js";
 import { Rng } from "../sim/rng.js";
-import { australia, england, isSpinner } from "../sim/teams.js";
-import { Match } from "../sim/match.js";
+import { isSpinner } from "../sim/teams.js";
+import { createMatch } from "../sim/formats.js";
 import { PITCH_LENGTH } from "../sim/geometry.js";
 import { EFFORTS, crossingAtZ, releaseSweetSpot } from "../sim/delivery.js";
 import { CONTACT_Z_FRONT, CONTACT_Z_BACK, SWING_TIME, NORMAL_CHARGE } from "../sim/batting.js";
@@ -74,24 +74,53 @@ export class MatchScene {
   pausedFrom = "ready";
   pauseMenu = new PauseMenu();
 
-  constructor(game, cfg) {
+  /** cfg: the menu choice (see createMatch); `match`: carry on an existing match into its next innings. */
+  constructor(game, cfg, match = null) {
     this.game = game;
-    const aus = australia();
-    const eng = england();
-    this.human = cfg.mode;
-    const batTeam = cfg.mode === "bat" ? aus : eng;
-    const bowlTeam = cfg.mode === "bat" ? eng : aus;
-    this.match = new Match(batTeam, bowlTeam, cfg.pitch, cfg.overs, new Rng(), cfg.mode);
-    this.kitBat = makeKit(batTeam.colour, batTeam.colour2);
-    this.kitBowl = makeKit(bowlTeam.colour, bowlTeam.colour2);
-    const pitch = this.match.inn.pitch.type;
-    this.commentary = `${batTeam.name} to bat on a ${pitch.name.toLowerCase()}. ${pitch.blurb}`;
+    this.cfg = cfg;
+    this.match = match ?? createMatch(cfg, new Rng());
+    this.human = this.match.human;
+    const inn = this.match.inn;
+    this.kitBat = makeKit(inn.batTeam.colour, inn.batTeam.colour2);
+    this.kitBowl = makeKit(inn.bowlTeam.colour, inn.bowlTeam.colour2);
+    const pitch = inn.pitch.type;
+    this.commentary =
+      inn.target !== null
+        ? `${inn.batTeam.name} need ${inn.runsNeeded} to win off ${inn.ballsLeft} balls.`
+        : `${inn.batTeam.name} to bat on a ${pitch.name.toLowerCase()}. ${pitch.blurb}`;
     if (this.human === "bowl") {
       this.match.inn.setPreset("attacking");
       this.toChooseBowler();
     } else {
       this.nextBall();
     }
+  }
+
+  endInnings() {
+    this.setPhase("inningsEnd");
+    if (this.ending.good === true) sfx.cheer(1);
+    else if (this.ending.good === false) sfx.groan();
+  }
+
+  /** How the innings (or match) ended, for the end screen: { title, sub, good?, next }. */
+  get ending() {
+    const match = this.match;
+    const inn = this.inn;
+    if (match.hasNextInnings) {
+      return { title: "INNINGS BREAK", sub: `${inn.bowlTeam.name.toUpperCase()} NEED ${inn.runs + 1} TO WIN`, next: true };
+    }
+    const result = match.result;
+    if (!result) return { title: inn.wkts >= 10 ? "ALL OUT" : "END OF SPELL", sub: `${inn.runs}/${inn.wkts}` };
+    const humanSide = this.human === "bat" ? inn.batTeam : inn.bowlTeam;
+    const good = result.winner === humanSide ? true : result.winner === null ? null : false;
+    if (this.cfg.format === "classic") {
+      return { title: good ? "CHALLENGE COMPLETE!" : "CHALLENGE FAILED", sub: result.text.toUpperCase(), good };
+    }
+    return {
+      title: result.text.toUpperCase(),
+      sub: good ? "WELL PLAYED!" : good === null ? "WHAT A FINISH!" : "BETTER LUCK NEXT TIME",
+      good,
+    };
   }
 
   setPhase(phase) {
@@ -110,7 +139,7 @@ export class MatchScene {
   nextBall() {
     const inn = this.inn;
     if (inn.isOver) {
-      this.setPhase("inningsEnd");
+      this.endInnings();
       return;
     }
     if (this.match.needOver) {
@@ -258,7 +287,14 @@ export class MatchScene {
         this.updateFieldEdit();
         break;
       case "inningsEnd":
-        if (keys.pressed("Enter") || keys.pressed("Space")) this.game.toMenu();
+        if (this.phaseT > 0.8 && (keys.pressed("Enter") || keys.pressed("Space"))) {
+          if (this.match.hasNextInnings) {
+            this.match.nextInnings();
+            this.game.scene = new MatchScene(this.game, this.cfg, this.match);
+          } else {
+            this.game.toMenu();
+          }
+        }
         break;
     }
 
@@ -908,7 +944,7 @@ export class MatchScene {
     if ((!moving && this.phaseT > 0.5) || this.phaseT > (this.view === "wide" ? 1.8 : 0.6) || keys.pressed("Space")) {
       const applied = this.cur.done.applied;
       if (applied.inningsOver) {
-        this.setPhase("inningsEnd");
+        this.endInnings();
         return;
       }
       if (applied.overEnded) {

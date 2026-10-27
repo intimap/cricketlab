@@ -26,7 +26,11 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
   x += 7;
   x += drawText(`${striker.p.short.toUpperCase()} ${striker.runs}(${striker.balls})`, x, y1, { color: COLORS.cream }) + 10;
   x += drawText(`${other.p.short.toUpperCase()} ${other.runs}(${other.balls})`, x, y1, { color: COLORS.dim }) + 10;
-  drawText(`P'SHIP ${inn.partnership.runs}(${inn.partnership.balls})`, x, y1, { color: COLORS.dim });
+  if (inn.target !== null) {
+    drawText(`NEED ${inn.runsNeeded} OFF ${inn.ballsLeft}`, x, y1, { color: COLORS.gold });
+  } else {
+    drawText(`P'SHIP ${inn.partnership.runs}(${inn.partnership.balls})`, x, y1, { color: COLORS.dim });
+  }
 
   let right = 636;
   const balls = inn.overBalls.slice(-8);

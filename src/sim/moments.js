@@ -71,6 +71,8 @@ export class MomentTracker {
       if (s.bowlerWicket && s.bowler.wkts === 2) return m("bowlerThird");
       return null;
     }
+    const scoreAfter = inn.runs + rec.total;
+    if (inn.target !== null && scoreAfter >= inn.target) return m("winningRuns");
     if (batter.runs < 100 && runsAfter >= 100) return m("hundred", batter.balls + 1);
     if (batter.runs < 50 && runsAfter >= 50) return m("fifty", batter.balls + 1);
     const stand = inn.partnership.runs;
@@ -84,8 +86,11 @@ export class MomentTracker {
     if (s.boundaries === 2) return m("backToBack");
     if (rec.boundary && s.dotsBefore >= 12) return m("pressureReleased", s.dotsBefore);
     if (batter.runs < 90 && runsAfter >= 90 && runsAfter < 100) return m("intoNineties", runsAfter);
-    const score = inn.runs + rec.total;
-    if (Math.floor(score / 100) > Math.floor(inn.runs / 100)) return m("teamMilestone", Math.floor(score / 100) * 100);
+    if (Math.floor(scoreAfter / 100) > Math.floor(inn.runs / 100)) return m("teamMilestone", Math.floor(scoreAfter / 100) * 100);
+    const ballsLeft = inn.ballsLeft - (rec.legal ? 1 : 0);
+    if (s.overEnds && inn.target !== null && ballsLeft > 0 && ballsLeft <= 36) {
+      return m("equation", inn.target - scoreAfter, ballsLeft);
+    }
     if (s.overEnds && s.overRuns >= 12) return m("bigOver", s.overRuns);
     const spellBalls = s.bowler.balls + 1;
     if (s.overEnds && s.overRuns <= 2 && spellBalls >= 36 && (s.bowler.runs * 6) / spellBalls < 2.2) {

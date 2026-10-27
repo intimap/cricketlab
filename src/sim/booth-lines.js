@@ -209,6 +209,16 @@ export const MOMENT_LINES = {
       "{n} FROM IT. THAT'S A BAD OVER, PLAIN AND SIMPLE.",
     ],
   },
+  winningRuns: {
+    bunnings: ["AND THAT'S THE WINNING RUNS. {b} FINISHES IT. MARVELLOUS.", "THEY'VE DONE IT. THE MATCH IS WON."],
+    lorry: ["THEY'VE WON IT! THEY'VE WON IT! {b} HITS THE WINNING RUNS!", "IT'S ALL OVER! WHAT A FINISH!"],
+    grog: ["THAT'S THE GAME. {b} HAS TAKEN THEM HOME.", "VICTORY. AND I SAID THEY'D CHASE IT."],
+  },
+  equation: {
+    bunnings: ["{n} NEEDED FROM {k} BALLS. INTERESTING.", "THE EQUATION NOW: {n} FROM {k}."],
+    lorry: ["{n} OFF {k}! IT'S ALL HAPPENING!", "{n} NEEDED, {k} BALLS LEFT! I CAN'T BEAR IT!"],
+    grog: ["{n} FROM {k}. IT'S IN THE BALANCE.", "THEY NEED {n} OFF {k}. ONE BIG OVER CHANGES EVERYTHING."],
+  },
   fifty: {
     bunnings: ["FIFTY FOR {b}. {n} BALLS. A VERY TIDY INNINGS.", "{b} RAISES HIS BAT. FIFTY, AND WELL EARNED."],
     lorry: ["FIFTY! FIFTY FOR {b}! UP GOES THE BAT!", "HE'S GOT HIS FIFTY! {n} BALLS OF IT! WONDERFUL!"],
@@ -315,6 +325,7 @@ export const MOMENT_LINES = {
 
 /** Moments big enough that a second voice might chime in, and the mood of the reply. */
 export const TALKING_POINTS = {
+  winningRuns: "drama",
   hatTrick: "drama",
   twoInTwo: "drama",
   fiveFor: "drama",

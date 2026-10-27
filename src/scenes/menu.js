@@ -3,41 +3,85 @@ import { drawText, wrapText } from "../engine/text.js";
 import { keys } from "../engine/input.js";
 import { sfx } from "../engine/audio.js";
 import { PITCH_TYPES } from "../sim/conditions.js";
+import { FORMATS, CLASSICS, OVERS_CHOICES } from "../sim/formats.js";
 
+const FORMAT_IDS = Object.keys(FORMATS);
 const MODES = ["bat", "bowl"];
 const PITCHES = ["green", "dust", "cracked"];
-const SPELLS = [10, 20, 40, 90];
+const CLASSIC_IDS = CLASSICS.map((c) => c.id);
 
 const cycle = (list, value, dir) => list[(list.indexOf(value) + dir + list.length) % list.length];
 
+const BAT_HELP = [
+  "BATTING: SPACE TO FACE UP, THEN S DRIVE / Q CUT-PULL / W LOFT AS IT ARRIVES",
+  "A = DEFEND.  NO KEY = LEAVE.  HOLD SHIFT FOR POWER, BUT PLAY IT EARLIER",
+  "ARROWS AIM.  DOWN+W RAMP, DOWN+LEFT/RIGHT+Q SWEEP.  UP/DOWN = RUN",
+  "O = SIM OVER   C = CAMERA   B = BATTER/BOWLER END   ESC = MENU",
+];
+const BOWL_HELP = [
+  "BOWLING: ARROWS SET LINE & LENGTH, NUMBERS PICK THE BALL, E EFFORT, F FIELD",
+  "SPACE TO RUN IN, SPACE AGAIN IN THE GOLD ZONE OF THE METER TO RELEASE",
+  "FIND EACH BATTER'S WEAKNESS. SET HIM UP, THEN CHANGE IT.  H = APPEAL  R = REVIEW",
+  "V = FIELD   O = SIM OVER   C = CAMERA   B = BATTER/BOWLER END   ESC = MENU",
+];
+
 export class Menu {
-  /** Highlighted row: 0 mode, 1 pitch, 2 spell length, 3 start. */
   sel = 0;
-  cfg = { mode: "bat", pitch: "green", overs: 20 };
+  cfg = { format: "spell", mode: "bat", pitch: "green", overs: 20, classic: CLASSIC_IDS[0] };
   t = 0;
 
   constructor(game) {
     this.game = game;
   }
 
+  get classic() {
+    return CLASSICS.find((c) => c.id === this.cfg.classic);
+  }
+
+  /** The menu rows for the chosen format: [key, label, value]. */
+  get rows() {
+    const cfg = this.cfg;
+    const format = ["format", "GAME", FORMATS[cfg.format].name];
+    if (cfg.format === "classic") {
+      return [format, ["classic", "MATCH", this.classic.title], ["start", "", "START  >"]];
+    }
+    const overs = `${cfg.overs} OVERS${cfg.overs === 90 ? " (A FULL DAY)" : cfg.format === "match" ? " EACH" : ""}`;
+    return [
+      format,
+      ["mode", "YOU", cfg.mode === "bat" ? "BAT FIRST (AUSTRALIA)" : "BOWL FIRST (AUSTRALIA)"],
+      ["pitch", "PITCH", PITCH_TYPES[cfg.pitch].name],
+      ["overs", cfg.format === "match" ? "INNINGS" : "SPELL", overs],
+      ["start", "", "START  >"],
+    ];
+  }
+
   update(dt) {
     this.t += dt;
+    const rows = this.rows;
     if (keys.pressed("ArrowUp")) {
-      this.sel = (this.sel + 3) % 4;
+      this.sel = (this.sel + rows.length - 1) % rows.length;
       sfx.click();
     }
     if (keys.pressed("ArrowDown")) {
-      this.sel = (this.sel + 1) % 4;
+      this.sel = (this.sel + 1) % rows.length;
       sfx.click();
     }
     const dir = keys.pressed("ArrowRight") ? 1 : keys.pressed("ArrowLeft") ? -1 : 0;
-    if (dir) {
+    const cfg = this.cfg;
+    const key = rows[this.sel][0];
+    if (dir && key !== "start") {
       sfx.click();
-      if (this.sel === 0) this.cfg.mode = cycle(MODES, this.cfg.mode, dir);
-      if (this.sel === 1) this.cfg.pitch = cycle(PITCHES, this.cfg.pitch, dir);
-      if (this.sel === 2) this.cfg.overs = cycle(SPELLS, this.cfg.overs, dir);
+      if (key === "format") {
+        cfg.format = cycle(FORMAT_IDS, cfg.format, dir);
+        const choices = OVERS_CHOICES[cfg.format];
+        if (choices && !choices.includes(cfg.overs)) cfg.overs = choices[1];
+      }
+      if (key === "mode") cfg.mode = cycle(MODES, cfg.mode, dir);
+      if (key === "pitch") cfg.pitch = cycle(PITCHES, cfg.pitch, dir);
+      if (key === "overs") cfg.overs = cycle(OVERS_CHOICES[cfg.format], cfg.overs, dir);
+      if (key === "classic") cfg.classic = cycle(CLASSIC_IDS, cfg.classic, dir);
     }
-    if (keys.pressed("Enter") || (keys.pressed("Space") && this.sel === 3)) this.game.startMatch({ ...this.cfg });
+    if (keys.pressed("Enter") || (keys.pressed("Space") && key === "start")) this.game.startMatch({ ...cfg });
   }
 
   draw() {
@@ -48,42 +92,32 @@ export class Menu {
     drawText("CRICKET LAB", WIDTH / 2, 26 + bob, { scale: 6, color: COLORS.gold, align: "center", outline: "#3a2a08" });
     drawText("16-BIT TEST CRICKET  -  PROTOTYPE V0.1", WIDTH / 2, 78, { align: "center", color: COLORS.cream });
 
-    drawPanel(150, 98, 340, 132);
-    const rows = [
-      ["YOU", this.cfg.mode === "bat" ? "BAT  (AUSTRALIA v ENGLAND)" : "BOWL (AUSTRALIA v ENGLAND)"],
-      ["PITCH", PITCH_TYPES[this.cfg.pitch].name],
-      ["SPELL", `${this.cfg.overs} OVERS${this.cfg.overs === 90 ? " (A FULL DAY)" : ""}`],
-      ["", "START  >"],
-    ];
-    rows.forEach(([label, value], i) => {
+    const rows = this.rows;
+    if (this.sel >= rows.length) this.sel = rows.length - 1;
+    drawPanel(130, 98, 380, 132);
+    rows.forEach(([key, label, value], i) => {
       const y = 112 + i * 18;
       const selected = this.sel === i;
-      if (selected) fillRect(158, y - 4, 324, 15, "#24563a");
-      drawText(label, 170, y, { color: COLORS.dim });
+      if (selected) fillRect(138, y - 4, 364, 15, "#24563a");
+      drawText(label, 150, y, { color: COLORS.dim });
       const color = selected ? COLORS.gold : COLORS.cream;
-      if (i < 3) drawText(`< ${value} >`, 230, y, { color, align: "left" });
+      if (key !== "start") drawText(`< ${value} >`, 210, y, { color, align: "left" });
       else drawText(value, 320, y, { color, align: "center" });
     });
-    wrapText(PITCH_TYPES[this.cfg.pitch].blurb, 52).forEach((line, i) =>
-      drawText(line, 320, 190 + i * 10, { align: "center", color: COLORS.dim }),
+    const cfg = this.cfg;
+    const blurb =
+      cfg.format === "classic"
+        ? `${this.classic.blurb} YOU ${this.classic.human === "bat" ? "BAT" : "BOWL"}.`
+        : cfg.format === "match"
+          ? FORMATS.match.blurb
+          : PITCH_TYPES[cfg.pitch].blurb;
+    wrapText(blurb, 60).forEach((line, i) =>
+      drawText(line, 320, 112 + rows.length * 18 + 4 + i * 10, { align: "center", color: COLORS.dim }),
     );
 
     drawPanel(40, 238, 560, 84, "#0d2318");
-    const help =
-      this.cfg.mode === "bat"
-        ? [
-            "BATTING: SPACE TO FACE UP, THEN S DRIVE / Q CUT-PULL / W LOFT AS IT ARRIVES",
-            "A = DEFEND.  NO KEY = LEAVE.  HOLD SHIFT FOR POWER, BUT PLAY IT EARLIER",
-            "ARROWS AIM.  DOWN+W RAMP, DOWN+LEFT/RIGHT+Q SWEEP.  UP/DOWN = RUN",
-            "O = SIM OVER   C = CAMERA   B = BATTER/BOWLER END   ESC = MENU",
-          ]
-        : [
-            "BOWLING: ARROWS SET LINE & LENGTH, NUMBERS PICK THE BALL, E EFFORT, F FIELD",
-            "SPACE TO RUN IN, SPACE AGAIN IN THE GOLD ZONE OF THE METER TO RELEASE",
-            "FIND EACH BATTER'S WEAKNESS. SET HIM UP, THEN CHANGE IT.  H = APPEAL  R = REVIEW",
-            "V = FIELD   O = SIM OVER   C = CAMERA   B = BATTER/BOWLER END   ESC = MENU",
-          ];
-    help.forEach((line, i) =>
+    const role = cfg.format === "classic" ? this.classic.human : cfg.mode;
+    (role === "bat" ? BAT_HELP : BOWL_HELP).forEach((line, i) =>
       drawText(line, 320, 248 + i * 12, { align: "center", color: i === 0 ? COLORS.gold : COLORS.cream }),
     );
     drawText("ARROWS + ENTER", 320, 330, { align: "center", color: COLORS.dim });

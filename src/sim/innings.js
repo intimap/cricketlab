@@ -86,7 +86,63 @@ export class Innings {
     return `${this.overNo}.${this.ballInOver}`;
   }
   get isOver() {
-    return this.wkts >= 10 || this.legal >= this.oversLimit * 6;
+    return this.wkts >= 10 || this.legal >= this.oversLimit * 6 || this.chaseWon;
+  }
+
+  /** Runs to win, when chasing (null otherwise). */
+  target = null;
+  /**
+   * How much of a hurry the batters are in by format, 0..1: 0 is a Test
+   * innings (bat time), 1 is a short slog. Set by the Match.
+   */
+  tempo = 0;
+
+  get chaseWon() {
+    return this.target !== null && this.runs >= this.target;
+  }
+
+  get runsNeeded() {
+    return this.target === null ? null : Math.max(0, this.target - this.runs);
+  }
+
+  get ballsLeft() {
+    return this.oversLimit * 6 - this.legal;
+  }
+
+  /** Runs per over needed to win from here (null when not chasing). */
+  get requiredRate() {
+    if (this.target === null) return null;
+    return this.ballsLeft > 0 ? (6 * this.runsNeeded) / this.ballsLeft : Infinity;
+  }
+
+  /**
+   * Begin part-way through (a Classic Match): `overs` already bowled, `runs`
+   * scored and `wkts` down. The fallen batters get a share of the runs, and
+   * the ball and pitch are worn to match.
+   */
+  startFrom({ overs, runs, wkts }) {
+    this.legal = overs * 6;
+    this.runs = runs;
+    this.wkts = wkts;
+    this.ball.age(this.legal);
+    this.pitch.addOvers(overs);
+    let left = runs;
+    for (let i = 0; i < wkts; i++) {
+      const b = this.bat[i];
+      b.batted = true;
+      b.out = true;
+      b.how = "out earlier";
+      // Top order made most of them.
+      b.runs = i === wkts - 1 ? left : Math.round(left * (i < 4 ? 0.3 : 0.2));
+      b.balls = Math.round(b.runs * 1.3) + 4;
+      left -= b.runs;
+      this.fow.push({ score: Math.round(runs * ((i + 1) / (wkts + 1))), wkt: i + 1, name: b.p.short });
+    }
+    this.striker = wkts;
+    this.nonStriker = wkts + 1;
+    this.nextIn = wkts + 2;
+    this.bat[this.striker].batted = true;
+    this.bat[this.nonStriker].batted = true;
   }
   get keeper() {
     return this.bowlTeam.players.find((p) => p.keeper) ?? this.bowlTeam.players[6];

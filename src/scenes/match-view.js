@@ -553,8 +553,10 @@ function drawPanels(scene) {
   if (scene.phase === "pause") scene.pauseMenu.draw(inn, scene.closeEnd);
 
   if (scene.phase === "inningsEnd") {
-    drawScorecard(inn, 20, 18, 600, 290, inn.wkts >= 10 ? "ALL OUT" : "END OF SPELL");
-    drawText("ENTER = MENU", WIDTH / 2, 296, { align: "center", color: COLORS.gold });
+    const ending = scene.ending;
+    drawScorecard(inn, 20, 18, 600, 290, ending.title);
+    drawText(ending.sub, WIDTH / 2, 284, { align: "center", color: COLORS.cream });
+    drawText(ending.next ? "ENTER = START THE CHASE" : "ENTER = MENU", WIDTH / 2, 296, { align: "center", color: COLORS.gold });
   }
 }
 

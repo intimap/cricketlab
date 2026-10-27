@@ -70,7 +70,8 @@ src/
     moments.js        spots situations worth talking about (droughts, pressure, near run-outs...)
     commentators.js   the commentary box: who speaks after each ball
     booth-lines.js    each commentator's lines for every situation
-    match.js          plays a ball end to end, ties the above together
+    match.js          plays innings ball by ball, swaps sides, works out the result
+    formats.js        game formats and Classic Match challenges (data)
   render/
     camera.js         projections for the close (either end) and wide views
     sprites.js        batter, figures, ball
@@ -101,5 +102,9 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **AI tactics:** `sim/ai.js`.
 - **Fielding and running:** `sim/ball-in-play.js`.
 - **What's shown on screen:** `scenes/match-view.js` and `render/`.
+- **Game modes and Classic Matches:** `sim/formats.js` (challenges are plain data). AI chase and
+  limited-overs tempo constants are at the top of `sim/ai.js`.
+- **Balance checks:** `node tools/sim-report.mjs [innings] [pitch]` simulates AI-vs-AI innings and prints
+  run rates, dismissals, plan figures and commentary moments.
 - **Commentary:** `sim/commentary.js` for the ball-by-ball description; `sim/moments.js` to spot a new
   kind of situation, then give each commentator lines for it in `sim/booth-lines.js`.

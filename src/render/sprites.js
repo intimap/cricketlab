@@ -1,4 +1,4 @@
-import { COLORS, fillRect, plot, drawLine, fillCircle, fillEllipse } from "../engine/screen.js";
+import { COLORS, fillRect, plot, drawLine, fillCircle, fillEllipse, fillPolygon } from "../engine/screen.js";
 import { drawText } from "../engine/text.js";
 
 const BAT_FACE = "#e6cc92";
@@ -74,45 +74,166 @@ function lighten(hex) {
   return `rgb(${r},${g},${b})`;
 }
 
-/** The striker in the close view, feet at (x, y), with a shirt number. */
+// Bone lengths for the striker's skeleton, in close-view pixels at scale 1.
+const THIGH = 22;
+const SHIN = 23;
+const UPPER_ARM = 19;
+const FOREARM = 18;
+
+function darken(hex, amount = 40) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = Math.max(0, ((n >> 16) & 255) - amount);
+  const g = Math.max(0, ((n >> 8) & 255) - amount);
+  const b = Math.max(0, (n & 255) - amount);
+  return `rgb(${r},${g},${b})`;
+}
+
+/**
+ * Two-bone inverse kinematics: where the middle joint (knee or elbow) sits so
+ * bones of length l1 and l2 join `from` to `to`. `prefer` picks between the
+ * two mirror-image solutions.
+ */
+function joint(from, to, l1, l2, prefer) {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const dist = Math.hypot(dx, dy) || 0.01;
+  const d = Math.min(dist, l1 + l2 - 0.01);
+  const along = (l1 * l1 - l2 * l2 + d * d) / (2 * d);
+  const out = Math.sqrt(Math.max(0, l1 * l1 - along * along));
+  const ux = dx / dist;
+  const uy = dy / dist;
+  const mx = from.x + ux * along;
+  const my = from.y + uy * along;
+  return prefer({ x: mx - uy * out, y: my + ux * out }, { x: mx + uy * out, y: my - ux * out });
+}
+
+/**
+ * The striker in the close view, feet at (x, y), with a shirt number. A
+ * jointed skeleton (hips, knees, shoulders, elbows) is solved from the pose's
+ * feet, hips and hands, then fleshed out with kit, pads, gloves and helmet.
+ */
 export function drawBatter(x, y, scale, pose, kit, number = 0) {
-  const sx = (v) => x + v * scale;
-  const sy = (v) => y + v * scale;
-  const rect = (rx, ry, w, h, color) => fillRect(sx(rx), sy(ry), Math.max(1, w * scale), Math.max(1, h * scale), color);
+  const at = (p) => ({ x: x + p.x * scale, y: y + p.y * scale });
+  // A limb segment tapering from radius r0 to r1, lit from the left: a shade rim on the right.
+  const limb = (a, b, r0, r1, color, shade) => {
+    const n = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) * scale) + 1;
+    for (const [c, off, trim] of shade
+      ? [
+          [shade, 0, 0],
+          [color, -0.8, 0.9],
+        ]
+      : [[color, 0, 0]]) {
+      for (let i = 0; i <= n; i++) {
+        const t = i / n;
+        const p = at({ x: a.x + (b.x - a.x) * t + off, y: a.y + (b.y - a.y) * t });
+        fillCircle(p.x, p.y, Math.max(0.5, (r0 + (r1 - r0) * t - trim) * scale), c);
+      }
+    }
+  };
+  const poly = (points, color) => fillPolygon(points.map(at), color);
+  const line = (a, b, w, color) => {
+    const p = at(a);
+    const q = at(b);
+    drawLine(p.x, p.y, q.x, q.y, Math.max(1, Math.round(w * scale)), color);
+  };
+
+  // --- Skeleton ---
   const frontLift = -7 * pose.step + 3 * pose.back;
-  const stride = 2 * pose.step;
   // Crouch: lowers the hips and everything above (down on one knee for a sweep).
   const drop = pose.drop ?? 0;
+  const lean = pose.lean;
+  const backFoot = { x: -7 - 2 * pose.back - (drop > 8 ? 6 : 0), y: -3 };
+  const frontFoot = { x: 8 + 2 * pose.step, y: -3 + frontLift };
+  // Striding forward carries the hips with it (up the screen, in this view).
+  const pelvis = { x: 1 + lean * 0.5, y: -47 + drop + frontLift * 0.5 + pose.back };
+  const backHip = { x: pelvis.x - 5.5, y: pelvis.y };
+  const frontHip = { x: pelvis.x + 5.5, y: pelvis.y };
+  // Knees flex outwards, like an athlete's ready position.
+  // Down low for a sweep, the back knee goes to the turf.
+  const backKnee = joint(backHip, backFoot, THIGH, SHIN, (a, b) => (drop > 8 ? (a.y > b.y ? a : b) : a.x < b.x ? a : b));
+  const frontKnee = joint(frontHip, frontFoot, THIGH, SHIN, (a, b) => (a.x > b.x ? a : b));
+  const chest = { x: pelvis.x + lean * 0.9, y: pelvis.y - 29 + Math.abs(lean) * 0.25 };
+  // Leaning into a drive dips the front shoulder.
+  const backShoulder = { x: chest.x - 13, y: chest.y - lean * 0.5 };
+  const frontShoulder = { x: chest.x + 13, y: chest.y + lean * 0.5 };
+  const head = { x: chest.x + lean * 0.4 + 1, y: chest.y - 12 };
 
-  fillEllipse(sx(2), sy(1), 20 * scale, 4 * scale, "rgba(0,0,0,0.28)");
-  // Back leg.
-  rect(-10, -30, 8, 26, PAD);
-  rect(-10, -30, 2, 26, PAD_SHADE);
-  rect(-10, -22, 8, 1, PAD_SHADE);
-  rect(-10, -13, 8, 1, PAD_SHADE);
-  rect(-11, -5, 10, 4, BOOT);
-  rect(-10, -48 + drop, 9, 19, kit.pants);
-  rect(-10, -48 + drop, 2, 19, kit.shade);
-  // Front leg.
-  const fx = 5 + stride;
-  const fy = frontLift;
-  rect(fx, -32 + fy, 8, 26, PAD);
-  rect(fx + 6, -32 + fy, 2, 26, PAD_SHADE);
-  rect(fx, -24 + fy, 8, 1, PAD_SHADE);
-  rect(fx, -15 + fy, 8, 1, PAD_SHADE);
-  rect(fx - 1, -7 + fy, 10, 4, BOOT);
-  rect(fx, -48 + fy * 0.5 + drop, 9, 18, kit.pants);
-  rect(fx + 7, -48 + fy * 0.5 + drop, 2, 18, kit.shade);
-  rect(-10, -52 + frontLift * 0.4 + drop, 24 + stride, 8, kit.pants);
+  // Hands on the handle: top hand (left) above the bottom hand (right).
+  const a = (pose.angle * Math.PI) / 180;
+  const dir = { x: Math.sin(a), y: Math.cos(a) };
+  const topHand = { x: pose.px, y: pose.py + frontLift * 0.5 };
+  const bottomHand = { x: topHand.x + dir.x * 4.5, y: topHand.y + dir.y * 4.5 };
+  // Elbows hang below the line from shoulder to hand.
+  const lower = (p, q) => (p.y > q.y ? p : q);
+  const backElbow = joint(backShoulder, topHand, UPPER_ARM, FOREARM, lower);
+  const frontElbow = joint(frontShoulder, bottomHand, UPPER_ARM, FOREARM, lower);
 
-  // Torso.
-  const tx = -11 + pose.lean * 0.6;
-  const ty = -78 + frontLift * 0.5 + drop;
-  rect(tx, ty, 26, 28, kit.shirt);
-  rect(tx, ty, 4, 28, kit.shade);
-  rect(tx + 22, ty + 2, 4, 24, kit.shade);
+  // --- Flesh and kit ---
+  fillEllipse(x + 2 * scale, y + scale, 22 * scale, 4 * scale, "rgba(0,0,0,0.28)");
+  const leg = (hip, knee, foot, toe) => {
+    limb(hip, knee, 6, 5, kit.pants, kit.shade);
+    // Pad from just above the knee to the boot, with a knee roll and straps.
+    const top = { x: knee.x + (hip.x - knee.x) * 0.22, y: knee.y + (hip.y - knee.y) * 0.22 };
+    limb(top, foot, 5, 4.5, PAD, PAD_SHADE);
+    const len = Math.hypot(foot.x - top.x, foot.y - top.y) || 1;
+    const nx = -(foot.y - top.y) / len;
+    const ny = (foot.x - top.x) / len;
+    for (const t of [0.12, 0.45, 0.75]) {
+      const c = { x: top.x + (foot.x - top.x) * t, y: top.y + (foot.y - top.y) * t };
+      line({ x: c.x - nx * 4, y: c.y - ny * 4 }, { x: c.x + nx * 4, y: c.y + ny * 4 }, 1, PAD_SHADE);
+    }
+    poly(
+      [
+        { x: foot.x - 5, y: foot.y - 2 },
+        { x: foot.x + 4 + toe, y: foot.y - 2 },
+        { x: foot.x + 5 + toe, y: foot.y + 2.5 },
+        { x: foot.x - 5, y: foot.y + 2.5 },
+      ],
+      BOOT,
+    );
+  };
+  leg(backHip, backKnee, backFoot, 0);
+  leg(frontHip, frontKnee, frontFoot, 2);
+
+  // Hips and backside.
+  poly(
+    [
+      { x: pelvis.x - 10, y: pelvis.y - 7 },
+      { x: pelvis.x + 10, y: pelvis.y - 7 },
+      { x: frontHip.x + 5, y: frontHip.y + 4 },
+      { x: backHip.x - 5, y: backHip.y + 4 },
+    ],
+    kit.pants,
+  );
+
+  // Torso: broad shoulders tapering to a narrow waist.
+  const waistL = { x: pelvis.x - 8.5, y: pelvis.y - 6 };
+  const waistR = { x: pelvis.x + 8.5, y: pelvis.y - 6 };
+  const torso = [
+    { x: backShoulder.x - 1, y: backShoulder.y - 1 },
+    { x: chest.x - 4, y: chest.y - 4 },
+    { x: chest.x + 4, y: chest.y - 4 },
+    { x: frontShoulder.x + 1, y: frontShoulder.y - 1 },
+    { x: frontShoulder.x - 1, y: frontShoulder.y + 9 },
+    waistR,
+    waistL,
+    { x: backShoulder.x + 1, y: backShoulder.y + 9 },
+  ];
+  poly(torso, kit.shirt);
+  // Shadow down the right flank and under the shoulder blades.
+  poly(
+    [
+      { x: frontShoulder.x - 3, y: frontShoulder.y + 1 },
+      { x: frontShoulder.x + 1, y: frontShoulder.y - 1 },
+      { x: frontShoulder.x - 1, y: frontShoulder.y + 9 },
+      waistR,
+      { x: waistR.x - 3, y: waistR.y },
+    ],
+    kit.shade,
+  );
+  line({ x: chest.x, y: chest.y + 2 }, { x: pelvis.x + lean * 0.2, y: pelvis.y - 8 }, 1, kit.shade);
   if (number) {
-    drawText(String(number), sx(tx + 13), sy(ty + 9), {
+    drawText(String(number), at(chest).x, at({ x: 0, y: chest.y + 5 }).y, {
       align: "center",
       color: kit.cap,
       shadow: null,
@@ -120,35 +241,53 @@ export function drawBatter(x, y, scale, pose, kit, number = 0) {
     });
   }
 
-  // Helmet.
-  const hx = tx + 13 + pose.lean * 0.4;
-  const hy = ty - 9;
-  fillEllipse(sx(hx), sy(hy), 9 * scale, 9 * scale, kit.cap);
-  fillEllipse(sx(hx - 2), sy(hy - 3), 4 * scale, 3 * scale, lighten(kit.cap));
-  rect(hx - 6, hy + 6, 12, 4, kit.skin);
-  rect(hx - 7, hy + 7, 14, 2, kit.cap);
-  rect(hx + 6, hy - 1, 6, 3, kit.cap);
-  rect(hx + 8, hy + 2, 3, 6, "#9aa0a6");
+  // Neck and helmet, the peak turned towards the bowler.
+  limb({ x: head.x - 0.5, y: head.y + 5 }, { x: chest.x, y: chest.y - 3 }, 3, 3.5, kit.skin);
+  const h = at(head);
+  fillEllipse(h.x, h.y, 8 * scale, 8.5 * scale, kit.cap);
+  fillEllipse(h.x - 2 * scale, h.y - 3 * scale, 3.5 * scale, 2.5 * scale, lighten(kit.cap));
+  poly(
+    [
+      { x: head.x - 8, y: head.y + 4 },
+      { x: head.x + 8, y: head.y + 4 },
+      { x: head.x + 7, y: head.y + 8 },
+      { x: head.x - 7, y: head.y + 8 },
+    ],
+    darken(kit.cap),
+  );
+  poly(
+    [
+      { x: head.x + 5, y: head.y - 2 },
+      { x: head.x + 13, y: head.y - 1 },
+      { x: head.x + 12, y: head.y + 1 },
+      { x: head.x + 5, y: head.y + 1 },
+    ],
+    kit.cap,
+  );
+  line({ x: head.x + 9, y: head.y + 2 }, { x: head.x + 9, y: head.y + 8 }, 2, "#9aa0a6");
 
-  // Arms to the hands.
-  const handX = pose.px;
-  const handY = pose.py + frontLift * 0.5;
-  const armW = Math.max(2, Math.round(5 * scale));
-  drawLine(sx(tx + 22), sy(ty + 4), sx(handX), sy(handY), armW, kit.shirt);
-  drawLine(sx(tx + 6), sy(ty + 4), sx(handX - 2), sy(handY + 1), armW, kit.shade);
+  // Arms: sleeves to mid upper arm, bare forearms.
+  const arm = (shoulder, elbow, hand) => {
+    const sleeve = { x: shoulder.x + (elbow.x - shoulder.x) * 0.65, y: shoulder.y + (elbow.y - shoulder.y) * 0.65 };
+    limb(shoulder, elbow, 4.5, 3.6, kit.skin, darken(kit.skin, 35));
+    limb(shoulder, sleeve, 5, 4.4, kit.shirt, kit.shade);
+    limb(elbow, hand, 3.4, 2.6, kit.skin, darken(kit.skin, 35));
+  };
+  arm(backShoulder, backElbow, topHand);
+  arm(frontShoulder, frontElbow, bottomHand);
 
   // Bat: handle then blade.
-  const a = (pose.angle * Math.PI) / 180;
-  const dx = Math.sin(a);
-  const dy = Math.cos(a);
-  const shoulder = { x: handX + dx * 9, y: handY + dy * 9 };
-  const toe = { x: handX + dx * 36, y: handY + dy * 36 };
-  drawLine(sx(handX), sy(handY), sx(shoulder.x), sy(shoulder.y), Math.max(2, Math.round(2 * scale)), GRIP);
-  drawLine(sx(shoulder.x), sy(shoulder.y), sx(toe.x), sy(toe.y), Math.max(3, Math.round(6 * scale)), BAT_EDGE);
-  drawLine(sx(shoulder.x + 0.6), sy(shoulder.y), sx(toe.x + 0.6), sy(toe.y), Math.max(2, Math.round(4 * scale)), BAT_FACE);
+  const shoulder = { x: topHand.x + dir.x * 9, y: topHand.y + dir.y * 9 };
+  const toe = { x: topHand.x + dir.x * 36, y: topHand.y + dir.y * 36 };
+  line({ x: topHand.x - dir.x * 2, y: topHand.y - dir.y * 2 }, shoulder, 2, GRIP);
+  line(shoulder, toe, 6, BAT_EDGE);
+  line({ x: shoulder.x + 0.6, y: shoulder.y }, { x: toe.x + 0.6, y: toe.y }, 4, BAT_FACE);
   // Gloves.
-  fillCircle(sx(handX), sy(handY), 3.2 * scale, "#f1f1f1");
-  fillCircle(sx(handX + 1), sy(handY + 1), 1.4 * scale, kit.cap2);
+  for (const g of [topHand, bottomHand]) {
+    const p = at(g);
+    fillCircle(p.x, p.y, 3 * scale, "#f1f1f1");
+    fillCircle(p.x + scale, p.y + scale, 1.3 * scale, kit.cap2);
+  }
 }
 
 /**

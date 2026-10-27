@@ -114,6 +114,29 @@ export function fillEllipse(cx, cy, rx, ry, color) {
   }
 }
 
+/** Scanline fill of a polygon given as [{x, y}], snapped to the pixel grid. */
+export function fillPolygon(points, color) {
+  ctx.fillStyle = color;
+  const ys = points.map((p) => p.y);
+  const top = Math.round(Math.min(...ys));
+  const bottom = Math.round(Math.max(...ys));
+  for (let y = top; y < bottom; y++) {
+    const cy = y + 0.5;
+    const xs = [];
+    for (let i = 0; i < points.length; i++) {
+      const a = points[i];
+      const b = points[(i + 1) % points.length];
+      if (a.y <= cy !== b.y <= cy) xs.push(a.x + ((cy - a.y) * (b.x - a.x)) / (b.y - a.y));
+    }
+    xs.sort((p, q) => p - q);
+    for (let i = 0; i + 1 < xs.length; i += 2) {
+      const x0 = Math.round(xs[i]);
+      const x1 = Math.round(xs[i + 1]);
+      if (x1 > x0) ctx.fillRect(x0, y, x1 - x0, 1);
+    }
+  }
+}
+
 export function strokeEllipse(cx, cy, rx, ry, color) {
   ctx.fillStyle = color;
   const steps = Math.ceil((rx + ry) * 3);

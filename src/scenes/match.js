@@ -11,6 +11,7 @@ import { CONTACT_Z_FRONT, CONTACT_Z_BACK, SWING_TIME, NORMAL_CHARGE } from "../s
 import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from "../sim/field.js";
 import { pickBowler } from "../sim/ai.js";
 import { pickSledges, pickChirp } from "../sim/commentary.js";
+import { boothCall } from "../sim/commentators.js";
 import { makeKit } from "../render/sprites.js";
 import { projectWide, unprojectWide } from "../render/camera.js";
 import { drawMatch } from "./match-view.js";
@@ -51,6 +52,8 @@ export class MatchScene {
   cur = null;
   banners = [];
   commentary = "";
+  /** The commentator's popup for the last ball: { who, text, t0 }. */
+  booth = null;
   commT = 0;
   timeScale = 1;
   // Player's bowling choices.
@@ -790,6 +793,7 @@ export class MatchScene {
     cur.done = done;
     this.commentary = done.rec.commentary ?? "";
     this.commT = 0;
+    this.booth = { ...this.callFromBooth(done), t0: this.now + 0.2 };
     const wicket = done.rec.wicket;
     if (wicket) {
       const how = {
@@ -844,6 +848,20 @@ export class MatchScene {
     this.setPhase("after");
   }
 
+  /** Who in the commentary box calls this ball, and what they say. */
+  callFromBooth(done) {
+    const { rec, applied } = done;
+    const inn = this.inn;
+    const names = {
+      batter: inn.bat[rec.wicket ? rec.wicket.batter : rec.striker].p.short,
+      bowler: inn.bowl[rec.bowler].p.short,
+      fielder: rec.dropped || rec.wicket?.fielder,
+    };
+    // Presentation only, so it draws on Math.random and leaves the match's dice alone.
+    const rng = { pick: (list) => list[Math.floor(Math.random() * list.length)], chance: (p) => Math.random() < p };
+    return boothCall(rec, applied.milestones, rec.commentary ?? "", names, rng);
+  }
+
   afterDuration() {
     const rec = this.cur?.done?.rec;
     if (!rec) return 1;
@@ -888,6 +906,7 @@ export class MatchScene {
   simulate(overs) {
     const inn = this.inn;
     const until = Math.min(inn.oversLimit, inn.overNo + overs);
+    this.booth = null;
     this.simLines = [];
     for (let i = 0; !inn.isOver && inn.overNo < until && i++ < 2000; ) {
       const { rec, applied } = this.match.simBall();

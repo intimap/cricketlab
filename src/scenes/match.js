@@ -9,6 +9,7 @@ import { createMatch } from "../sim/formats.js";
 import { PITCH_LENGTH } from "../sim/geometry.js";
 import { EFFORTS, crossingAtZ } from "../sim/delivery.js";
 import { planRunup, meterPos, releaseError, METER_FROM } from "../sim/runup.js";
+import { battingFeedback, bowlingFeedback } from "../sim/coach.js";
 import { CONTACT_Z_FRONT, CONTACT_Z_BACK, SWING_TIME, NORMAL_CHARGE } from "../sim/batting.js";
 import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from "../sim/field.js";
 import { pickBowler } from "../sim/ai.js";
@@ -33,6 +34,8 @@ const SHOT_KEYS = { KeyS: "drive", KeyQ: "cutpull", KeyW: "loft" };
 const WICKET_PAUSE = 6.5;
 const MAX_SLEDGES = 3;
 const SLEDGE_GAP = 1.5;
+/** Nets: seconds the ball stays in play after reaching the bat. */
+const NETS_PLAY_TIME = 1.6;
 /** Seconds of holding left/right in the run-up for full aftertouch. */
 const AFTERTOUCH_BUILD = 0.5;
 
@@ -84,12 +87,18 @@ export class MatchScene {
     this.cfg = cfg;
     this.match = match ?? createMatch(cfg, new Rng());
     this.human = this.match.human;
+    this.nets = this.match.nets;
+    /** Nets: balls faced or bowled, and how many the coach rated good. */
+    this.netsTally = { balls: 0, good: 0 };
+    /** Nets: the coach's verdict on the last ball. */
+    this.feedback = null;
     const inn = this.match.inn;
     this.kitBat = makeKit(inn.batTeam.colour, inn.batTeam.colour2);
     this.kitBowl = makeKit(inn.bowlTeam.colour, inn.bowlTeam.colour2);
     const pitch = inn.pitch.type;
-    this.commentary =
-      inn.target !== null
+    this.commentary = this.nets
+      ? `Nets: ${this.human === "bat" ? "face as many as you like" : "bowl as many as you like"}. The coach rates every ball.`
+      : inn.target !== null
         ? `${inn.batTeam.name} need ${inn.runsNeeded} to win off ${inn.ballsLeft} balls.`
         : `${inn.batTeam.name} to bat on a ${pitch.name.toLowerCase()}. ${pitch.blurb}`;
     if (this.human === "bowl") {
@@ -157,6 +166,7 @@ export class MatchScene {
       this.match.startOver();
     }
     this.particles = [];
+    this.feedback = null;
     this.walkOff = null;
     this.sledges = [];
     this.timeScale = 1;
@@ -283,6 +293,11 @@ export class MatchScene {
       case "after": {
         this.updateFlight(dt);
         const wicket = !!this.cur?.done?.rec.wicket;
+        if (this.nets) {
+          // Take your time over the coach's verdict.
+          if (this.phaseT > 0.6 && (keys.pressed("Space") || keys.pressed("Enter"))) this.setPhase("return");
+          break;
+        }
         if (wicket && this.cam === "auto" && this.phaseT > 1) this.view = "wide";
         if (this.phaseT > this.afterDuration() || (wicket && this.phaseT > 2.5 && keys.pressed("Space"))) this.setPhase("return");
         break;
@@ -674,6 +689,11 @@ export class MatchScene {
         if (keys.pressed("ArrowUp")) this.runCommand(live, 1);
         if (keys.pressed("ArrowDown")) this.runCommand(live, 0);
       }
+      // Nets: no fielders to wait for, so the ball is done soon after it reaches the bat.
+      if (this.nets && !live.dead && cur.contactDone && live.t - cur.play.res.start.t > NETS_PLAY_TIME) {
+        live.dead = true;
+        live.deadAt = live.t;
+      }
       if (this.phase === "flight" && live.dead && live.t >= live.deadAt && !cur.done) this.ballDead();
     }
   }
@@ -869,6 +889,14 @@ export class MatchScene {
     const cur = this.cur;
     const done = this.match.finish(cur.play);
     cur.done = done;
+    if (this.nets) {
+      this.feedback = this.coachFeedback(done.rec);
+      this.netsTally.balls++;
+      if (this.feedback.grade === "good") this.netsTally.good++;
+      if (done.rec.wicket) this.big("OUT!", COLORS.red, done.rec.wicket.how.toUpperCase(), 1.6);
+      this.setPhase("after");
+      return;
+    }
     this.commentary = done.rec.commentary ?? "";
     this.commT = 0;
     this.booth = scheduleCalls(this.callFromBooth(done), this.now + 0.2);
@@ -938,6 +966,17 @@ export class MatchScene {
     // Presentation only, so it draws on Math.random and leaves the match's dice alone.
     const rng = { pick: (list) => list[Math.floor(Math.random() * list.length)], chance: (p) => Math.random() < p };
     return boothCall(rec, rec.commentary ?? "", names, rng);
+  }
+
+  /** The nets coach's verdict on the ball just finished. */
+  coachFeedback(rec) {
+    const cur = this.cur;
+    const spinner = this.spinner;
+    if (this.human === "bat") return battingFeedback({ delivery: cur.delivery, shot: cur.shot, rec, spinner });
+    const r = cur.runup;
+    const err = r && cur.releaseMark != null ? releaseError(r, cur.releaseMark) : 0;
+    const perfect = !!r && Math.abs(err) <= r.zone;
+    return bowlingFeedback({ delivery: cur.delivery, intent: cur.intent, releaseError: err, perfect, rec, spinner });
   }
 
   afterDuration() {

@@ -1,5 +1,5 @@
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect, drawLine, drawPanel, drawBar } from "../engine/screen.js";
-import { drawText } from "../engine/text.js";
+import { drawText, wrapText } from "../engine/text.js";
 import { clamp, easeIn, easeOut } from "../math.js";
 import { CREASE, PITCH_LENGTH, MID_PITCH } from "../sim/geometry.js";
 import { isSpinner } from "../sim/teams.js";
@@ -339,7 +339,7 @@ function drawStriker(scene) {
     }
     // Hidden once out (and walking off) or once running.
     if (
-      (cur.done && play && cur.done.rec.wicket?.batter === play.striker && scene.phase !== "flight") ||
+      (cur.done && play && cur.done.rec.wicket?.batter === play.striker && scene.phase !== "flight" && !scene.nets) ||
       (play && cur.contactDone && (play.live.runners[0].target !== null || play.live.runners[0].from === 1))
     ) {
       return;
@@ -568,6 +568,7 @@ function drawPanels(scene) {
     });
   }
 
+  if (scene.feedback && (scene.phase === "after" || scene.phase === "return")) drawCoachCard(scene);
   if (scene.phase === "pause") scene.pauseMenu.draw(inn, scene.closeEnd);
 
   if (scene.phase === "inningsEnd") {
@@ -575,6 +576,26 @@ function drawPanels(scene) {
     drawScorecard(inn, 20, 18, 600, 290, ending.title);
     drawText(ending.sub, WIDTH / 2, 284, { align: "center", color: COLORS.cream });
     drawText(ending.next ? "ENTER = START THE CHASE" : "ENTER = MENU", WIDTH / 2, 296, { align: "center", color: COLORS.gold });
+  }
+}
+
+/** Nets: the coach's verdict on the last ball. */
+function drawCoachCard(scene) {
+  const fb = scene.feedback;
+  const lines = fb.lines.flatMap((l) => wrapText(l, 62));
+  const h = 34 + lines.length * 10;
+  const x = 110;
+  const y = 34;
+  const accent = fb.grade === "good" ? "#7cd67c" : fb.grade === "poor" ? COLORS.red : COLORS.gold;
+  drawPanel(x, y, 420, h, "rgba(10,28,18,0.92)", accent);
+  const tally = scene.netsTally;
+  drawText(`COACH  -  ${fb.title}`, x + 8, y + 6, { color: accent });
+  drawText(`BALL ${tally.balls}   GOOD ${tally.good}`, x + 412, y + 6, { color: COLORS.dim, align: "right" });
+  lines.forEach((line, i) =>
+    drawText(line, x + 8, y + 19 + i * 10, { color: line.startsWith("COACH:") ? COLORS.gold : COLORS.cream }),
+  );
+  if (scene.phase === "after" && scene.phaseT > 0.6) {
+    drawText("SPACE = NEXT BALL", x + 210, y + h - 9, { align: "center", color: COLORS.dim });
   }
 }
 

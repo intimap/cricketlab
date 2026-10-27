@@ -47,6 +47,8 @@ export function unlockAudio() {
   loop.start();
 }
 
+export const isMuted = () => muted;
+
 export function toggleMute() {
   muted = !muted;
   if (master) master.gain.value = muted ? 0 : 0.6;

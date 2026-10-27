@@ -429,14 +429,10 @@ function drawPanels(scene) {
   if (scene.phase === "setup") drawSetupPanel(scene);
 
   if (scene.phase === "ready" && scene.human === "bat") {
-    drawText("S DRIVE  Q CUT/PULL  W LOFT  A DEFEND  SHIFT+SHOT = POWER  ARROWS AIM  UP/DOWN RUN", WIDTH / 2, 6, {
-      ...PANEL_TEXT,
-      color: COLORS.cream,
-    });
-    drawText("DOWN+W RAMP   DOWN+LEFT+Q SWEEP   DOWN+RIGHT+Q REVERSE SWEEP", WIDTH / 2, 15, { ...PANEL_TEXT, color: COLORS.dim });
     if (Math.floor(scene.now * 2) % 2 === 0) {
-      drawText("PRESS SPACE TO FACE UP", WIDTH / 2, 24, { ...PANEL_TEXT, color: COLORS.gold, scale: 2 });
+      drawText("PRESS SPACE TO FACE UP", WIDTH / 2, 6, { ...PANEL_TEXT, color: COLORS.gold, scale: 2 });
     }
+    drawText("ESC = MENU & INSTRUCTIONS", WIDTH / 2, 24, { ...PANEL_TEXT, color: COLORS.dim });
   }
 
   if (scene.phase === "flight" && scene.human === "bat" && scene.cur?.contactDone && scene.cur.play) {
@@ -526,10 +522,7 @@ function drawPanels(scene) {
     });
   }
 
-  if (scene.phase === "pause") {
-    drawScorecard(inn, 20, 18, 600, 290, "PAUSED");
-    drawText("ESC = RESUME     Q = QUIT TO MENU     M = SOUND", WIDTH / 2, 296, { align: "center", color: COLORS.gold });
-  }
+  if (scene.phase === "pause") scene.pauseMenu.draw(inn);
 
   if (scene.phase === "inningsEnd") {
     drawScorecard(inn, 20, 18, 600, 290, inn.wkts >= 10 ? "ALL OUT" : "END OF SPELL");

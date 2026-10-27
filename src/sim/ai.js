@@ -6,9 +6,9 @@ import { reactionTime } from "./batting.js";
 import { describeBall, readAgainst, exploits, difficulty } from "./plans.js";
 
 // How much pressure makes computer batters impatient (tuned against simulated innings).
-const PRESSURE_AGGRESSION = 0.25;
+const PRESSURE_AGGRESSION = 0.15;
 const SLOG_FROM = 0.45;
-const SLOG_RATE = 0.5;
+const SLOG_RATE = 0.35;
 
 /** Pick the best available bowler for the next over, given conditions and fatigue. */
 export function pickBowler(inn) {
@@ -62,7 +62,9 @@ export function pickOverPlan(inn, rng) {
     const rough = inn.pitch.roughPatches[0]?.strength ?? 0;
     return rough > 0.25 && rng.chance(0.4) ? "rough" : inn.pressure > 0.4 ? "squeeze" : "stock";
   }
-  if ((weakness === "hook" || weakness === "bouncer") && skills.style === "fast" && inn.bowler.stamina > 0.45) return "short";
+  // Hookers score as well as get out, so the barrage is a gamble against them.
+  const shortOdds = weakness === "bouncer" ? 0.6 : weakness === "hook" ? 0.35 : 0;
+  if (skills.style === "fast" && inn.bowler.stamina > 0.45 && rng.chance(shortOdds)) return "short";
   if (weakness === "offStump") return "corridor";
   const swinging = (inn.ball.swing > 0.18 || inn.ball.reverse > 0.25) && skills.repertoire.includes("inswing");
   if (weakness === "inswingYorker" && swinging) return "setup";
@@ -135,6 +137,10 @@ export function pickDeliveryPlan(inn, rng) {
     type = has("outswing") && (swinging || reversing) ? stockSwing : "seam";
     line = 0.22 + rng.normal(0, 0.04);
     length = (greenTop ? 6.1 : 6.7) + rng.normal(0, 0.35);
+    if (plan === "corridor") {
+      // Tight outside off: hard to leave, hard to score off.
+      line = 0.15 + rng.normal(0, 0.04);
+    }
     if (plan === "squeeze") {
       line = 0.04 + rng.normal(0, 0.03);
       type = "seam";
@@ -150,7 +156,7 @@ export function pickDeliveryPlan(inn, rng) {
       length = 1.9;
     } else if (
       (plan === "setup" || plan === "corridor") &&
-      (ballOfOver === 4 || (ballOfOver === 5 && rng.chance(0.4))) &&
+      ((ballOfOver === 4 && rng.chance(0.6)) || (ballOfOver === 5 && rng.chance(0.25))) &&
       (swinging || reversing) &&
       has("inswing")
     ) {

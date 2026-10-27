@@ -220,7 +220,7 @@ export class BallInPlay {
         const travelled = Math.hypot(p.x - this.origin.x, p.z - this.origin.z);
         const catchable = res.touchedBat && !p.bounced && p.y > 0.12 && p.y < 2.7 && travelled > 2.2;
         // The keeper leaps for anything he can; others take it up to about head height.
-        const fieldable = p.y < (f.role === "keeper" ? 2.8 : 2.1);
+        const fieldable = p.y < (f.role === "keeper" ? 3.3 : 2.1);
         if (!catchable && !fieldable) continue;
         const dist = Math.hypot(f.pos.x - p.x, f.pos.z - p.z);
         const covered = runDistance(Math.max(0, p.t - startAt), f.speed);
@@ -730,7 +730,7 @@ export class BallInPlay {
     if (this.misjudge === null) {
       const running = (this.setup.striker.bat.running + this.setup.nonStriker.bat.running) / 2;
       // Pressure makes them hurry their calls.
-      this.misjudge = this.setup.rng.normal(0, RUN_MISJUDGE * (1.3 - running) * (1 + (this.setup.pressure ?? 0)));
+      this.misjudge = this.setup.rng.normal(0, RUN_MISJUDGE * (1.3 - running) * (1 + 0.5 * (this.setup.pressure ?? 0)));
     }
     if (runTime + safety < ballBack + this.misjudge) this.requestRun();
   }

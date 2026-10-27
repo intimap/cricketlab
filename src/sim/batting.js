@@ -20,7 +20,7 @@ export const SWING_TIME = {
 
 const isSweep = (type) => type === "sweep" || type === "reverseSweep";
 /** Extra vertical bat error (m) when hooking a ball above the shoulder: top edges and gloves. */
-const HOOK_ERROR = 0.09;
+const HOOK_ERROR = 0.11;
 
 /** Shot power (0..1) of a normal, non-power player shot. */
 export const NORMAL_CHARGE = 0.35;

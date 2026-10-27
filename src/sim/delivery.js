@@ -57,7 +57,7 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
     intent.line + rng.normal(0, 0.075 * spray * badRelease) + Math.abs(releaseError) * 1.6 * (rng.next() < 0.5 ? -1 : 1);
   // A bouncer is banged in short; a yorker is aimed at the toes and is easy to over-pitch.
   let target = intent.length;
-  if (type === "bouncer") target = Math.max(target, 10);
+  if (type === "bouncer") target = Math.max(target, 11);
   if (type === "yorker") target = Math.min(target, 2.2);
   const lengthSpray = type === "yorker" ? 1.6 : 1;
   // Releasing late drags the ball fuller, early drops it shorter.

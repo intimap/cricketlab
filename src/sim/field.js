@@ -51,7 +51,7 @@ const PRESETS = {
   // Short-ball trap: catchers for the top-edged hook and the fend.
   bouncer: [
     spot("first slip", 172, 15.2),
-    spot("gully", 125, 12),
+    spot("cover", 58, 27),
     spot("point", 92, 23),
     spot("mid-off", 12, 28),
     spot("short leg", -95, 5.5),

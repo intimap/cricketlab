@@ -19,6 +19,21 @@ function mirrored(x, draw) {
   ctx.restore();
 }
 
+/** A player's own kit: the team's, with his skin, hair, beard, shirt number and height (see teams.js looks). */
+export function playerKit(teamKit, player) {
+  const look = player?.look ?? {};
+  return {
+    ...teamKit,
+    skin: look.skin ?? teamKit.skin,
+    hair: look.hair ?? HAIR,
+    hairStyle: look.hairStyle ?? "short",
+    beard: look.beard ?? "none",
+    number: look.number ?? 0,
+    extras: look.extras ?? [],
+    height: look.height ?? 1.82,
+  };
+}
+
 /** Test whites with team-coloured cap and accents. */
 export function makeKit(cap, cap2, skin = "#d8a27a") {
   return { cap, cap2, shirt: "#f7f2e2", shade: "#cdc4a5", pants: "#eee6cf", skin };
@@ -118,8 +133,27 @@ function joint(from, to, l1, l2, prefer) {
   return prefer({ x: mx - uy * out, y: my + ux * out }, { x: mx + uy * out, y: my - ux * out });
 }
 
+/**
+ * Stubble, moustache or beard on a face seen from the front. `h` is the head
+ * centre on screen, `k` the figure's pixels per unit; under a helmet only the
+ * chin shows.
+ */
+function drawFacialHair(kit, head, h, k, helmet, rect) {
+  const beard = kit.beard ?? "none";
+  const hair = kit.hair ?? HAIR;
+  if (beard === "full") fillEllipse(h.x, h.y + (helmet ? 4.6 : 3) * k, 3.6 * k, (helmet ? 1.2 : 2) * k, hair);
+  else if (beard === "stubble")
+    fillEllipse(h.x, h.y + (helmet ? 4.6 : 3.2) * k, 3.2 * k, (helmet ? 0.9 : 1.6) * k, "rgba(40,28,20,0.35)");
+  if (!helmet && (beard === "moustache" || beard === "full")) rect(head.x - 1.8, head.y + 1.5, 3.6, 0.9, hair);
+}
+
 /** The back of the striker's helmet, its peak turned towards the bowler. */
 function drawBatterHelmetBack(head, h, scale, kit, poly, line) {
+  // Hair showing at the nape, below the helmet.
+  const style = kit.hairStyle ?? "short";
+  if (style === "long" || style === "curly") {
+    fillEllipse(h.x, h.y + 9 * scale, (style === "long" ? 6 : 5) * scale, (style === "long" ? 4 : 2.5) * scale, kit.hair ?? HAIR);
+  }
   fillEllipse(h.x, h.y, 8 * scale, 8.5 * scale, kit.cap);
   fillEllipse(h.x - 2 * scale, h.y - 3 * scale, 3.5 * scale, 2.5 * scale, lighten(kit.cap));
   poly(
@@ -299,6 +333,8 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
       ],
       darken(kit.cap),
     );
+    if (kit.beard === "full") fillEllipse(h.x, h.y + 6.5 * scale, 5 * scale, 2.2 * scale, kit.hair ?? HAIR);
+    else if (kit.beard === "stubble") fillEllipse(h.x, h.y + 6.5 * scale, 4.5 * scale, 1.8 * scale, "rgba(40,28,20,0.35)");
     for (const dy of [1.5, 4, 6.5]) line({ x: head.x - 5, y: head.y + dy }, { x: head.x + 5, y: head.y + dy }, 1, "#9aa0a6");
   } else {
     drawBatterHelmetBack(head, h, scale, kit, poly, line);
@@ -310,6 +346,10 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     limb(shoulder, elbow, 4.5, 3.6, kit.skin, darken(kit.skin, 35));
     limb(shoulder, sleeve, 5, 4.4, kit.shirt, kit.shade);
     limb(elbow, hand, 3.4, 2.6, kit.skin, darken(kit.skin, 35));
+    if ((kit.extras ?? []).includes("sweatbands")) {
+      const w = at({ x: elbow.x + (hand.x - elbow.x) * 0.72, y: elbow.y + (hand.y - elbow.y) * 0.72 });
+      fillCircle(w.x, w.y, 3.2 * scale, kit.cap2);
+    }
   };
   arm(backShoulder, backElbow, topHand);
   arm(frontShoulder, frontElbow, bottomHand);
@@ -566,14 +606,57 @@ function drawFigureBody(x, y, height, opts) {
   // Neck, head and headwear.
   limb({ x: head.x, y: head.y + 3 }, { x: lean, y: top }, 1.8, 2, kit.skin);
   const h = at(head);
+  const hair = kit.hair ?? HAIR;
+  const style = kit.hairStyle ?? "short";
+  const bald = style === "bald";
+  const bare = (rx, ry, w, hh, c) =>
+    poly(
+      [
+        { x: rx, y: ry },
+        { x: rx + w, y: ry },
+        { x: rx + w, y: ry + hh },
+        { x: rx, y: ry + hh },
+      ],
+      c,
+    );
   if (opts.back) {
-    // The back of the head: hair, and ears either side.
+    // The back of the head: hair (or a fringe round a bald patch), and ears either side.
     fillCircle(h.x - 4.4 * k, h.y + 0.5 * k, 1.2 * k, kit.skin);
     fillCircle(h.x + 4.4 * k, h.y + 0.5 * k, 1.2 * k, kit.skin);
-    fillCircle(h.x, h.y, 4.6 * k, HAIR);
+    fillCircle(h.x, h.y, (style === "curly" ? 5.1 : 4.6) * k, bald ? kit.skin : hair);
+    if (bald) fillEllipse(h.x, h.y + 2.6 * k, 4.3 * k, 1.6 * k, hair);
+    if (style === "long") bare(head.x - 3.5, head.y + 2, 7, 4.5, hair);
   } else {
     fillCircle(h.x, h.y, 4.6 * k, kit.skin);
     fillCircle(h.x + 1.5 * k, h.y + 0.5 * k, 3 * k, kit.skin);
+    // Hair showing under the cap or hat.
+    if (!bald && !opts.bat) {
+      const drop = style === "long" ? 6 : style === "curly" ? 3 : style === "buzz" ? 0.8 : 2;
+      const wide = style === "curly" ? 1.6 : 1;
+      bare(head.x - 4.9, head.y - 3, wide, 1 + drop, hair);
+      bare(head.x + 4.9 - wide, head.y - 3, wide, 1 + drop, hair);
+    }
+    if (!opts.bat) {
+      const extras = kit.extras ?? [];
+      if (extras.includes("sunglasses")) {
+        // Wraparounds, with a glint.
+        bare(head.x - 3.6, head.y - 0.8, 7.2, 1.8, "#15171c");
+        bare(head.x - 2.6, head.y - 0.4, 1, 0.5, "#8fb8d8");
+      } else {
+        // Eyes.
+        const eye = Math.max(1, Math.round(0.8 * k));
+        for (const dx of [-1.7, 1.7]) {
+          const e = at({ x: head.x + dx, y: head.y - 0.2 });
+          fillRect(e.x, e.y, eye, eye, "#1d1d22");
+        }
+      }
+      if (extras.includes("zinc")) {
+        // Zinc cream on the nose and lips.
+        bare(head.x - 0.7, head.y + 0.3, 1.6, 1.4, "#f6f6f0");
+        bare(head.x - 1.4, head.y + 2.5, 2.8, 0.7, "#f6f6f0");
+      }
+    }
+    if (!opts.bat) drawFacialHair(kit, head, h, k, false, bare);
   }
   if (umpire) {
     // Wide-brimmed white hat.
@@ -613,6 +696,9 @@ function drawFigureBody(x, y, height, opts) {
       const b = at({ x: head.x + 4, y: head.y + dy });
       drawLine(a.x, a.y, b.x, b.y, Math.max(1, Math.round(0.8 * k)), "#9aa0a6");
     }
+    // A beard shows below the grille.
+    if (!opts.back) drawFacialHair(kit, head, h, k, true, bare);
+    if (opts.back && style === "long") bare(head.x - 3.5, head.y + 3.5, 7, 3, hair);
   } else {
     // Cap with a peak towards the camera.
     poly(
@@ -643,6 +729,11 @@ function drawFigureBody(x, y, height, opts) {
     limb(s, e, 2.4, 2, kit.skin, skinShade);
     limb(s, sleeve, 2.7, 2.3, shirt, shirtShade);
     limb(e, hands[i], umpire ? 2 : 1.8, 1.5, umpire ? shirt : kit.skin, umpire ? shirtShade : skinShade);
+    if (!umpire && (kit.extras ?? []).includes("sweatbands")) {
+      const wrist = { x: e.x + (hands[i].x - e.x) * 0.78, y: e.y + (hands[i].y - e.y) * 0.78 };
+      const w = at(wrist);
+      fillCircle(w.x, w.y, 1.9 * k, kit.cap2);
+    }
     const hand = at(hands[i]);
     fillCircle(hand.x, hand.y, (opts.bat ? 2.2 : 1.8) * k, opts.bat ? "#f1f1f1" : kit.skin);
   }

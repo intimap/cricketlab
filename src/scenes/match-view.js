@@ -25,7 +25,16 @@ import {
   closeFromBowlerEnd,
   projectWide,
 } from "../render/camera.js";
-import { BATTER_POSES, lerpPose, drawBatter, drawFigure, drawTinyFigure, drawBall, drawShadow } from "../render/sprites.js";
+import {
+  BATTER_POSES,
+  lerpPose,
+  drawBatter,
+  drawFigure,
+  drawTinyFigure,
+  drawBall,
+  drawShadow,
+  playerKit,
+} from "../render/sprites.js";
 import { drawBooth, boothShowing } from "../render/booth.js";
 import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import { HUD_Y, staminaColor, drawScoreBar, drawMiniMap, drawBanners, drawScorecard, drawSpeechBubble } from "../render/hud.js";
@@ -36,8 +45,9 @@ const SLEDGE_TIME = 2.4;
 const PANEL_TEXT = { align: "center", outline: "rgba(0,0,0,0.7)" };
 /** Near the close camera, figures are capped at the striker's size (about 1.8 m in 94 px). */
 const NEAR_PIXELS_PER_METRE = 52;
-/** The striker's height in pixels when drawn at scale 1. */
+/** The striker's height in pixels when drawn at scale 1, for a player of STANDARD_HEIGHT metres. */
 const BATTER_HEIGHT_PX = 92;
+const STANDARD_HEIGHT = 1.82;
 /** Where the striker stands across the crease (just leg side of middle). */
 const STRIKER_X = -0.14;
 
@@ -88,11 +98,13 @@ function drawClose(scene) {
       figure(-0.62, 22.6, 1.78, { kit: { ...scene.kitBowl, cap: "#f4f4f0" }, pose: umpirePose, phase: 0, umpire: true }),
   });
   const nonStrikerZ = nonStrikerDepth(scene);
+  const nonStrikerKit = playerKit(scene.kitBat, inn.bat[inn.nonStriker].p);
+  const bowlerKit = playerKit(scene.kitBowl, inn.bowler?.p);
   sprites.push({
     z: nonStrikerZ,
     draw: () =>
-      figure(-1.05, nonStrikerZ, 1.8, {
-        kit: scene.kitBat,
+      figure(-1.05, nonStrikerZ, nonStrikerKit.height, {
+        kit: nonStrikerKit,
         pose: scene.phase === "runup" ? "backup" : "stand",
         phase: scene.now * 1.4,
         bat: true,
@@ -101,7 +113,7 @@ function drawClose(scene) {
   const bowler = bowlerState(scene);
   sprites.push({
     z: bowler.z,
-    draw: () => figure(bowler.x, bowler.z, 1.86, { kit: scene.kitBowl, pose: bowler.pose, phase: bowler.phase }),
+    draw: () => figure(bowler.x, bowler.z, bowlerKit.height, { kit: bowlerKit, pose: bowler.pose, phase: bowler.phase }),
   });
   sprites.push({ z: 1.25, draw: () => drawStriker(scene) });
   // The near stumps: the striker's, or the bowler's end when the camera is there.
@@ -333,12 +345,15 @@ function drawStriker(scene) {
       return;
     }
   }
+  // His own look; taller players are drawn bigger.
+  const kit = playerKit(scene.kitBat, inn.bat[inn.striker].p);
+  const tall = kit.height / STANDARD_HEIGHT;
   if (fromBowler) {
     // Down the far end, facing us.
     const p = projectClose(STRIKER_X, 0, CREASE);
-    drawBatter(p.x, p.y + 1, (closePixelsPerMetre(CREASE) * 1.8) / BATTER_HEIGHT_PX, pose, scene.kitBat, 0, true);
+    drawBatter(p.x, p.y + 1, (closePixelsPerMetre(CREASE) * kit.height) / BATTER_HEIGHT_PX, pose, kit, 0, true);
   } else {
-    drawBatter(x, y, 1, pose, scene.kitBat, inn.striker + 1);
+    drawBatter(x, y, tall, pose, kit, kit.number || inn.striker + 1);
   }
 }
 

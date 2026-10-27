@@ -17,6 +17,7 @@ import { SWING_TIME, NORMAL_CHARGE, CONTACT_Z_BACK } from "../sim/batting.js";
 import { PRESET_LABELS, keeperSpot } from "../sim/field.js";
 import { CLOSE_Y_OFFSET, closeGroundY, projectClose, closePixelsPerMetre, projectWide } from "../render/camera.js";
 import { BATTER_POSES, lerpPose, drawBatter, drawFigure, drawTinyFigure, drawBall, drawShadow } from "../render/sprites.js";
+import { drawBooth, boothShowing } from "../render/booth.js";
 import { HUD_Y, staminaColor, drawScoreBar, drawMiniMap, drawBanners, drawScorecard, drawSpeechBubble } from "../render/hud.js";
 
 const FOLLOW_THROUGH_TIME = 0.15;
@@ -33,7 +34,9 @@ export function drawMatch(scene) {
     ? `${DELIVERY_NAMES[scene.cur?.intent.type ?? scene.deliveryType]} ${scene.spinner ? SPIN_EFFORT_NAMES[effort] : effort.toUpperCase()}`
     : "";
   // Commentary types itself out.
-  drawScoreBar(scene.inn, scene.commentary.slice(0, Math.floor(scene.commT * 70)), label);
+  const booth = boothShowing(scene.booth, scene.now);
+  drawScoreBar(scene.inn, booth ? "" : scene.commentary.slice(0, Math.floor(scene.commT * 70)), label);
+  if (booth) drawBooth(scene.booth, scene.now);
   drawBanners(scene.banners, scene.now);
   drawPanels(scene);
 }

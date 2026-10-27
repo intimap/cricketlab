@@ -141,7 +141,7 @@ export function boothDuration(text) {
 }
 
 /** The commentary popup, bottom-left above the HUD. `call` = { who, text, t0 }. */
-export function drawBooth(call, now) {
+function drawCall(call, now) {
   const t = now - call.t0;
   const total = boothDuration(call.text);
   if (t < 0 || t > total) return;
@@ -172,7 +172,22 @@ export function drawBooth(call, now) {
     });
 }
 
-/** Whether a call is still on screen (the HUD commentary row stays blank meanwhile). */
-export function boothShowing(call, now) {
-  return !!call && now >= call.t0 && now - call.t0 <= boothDuration(call.text);
+/** Lay a list of { who, text } calls end to end from time `t0`. */
+export function scheduleCalls(calls, t0) {
+  let at = t0;
+  return calls.map((c) => {
+    const call = { ...c, t0: at };
+    at += boothDuration(c.text);
+    return call;
+  });
+}
+
+/** Draw whichever of the scheduled calls is on air. */
+export function drawBooth(calls, now) {
+  for (const call of calls) drawCall(call, now);
+}
+
+/** Whether any call is on screen (the HUD commentary row stays blank meanwhile). */
+export function boothShowing(calls, now) {
+  return !!calls && calls.some((c) => now >= c.t0 && now - c.t0 <= boothDuration(c.text));
 }

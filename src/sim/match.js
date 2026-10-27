@@ -1,6 +1,7 @@
 import { PITCH_TYPES, Pitch } from "./conditions.js";
 import { Innings } from "./innings.js";
 import { Commentary } from "./commentary.js";
+import { MomentTracker } from "./moments.js";
 import { isSpinner } from "./teams.js";
 import { bowlDelivery } from "./delivery.js";
 import { resolveDelivery } from "./batting.js";
@@ -24,6 +25,7 @@ export class Match {
     this.human = human;
     this.inn = new Innings(batTeam, bowlTeam, new Pitch(PITCH_TYPES[pitchId]), overs, rng);
     this.comm = new Commentary(rng);
+    this.moments = new MomentTracker();
   }
 
   get spinner() {
@@ -223,6 +225,8 @@ export class Match {
       bounceNote: delivery.bounceNote,
       beatBat,
     };
+    rec.nearRunout = out.nearRunout;
+    rec.moment = this.moments.read(rec, inn);
     inn.settleStrike(out.strikerEnd === 1);
     rec.commentary = this.comm.line(rec, inn);
     const applied = inn.apply(rec);

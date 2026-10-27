@@ -66,16 +66,21 @@ src/
     field.js          field presets and position names
     ai.js             computer bowler, field, delivery and shot choices
     innings.js        scorebook, cards, strike, bowler fatigue
-    commentary.js     commentary lines and sledges
+    commentary.js     ball-by-ball description, over summaries and sledges
+    moments.js        spots situations worth talking about (droughts, pressure, near run-outs...)
+    commentators.js   the commentary box: who speaks after each ball
+    booth-lines.js    each commentator's lines for every situation
     match.js          plays a ball end to end, ties the above together
   render/
     camera.js         projections for the close and wide views
     sprites.js        batter, figures, ball
     hud.js            score bar, mini-map, banners, scorecard, speech bubbles
+    booth.js          commentator portraits and the commentary popup
   scenes/
     menu.js           title screen
     match.js          the match: phases, player input, timing, events
     match-view.js     drawing for the match scene
+    pause-menu.js     the Esc menu: scorecard, instructions, sound
 ```
 
 The rule of thumb: `sim/` knows nothing about the screen, `engine/` knows nothing about cricket, and
@@ -96,4 +101,5 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **AI tactics:** `sim/ai.js`.
 - **Fielding and running:** `sim/ball-in-play.js`.
 - **What's shown on screen:** `scenes/match-view.js` and `render/`.
-- **Commentary:** `sim/commentary.js`.
+- **Commentary:** `sim/commentary.js` for the ball-by-ball description; `sim/moments.js` to spot a new
+  kind of situation, then give each commentator lines for it in `sim/booth-lines.js`.

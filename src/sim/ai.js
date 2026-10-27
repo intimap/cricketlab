@@ -1,0 +1,226 @@
+import { clamp, angleDiff } from "../math.js";
+import { bearingOf } from "./geometry.js";
+import { isSpinner, bowlingSpeed } from "./teams.js";
+import { simulateFlight, crossingAtZ } from "./delivery.js";
+import { reactionTime } from "./batting.js";
+
+/** Pick the best available bowler for the next over, given conditions and fatigue. */
+export function pickBowler(inn) {
+  const ball = inn.ball;
+  let best = -1;
+  let bestScore = -1e9;
+  // Whoever bowled the over before last can carry on their spell from this end.
+  const thisEnd = inn.bowl.findIndex((b) => b.lastOver === inn.overNo - 2);
+  inn.bowl.forEach((b, i) => {
+    if (!inn.canBowl(i)) return;
+    const skills = b.p.bowl;
+    const spinner = isSpinner(skills);
+    let suits = 0.5;
+    if (spinner) suits = 0.25 + 0.55 * ball.rough + 0.6 * (inn.pitch.turn - 0.6) + 0.15 * inn.pitch.wear;
+    else if (skills.style === "swing") suits = 0.5 + 0.45 * ball.swing + 0.6 * ball.reverse;
+    else if (skills.style === "fast")
+      suits = 0.55 + 0.35 * ball.hardness + 0.2 * inn.pitch.type.bounce - 0.25 + 0.4 * ball.reverse;
+    else suits = 0.42 + 0.1 * ball.seam;
+    const quality = (skills.accuracy + Math.max(skills.swing, skills.seam, skills.spin)) / 2;
+    let score = suits * 0.8 + quality * 0.6 + b.stamina * 0.9;
+    if (b.stamina < 0.45) score -= 0.6;
+    if (i === thisEnd && b.stamina > 0.62 && b.spell < (spinner ? 14 : 7)) score += 0.45;
+    if (b.spell >= (spinner ? 16 : 8)) score -= 0.6;
+    score += inn.rng.normal(0, 0.05);
+    if (score > bestScore) {
+      bestScore = score;
+      best = i;
+    }
+  });
+  return best < 0 ? inn.bowl.findIndex((_, i) => inn.canBowl(i)) : best;
+}
+
+export function pickFieldPreset(inn) {
+  const bowler = inn.bowler;
+  if (bowler && isSpinner(bowler.p.bowl)) return "spin";
+  const batter = inn.bat[inn.striker];
+  const state = inn.batterState(inn.striker);
+  if (inn.ball.overs < 25 || state.settled < 0.25 || inn.ball.reverse > 0.3) return "attacking";
+  if (batter.runs > 60 && inn.ball.hardness < 0.7) return "defensive";
+  return "balanced";
+}
+
+/** What the computer bowler tries to bowl next, and how cleanly it's released. */
+export function pickDeliveryPlan(inn, rng) {
+  const bowler = inn.bowler;
+  const skills = bowler.p.bowl;
+  const batter = inn.bat[inn.striker];
+  const state = inn.batterState(inn.striker);
+  const ball = inn.ball;
+  const greenTop = inn.pitch.type.id === "green";
+  let effort = "med";
+  if (bowler.stamina > 0.7 && (state.settled < 0.3 || ball.overs < 12)) effort = "high";
+  if (bowler.stamina < 0.42) effort = "low";
+
+  let type = skills.repertoire[0];
+  let line = 0.2;
+  let length = 6.5;
+  const ballOfOver = bowler.seq % 6;
+  if (isSpinner(skills)) {
+    const offspin = skills.style === "offspin";
+    type = offspin ? "offspin" : "legspin";
+    length = 5.4 + rng.normal(0, 0.3);
+    // Aim so the expected turn brings it back onto (or just outside) off stump.
+    const turn = Math.min(2.6, 0.85 * skills.spin * ball.grip * inn.pitch.turn) * (offspin ? -1 : 1);
+    const timeAfterBounce = length / (bowlingSpeed(skills) * 0.86 * inn.pitch.pace);
+    line = (offspin ? 0.12 : 0.16) - turn * timeAfterBounce * 0.8;
+    if (rng.chance(0.14)) {
+      type = "seam";
+      line = 0.05;
+    }
+    if (batter.p.bat.vsSpin < 0.45 && rng.chance(0.15)) length -= 0.6;
+    if (rng.chance(0.06)) length = 7.5;
+    effort = bowler.stamina < 0.35 ? "low" : "med";
+  } else {
+    const swinging = ball.swing > 0.18 && ball.reverse < 0.25;
+    const reversing = ball.reverse > 0.25;
+    const stockSwing = reversing ? "inswing" : "outswing";
+    const otherSwing = reversing ? "outswing" : "inswing";
+    type = skills.repertoire.includes("outswing") && (swinging || reversing) ? stockSwing : "seam";
+    line = 0.22 + rng.normal(0, 0.04);
+    length = (greenTop ? 6.1 : 6.7) + rng.normal(0, 0.35);
+    // Set them up outside off, then a full one swinging back in.
+    if (
+      (ballOfOver === 4 || (ballOfOver === 5 && rng.chance(0.4))) &&
+      (swinging || reversing) &&
+      skills.repertoire.includes("inswing")
+    ) {
+      type = otherSwing;
+      line = 0.02;
+      length = 4.4;
+    }
+    if (state.settled < 0.2 && rng.chance(0.07)) {
+      // Yorker for the new batter.
+      type = "seam";
+      line = 0;
+      length = 1.9;
+      effort = bowler.stamina > 0.5 ? "high" : effort;
+    } else if (skills.style === "fast" && bowler.stamina > 0.5 && rng.chance(batter.p.bat.vsPace < 0.5 ? 0.11 : 0.05)) {
+      // Bouncer.
+      type = "seam";
+      line = -0.05;
+      length = 11;
+      effort = "high";
+    }
+    if (inn.preset === "defensive") {
+      line = 0.32;
+      length += 0.4;
+    }
+  }
+  const releaseSd = 0.012 + 0.024 * (1 - skills.accuracy) + 0.02 * (1 - bowler.stamina);
+  return { intent: { type, line, length, effort }, releaseError: rng.normal(0, releaseSd) };
+}
+
+/** 0..1: how attacking a batter is right now. */
+export function battingAggression(inn, index) {
+  const b = inn.bat[index];
+  const state = inn.batterState(index);
+  let a = b.p.bat.aggression * (0.6 + 0.5 * state.settled);
+  a += clamp(b.dotStreak / 25) * 0.25 * (1 - b.p.bat.temperament);
+  if (inn.wkts >= 7) a += 0.15;
+  if (inn.oversLimit * 6 - inn.legal < 30) a += 0.15;
+  if (inn.ball.hardness > 0.85 && inn.ball.overs < 10) a -= 0.12;
+  return clamp(a, 0.05, 0.98);
+}
+
+/** The computer batter's shot to delivery `d`, judged from an early read of it. */
+export function pickShot(d, inn, rng) {
+  const index = inn.striker;
+  const skills = inn.bat[index].p.bat;
+  const state = inn.batterState(index);
+  const spinner = isSpinner(inn.bowler.p.bowl);
+  const aggression = battingAggression(inn, index);
+  const react = reactionTime(skills, state, spinner, d.speed);
+
+  const readFrom = d.samples[Math.min(d.samples.length - 1, Math.floor((0.33 + react * 0.5) * 240 * (spinner ? 1.3 : 1)))];
+  const read = simulateFlight(
+    readFrom,
+    d.expectedSwingAcc,
+    0,
+    d.expectedSpinKick * (0.7 + 0.3 * skills.vsSpin),
+    d.expectedBounce,
+    d.paceKept,
+    [],
+    d.bounceIndex >= 0 && readFrom.t >= d.samples[d.bounceIndex].t,
+    -0.2,
+  );
+  const misjudge = 0.07 * (1.25 - skills.technique) * (1.3 - 0.3 * state.settled);
+  const atBat = crossingAtZ(read.samples, 1.4) ?? readFrom;
+  const line = atBat.x + rng.normal(0, misjudge);
+  const height = atBat.y + rng.normal(0, misjudge);
+  const pitchZ = (read.pitchedAt?.z ?? 0) + rng.normal(0, misjudge * 6);
+  const onStumps = Math.abs(line) < 0.2 && height < 0.85;
+
+  let type = "defend";
+  const roll = rng.next();
+  if (line > (spinner ? 0.62 : 0.42)) {
+    // Wide outside off.
+    if (pitchZ > 7.5 && roll < 0.25 + aggression * 0.5) type = "cutpull";
+    else if (pitchZ < 4.5 && roll < aggression * 0.6) type = "drive";
+    else type = roll < 0.08 + 0.35 * aggression * (1 - skills.temperament) ? "drive" : "leave";
+  } else if (line < -0.32) {
+    // Down leg.
+    type =
+      pitchZ > 8 ? (roll < 0.4 + aggression * 0.4 ? "cutpull" : "leave") : roll < 0.55 + aggression * 0.3 ? "drive" : "leave";
+  } else if (height > 1.25) {
+    type = roll < aggression * 0.6 + skills.vsPace * 0.2 ? "cutpull" : "leave";
+  } else if (pitchZ < 4.2 && pitchZ > 1.3) {
+    type = roll < 0.5 + aggression * 0.45 ? (spinner && rng.chance(aggression * 0.35) ? "loft" : "drive") : "defend";
+  } else if (pitchZ > 8 && onStumps) {
+    type = roll < 0.25 + aggression * 0.45 ? "cutpull" : "defend";
+  } else if (onStumps) {
+    type = roll < 0.3 + aggression * 0.4 ? "drive" : "defend";
+  } else {
+    let leaveOdds = 0.18 + 0.4 * skills.temperament - 0.3 * aggression + (inn.ball.overs < 15 ? 0.12 : 0);
+    if (spinner) leaveOdds = line < 0.45 ? 0 : leaveOdds * 0.25;
+    type = roll < leaveOdds ? "leave" : rng.chance(0.4) ? "defend" : "drive";
+  }
+  let softPush = false;
+  if (type === "defend" && height < 1.1 && rng.chance(0.25 + 0.3 * aggression)) {
+    type = "drive";
+    softPush = true;
+  }
+  if (spinner && type === "drive" && rng.chance(aggression * 0.25)) type = "loft";
+
+  const charge =
+    type === "defend" || type === "leave"
+      ? 0
+      : softPush
+        ? rng.range(0, 0.12)
+        : clamp(0.15 + aggression * 0.6 + rng.normal(0, 0.15) + (type === "loft" ? 0.15 : 0), 0.05, 1);
+  const vsType = spinner ? skills.vsSpin : skills.vsPace;
+  const timingSd = (0.03 - 0.012 * skills.timing - 0.006 * state.settled) * (1.25 - 0.4 * vsType) * (1 + charge * 0.4) + 0.006;
+  const timingError = rng.normal(0, Math.max(0.006, timingSd));
+  return {
+    type,
+    charge,
+    timingError,
+    aim: type === "leave" || type === "defend" ? null : pickGap(inn, type, line),
+  };
+}
+
+/** Bearing within the shot's natural arc that is furthest from any fielder. */
+function pickGap(inn, type, line) {
+  const arc = {
+    drive: line > 0.1 ? [-10, 85] : [-55, 40],
+    loft: [-60, 50],
+    cutpull: line > 0.2 ? [70, 135] : [-120, -50],
+  }[type];
+  if (!arc) return null;
+  const fielders = inn.placements.map((p) => bearingOf(p.pos.x, p.pos.z));
+  let best = (arc[0] + arc[1]) / 2;
+  let bestGap = -1;
+  for (let b = arc[0]; b <= arc[1]; b += 5) {
+    const gap = Math.min(...fielders.map((f) => Math.abs(angleDiff(b, f))), 90);
+    if (gap > bestGap) {
+      bestGap = gap;
+      best = b;
+    }
+  }
+  return best;
+}

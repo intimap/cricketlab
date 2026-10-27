@@ -1,16 +1,88 @@
 # Cricket Lab
 
-A 16-bit style Test cricket game (Australia v England) that runs in the browser as a single HTML page.
+A 16-bit style Test cricket game (Australia v England) for the browser. Bat or bowl through a spell on a
+green top, a dust bowl or a cracked pitch, with a physics-based ball, wearing pitch and ageing ball,
+AI field placings and ball-by-ball commentary.
 
-## Play
+Plain JavaScript modules and two images: no build step and no dependencies.
 
-Open `index.html` in a desktop browser (it needs a keyboard). Click the game, then press Enter.
+## Run it
 
-- **Batting:** S drive, Q cut/pull, W loft, A defend. Arrows aim, Left Shift adds power.
-- **Bowling:** arrows set line and length, 1–5 pick the delivery, Space runs in and releases.
-- **Other:** O sim an over, P sim 5 overs, C camera, M sound, Esc scorecard.
+The game uses ES modules, so it has to be served over HTTP (opening `index.html` from disk won't work).
+From the repo folder, either of these works:
 
-## Notes
+```sh
+python3 -m http.server 8000
+# or
+npx serve .
+```
 
-`index.html` holds the whole game: one bundled, minified script with the art embedded as base64 PNGs.
-The original TypeScript source wasn't in the published page, so local names in the script are minified.
+Then open http://localhost:8000. It needs a keyboard.
+
+To publish it, turn on GitHub Pages (Settings → Pages → Deploy from branch → `main`, `/ (root)`).
+
+## Controls
+
+|               |                                                                                                                                                                                                                                                                                                                |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Menu          | Arrows to change, Enter to start                                                                                                                                                                                                                                                                               |
+| Batting       | Space to face up. **S** drive, **Q** cut/pull, **W** loft, **A** defend, no key = leave. Arrows held when you play aim the shot. Hold **Shift** for a power shot (play it earlier). **↑** / **↓** to run or turn back                                                                                          |
+| Bowling       | Arrows set line and length (Shift = fine), number keys pick the delivery, **E** effort, **F** field preset, **V** drag fielders with the mouse, **N** new ball (after 80 overs). Space to run in, Space again to release at the delivery stride: early pitches it shorter, late fuller, very late is a no-ball |
+| Between balls | **O** sim an over, **P** sim 5 overs, **V** view the field                                                                                                                                                                                                                                                     |
+| Anytime       | **C** camera, **M** sound, **Esc** pause and scorecard                                                                                                                                                                                                                                                         |
+
+## How the code is organised
+
+```
+index.html            page shell and key strip
+assets/               the two painted backgrounds (close and wide camera)
+src/
+  main.js             boot, asset loading, game loop, scene switching
+  math.js             clamp, easing, angle helpers
+  engine/             browser plumbing, no cricket in here
+    screen.js         640x360 pixel frame buffer, scaling, drawing primitives
+    text.js           5x7 bitmap font
+    input.js          keyboard and mouse state, polled per frame
+    audio.js          synthesised sound effects and crowd
+  sim/                the cricket model, no drawing in here
+    geometry.js       pitch dimensions and the world coordinate system
+    rng.js            seedable random numbers
+    teams.js          squads and player ratings
+    conditions.js     pitch types, pitch wear, ball wear (swing, reverse, grip)
+    delivery.js       bowling: release, swing, seam, spin, bounce, flight
+    batting.js        the shot: timing, where the bat goes, edges, LBW, bowled
+    ball-in-play.js   after the shot: fielders, catches, throws, running, run-outs
+    field.js          field presets and position names
+    ai.js             computer bowler, field, delivery and shot choices
+    innings.js        scorebook, cards, strike, bowler fatigue
+    commentary.js     commentary lines and sledges
+    match.js          plays a ball end to end, ties the above together
+  render/
+    camera.js         projections for the close and wide views
+    sprites.js        batter, figures, ball
+    hud.js            score bar, mini-map, banners, scorecard, speech bubbles
+  scenes/
+    menu.js           title screen
+    match.js          the match: phases, player input, timing, events
+    match-view.js     drawing for the match scene
+```
+
+The rule of thumb: `sim/` knows nothing about the screen, `engine/` knows nothing about cricket, and
+`scenes/` connects them.
+
+### World coordinates
+
+Metres. The striker's stumps are at the origin and the bowler's stumps at `z = 20.12`. `x` runs across
+the pitch, positive towards the off side (the batters are right-handed), and `y` is height. Bearings are
+in degrees from the striker's stumps: 0 is straight back past the bowler and positive is the off side.
+
+### Where to start for common changes
+
+- **Ball physics and difficulty:** `sim/delivery.js` (how balls are bowled) and `sim/batting.js` (timing
+  windows, edges, LBW).
+- **Player ratings and squads:** `sim/teams.js`.
+- **Pitch behaviour:** `PITCH_TYPES` in `sim/conditions.js`.
+- **AI tactics:** `sim/ai.js`.
+- **Fielding and running:** `sim/ball-in-play.js`.
+- **What's shown on screen:** `scenes/match-view.js` and `render/`.
+- **Commentary:** `sim/commentary.js`.

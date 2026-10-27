@@ -1,0 +1,762 @@
+import { COLORS } from "../engine/screen.js";
+import { keys, mouse, arrowBearing } from "../engine/input.js";
+import { sfx } from "../engine/audio.js";
+import { clamp } from "../math.js";
+import { Rng } from "../sim/rng.js";
+import { australia, england, isSpinner } from "../sim/teams.js";
+import { Match } from "../sim/match.js";
+import { PITCH_LENGTH } from "../sim/geometry.js";
+import { EFFORTS, crossingAtZ } from "../sim/delivery.js";
+import { CONTACT_Z_FRONT, CONTACT_Z_BACK, SWING_TIME, NORMAL_CHARGE } from "../sim/batting.js";
+import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from "../sim/field.js";
+import { pickBowler } from "../sim/ai.js";
+import { pickSledges } from "../sim/commentary.js";
+import { makeKit } from "../render/sprites.js";
+import { projectWide, unprojectWide } from "../render/camera.js";
+import { drawMatch } from "./match-view.js";
+
+/** Backlift before the downswing, normal and power shots. */
+const BACKLIFT_TIME = 0.07;
+const POWER_BACKLIFT_TIME = 0.2;
+const POWER_CHARGE = 0.95;
+/** The player's timing window is wider than the AI's. */
+const PLAYER_TIMING_WINDOW = 1.35;
+/** Ball time runs slower while the player is waiting to play a shot. */
+const PLAYER_SLOWMO = 0.8;
+const SHOT_KEYS = { KeyS: "drive", KeyQ: "cutpull", KeyW: "loft" };
+/** How long the scene lingers after a wicket. */
+const WICKET_PAUSE = 6.5;
+const MAX_SLEDGES = 3;
+const SLEDGE_GAP = 1.5;
+
+/**
+ * One innings, played ball by ball. Phases:
+ *   ready        (batting) waiting for Space to face up
+ *   setup        (bowling) choosing delivery, line, length, effort, field
+ *   chooseBowler (bowling) picking who bowls the next over
+ *   runup        bowler running in
+ *   flight       ball in the air / in play
+ *   after        ball dead, showing the result
+ *   return       fielders walking back
+ *   overEnd, simSummary, fieldEdit, pause, inningsEnd
+ */
+export class MatchScene {
+  phase = "ready";
+  phaseT = 0;
+  now = 0;
+  /** Camera mode chosen by the player (auto/close/wide) and the view actually shown. */
+  cam = "auto";
+  view = "close";
+  /** State of the ball being bowled; null between balls when bowling. */
+  cur = null;
+  banners = [];
+  commentary = "";
+  commT = 0;
+  timeScale = 1;
+  // Player's bowling choices.
+  target = { line: 0.22, length: 6.5 };
+  deliveryType = "outswing";
+  effort = "med";
+  selBowler = 0;
+  simLines = [];
+  /** Flying bails and stump splinters. */
+  particles = [];
+  walkOff = null;
+  sledges = [];
+  dragIdx = -1;
+  pausedFrom = "ready";
+
+  constructor(game, cfg) {
+    this.game = game;
+    const aus = australia();
+    const eng = england();
+    this.human = cfg.mode;
+    const batTeam = cfg.mode === "bat" ? aus : eng;
+    const bowlTeam = cfg.mode === "bat" ? eng : aus;
+    this.match = new Match(batTeam, bowlTeam, cfg.pitch, cfg.overs, new Rng(), cfg.mode);
+    this.kitBat = makeKit(batTeam.colour, batTeam.colour2);
+    this.kitBowl = makeKit(bowlTeam.colour, bowlTeam.colour2);
+    const pitch = this.match.inn.pitch.type;
+    this.commentary = `${batTeam.name} to bat on a ${pitch.name.toLowerCase()}. ${pitch.blurb}`;
+    if (this.human === "bowl") {
+      this.match.inn.setPreset("attacking");
+      this.toChooseBowler();
+    } else {
+      this.nextBall();
+    }
+  }
+
+  setPhase(phase) {
+    this.phase = phase;
+    this.phaseT = 0;
+  }
+
+  get inn() {
+    return this.match.inn;
+  }
+
+  get spinner() {
+    return isSpinner(this.inn.bowler?.p.bowl);
+  }
+
+  nextBall() {
+    const inn = this.inn;
+    if (inn.isOver) {
+      this.setPhase("inningsEnd");
+      return;
+    }
+    if (this.match.needOver) {
+      if (this.human === "bowl") {
+        this.toChooseBowler();
+        return;
+      }
+      this.match.startOver();
+    }
+    this.particles = [];
+    this.walkOff = null;
+    this.sledges = [];
+    this.timeScale = 1;
+    if (this.cam === "auto") this.view = "close";
+    if (this.human === "bat") {
+      const { intent, releaseError } = this.match.aiPlan();
+      this.cur = this.newBall(intent, releaseError);
+      this.setPhase("ready");
+    } else {
+      const skills = inn.bowler.p.bowl;
+      if (!skills.repertoire.includes(this.deliveryType)) this.deliveryType = skills.repertoire[0];
+      this.cur = null;
+      this.setPhase("setup");
+    }
+  }
+
+  newBall(intent, aiReleaseError) {
+    const spinner = this.spinner;
+    const style = this.inn.bowler.p.bowl.style;
+    return {
+      intent,
+      aiReleaseError,
+      runupDur: spinner ? 1.5 : style === "fast" ? 2.5 : 2.2,
+      runupStartZ: spinner ? 25.5 : 33,
+      /** Time since the run-up started. */
+      tRun: 0,
+      delivery: null,
+      /** Ball time since release. */
+      t: 0,
+      shot: null,
+      play: null,
+      // Striker animation timeline (ball time).
+      swingType: null,
+      backliftAt: 0,
+      swingAt: null,
+      defendAt: null,
+      leaveAt: null,
+      contactDone: false,
+      bounceDone: false,
+      strikeAt: null,
+      done: null,
+      /** Index of the next live-ball event to handle. */
+      lastEv: 0,
+      lineAtBat: 0,
+    };
+  }
+
+  toChooseBowler() {
+    this.selBowler = pickBowler(this.inn);
+    this.setPhase("chooseBowler");
+  }
+
+  update(dt) {
+    this.now += dt;
+    this.phaseT += dt;
+    this.commT += dt;
+
+    if (keys.pressed("Escape") && this.phase !== "inningsEnd") {
+      if (this.phase === "pause") {
+        this.setPhase(this.pausedFrom);
+      } else if (this.phase !== "fieldEdit") {
+        this.pausedFrom = this.phase;
+        this.setPhase("pause");
+      }
+    }
+    if (keys.pressed("KeyC")) {
+      this.cam = this.cam === "auto" ? "close" : this.cam === "close" ? "wide" : "auto";
+      this.flash(`CAMERA: ${this.cam.toUpperCase()}`);
+      if (this.cam !== "auto") this.view = this.cam;
+    }
+
+    switch (this.phase) {
+      case "pause":
+        if (keys.pressed("KeyQ")) this.game.toMenu();
+        return;
+      case "ready":
+        this.updateReady();
+        break;
+      case "setup":
+        this.updateSetup();
+        break;
+      case "runup":
+        this.updateRunup(dt);
+        this.updateBatInput();
+        break;
+      case "flight":
+        this.updateFlight(dt);
+        break;
+      case "after": {
+        this.updateFlight(dt);
+        const wicket = !!this.cur?.done?.rec.wicket;
+        if (wicket && this.cam === "auto" && this.phaseT > 1) this.view = "wide";
+        if (this.phaseT > this.afterDuration() || (wicket && this.phaseT > 2.5 && keys.pressed("Space"))) this.setPhase("return");
+        break;
+      }
+      case "return":
+        this.updateReturn(dt);
+        break;
+      case "overEnd":
+        if (this.phaseT > 2.4 || keys.pressed("Space") || keys.pressed("Enter")) this.nextBall();
+        break;
+      case "chooseBowler":
+        this.updateChooseBowler();
+        break;
+      case "simSummary":
+        if (this.phaseT > 0.4 && (keys.pressed("Space") || keys.pressed("Enter"))) this.nextBall();
+        break;
+      case "fieldEdit":
+        this.updateFieldEdit();
+        break;
+      case "inningsEnd":
+        if (keys.pressed("Enter") || keys.pressed("Space")) this.game.toMenu();
+        break;
+    }
+
+    this.banners = this.banners.filter((b) => this.now - b.t0 < b.dur);
+    for (const p of this.particles) {
+      p.vy -= 9.8 * dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.z += p.vz * dt;
+      p.life -= dt;
+      if (p.y < 0) {
+        p.y = 0;
+        p.vy *= -0.3;
+        p.vx *= 0.6;
+        p.vz *= 0.6;
+      }
+    }
+    this.particles = this.particles.filter((p) => p.life > 0);
+  }
+
+  draw() {
+    drawMatch(this);
+  }
+
+  banner(text, color, dur, scale, y, t0 = this.now) {
+    this.banners.push({ text, color, t0, dur, scale, y });
+  }
+
+  /** Small notice near the top of the screen. */
+  flash(text, color = COLORS.cream) {
+    this.banner(text, color, 1, 2, 40);
+  }
+
+  /** Big centre-screen announcement. */
+  big(text, color, sub, dur = 1.8) {
+    this.banners.push({ text, sub, color, t0: this.now, dur, scale: 5, y: 96 });
+  }
+
+  /** Keys available between balls: simulate, or look at the field. */
+  betweenBalls() {
+    if (keys.pressed("KeyO")) {
+      this.simulate(1);
+      return true;
+    }
+    if (keys.pressed("KeyP")) {
+      this.simulate(5);
+      return true;
+    }
+    if (keys.pressed("KeyV")) {
+      this.setPhase("fieldEdit");
+      this.view = "wide";
+      return true;
+    }
+    return false;
+  }
+
+  updateReady() {
+    if (this.betweenBalls()) return;
+    if (this.phaseT > 0.25 && keys.pressed("Space")) this.setPhase("runup");
+  }
+
+  updateSetup() {
+    if (this.betweenBalls()) return;
+    const skills = this.inn.bowler.p.bowl;
+    const step = keys.down("ShiftLeft") || keys.down("ShiftRight") ? 0.25 : 1;
+    if (keys.pressed("ArrowLeft")) this.target.line -= 0.05 * step;
+    if (keys.pressed("ArrowRight")) this.target.line += 0.05 * step;
+    if (keys.pressed("ArrowUp")) this.target.length += 0.5 * step;
+    if (keys.pressed("ArrowDown")) this.target.length -= 0.5 * step;
+    this.target.line = clamp(this.target.line, -0.9, 1.1);
+    this.target.length = clamp(this.target.length, 0.5, 12.5);
+    for (let i = 0; i < skills.repertoire.length; i++) {
+      if (keys.pressed(`Digit${i + 1}`)) {
+        this.deliveryType = skills.repertoire[i];
+        sfx.click();
+      }
+    }
+    if (keys.pressed("KeyE")) {
+      this.effort = EFFORTS[(EFFORTS.indexOf(this.effort) + 1) % 3];
+      sfx.click();
+    }
+    if (keys.pressed("KeyF")) {
+      this.cyclePreset();
+      this.flash(`FIELD: ${PRESET_LABELS[this.inn.preset]}`);
+    }
+    if (keys.pressed("KeyN") && this.inn.newBallAvailable) {
+      this.inn.takeNewBall();
+      this.big("NEW BALL", COLORS.red, undefined, 1.2);
+    }
+    if (keys.pressed("Space")) {
+      const intent = { type: this.deliveryType, line: this.target.line, length: this.target.length, effort: this.effort };
+      this.cur = this.newBall(intent, 0);
+      this.setPhase("runup");
+    }
+  }
+
+  cyclePreset() {
+    const i = PRESET_ORDER.indexOf(this.inn.preset);
+    this.inn.setPreset(PRESET_ORDER[(i + 1) % PRESET_ORDER.length]);
+  }
+
+  updateChooseBowler() {
+    const inn = this.inn;
+    const count = inn.bowl.length;
+    if (keys.pressed("ArrowUp")) this.selBowler = (this.selBowler + count - 1) % count;
+    if (keys.pressed("ArrowDown")) this.selBowler = (this.selBowler + 1) % count;
+    for (let i = 0; i < count; i++) {
+      if (keys.pressed(`Digit${i + 1}`)) this.selBowler = i;
+    }
+    if ((keys.pressed("Enter") || keys.pressed("Space")) && inn.canBowl(this.selBowler)) {
+      this.match.startOver(this.selBowler);
+      const skills = inn.bowler.p.bowl;
+      this.deliveryType = skills.repertoire[0];
+      if (isSpinner(skills)) {
+        this.target = { line: 0.25, length: 5.4 };
+        if (!inn.customField) inn.setPreset("spin");
+      } else {
+        this.target = { line: 0.22, length: 6.4 };
+        if (inn.preset === "spin" && !inn.customField) inn.setPreset("attacking");
+      }
+      this.nextBall();
+    }
+  }
+
+  updateFieldEdit() {
+    const inn = this.inn;
+    if (keys.pressed("KeyF") && this.human === "bowl") this.cyclePreset();
+    if (this.human === "bowl") {
+      if (mouse.pressed) {
+        // Grab the nearest fielder within 12px.
+        let nearest = -1;
+        let best = 12;
+        inn.placements.forEach((place, i) => {
+          const p = projectWide(place.pos.x, 0, place.pos.z);
+          const dist = Math.hypot(p.x - mouse.x, p.y - 4 - mouse.y);
+          if (dist < best) {
+            best = dist;
+            nearest = i;
+          }
+        });
+        this.dragIdx = nearest;
+      }
+      if (mouse.down && this.dragIdx >= 0) {
+        const pos = clampFieldPosition(unprojectWide(mouse.x, mouse.y));
+        inn.placements[this.dragIdx] = { name: positionName(pos), pos };
+        inn.customField = true;
+      }
+      if (mouse.released) this.dragIdx = -1;
+    }
+    if (keys.pressed("KeyV") || keys.pressed("Enter") || keys.pressed("Escape")) {
+      this.view = this.cam === "wide" ? "wide" : "close";
+      this.setPhase(this.human === "bowl" ? "setup" : "ready");
+    }
+  }
+
+  updateRunup(dt) {
+    const cur = this.cur;
+    cur.tRun += dt;
+    if (this.human === "bowl") {
+      // Release on Space: early drops it short, late drags it full, very late is a no-ball.
+      if (keys.pressed("Space") && cur.tRun > cur.runupDur * 0.4) this.release(clamp(cur.tRun - cur.runupDur, -0.35, 0.3));
+      else if (cur.tRun > cur.runupDur + 0.17) this.release(0.17 + Math.random() * 0.03);
+    } else if (cur.tRun >= cur.runupDur + clamp(cur.aiReleaseError, -0.08, 0.08)) {
+      this.release(cur.aiReleaseError);
+    }
+  }
+
+  release(releaseError) {
+    const cur = this.cur;
+    cur.delivery = this.match.deliver(cur.intent, releaseError);
+    cur.t = 0;
+    const atBat = crossingAtZ(cur.delivery.samples, CONTACT_Z_FRONT);
+    cur.lineAtBat = atBat ? atBat.x : 0;
+    if (this.human === "bowl") {
+      // The AI batter's shot is decided now; schedule its animation.
+      const shot = this.match.aiShot(cur.delivery);
+      cur.shot = shot;
+      cur.play = this.match.resolve(cur.intent, cur.delivery, shot);
+      const arrive = this.arrival(shot.type);
+      if (shot.type === "defend") cur.defendAt = arrive - 0.25;
+      else if (shot.type === "leave") cur.leaveAt = arrive - 0.28;
+      else {
+        cur.swingAt = arrive - SWING_TIME[shot.type] + shot.timingError;
+        cur.swingType = shot.type;
+        cur.backliftAt = cur.swingAt - (shot.charge > 0.7 ? POWER_BACKLIFT_TIME : BACKLIFT_TIME);
+      }
+    }
+    if (cur.delivery.noBall) this.banner("NO BALL", COLORS.gold, 1.2, 3, 50, this.now + 0.25);
+    this.setPhase("flight");
+  }
+
+  /** Ball time at which the ball reaches the bat for a given shot. */
+  arrival(shotType) {
+    const d = this.cur.delivery;
+    const pitchZ = d.pitchedAt?.z ?? 0;
+    const back = shotType === "cutpull" || (shotType === "defend" && pitchZ > 6.8) || (shotType === "leave" && pitchZ > 7);
+    return crossingAtZ(d.samples, back ? CONTACT_Z_BACK : CONTACT_Z_FRONT)?.t ?? 0.6;
+  }
+
+  /** Ball time, counting negative through the end of the run-up. */
+  clock() {
+    const cur = this.cur;
+    return cur.delivery ? cur.t : cur.tRun - cur.runupDur;
+  }
+
+  updateBatInput() {
+    if (this.human !== "bat" || !this.cur) return;
+    const cur = this.cur;
+    if (cur.shot) return;
+    const t = this.clock();
+    if (!cur.delivery) return;
+    const power = keys.down("ShiftLeft") || keys.down("ShiftRight");
+    for (const [key, type] of Object.entries(SHOT_KEYS)) {
+      if (keys.pressed(key) && !cur.shot) this.commitSwing(t, type, power);
+    }
+    if (keys.pressed("KeyA") && !cur.shot) this.commitDefend(t);
+    if (cur.delivery && !cur.shot) {
+      const arrive = crossingAtZ(cur.delivery.samples, CONTACT_Z_FRONT)?.t ?? 0.6;
+      if (t > arrive + 0.05) this.commitLeave();
+    }
+  }
+
+  commitSwing(t, type, power) {
+    const cur = this.cur;
+    cur.swingType = type;
+    cur.backliftAt = t;
+    cur.swingAt = t + (power ? POWER_BACKLIFT_TIME : BACKLIFT_TIME);
+    const timingError = cur.swingAt + SWING_TIME[type] - this.arrival(type);
+    if (power) this.flash("POWER!", COLORS.gold);
+    cur.shot = {
+      type,
+      charge: power ? POWER_CHARGE : NORMAL_CHARGE,
+      timingError,
+      aim: arrowBearing(),
+      windowMult: PLAYER_TIMING_WINDOW,
+    };
+    cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);
+  }
+
+  commitDefend(t) {
+    const cur = this.cur;
+    const arrive = this.arrival("defend");
+    cur.defendAt = t;
+    cur.shot = {
+      type: "defend",
+      charge: 0,
+      timingError: Math.max(0, t + 0.12 - arrive),
+      aim: arrowBearing(),
+      windowMult: PLAYER_TIMING_WINDOW,
+    };
+    cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);
+  }
+
+  commitLeave() {
+    const cur = this.cur;
+    cur.leaveAt = this.clock();
+    cur.shot = { type: "leave", charge: 0, timingError: 0, aim: null };
+    cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);
+  }
+
+  updateFlight(dt) {
+    const cur = this.cur;
+    if (!cur.delivery) return;
+    if (cur.strikeAt !== null) {
+      // Slow motion just after a clean strike, then cut to the wide view.
+      const since = this.now - cur.strikeAt;
+      this.timeScale = since < 0.75 ? 0.3 : 1;
+      if (since >= 0.75 && this.cam === "auto" && this.view === "close") this.view = "wide";
+    }
+    const slowmo = this.human === "bat" && !cur.contactDone ? PLAYER_SLOWMO : 1;
+    cur.t += dt * this.timeScale * slowmo;
+    this.updateBatInput();
+    const d = cur.delivery;
+    if (!cur.bounceDone && d.bounceIndex >= 0 && cur.t >= d.samples[d.bounceIndex].t) {
+      cur.bounceDone = true;
+      sfx.bounce();
+    }
+    const play = cur.play;
+    if (!play) return;
+    const res = play.res;
+
+    if (!cur.contactDone && cur.t >= res.start.t) {
+      cur.contactDone = true;
+      const kind = res.contact.kind;
+      if (res.touchedBat) {
+        if (kind === "middle") sfx.bat(res.contact.quality);
+        else sfx.edge();
+        if (kind === "middle" && play.shot.type !== "defend" && res.contact.quality > 0.25) {
+          cur.strikeAt = this.now;
+          this.banner("STRIKE!", COLORS.gold, 0.9, 4, 70);
+        } else if (play.shot.type === "defend" || kind !== "middle") {
+          const exit = res.contact.exit;
+          if (Math.hypot(exit.x, exit.z) > 9) cur.strikeAt = this.now;
+        }
+      } else if (res.padHit) {
+        sfx.pad();
+        if (res.lbw || res.lbwNote) {
+          sfx.appeal();
+          this.banner("HOWZAT?", COLORS.cream, 0.9, 3, 60);
+        }
+      }
+      if (res.bowled) this.knockStumps(0);
+      if (res.wide) this.banner("WIDE", COLORS.gold, 1.2, 3, 50);
+    }
+
+    if (cur.contactDone) {
+      const live = play.live;
+      for (let i = 0; live.t < cur.t && i++ < 50; ) live.step(Math.min(1 / 120, cur.t - live.t + 1e-6));
+      this.handleEvents(live.events);
+      if (this.cam === "auto" && this.view === "close" && !res.touchedBat && cur.t > res.start.t + 0.9 && !live.dead)
+        this.view = "wide";
+      if (
+        this.cam === "auto" &&
+        this.view === "close" &&
+        res.touchedBat &&
+        cur.strikeAt === null &&
+        cur.t > res.start.t + 1 &&
+        !live.dead
+      ) {
+        this.view = "wide";
+      }
+      if (this.human === "bat" && this.phase === "flight") {
+        if (keys.pressed("ArrowUp")) this.runCommand(live, 1);
+        if (keys.pressed("ArrowDown")) this.runCommand(live, 0);
+      }
+      if (this.phase === "flight" && live.dead && live.t >= live.deadAt && !cur.done) this.ballDead();
+    }
+  }
+
+  /** Which run key the player should press next (1 = up, 0 = down), or null. */
+  runDirection(live) {
+    if (live.dead) return null;
+    const r = live.runners[0];
+    if (r.target !== null) return r.target === 1 ? 0 : 1;
+    return r.from === 0 ? 1 : 0;
+  }
+
+  /** Up = run towards the bowler's end, down = towards the striker's end. */
+  runCommand(live, end) {
+    const r = live.runners[0];
+    if (r.target === null) {
+      if (r.from !== end && live.requestRun()) this.flash("YES! RUN!", COLORS.gold);
+    } else if (r.target !== end && live.recall()) {
+      this.flash("NO! GET BACK!", COLORS.gold);
+    }
+  }
+
+  /** Turn new live-ball events into sounds and banners. */
+  handleEvents(events) {
+    const cur = this.cur;
+    for (; cur.lastEv < events.length; cur.lastEv++) {
+      const ev = events[cur.lastEv];
+      switch (ev.type) {
+        case "four":
+          this.big("FOUR!", COLORS.gold);
+          sfx.cheer(0.7);
+          break;
+        case "six":
+          this.big("SIX!", COLORS.gold);
+          sfx.cheer(1);
+          break;
+        case "catch":
+          sfx.gloves();
+          sfx.cheer(0.9);
+          break;
+        case "drop":
+          this.banner("DROPPED!", COLORS.red, 1.2, 3, 60);
+          sfx.groan();
+          break;
+        case "runout":
+        case "stumped": {
+          sfx.stumps();
+          sfx.cheer(0.9);
+          if (ev.text === "direct hit") this.banner("DIRECT HIT!", COLORS.gold, 1.2, 3, 60);
+          const end = ev.type === "stumped" ? 0 : (ev.end ?? 0);
+          this.knockStumps(end === 0 ? 0 : PITCH_LENGTH, true);
+          break;
+        }
+        case "bowled":
+          sfx.stumps();
+          sfx.cheer(0.9);
+          break;
+        case "lbw":
+          sfx.cheer(0.8);
+          break;
+        case "throw":
+          sfx.throw();
+          break;
+        case "gather":
+        case "stop":
+        case "collect":
+          sfx.gloves();
+          break;
+        case "misfield":
+        case "fumble":
+          sfx.groan();
+          if (ev.text) this.banner(ev.text.toUpperCase() + "!", COLORS.cream, 1.1, 2, 60);
+          break;
+        case "runDone":
+          sfx.click();
+          break;
+      }
+    }
+  }
+
+  /** Send bails and splinters flying from the stumps at depth z. */
+  knockStumps(z, wide = false) {
+    for (let i = 0; i < 6; i++) {
+      this.particles.push({
+        x: (Math.random() - 0.5) * 0.2,
+        y: 0.72,
+        z,
+        vx: (Math.random() - 0.5) * 3,
+        vy: 2 + Math.random() * 3,
+        vz: (z === 0 ? -1 : 1) * (1 + Math.random() * 2),
+        life: 1.4,
+        wide,
+      });
+    }
+  }
+
+  ballDead() {
+    const cur = this.cur;
+    const done = this.match.finish(cur.play);
+    cur.done = done;
+    this.commentary = done.rec.commentary ?? "";
+    this.commT = 0;
+    const wicket = done.rec.wicket;
+    if (wicket) {
+      const how = {
+        bowled: "BOWLED",
+        lbw: "LBW",
+        caught: wicket.caughtBehind ? "CAUGHT BEHIND" : "CAUGHT",
+        runout: "RUN OUT",
+        stumped: "STUMPED",
+      }[wicket.how];
+      const batter = this.inn.bat[wicket.batter].p;
+      this.big("OUT!", COLORS.red, `${how}  -  ${batter.short.toUpperCase()} ${this.inn.bat[wicket.batter].runs}`, 2.6);
+
+      const live = cur.play.live;
+      for (const f of live.fielders) {
+        if (Math.hypot(f.pos.x - live.ball.pos.x, f.pos.z - live.ball.pos.z) < 25 || f.role !== "field") {
+          f.state = "celebrate";
+          f.stateAt = live.t;
+        }
+      }
+      const runner = live.runners.find((r) => r.bat === wicket.batter);
+      const from = live.runnerPos(runner);
+      this.walkOff = { x: from.x, z: from.z, t0: this.now + 0.8 };
+
+      // A few fielders near the departing batter get a word in.
+      const nearby = live.fielders
+        .filter((f) => f.role === "field")
+        .sort((a, b) => Math.hypot(a.pos.x - from.x, a.pos.z - from.z) - Math.hypot(b.pos.x - from.x, b.pos.z - from.z));
+      const talkers = [
+        live.fielders.find((f) => f.role === "keeper"),
+        live.fielders.find((f) => f.role === "bowler"),
+        nearby[0],
+        nearby[1],
+      ]
+        .filter((f) => !!f)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, MAX_SLEDGES);
+      const lines = pickSledges(this.inn.bowlTeam.abbr, batter.short, talkers.length);
+      this.sledges = talkers.map((f, i) => ({ fielder: f.idx, text: lines[i], t0: this.now + 1.1 + i * SLEDGE_GAP }));
+
+      if (!done.applied.inningsOver && this.inn.wkts < 10) {
+        const inn = this.inn;
+        const fresh = inn.bat[inn.striker].balls === 0 && inn.bat[inn.striker].batted ? inn.striker : inn.nonStriker;
+        this.banner(`NEW BATTER: ${inn.bat[fresh].p.name.toUpperCase()}`, COLORS.cream, 2.2, 1, 160, this.now + WICKET_PAUSE - 2);
+      }
+    }
+    for (const m of done.applied.milestones) this.banner(m, COLORS.gold, 2.2, 2, 150, this.now + 0.4);
+    this.setPhase("after");
+  }
+
+  afterDuration() {
+    const rec = this.cur?.done?.rec;
+    if (!rec) return 1;
+    return rec.wicket ? WICKET_PAUSE : rec.boundary ? 2 : 1;
+  }
+
+  /** Fielders walk back to their marks, then on to the next ball (or over/innings end). */
+  updateReturn(dt) {
+    const live = this.cur.play.live;
+    live.t += dt;
+    let moving = false;
+    for (const f of live.fielders) {
+      if (f.state === "celebrate" && this.phaseT < 0.6) continue;
+      f.state = "idle";
+      const home = f.role === "bowler" ? { x: 1.2, z: 24 } : f.home;
+      const dx = home.x - f.pos.x;
+      const dz = home.z - f.pos.z;
+      const dist = Math.hypot(dx, dz);
+      if (dist > 0.2) {
+        moving = true;
+        const step = Math.min(dist, 11 * dt);
+        f.pos.x += (dx / dist) * step;
+        f.pos.z += (dz / dist) * step;
+      }
+    }
+    if ((!moving && this.phaseT > 0.5) || this.phaseT > (this.view === "wide" ? 1.8 : 0.6) || keys.pressed("Space")) {
+      const applied = this.cur.done.applied;
+      if (applied.inningsOver) {
+        this.setPhase("inningsEnd");
+        return;
+      }
+      if (applied.overEnded) {
+        this.big("END OF OVER", COLORS.cream, this.match.comm.overSummary(this.inn), 2.3);
+        this.setPhase("overEnd");
+        return;
+      }
+      this.nextBall();
+    }
+  }
+
+  /** Simulate `overs` overs on the AI and list the highlights. */
+  simulate(overs) {
+    const inn = this.inn;
+    const until = Math.min(inn.oversLimit, inn.overNo + overs);
+    this.simLines = [];
+    for (let i = 0; !inn.isOver && inn.overNo < until && i++ < 2000; ) {
+      const { rec, applied } = this.match.simBall();
+      if (rec.wicket || rec.boundary || applied.milestones.length || applied.overEnded) {
+        const result = rec.wicket ? "OUT! " + rec.wicket.text : rec.boundary ? rec.boundary + "!" : rec.total;
+        let line = `${rec.over}.${rec.ball} ${inn.bowl[rec.bowler].p.short} to ${inn.bat[rec.striker].p.short}: ${result}`;
+        if (applied.milestones.length) line += "  " + applied.milestones.join(", ");
+        if (applied.overEnded) line += `  | END OF OVER ${inn.overNo}: ${inn.runs}/${inn.wkts}`;
+        this.simLines.push(line);
+      }
+    }
+    this.commentary = this.simLines.length ? "Simulated. " + this.match.comm.overSummary(inn) : "";
+    this.setPhase("simSummary");
+  }
+}

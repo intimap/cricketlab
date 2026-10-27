@@ -22,15 +22,27 @@ export const BATTER_POSES = {
   stance: { px: 11, py: -44, angle: 14, step: 0, lean: 0, back: 0 },
   lift0: { px: 12, py: -52, angle: 60, step: 0, lean: 0, back: 0 },
   lift1: { px: 13, py: -62, angle: 140, step: 0, lean: -1, back: 0 },
-  contactFront: { px: 12, py: -40, angle: 0, step: 1, lean: 4, back: 0 },
+  /** Small back-and-across movement as the bowler delivers. */
+  trigger: { px: 12, py: -46, angle: 22, step: 0, lean: 1, back: 0.6 },
+  contactFront: { px: 12, py: -40, angle: 0, step: 1.4, lean: 5, back: 0 },
   contactBack: { px: 12, py: -46, angle: 10, step: 0, lean: 1, back: 1 },
-  driveEnd: { px: -2, py: -76, angle: -150, step: 1, lean: 3, back: 0 },
-  loftEnd: { px: -4, py: -82, angle: -175, step: 1, lean: 2, back: 0 },
+  // Follow-throughs, by where the shot went.
+  coverDriveEnd: { px: 6, py: -76, angle: -158, step: 1.4, lean: 6, back: 0 },
+  straightDriveEnd: { px: -1, py: -84, angle: -176, step: 1.4, lean: 3, back: 0 },
+  onDriveEnd: { px: -8, py: -72, angle: -128, step: 1.3, lean: 0, back: 0 },
+  clipEnd: { px: 2, py: -50, angle: -55, step: 1, lean: -1, back: 0 },
+  loftEnd: { px: -4, py: -86, angle: -178, step: 1.5, lean: 2, back: 0 },
+  slogEnd: { px: -12, py: -80, angle: -112, step: 1.2, lean: -3, back: 0 },
   cutEnd: { px: 18, py: -56, angle: 95, step: 0, lean: 3, back: 1 },
+  lateCutEnd: { px: 18, py: -44, angle: 78, step: 0, lean: 4, back: 1 },
   pullEnd: { px: -6, py: -62, angle: -105, step: 0, lean: -3, back: 1 },
-  defendFront: { px: 13, py: -42, angle: -4, step: 1, lean: 5, back: 0 },
+  hookEnd: { px: -10, py: -82, angle: -82, step: 0, lean: -5, back: 1 },
+  defendFront: { px: 13, py: -42, angle: -4, step: 1.3, lean: 6, back: 0 },
   defendBack: { px: 12, py: -48, angle: 2, step: 0, lean: 2, back: 1 },
   leave: { px: 3, py: -88, angle: 172, step: 0.3, lean: -2, back: 0 },
+  // Reactions.
+  beaten: { px: 9, py: -54, angle: 40, step: 0.6, lean: -3, back: 0.3 },
+  padFlinch: { px: 6, py: -60, angle: 60, step: 0.4, lean: -4, back: 0.6 },
 };
 
 export function lerpPose(a, b, t) {

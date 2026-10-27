@@ -3,8 +3,8 @@ import { drawText } from "../engine/text.js";
 import { clamp, easeIn, easeOut } from "../math.js";
 import { CREASE, PITCH_LENGTH } from "../sim/geometry.js";
 import { isSpinner } from "../sim/teams.js";
-import { DELIVERY_NAMES, sampleAtTime, lengthName, lineName } from "../sim/delivery.js";
-import { SWING_TIME, NORMAL_CHARGE } from "../sim/batting.js";
+import { DELIVERY_NAMES, sampleAtTime, crossingAtZ, lengthName, lineName } from "../sim/delivery.js";
+import { SWING_TIME, NORMAL_CHARGE, CONTACT_Z_BACK } from "../sim/batting.js";
 import { PRESET_LABELS, keeperSpot } from "../sim/field.js";
 import { CLOSE_Y_OFFSET, closeGroundY, projectClose, closePixelsPerMetre, projectWide } from "../render/camera.js";
 import { BATTER_POSES, lerpPose, drawBatter, drawFigure, drawTinyFigure, drawBall, drawShadow } from "../render/sprites.js";
@@ -186,53 +186,82 @@ function drawBrokenStumps() {
   drawLine(base.x, base.y, base.x + 9, base.y - h + 6, 6, "#7a4015");
 }
 
-/** The striker, animated through backlift, swing, defence or leave. */
+/** Stance before the ball: an occasional bat tap, then a trigger movement as the bowler delivers. */
+function readyPose(scene, cur, t) {
+  if (cur && t > -0.35) return lerpPose(BATTER_POSES.stance, BATTER_POSES.trigger, easeOut((t + 0.35) / 0.2));
+  const tap = Math.max(0, Math.sin(scene.now * 2.6)) ** 8;
+  return { ...BATTER_POSES.stance, angle: BATTER_POSES.stance.angle + 12 * tap };
+}
+
+/** Follow-through for the shot being played, chosen by where the ball went (or was meant to go). */
+function finishPose(cur, type) {
+  const contact = cur.play?.res.contact;
+  if (type === "cutpull") {
+    if (cur.lineAtBat > 0.2) return contact?.shotName === "late cut" ? BATTER_POSES.lateCutEnd : BATTER_POSES.cutEnd;
+    const height = crossingAtZ(cur.delivery.samples, CONTACT_Z_BACK)?.y ?? 0;
+    return height > 1.35 ? BATTER_POSES.hookEnd : BATTER_POSES.pullEnd;
+  }
+  const bearing =
+    contact?.kind === "middle"
+      ? (Math.atan2(contact.exit.x, contact.exit.z) * 180) / Math.PI
+      : (cur.shot?.aim ?? clamp(cur.lineAtBat * 75, -50, 70));
+  if (type === "loft") return bearing < -35 ? BATTER_POSES.slogEnd : BATTER_POSES.loftEnd;
+  if (bearing < -60) return BATTER_POSES.clipEnd;
+  if (bearing < -15) return BATTER_POSES.onDriveEnd;
+  if (bearing > 25) return BATTER_POSES.coverDriveEnd;
+  return BATTER_POSES.straightDriveEnd;
+}
+
+/** The striker, animated through stance, backlift, swing, defence or leave, and reactions after. */
 function drawStriker(scene) {
   const cur = scene.cur;
   const inn = scene.inn;
   const x = 300;
   const y = closeGroundY(CREASE) + 2;
-  let pose = BATTER_POSES.stance;
   const t = cur ? scene.clock() : 0;
+  const ready = readyPose(scene, cur, t);
+  let pose = ready;
   if (cur) {
     const arrive = cur.delivery ? scene.arrival(cur.swingType ?? cur.shot?.type ?? "drive") : 0.6;
     // Reach towards the line of the ball.
     const reach = clamp((projectClose(cur.lineAtBat, 0, 1.9).x - (x + 12)) * 0.8, -8, 26);
+    let shotDoneAt = null;
     if (cur.swingAt !== null && t >= cur.swingAt && cur.swingType) {
       const type = cur.swingType;
       const top = lerpPose(BATTER_POSES.lift0, BATTER_POSES.lift1, cur.shot?.charge ?? 0.5);
       const contact = type === "cutpull" ? BATTER_POSES.contactBack : BATTER_POSES.contactFront;
-      const finish =
-        type === "cutpull"
-          ? cur.lineAtBat > 0.2
-            ? BATTER_POSES.cutEnd
-            : BATTER_POSES.pullEnd
-          : type === "loft"
-            ? BATTER_POSES.loftEnd
-            : BATTER_POSES.driveEnd;
       const k = (t - cur.swingAt) / SWING_TIME[type];
       if (k < 1) pose = lerpPose(top, contact, easeIn(k));
-      else pose = lerpPose(contact, finish, easeOut((t - cur.swingAt - SWING_TIME[type]) / FOLLOW_THROUGH_TIME));
+      else pose = lerpPose(contact, finishPose(cur, type), easeOut((t - cur.swingAt - SWING_TIME[type]) / FOLLOW_THROUGH_TIME));
       if (k > 0.3 && k < 1.6) pose = { ...pose, px: pose.px + reach * Math.min(1, k) * (1.6 - k) };
+      shotDoneAt = cur.swingAt + SWING_TIME[type] + FOLLOW_THROUGH_TIME;
     } else if (cur.swingType && cur.swingAt !== null && t >= cur.backliftAt) {
       const charge = cur.shot?.charge ?? NORMAL_CHARGE;
       pose = lerpPose(
-        BATTER_POSES.stance,
+        ready,
         lerpPose(BATTER_POSES.lift0, BATTER_POSES.lift1, charge),
         easeOut((t - cur.backliftAt) / Math.max(0.01, cur.swingAt - cur.backliftAt)),
       );
     } else if (cur.defendAt !== null && t >= cur.defendAt) {
       const block = (cur.delivery?.pitchedAt?.z ?? 5) > 6.8 ? BATTER_POSES.defendBack : BATTER_POSES.defendFront;
-      pose = lerpPose(BATTER_POSES.stance, block, easeOut((t - cur.defendAt) / 0.09));
+      pose = lerpPose(ready, block, easeOut((t - cur.defendAt) / 0.09));
       pose = { ...pose, px: pose.px + reach * clamp((t - cur.defendAt) / 0.15) };
+      shotDoneAt = cur.defendAt + 0.3;
     } else if (cur.leaveAt !== null && t >= cur.leaveAt) {
-      pose = lerpPose(BATTER_POSES.stance, BATTER_POSES.leave, (t - cur.leaveAt) / 0.18);
+      pose = lerpPose(ready, BATTER_POSES.leave, (t - cur.leaveAt) / 0.18);
     } else if (scene.human === "bat" && cur.delivery && !cur.shot && t > arrive - 0.22) {
       // No shot chosen yet: start lifting the bat out of the way.
-      pose = lerpPose(BATTER_POSES.stance, BATTER_POSES.leave, (t - (arrive - 0.22)) / 0.18);
+      pose = lerpPose(ready, BATTER_POSES.leave, (t - (arrive - 0.22)) / 0.18);
+    }
+
+    const play = cur.play;
+    const res = play?.res;
+    // Reactions once the ball has gone past: flinch if hit on the pad, recoil if beaten.
+    if (res && cur.contactDone && !res.touchedBat) {
+      if (res.padHit) pose = lerpPose(pose, BATTER_POSES.padFlinch, easeOut((t - res.start.t) / 0.12));
+      else if (shotDoneAt !== null && t > shotDoneAt) pose = lerpPose(pose, BATTER_POSES.beaten, easeOut((t - shotDoneAt) / 0.2));
     }
     // Hidden once out (and walking off) or once running.
-    const play = cur.play;
     if (
       (cur.done && play && cur.done.rec.wicket?.batter === play.striker && scene.phase !== "flight") ||
       (play && cur.contactDone && (play.live.runners[0].target !== null || play.live.runners[0].from === 1))

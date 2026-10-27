@@ -79,6 +79,8 @@ src/
     sprites.js        batter, figures, ball
     hud.js            score bar, mini-map, banners, scorecard, speech bubbles
     booth.js          commentator portraits and the commentary popup
+    grounds.js        grounds as data: stripe layout, colours, pitch looks, which paintings to use
+    ground.js         the layer compositor: builds each view's background from a ground's data
   scenes/
     menu.js           title screen
     match.js          the match: phases, player input, timing, events

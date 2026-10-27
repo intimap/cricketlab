@@ -44,6 +44,11 @@ export function closeGroundY(depth) {
   return HORIZON_Y + DEPTH_GAIN * depthScale(depth) + CLOSE_Y_OFFSET;
 }
 
+/** Inverse of closeGroundY: the depth (m from the camera's end) of the ground at screen row y. */
+export function closeRowDepth(y) {
+  return DEPTH_GAIN / Math.max(0.01, y - CLOSE_Y_OFFSET - HORIZON_Y) - CAMERA_Z;
+}
+
 /** World point to screen as seen from behind the striker, whichever end the camera is at. */
 export function projectFromStriker(x, y, z) {
   const s = depthScale(z);
@@ -111,7 +116,7 @@ function rawUnprojectWide(sx, sy) {
 // The boundary rope as painted in the wide background: an ellipse, slightly
 // deeper on the near side. The linear mapping above puts the 66 m boundary on
 // a rounded rectangle instead, so it is bent to fit this.
-const ROPE = { cx: 318.5, cy: 215, rx: 297.5, ryFar: 108, ryNear: 113 };
+export const ROPE = { cx: 318.5, cy: 215, rx: 297.5, ryFar: 108, ryNear: 113 };
 
 /** t > 0 where the ray from the ground centre along (vx, vy) meets the painted rope. */
 function ropeHit(vx, vy) {

@@ -73,7 +73,7 @@ export function drawMatch(scene) {
 function drawClose(scene) {
   setCloseEnd(scene.closeEnd === "bowl");
   const fromBowler = closeFromBowlerEnd();
-  ctx.drawImage(scene.game.images.close, 0, CLOSE_Y_OFFSET, WIDTH, HEIGHT);
+  ctx.drawImage(scene.groundArt.close, 0, CLOSE_Y_OFFSET, WIDTH, HEIGHT);
   const cur = scene.cur;
   const inn = scene.inn;
   const live = cur?.play?.live;
@@ -373,7 +373,7 @@ function drawTarget(scene) {
 // --- Wide view: the whole ground. ---
 
 function drawWide(scene) {
-  ctx.drawImage(scene.game.images.wide, 0, 0, WIDTH, HEIGHT);
+  ctx.drawImage(scene.groundArt.wide, 0, 0, WIDTH, HEIGHT);
   const inn = scene.inn;
   const cur = scene.cur;
   const live = cur?.play?.live;

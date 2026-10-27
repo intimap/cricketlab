@@ -5,8 +5,8 @@ import { PITCH_LOOKS } from "./grounds.js";
 
 /**
  * The layer compositor: builds each view's background once (per match, and
- * again as the pitch wears) from a ground's data (grounds.js). Hand-painted
- * scenery comes from a painting; the outfield, pitch, creases, stumps and
+ * again as the pitch wears) from a ground's data (grounds.js). Hand-made
+ * scenery comes from a painting or a stack of art layers; the outfield, pitch, creases, stumps and
  * rope are drawn here from the camera's own geometry, so they always line up.
  *
  * Returns { close, wide }: canvases the size of the paintings, drawn exactly
@@ -74,12 +74,79 @@ class Pixels {
   }
 }
 
-function paintingCanvas(painting) {
+/**
+ * The scenery a view is built on: either one painting (an asset id), or a
+ * stack of layers drawn in order, each { image, y } (an asset id placed at
+ * row y) or { clouds: id, count, top, bottom } (clouds cut from a sheet and
+ * scattered by the seed between those rows).
+ */
+function sceneryCanvas(scenery, images, seed) {
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
-  canvas.getContext("2d").drawImage(painting, 0, 0, W, H);
+  const ctx = canvas.getContext("2d");
+  const layers = typeof scenery === "string" ? [{ image: scenery, y: 0 }] : scenery;
+  for (const layer of layers) {
+    if (layer.image) ctx.drawImage(images[layer.image], 0, layer.y ?? 0);
+    if (layer.clouds) scatterClouds(ctx, images[layer.clouds], layer, seed);
+  }
   return canvas;
+}
+
+/** The separate sprites on a sheet: bounding boxes of its opaque islands (cached on the image). */
+function sheetSprites(img) {
+  if (img.sprites) return img.sprites;
+  const c = document.createElement("canvas");
+  c.width = img.width;
+  c.height = img.height;
+  const g = c.getContext("2d");
+  g.drawImage(img, 0, 0);
+  const a = g.getImageData(0, 0, img.width, img.height).data;
+  const seen = new Uint8Array(img.width * img.height);
+  const sprites = [];
+  for (let i = 0; i < seen.length; i++) {
+    if (seen[i] || a[i * 4 + 3] === 0) continue;
+    // Flood-fill this island and take its box.
+    let x0 = img.width;
+    let y0 = img.height;
+    let x1 = 0;
+    let y1 = 0;
+    const stack = [i];
+    seen[i] = 1;
+    while (stack.length) {
+      const j = stack.pop();
+      const x = j % img.width;
+      const y = Math.floor(j / img.width);
+      x0 = Math.min(x0, x);
+      x1 = Math.max(x1, x);
+      y0 = Math.min(y0, y);
+      y1 = Math.max(y1, y);
+      for (const k of [j - 1, j + 1, j - img.width, j + img.width]) {
+        if (k < 0 || k >= seen.length || seen[k] || a[k * 4 + 3] === 0) continue;
+        if (Math.abs((k % img.width) - x) > 1) continue;
+        seen[k] = 1;
+        stack.push(k);
+      }
+    }
+    if (x1 - x0 > 3 && y1 - y0 > 2) sprites.push({ x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 });
+  }
+  img.sprites = sprites;
+  return sprites;
+}
+
+/** Clouds from a sheet, spread across the sky without piling on top of each other. */
+function scatterClouds(ctx, sheet, layer, seed) {
+  const sprites = sheetSprites(sheet);
+  if (!sprites.length) return;
+  const placed = [];
+  for (let i = 0, tries = 0; placed.length < layer.count && tries < 200; tries++, i++) {
+    const s = sprites[Math.floor(hash(i, 1, seed) * sprites.length)];
+    const x = Math.round(hash(i, 2, seed) * (W + s.w) - s.w);
+    const y = Math.round(layer.top + hash(i, 3, seed) * Math.max(0, layer.bottom - layer.top - s.h));
+    if (placed.some((p) => x < p.x + p.w + 8 && x + s.w + 8 > p.x && y < p.y + p.h && y + s.h > p.y)) continue;
+    placed.push({ x, y, w: s.w, h: s.h });
+    ctx.drawImage(sheet, s.x, s.y, s.w, s.h, x, y, s.w, s.h);
+  }
 }
 
 /** Is a distance down the ground in a light stripe? `edges` are where light and dark swap. */
@@ -119,8 +186,8 @@ function cracks(count, seed) {
 
 // --- Close view ------------------------------------------------------------
 
-export function buildClose(ground, painting, pitch, seed = 1) {
-  const px = new Pixels(paintingCanvas(painting));
+export function buildClose(ground, images, pitch, seed = 1) {
+  const px = new Pixels(sceneryCanvas(ground.close.scenery, images, seed));
   const view = ground.close;
   const light = rgb(ground.grass.light);
   const dark = rgb(ground.grass.dark);
@@ -232,8 +299,8 @@ export function buildClose(ground, painting, pitch, seed = 1) {
 
 // --- Wide view -------------------------------------------------------------
 
-export function buildWide(ground, painting, pitch, seed = 1) {
-  const px = new Pixels(paintingCanvas(painting));
+export function buildWide(ground, images, pitch, seed = 1) {
+  const px = new Pixels(sceneryCanvas(ground.wide.scenery, images, seed));
   const view = ground.wide;
   const light = rgb(view.grass.light);
   const dark = rgb(view.grass.dark);
@@ -327,7 +394,7 @@ export function buildWide(ground, painting, pitch, seed = 1) {
 /** Both views for a ground and the current state of the pitch. */
 export function buildGround(ground, images, pitch, seed = 1) {
   return {
-    close: buildClose(ground, images[ground.close.scenery], pitch, seed),
-    wide: buildWide(ground, images[ground.wide.scenery], pitch, seed),
+    close: buildClose(ground, images, pitch, seed),
+    wide: buildWide(ground, images, pitch, seed),
   };
 }

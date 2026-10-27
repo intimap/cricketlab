@@ -108,6 +108,11 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **What's shown on screen:** `scenes/match-view.js` and `render/`.
 - **Game modes and Classic Matches:** `sim/formats.js` (challenges are plain data). AI chase and
   limited-overs tempo constants are at the top of `sim/ai.js`.
+- **Ground art:** images live in `assets/` (layer art in `assets/close/`), listed by id in `src/assets.js`;
+  grounds pick their layers in `src/render/grounds.js`. `tools/art/make_scenery.py` regenerates the
+  Parklands close-view layers.
+- **One-file builds:** `python3 tools/build-single.py out.html [--ref main] [--stamp]` bundles the game
+  with its images inlined (needs esbuild).
 - **Balance checks:** `node tools/sim-report.mjs [innings] [pitch]` simulates AI-vs-AI innings and prints
   run rates, dismissals, plan figures and commentary moments.
 - **Commentary:** `sim/commentary.js` for the ball-by-ball description; `sim/moments.js` to spot a new

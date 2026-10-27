@@ -2,6 +2,7 @@ import { WIDTH, HEIGHT, COLORS, initScreen, present, toGameCoords, fillRect } fr
 import { drawText } from "./engine/text.js";
 import { initInput, keys, endFrame } from "./engine/input.js";
 import { unlockAudio, toggleMute } from "./engine/audio.js";
+import { loadAssets } from "./assets.js";
 import { Menu } from "./scenes/menu.js";
 import { MatchScene } from "./scenes/match.js";
 
@@ -56,11 +57,9 @@ class Game {
     drawText("LOADING...", WIDTH / 2, HEIGHT / 2, { align: "center" });
     present();
 
-    const [close, wide] = await Promise.all([
-      loadImage(new URL("../assets/ground-close.png", import.meta.url)),
-      loadImage(new URL("../assets/ground-wide.png", import.meta.url)),
-    ]);
-    this.images = { close, wide, stumps: cutOutStumps(close) };
+    const assets = await loadAssets(loadImage);
+    const close = assets["ground-close"];
+    this.images = { ...assets, close, wide: assets["ground-wide"], stumps: cutOutStumps(close) };
     this.menu = new Menu(this);
     this.scene = this.menu;
 

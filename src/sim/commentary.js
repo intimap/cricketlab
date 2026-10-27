@@ -326,13 +326,13 @@ export class Commentary {
       colour("turning", inn.pitch.wear > 0.25 && spin) ||
       (bowler.stamina < 0.35 && this.rng.chance(0.25) ? fill(this.pick(COLOUR_LINES.tired)) : "") ||
       colour("settled", batter.balls > 150);
-    const battle = this.battleLine(rec, inn, batter, fill);
+    const battle = this.battleLine(rec, batter, fill);
     if (battle) return `${text} ${battle}`;
     return extra ? `${text} ${extra}` : text;
   }
 
   /** A line about the battle: set-ups, repeats, weaknesses showing, free hits. */
-  battleLine(rec, inn, batter, fill) {
+  battleLine(rec, batter, fill) {
     const b = rec.battle;
     if (rec.bouncerNoBall) return this.pick(BATTLE_LINES.thirdBouncer);
     if (rec.extra.type === "nb") return this.pick(BATTLE_LINES.freeHitNext);

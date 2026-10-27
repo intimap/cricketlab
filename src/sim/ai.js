@@ -55,12 +55,12 @@ export function pickBowler(inn) {
 export function pickOverPlan(inn, rng) {
   const skills = inn.bowler.p.bowl;
   const batter = inn.bat[inn.striker];
-  const knows = batter.balls > 12 || rng.chance(0.4);
+  const knows = batter.balls > 24 || rng.chance(0.25);
   const weakness = knows ? batter.p.weakness : null;
   if (isSpinner(skills)) {
     if (weakness === "earlySpin" && inn.batterState(inn.striker).settled < 0.5) return "flight";
     const rough = inn.pitch.roughPatches[0]?.strength ?? 0;
-    return rough > 0.25 && rng.chance(0.7) ? "rough" : inn.pressure > 0.4 ? "squeeze" : "flight";
+    return rough > 0.25 && rng.chance(0.6) ? "rough" : inn.pressure > 0.4 ? "squeeze" : "stock";
   }
   if ((weakness === "hook" || weakness === "bouncer") && skills.style === "fast" && inn.bowler.stamina > 0.45) return "short";
   if (weakness === "offStump") return "corridor";
@@ -113,7 +113,7 @@ export function pickDeliveryPlan(inn, rng) {
       line = offspin ? 0.5 : -0.55;
       length = 4.6 + rng.normal(0, 0.4);
     }
-    effort = plan === "flight" ? "low" : plan === "squeeze" ? "high" : "med";
+    effort = plan === "flight" ? "low" : plan === "squeeze" ? "high" : rng.chance(0.15) ? "low" : "med";
     if (has("googly") && rng.chance(0.09)) {
       type = "googly";
       line = 0.1;
@@ -251,7 +251,10 @@ export function pickShot(d, inn, rng) {
     type =
       pitchZ > 8 ? (roll < 0.4 + aggression * 0.4 ? "cutpull" : "leave") : roll < 0.55 + aggression * 0.3 ? "drive" : "leave";
   } else if (height > 1.25) {
-    type = roll < aggression * 0.6 + skills.vsPace * 0.2 ? "cutpull" : "leave";
+    // Short: take it on, or (more often when it's really up there) sway out of the way.
+    const hooker = batter.p.weakness === "hook";
+    const takeOn = (aggression * 0.6 + skills.vsPace * 0.2) * (hooker ? 1 : height > 1.6 ? 0.3 : height > 1.35 ? 0.5 : 1);
+    type = roll < takeOn ? "cutpull" : "leave";
   } else if (pitchZ < 4.2 && pitchZ > 1.3) {
     type = roll < 0.5 + aggression * 0.45 ? (spinner && rng.chance(aggression * 0.35) ? "loft" : "drive") : "defend";
   } else if (pitchZ > 8 && onStumps) {
@@ -301,11 +304,11 @@ export function pickShot(d, inn, rng) {
   if (slog) charge = Math.max(charge, rng.range(0.8, 1));
   else if (batter.p.weakness === "hook" && type === "cutpull" && height > 1.1) charge = Math.max(charge, rng.range(0.5, 0.8));
   // He's seen this one before: he's lined it up.
-  if (familiar >= 2 && charge > 0) charge = Math.min(1, charge + 0.15);
+  if (familiar >= 3 && charge > 0) charge = Math.min(1, charge + 0.1);
   const vsType = spinner ? skills.vsSpin : skills.vsPace;
   const timingSd = (0.03 - 0.012 * skills.timing - 0.006 * state.settled) * (1.25 - 0.4 * vsType) * (1 + charge * 0.4) + 0.006;
   // A slower ball he hasn't picked: through the shot too early.
-  const timingError = rng.normal(d.paceMisread ? -0.035 : 0, Math.max(0.006, timingSd) * hard);
+  const timingError = rng.normal(d.paceMisread ? -0.035 : 0, Math.max(0.006, timingSd) * Math.sqrt(hard));
   return {
     type,
     charge,

@@ -68,6 +68,8 @@ function shotSuitability(type, height, pitchZ, line, spinner) {
     if (height < 0.45) s -= 0.35;
     if (line > 0.2 && line < 0.32) s -= 0.15;
     if (line <= 0.2 && line > -0.1 && height < 0.8) s -= 0.3;
+    // Above the shoulder it's very hard to keep down.
+    if (height > 1.55) s -= 0.45;
   } else if (type === "loft") {
     if (pitchZ > 6.5) s -= 0.4;
     if (height > 1) s -= 0.3;
@@ -244,8 +246,10 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
   const aimY = late.y + (early.y - late.y) * (1 - adjust);
   // `difficulty` (from plans.js): above 1 when the ball targets a weakness or springs a surprise.
   const jitter = 0.013 * (1.25 - bat.technique) * (1 + (1 - state.settled) * 0.6) * (shot.difficulty ?? 1);
+  // Hooking a ball up around the head is a gamble: hard to get on top of.
+  const hooking = shot.type === "cutpull" && at.x <= 0.2 && at.y > 1.35;
   const batX = aimX + rng.normal(0, jitter);
-  const batY = aimY + rng.normal(0, jitter * 1.5);
+  const batY = aimY + rng.normal(0, jitter * 1.5 * (hooking ? 2.2 : 1));
   const latErr = at.x - batX;
   const vErr = at.y - batY;
   const height = at.y;
@@ -300,7 +304,7 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
       } else if (isSweep(shot.type)) {
         speed = (batSpeed + 0.25 * ballSpeed + 4) * (0.5 + 0.5 * quality) * ball.batPace;
       } else {
-        speed = (batSpeed + 0.42 * ballSpeed) * (0.5 + 0.5 * quality) * ball.batPace;
+        speed = (batSpeed + 0.42 * ballSpeed) * (0.5 + 0.5 * quality) * ball.batPace * (hooking ? 0.85 : 1);
       }
       if (mistimed && !defending) speed *= 0.7;
       let dir = natural;
@@ -315,7 +319,8 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
       else if (shot.type === "ramp") elevation = 28 + 12 * shot.charge + rng.normal(0, 6);
       else if (isSweep(shot.type)) elevation = -2 + rng.normal(0, 2) + (height > 0.7 ? 12 : 0);
       else if (shot.type === "cutpull")
-        elevation = cut ? 4 + rng.normal(0, 4) + (height > 1 ? 7 : 0) : 5 + (height - 0.7) * 22 + rng.normal(0, 5);
+        // A pull is rolled down; only a hook off a really high ball tends to go in the air.
+        elevation = cut ? 4 + rng.normal(0, 4) + (height > 1 ? 7 : 0) : 2 + Math.max(0, height - 1.2) * 20 + rng.normal(0, 5);
       else elevation = 1.5 + rng.normal(0, 3) + (height > 0.8 ? 7 : 0) + (timing < -1 ? rng.range(10, 30) : 0);
       if (mistimed && !defending) elevation += rng.range(0, isSweep(shot.type) ? 8 : 22);
       break;

@@ -128,8 +128,8 @@ export function exploits(weakness, ball, ctx) {
 }
 
 // Tuned against simulated innings.
-const WEAK_EFFECT = 0.8;
-const SURPRISE_EFFECT = 0.5;
+const WEAK_EFFECT = 0.5;
+const SURPRISE_EFFECT = 0.35;
 
 /** Multiplier on how hard the batter finds the ball to play (1 = normal). */
 export function difficulty({ weak, surprise, familiar }) {

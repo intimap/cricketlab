@@ -11,6 +11,9 @@ function runDistance(t, topSpeed) {
   return t < tTop ? 0.5 * FIELDER_ACCEL * t * t : 0.5 * topSpeed * tTop + topSpeed * (t - tTop);
 }
 
+/** Where the keeper (end 0) or bowler (end 1) stands to take a throw at the stumps. */
+const coverSpot = (end) => ({ x: ENDS[end].x + 0.4, z: ENDS[end].z + (end === 0 ? -0.6 : 0.6) });
+
 /** Advance a free ball (in the air or along the ground) by dt. */
 function stepBall(b, dt, outfield) {
   b.vel.y -= GRAVITY * dt;
@@ -259,6 +262,13 @@ export class BallInPlay {
         f.target = null;
       }
     }
+    // Keeper and bowler get back to their stumps to take a throw, unless they're chasing.
+    for (const f of this.fielders) {
+      if ((f.role !== "keeper" && f.role !== "bowler") || f.idx === best?.fielder) continue;
+      if (f.state !== "idle" && f.state !== "cover") continue;
+      f.state = "cover";
+      f.target = coverSpot(f.role === "keeper" ? 0 : 1);
+    }
     if (!best) return;
 
     const chaser = this.fielders[best.fielder];
@@ -332,7 +342,11 @@ export class BallInPlay {
       }
     } else {
       const holder = this.fielders[b.held];
-      b.pos = { x: holder.pos.x, y: 1, z: holder.pos.z };
+      const stumps = b.atEnd !== null ? ENDS[b.atEnd] : null;
+      // A throw to an unmanned end waits by the stumps for the fielder to arrive.
+      if (stumps && Math.hypot(holder.pos.x - stumps.x, holder.pos.z - stumps.z) > 1.5)
+        b.pos = { x: stumps.x + 0.3, y: 0.2, z: stumps.z };
+      else b.pos = { x: holder.pos.x, y: 1, z: holder.pos.z };
     }
 
     if (this.plan && !this.dead && b.held < 0 && !b.throwing && this.t >= this.plan.t) this.resolvePlan();
@@ -568,16 +582,28 @@ export class BallInPlay {
     }
 
     this.ball.atEnd = end;
-    const receiver = this.fielders.find((x) => (end === 0 ? x.role === "keeper" : x.role === "bowler"));
+    // Whoever is nearest the stumps takes the throw; if they aren't there yet they must run in.
+    const spot = coverSpot(end);
+    let receiver = null;
+    let gap = Infinity;
+    for (const x of this.fielders) {
+      if (x.idx === thrower || x.state === "down" || x.state === "dive") continue;
+      const d = Math.hypot(x.pos.x - spot.x, x.pos.z - spot.z);
+      if (d < gap) {
+        gap = d;
+        receiver = x;
+      }
+    }
+    // Seconds before the receiver can break the stumps.
+    const getThere = receiver ? Math.max(0, gap - 1.2) / receiver.speed : 3;
     this.ball.held = receiver ? receiver.idx : -1;
     if (receiver) {
-      receiver.pos = { x: ENDS[end].x + 0.4, z: ENDS[end].z + (end === 0 ? -0.6 : 0.6) };
-      receiver.target = null;
-      receiver.state = "hold";
+      receiver.target = spot;
+      receiver.state = "cover";
     }
     this.ball.vel = { x: 0, y: 0, z: 0 };
     this.emit("gather", { end });
-    this.breakDelay = 0.28;
+    this.breakDelay = 0.28 + getThere;
 
     if (atRisk) {
       const hands = receiver
@@ -585,12 +611,14 @@ export class BallInPlay {
           ? receiver.player.field.keeping
           : receiver.player.field.catching
         : 0.5;
-      const fumbleChance = clamp((th.wild ? 0.35 : 0.12) * (1.4 - hands), 0.03, 0.5);
+      // Taking it on the run is harder than standing over the stumps.
+      const onTheRun = 1 + Math.min(1, getThere);
+      const fumbleChance = clamp((th.wild ? 0.35 : 0.12) * (1.4 - hands) * onTheRun, 0.03, 0.6);
       if (rng.chance(fumbleChance)) {
-        this.breakDelay = rng.range(0.5, 1.2);
+        this.breakDelay = getThere + rng.range(0.5, 1.2);
         this.emit("fumble", { fielder: receiver?.idx, end, text: "fumbled" });
       } else {
-        this.breakDelay = rng.range(0.15, 0.45) + (th.wild ? rng.range(0.15, 0.45) : 0);
+        this.breakDelay = getThere + rng.range(0.15, 0.45) + (th.wild ? rng.range(0.15, 0.45) : 0);
       }
       this.riskSince = this.t;
       this.idleSince = this.t;
@@ -605,7 +633,7 @@ export class BallInPlay {
       const safeIn = Math.min(...this.runners.map((r) => this.runnerTimeTo(r, other)));
       if (safeIn > 1.25 && safeIn !== Infinity) {
         this.ball.atEnd = null;
-        this.pickupAt = this.t + 0.1;
+        this.pickupAt = this.t + 0.1 + getThere;
         receiver.state = "hold";
       }
     }

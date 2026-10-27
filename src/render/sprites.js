@@ -218,20 +218,23 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   // Crouch: lowers the hips and everything above (down on one knee for a sweep).
   const drop = pose.drop ?? 0;
   const lean = pose.lean;
-  const backFoot = { x: -7 - 2 * pose.back - (drop > 8 ? 6 : 0), y: -3 };
-  const frontFoot = { x: 8 + 2 * pose.step, y: -3 + frontLift };
+  // Side-on, as seen from behind: the back (right) foot is nearest the camera,
+  // the front (left) foot further down the pitch, so higher up the screen.
+  const backFoot = { x: -3 - 2 * pose.back - (drop > 8 ? 5 : 0), y: -3 };
+  const frontFoot = { x: 4 + 2 * pose.step, y: -9 + frontLift };
   // Striding forward carries the hips with it (up the screen, in this view).
   const pelvis = { x: 1 + lean * 0.5, y: -47 + drop + frontLift * 0.5 + pose.back };
-  const backHip = { x: pelvis.x - 5.5, y: pelvis.y };
-  const frontHip = { x: pelvis.x + 5.5, y: pelvis.y };
-  // Knees flex outwards, like an athlete's ready position.
-  // Down low for a sweep, the back knee goes to the turf.
-  const backKnee = joint(backHip, backFoot, THIGH, SHIN, (a, b) => (drop > 8 ? (a.y > b.y ? a : b) : a.x < b.x ? a : b));
-  const frontKnee = joint(frontHip, frontFoot, THIGH, SHIN, (a, b) => (a.x > b.x ? a : b));
+  const backHip = { x: pelvis.x - 2.5, y: pelvis.y };
+  const frontHip = { x: pelvis.x + 3, y: pelvis.y - 2 };
+  // Knees bend towards the off side, where he faces; down low for a sweep, the back knee goes to the turf.
+  const offSide = (a, b) => (a.x > b.x ? a : b);
+  const backKnee = joint(backHip, backFoot, THIGH, SHIN, (a, b) => (drop > 8 ? (a.y > b.y ? a : b) : offSide(a, b)));
+  const frontKnee = joint(frontHip, frontFoot, THIGH, SHIN, offSide);
   const chest = { x: pelvis.x + lean * 0.9, y: pelvis.y - 29 + Math.abs(lean) * 0.25 };
+  // Shoulders side-on: the right one near us, the left one pointing down the pitch.
   // Leaning into a drive dips the front shoulder.
-  const backShoulder = { x: chest.x - 13, y: chest.y - lean * 0.5 };
-  const frontShoulder = { x: chest.x + 13, y: chest.y + lean * 0.5 };
+  const backShoulder = { x: chest.x - 7, y: chest.y - lean * 0.3 };
+  const frontShoulder = { x: chest.x + 7, y: chest.y - 2 + lean * 0.5 };
   const head = { x: chest.x + lean * 0.4 + 1, y: chest.y - 12 };
 
   // Hands on the handle: top hand (left) above the bottom hand (right).
@@ -245,18 +248,19 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   const frontElbow = joint(frontShoulder, bottomHand, UPPER_ARM, FOREARM, lower);
 
   // --- Flesh and kit ---
-  fillEllipse(x + 2 * scale, y + scale, 22 * scale, 4 * scale, "rgba(0,0,0,0.28)");
+  fillEllipse(x + 1 * scale, y - 2 * scale, 15 * scale, 5 * scale, "rgba(0,0,0,0.28)");
   const leg = (hip, knee, foot, toe) => {
     limb(hip, knee, 6, 5, kit.pants, kit.shade);
     // Pad from just above the knee to the boot, with a knee roll and straps.
     const top = { x: knee.x + (hip.x - knee.x) * 0.22, y: knee.y + (hip.y - knee.y) * 0.22 };
-    limb(top, foot, 5, 4.5, PAD, PAD_SHADE);
+    // Seen edge-on: the pad's face (and its straps) turned to the off side.
+    limb(top, foot, 4.4, 4, PAD, PAD_SHADE);
     const len = Math.hypot(foot.x - top.x, foot.y - top.y) || 1;
-    const nx = -(foot.y - top.y) / len;
-    const ny = (foot.x - top.x) / len;
+    const nx = Math.abs((foot.y - top.y) / len);
+    const ny = -(foot.x - top.x) / len;
     for (const t of [0.12, 0.45, 0.75]) {
       const c = { x: top.x + (foot.x - top.x) * t, y: top.y + (foot.y - top.y) * t };
-      line({ x: c.x - nx * 4, y: c.y - ny * 4 }, { x: c.x + nx * 4, y: c.y + ny * 4 }, 1, PAD_SHADE);
+      line({ x: c.x + nx * 0.5, y: c.y + ny * 0.5 }, { x: c.x + nx * 4, y: c.y + ny * 4 }, 1, PAD_SHADE);
     }
     poly(
       [
@@ -268,23 +272,24 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
       BOOT,
     );
   };
-  leg(backHip, backKnee, backFoot, 0);
+  // The far (front) leg first, so the near one overlaps it; toes point to the off side.
   leg(frontHip, frontKnee, frontFoot, 2);
+  leg(backHip, backKnee, backFoot, 2);
 
-  // Hips and backside.
+  // Hips, side-on.
   poly(
     [
-      { x: pelvis.x - 10, y: pelvis.y - 7 },
-      { x: pelvis.x + 10, y: pelvis.y - 7 },
-      { x: frontHip.x + 5, y: frontHip.y + 4 },
-      { x: backHip.x - 5, y: backHip.y + 4 },
+      { x: pelvis.x - 7, y: pelvis.y - 7 },
+      { x: pelvis.x + 7, y: pelvis.y - 8 },
+      { x: frontHip.x + 4, y: frontHip.y + 3 },
+      { x: backHip.x - 4, y: backHip.y + 4 },
     ],
     kit.pants,
   );
 
-  // Torso: broad shoulders tapering to a narrow waist.
-  const waistL = { x: pelvis.x - 8.5, y: pelvis.y - 6 };
-  const waistR = { x: pelvis.x + 8.5, y: pelvis.y - 6 };
+  // Torso side-on: chest to the off side, tapering to the waist.
+  const waistL = { x: pelvis.x - 6, y: pelvis.y - 6 };
+  const waistR = { x: pelvis.x + 6.5, y: pelvis.y - 6 };
   const torso = [
     { x: backShoulder.x - 1, y: backShoulder.y - 1 },
     { x: chest.x - 4, y: chest.y - 4 },
@@ -307,9 +312,10 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     ],
     kit.shade,
   );
-  line({ x: chest.x, y: chest.y + 2 }, { x: pelvis.x + lean * 0.2, y: pelvis.y - 8 }, 1, kit.shade);
+  line({ x: chest.x - 2, y: chest.y + 2 }, { x: pelvis.x - 2 + lean * 0.2, y: pelvis.y - 8 }, 1, kit.shade);
   if (number) {
-    drawText(String(number), at(chest).x, at({ x: 0, y: chest.y + 5 }).y, {
+    // The number is on his back, which is half turned away from us.
+    drawText(String(number), at({ x: chest.x - 2.5, y: 0 }).x, at({ x: 0, y: chest.y + 5 }).y, {
       align: "center",
       color: kit.cap,
       shadow: null,

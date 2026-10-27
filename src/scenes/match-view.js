@@ -1,7 +1,7 @@
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect, drawLine, drawPanel, drawBar } from "../engine/screen.js";
 import { drawText } from "../engine/text.js";
 import { clamp, easeIn, easeOut } from "../math.js";
-import { CREASE, PITCH_LENGTH } from "../sim/geometry.js";
+import { CREASE, PITCH_LENGTH, MID_PITCH } from "../sim/geometry.js";
 import { isSpinner } from "../sim/teams.js";
 import {
   DELIVERY_NAMES,
@@ -15,7 +15,17 @@ import {
 } from "../sim/delivery.js";
 import { SWING_TIME, NORMAL_CHARGE, CONTACT_Z_BACK } from "../sim/batting.js";
 import { PRESET_LABELS, keeperSpot } from "../sim/field.js";
-import { CLOSE_Y_OFFSET, closeGroundY, projectClose, closePixelsPerMetre, projectWide } from "../render/camera.js";
+import {
+  CLOSE_Y_OFFSET,
+  closeGroundY,
+  projectClose,
+  projectFromStriker,
+  closePixelsPerMetre,
+  closeDepth,
+  setCloseEnd,
+  closeFromBowlerEnd,
+  projectWide,
+} from "../render/camera.js";
 import { BATTER_POSES, lerpPose, drawBatter, drawFigure, drawTinyFigure, drawBall, drawShadow } from "../render/sprites.js";
 import { drawBooth, boothShowing } from "../render/booth.js";
 import { HUD_Y, staminaColor, drawScoreBar, drawMiniMap, drawBanners, drawScorecard, drawSpeechBubble } from "../render/hud.js";
@@ -24,6 +34,12 @@ const FOLLOW_THROUGH_TIME = 0.15;
 const WALK_OFF_TIME = 8;
 const SLEDGE_TIME = 2.4;
 const PANEL_TEXT = { align: "center", outline: "rgba(0,0,0,0.7)" };
+/** Near the close camera, figures are capped at the striker's size (about 1.8 m in 94 px). */
+const NEAR_PIXELS_PER_METRE = 52;
+/** The striker's height in pixels when drawn at scale 1. */
+const BATTER_HEIGHT_PX = 92;
+/** Where the striker stands across the crease (just leg side of middle). */
+const STRIKER_X = -0.14;
 
 export function drawMatch(scene) {
   const tracking = scene.phase === "review" || scene.phase === "appeal" || scene.phase === "decision";
@@ -44,15 +60,20 @@ export function drawMatch(scene) {
 // --- Close view: the broadcast angle down the pitch. ---
 
 function drawClose(scene) {
+  setCloseEnd(scene.closeEnd === "bowl");
+  const fromBowler = closeFromBowlerEnd();
   ctx.drawImage(scene.game.images.close, 0, CLOSE_Y_OFFSET, WIDTH, HEIGHT);
   const cur = scene.cur;
   const inn = scene.inn;
   const live = cur?.play?.live;
   drawRough(inn.pitch);
   const sprites = [];
+  // Figures right by the camera are held to the striker's size; anyone behind it isn't drawn.
   const figure = (x, z, height, opts) => {
+    if (closeDepth(z) < -1) return;
     const p = projectClose(x, 0, z);
-    drawFigure(p.x, p.y, height * closePixelsPerMetre(z), opts);
+    const ppm = Math.min(closePixelsPerMetre(z), NEAR_PIXELS_PER_METRE);
+    drawFigure(p.x, p.y, height * ppm, { ...opts, back: fromBowler && z > MID_PITCH });
   };
 
   const rec = cur?.done?.rec;
@@ -83,16 +104,19 @@ function drawClose(scene) {
     draw: () => figure(bowler.x, bowler.z, 1.86, { kit: scene.kitBowl, pose: bowler.pose, phase: bowler.phase }),
   });
   sprites.push({ z: 1.25, draw: () => drawStriker(scene) });
+  // The near stumps: the striker's, or the bowler's end when the camera is there.
+  const nearEnd = fromBowler ? 1 : 0;
+  const nearZ = fromBowler ? PITCH_LENGTH - 0.02 : 0.02;
   sprites.push({
-    z: 0.02,
+    z: nearZ,
     draw: () => {
-      if (!stumpsBroken(scene)) ctx.drawImage(scene.game.images.stumps, 296, 270 + CLOSE_Y_OFFSET);
-      else drawBrokenStumps();
+      if (!stumpsBroken(scene, nearEnd)) ctx.drawImage(scene.game.images.stumps, 296, 270 + CLOSE_Y_OFFSET);
+      else drawBrokenStumps(fromBowler ? PITCH_LENGTH : 0);
     },
   });
 
   const ball = ballPosition(scene);
-  if (ball && ball.z > -7.5) {
+  if (ball && closeDepth(ball.z) > -7.5) {
     sprites.push({
       z: ball.z,
       draw: () => {
@@ -118,7 +142,7 @@ function drawClose(scene) {
   }
 
   // Far to near.
-  sprites.sort((a, b) => b.z - a.z);
+  sprites.sort((a, b) => closeDepth(b.z) - closeDepth(a.z));
   if (scene.phase === "setup") drawTarget(scene);
   for (const s of sprites) s.draw();
 
@@ -196,21 +220,18 @@ function ballPosition(scene) {
   return { x: p.x, y: p.y, z: p.z };
 }
 
-/** Are the striker's-end stumps broken right now? */
-function stumpsBroken(scene) {
+/** Are the stumps at `end` (0 = striker's, 1 = bowler's) broken right now? */
+function stumpsBroken(scene, end) {
   const cur = scene.cur;
   const rec = cur?.done?.rec;
+  const runOutHere = rec?.wicket?.how === "runout" && cur.play.live.events.some((e) => e.type === "runout" && e.end === end);
+  if (end === 1) return !!runOutHere;
   if (cur?.play?.res?.bowled && cur.contactDone && !cur.delivery.noBall) return true;
-  return !!(
-    rec?.wicket &&
-    (rec.wicket.how === "bowled" ||
-      rec.wicket.how === "stumped" ||
-      (rec.wicket.how === "runout" && cur.play.live.events.some((e) => e.type === "runout" && e.end === 0)))
-  );
+  return !!(rec?.wicket && (rec.wicket.how === "bowled" || rec.wicket.how === "stumped" || runOutHere));
 }
 
-function drawBrokenStumps() {
-  const base = projectClose(0, 0, 0);
+function drawBrokenStumps(z) {
+  const base = projectClose(0, 0, z);
   const h = 58;
   drawLine(base.x - 16, base.y, base.x - 16, base.y - h, 6, "#8a4a1a");
   drawLine(base.x - 15, base.y, base.x - 15, base.y - h, 2, "#e9d2a8");
@@ -254,13 +275,14 @@ function drawStriker(scene) {
   const inn = scene.inn;
   const x = 300;
   const y = closeGroundY(CREASE) + 2;
+  const fromBowler = closeFromBowlerEnd();
   const t = cur ? scene.clock() : 0;
   const ready = readyPose(scene, cur, t);
   let pose = ready;
   if (cur) {
     const arrive = cur.delivery ? scene.arrival(cur.swingType ?? cur.shot?.type ?? "drive") : 0.6;
     // Reach towards the line of the ball.
-    const reach = clamp((projectClose(cur.lineAtBat, 0, 1.9).x - (x + 12)) * 0.8, -8, 26);
+    const reach = clamp((projectFromStriker(cur.lineAtBat, 0, 1.9).x - (x + 12)) * 0.8, -8, 26);
     let shotDoneAt = null;
     if (cur.swingAt !== null && t >= cur.swingAt && cur.swingType) {
       const type = cur.swingType;
@@ -311,7 +333,13 @@ function drawStriker(scene) {
       return;
     }
   }
-  drawBatter(x, y, 1, pose, scene.kitBat, inn.striker + 1);
+  if (fromBowler) {
+    // Down the far end, facing us.
+    const p = projectClose(STRIKER_X, 0, CREASE);
+    drawBatter(p.x, p.y + 1, (closePixelsPerMetre(CREASE) * 1.8) / BATTER_HEIGHT_PX, pose, scene.kitBat, 0, true);
+  } else {
+    drawBatter(x, y, 1, pose, scene.kitBat, inn.striker + 1);
+  }
 }
 
 /** Blinking crosshair where the player is aiming to pitch the ball. */
@@ -522,7 +550,7 @@ function drawPanels(scene) {
     });
   }
 
-  if (scene.phase === "pause") scene.pauseMenu.draw(inn);
+  if (scene.phase === "pause") scene.pauseMenu.draw(inn, scene.closeEnd);
 
   if (scene.phase === "inningsEnd") {
     drawScorecard(inn, 20, 18, 600, 290, inn.wkts >= 10 ? "ALL OUT" : "END OF SPELL");

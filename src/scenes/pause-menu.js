@@ -4,7 +4,7 @@ import { keys, mouse } from "../engine/input.js";
 import { toggleMute, isMuted } from "../engine/audio.js";
 import { drawScorecard } from "../render/hud.js";
 
-const ITEMS = ["RESUME", "SCORECARD", "INSTRUCTIONS", "SOUND", "QUIT TO MENU"];
+const ITEMS = ["RESUME", "SCORECARD", "INSTRUCTIONS", "VIEW", "SOUND", "QUIT TO MENU"];
 const MENU_X = 220;
 const MENU_W = 200;
 const MENU_TOP = 92;
@@ -52,6 +52,8 @@ const PAGES = [
       ["O", "SIMULATE THE OVER"],
       ["P", "SIMULATE FIVE OVERS"],
       ["C", "CAMERA: AUTO / CLOSE / WIDE"],
+      ["B", "CLOSE VIEW FROM BEHIND THE BATTER OR BOWLER"],
+      ["V", "VIEW THE FIELD (BOWLING: DRAG FIELDERS)"],
       ["M", "SOUND ON / OFF"],
       ["ESC", "THIS MENU"],
     ],
@@ -77,7 +79,7 @@ export class PauseMenu {
     this.lastMouse = { x: mouse.x, y: mouse.y };
   }
 
-  /** Handle input; returns "resume", "quit" or null. */
+  /** Handle input; returns "resume", "view" (swap the close camera's end), "quit" or null. */
   update() {
     if (this.screen !== "menu") {
       if (this.screen === "help") {
@@ -115,6 +117,8 @@ export class PauseMenu {
       case "INSTRUCTIONS":
         this.screen = "help";
         return null;
+      case "VIEW":
+        return "view";
       case "SOUND":
         toggleMute();
         return null;
@@ -123,7 +127,8 @@ export class PauseMenu {
     }
   }
 
-  draw(inn) {
+  /** `closeEnd`: which end the close camera is at ("bat" or "bowl"), for the VIEW label. */
+  draw(inn, closeEnd) {
     if (this.screen === "card") {
       drawScorecard(inn, 20, 18, 600, 290, "SCORECARD");
       drawText("ESC / CLICK = BACK", WIDTH / 2, 296, { align: "center", color: COLORS.gold });
@@ -140,7 +145,12 @@ export class PauseMenu {
       const y = MENU_TOP + 22 + i * ROW_H;
       const selected = i === this.sel;
       if (selected) fillRect(MENU_X + 6, y - 4, MENU_W - 12, 15, "#24563a");
-      const label = item === "SOUND" ? `SOUND: ${isMuted() ? "OFF" : "ON"}` : item;
+      const label =
+        item === "SOUND"
+          ? `SOUND: ${isMuted() ? "OFF" : "ON"}`
+          : item === "VIEW"
+            ? `VIEW: BEHIND ${closeEnd === "bowl" ? "BOWLER" : "BATTER"}`
+            : item;
       drawText(label, WIDTH / 2, y, { align: "center", color: selected ? COLORS.gold : COLORS.cream });
     });
   }

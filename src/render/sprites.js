@@ -1,4 +1,4 @@
-import { COLORS, fillRect, plot, drawLine, fillCircle, fillEllipse, fillPolygon } from "../engine/screen.js";
+import { COLORS, ctx, fillRect, plot, drawLine, fillCircle, fillEllipse, fillPolygon } from "../engine/screen.js";
 import { drawText } from "../engine/text.js";
 
 const BAT_FACE = "#e6cc92";
@@ -7,6 +7,17 @@ const GRIP = "#2b2b33";
 const PAD = "#fbfbf6";
 const PAD_SHADE = "#c9c9c0";
 const BOOT = "#3a3a3a";
+const HAIR = "#3b2a1e";
+
+/** Draw something mirrored left-to-right about screen column x (front view <-> back view). */
+function mirrored(x, draw) {
+  const cx = Math.round(x);
+  ctx.save();
+  ctx.translate(cx * 2, 0);
+  ctx.scale(-1, 1);
+  draw();
+  ctx.restore();
+}
 
 /** Test whites with team-coloured cap and accents. */
 export function makeKit(cap, cap2, skin = "#d8a27a") {
@@ -107,12 +118,43 @@ function joint(from, to, l1, l2, prefer) {
   return prefer({ x: mx - uy * out, y: my + ux * out }, { x: mx + uy * out, y: my - ux * out });
 }
 
+/** The back of the striker's helmet, its peak turned towards the bowler. */
+function drawBatterHelmetBack(head, h, scale, kit, poly, line) {
+  fillEllipse(h.x, h.y, 8 * scale, 8.5 * scale, kit.cap);
+  fillEllipse(h.x - 2 * scale, h.y - 3 * scale, 3.5 * scale, 2.5 * scale, lighten(kit.cap));
+  poly(
+    [
+      { x: head.x - 8, y: head.y + 4 },
+      { x: head.x + 8, y: head.y + 4 },
+      { x: head.x + 7, y: head.y + 8 },
+      { x: head.x - 7, y: head.y + 8 },
+    ],
+    darken(kit.cap),
+  );
+  poly(
+    [
+      { x: head.x + 5, y: head.y - 2 },
+      { x: head.x + 13, y: head.y - 1 },
+      { x: head.x + 12, y: head.y + 1 },
+      { x: head.x + 5, y: head.y + 1 },
+    ],
+    kit.cap,
+  );
+  line({ x: head.x + 9, y: head.y + 2 }, { x: head.x + 9, y: head.y + 8 }, 2, "#9aa0a6");
+}
+
 /**
  * The striker in the close view, feet at (x, y), with a shirt number. A
  * jointed skeleton (hips, knees, shoulders, elbows) is solved from the pose's
  * feet, hips and hands, then fleshed out with kit, pads, gloves and helmet.
+ * Seen from behind, unless `front` (from the bowler's end): then mirrored, face on.
  */
-export function drawBatter(x, y, scale, pose, kit, number = 0) {
+export function drawBatter(x, y, scale, pose, kit, number = 0, front = false) {
+  if (front) mirrored(x, () => drawBatterBody(x, y, scale, pose, kit, 0, true));
+  else drawBatterBody(x, y, scale, pose, kit, number, false);
+}
+
+function drawBatterBody(x, y, scale, pose, kit, number, front) {
   const at = (p) => ({ x: x + p.x * scale, y: y + p.y * scale });
   // A limb segment tapering from radius r0 to r1, lit from the left: a shade rim on the right.
   const limb = (a, b, r0, r1, color, shade) => {
@@ -244,27 +286,23 @@ export function drawBatter(x, y, scale, pose, kit, number = 0) {
   // Neck and helmet, the peak turned towards the bowler.
   limb({ x: head.x - 0.5, y: head.y + 5 }, { x: chest.x, y: chest.y - 3 }, 3, 3.5, kit.skin);
   const h = at(head);
-  fillEllipse(h.x, h.y, 8 * scale, 8.5 * scale, kit.cap);
-  fillEllipse(h.x - 2 * scale, h.y - 3 * scale, 3.5 * scale, 2.5 * scale, lighten(kit.cap));
-  poly(
-    [
-      { x: head.x - 8, y: head.y + 4 },
-      { x: head.x + 8, y: head.y + 4 },
-      { x: head.x + 7, y: head.y + 8 },
-      { x: head.x - 7, y: head.y + 8 },
-    ],
-    darken(kit.cap),
-  );
-  poly(
-    [
-      { x: head.x + 5, y: head.y - 2 },
-      { x: head.x + 13, y: head.y - 1 },
-      { x: head.x + 12, y: head.y + 1 },
-      { x: head.x + 5, y: head.y + 1 },
-    ],
-    kit.cap,
-  );
-  line({ x: head.x + 9, y: head.y + 2 }, { x: head.x + 9, y: head.y + 8 }, 2, "#9aa0a6");
+  if (front) {
+    // Face behind the grille, the helmet's peak towards us.
+    fillEllipse(h.x, h.y, 8 * scale, 8.5 * scale, kit.cap);
+    fillEllipse(h.x, h.y + 2.5 * scale, 5.5 * scale, 5.5 * scale, kit.skin);
+    poly(
+      [
+        { x: head.x - 9, y: head.y - 3 },
+        { x: head.x + 9, y: head.y - 3 },
+        { x: head.x + 8, y: head.y - 1 },
+        { x: head.x - 8, y: head.y - 1 },
+      ],
+      darken(kit.cap),
+    );
+    for (const dy of [1.5, 4, 6.5]) line({ x: head.x - 5, y: head.y + dy }, { x: head.x + 5, y: head.y + dy }, 1, "#9aa0a6");
+  } else {
+    drawBatterHelmetBack(head, h, scale, kit, poly, line);
+  }
 
   // Arms: sleeves to mid upper arm, bare forearms.
   const arm = (shoulder, elbow, hand) => {
@@ -395,9 +433,14 @@ function figurePose(pose, phase) {
  * A full-size figure for the close view (bowler, umpire, non-striker), feet
  * at (x, y), `height` pixels tall, facing the camera. Built on the same kind
  * of jointed skeleton as the striker.
- * opts: { kit, pose, phase (animation cycle), umpire?, bat? }
+ * opts: { kit, pose, phase (animation cycle), umpire?, bat?, back? (seen from behind: mirrored, no face) }
  */
 export function drawFigure(x, y, height, opts) {
+  if (opts.back) mirrored(x, () => drawFigureBody(x, y, height, opts));
+  else drawFigureBody(x, y, height, opts);
+}
+
+function drawFigureBody(x, y, height, opts) {
   const k = height / 48;
   const at = (p) => ({ x: x + p.x * k, y: y + p.y * k });
   const limb = (a, b, r0, r1, color, shade) => {
@@ -501,15 +544,16 @@ export function drawFigure(x, y, height, opts) {
     shirtShade,
   );
   // Open collar (or the umpire's tie).
-  poly(
-    [
-      { x: lean - 2, y: top - 1.5 },
-      { x: lean + 2, y: top - 1.5 },
-      { x: lean, y: top + 2.5 },
-    ],
-    umpire ? "#2a2d36" : kit.skin,
-  );
-  if (umpire)
+  if (!opts.back)
+    poly(
+      [
+        { x: lean - 2, y: top - 1.5 },
+        { x: lean + 2, y: top - 1.5 },
+        { x: lean, y: top + 2.5 },
+      ],
+      umpire ? "#2a2d36" : kit.skin,
+    );
+  if (umpire && !opts.back)
     poly(
       [
         { x: lean - 0.6, y: top + 2 },
@@ -522,8 +566,15 @@ export function drawFigure(x, y, height, opts) {
   // Neck, head and headwear.
   limb({ x: head.x, y: head.y + 3 }, { x: lean, y: top }, 1.8, 2, kit.skin);
   const h = at(head);
-  fillCircle(h.x, h.y, 4.6 * k, kit.skin);
-  fillCircle(h.x + 1.5 * k, h.y + 0.5 * k, 3 * k, kit.skin);
+  if (opts.back) {
+    // The back of the head: hair, and ears either side.
+    fillCircle(h.x - 4.4 * k, h.y + 0.5 * k, 1.2 * k, kit.skin);
+    fillCircle(h.x + 4.4 * k, h.y + 0.5 * k, 1.2 * k, kit.skin);
+    fillCircle(h.x, h.y, 4.6 * k, HAIR);
+  } else {
+    fillCircle(h.x, h.y, 4.6 * k, kit.skin);
+    fillCircle(h.x + 1.5 * k, h.y + 0.5 * k, 3 * k, kit.skin);
+  }
   if (umpire) {
     // Wide-brimmed white hat.
     poly(
@@ -557,7 +608,7 @@ export function drawFigure(x, y, height, opts) {
     // Helmet with a grille over the face.
     fillCircle(h.x, h.y - 0.8 * k, 5.4 * k, kit.cap);
     fillCircle(h.x - 1.6 * k, h.y - 2.8 * k, 1.8 * k, lighten(kit.cap));
-    for (const dy of [0.8, 2.4]) {
+    for (const dy of opts.back ? [] : [0.8, 2.4]) {
       const a = at({ x: head.x - 4, y: head.y + dy });
       const b = at({ x: head.x + 4, y: head.y + dy });
       drawLine(a.x, a.y, b.x, b.y, Math.max(1, Math.round(0.8 * k)), "#9aa0a6");

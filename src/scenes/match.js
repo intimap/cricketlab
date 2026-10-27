@@ -1,6 +1,7 @@
 import { COLORS } from "../engine/screen.js";
 import { keys, mouse, arrowBearing } from "../engine/input.js";
 import { sfx } from "../engine/audio.js";
+import { load, save } from "../engine/storage.js";
 import { clamp } from "../math.js";
 import { Rng } from "../sim/rng.js";
 import { isSpinner } from "../sim/teams.js";
@@ -31,6 +32,8 @@ const SHOT_KEYS = { KeyS: "drive", KeyQ: "cutpull", KeyW: "loft" };
 const WICKET_PAUSE = 6.5;
 const MAX_SLEDGES = 3;
 const SLEDGE_GAP = 1.5;
+/** Seconds of holding left/right in the run-up for full aftertouch. */
+const AFTERTOUCH_BUILD = 0.5;
 
 /**
  * One innings, played ball by ball. Phases:
@@ -98,6 +101,9 @@ export class MatchScene {
 
   endInnings() {
     this.setPhase("inningsEnd");
+    if (this.ending.good === true && this.cfg.format === "classic") {
+      save("classicsWon", { ...load("classicsWon", {}), [this.cfg.classic]: true });
+    }
     if (this.ending.good === true) sfx.cheer(1);
     else if (this.ending.good === false) sfx.groan();
   }
@@ -203,13 +209,19 @@ export class MatchScene {
     this.setPhase("chooseBowler");
   }
 
-  /** Which end the close camera sits at: "bat" (behind the striker) or "bowl" (behind the bowler). Kept between matches. */
+  /** Which end the close camera sits at: "bat" (behind the striker) or "bowl" (behind the bowler). Remembered. */
   get closeEnd() {
-    return this.game.closeEnd ?? "bat";
+    return (this.game.closeEnd ??= load("closeEnd", "bat"));
+  }
+
+  /** -1 when the close camera looks from the bowler's end (screen left/right is the world turned round), else 1. */
+  get screenTurn() {
+    return this.view === "close" && this.closeEnd === "bowl" ? -1 : 1;
   }
 
   toggleCloseEnd() {
     this.game.closeEnd = this.closeEnd === "bat" ? "bowl" : "bat";
+    save("closeEnd", this.game.closeEnd);
     this.flash(this.closeEnd === "bat" ? "VIEW: BEHIND THE BATTER" : "VIEW: BEHIND THE BOWLER");
   }
 
@@ -361,7 +373,7 @@ export class MatchScene {
     const skills = this.inn.bowler.p.bowl;
     const step = keys.down("ShiftLeft") || keys.down("ShiftRight") ? 0.25 : 1;
     // Arrows move the crosshair the way you press on screen, whichever end the camera is at.
-    const turned = this.view === "close" && this.closeEnd === "bowl" ? -1 : 1;
+    const turned = this.screenTurn;
     if (keys.pressed("ArrowLeft")) this.target.line -= 0.05 * step * turned;
     if (keys.pressed("ArrowRight")) this.target.line += 0.05 * step * turned;
     if (keys.pressed("ArrowUp")) this.target.length += 0.5 * step * turned;
@@ -456,6 +468,11 @@ export class MatchScene {
     const cur = this.cur;
     cur.tRun += dt;
     if (this.human === "bowl") {
+      // Aftertouch: hold left or right through the run-up for extra swing or spin that way.
+      const held = (keys.down("ArrowRight") ? 1 : 0) - (keys.down("ArrowLeft") ? 1 : 0);
+      if (held && cur.tRun > cur.runupDur * 0.3) {
+        cur.aftertouch = clamp((cur.aftertouch ?? 0) + (held * this.screenTurn * dt) / AFTERTOUCH_BUILD, -1, 1);
+      }
       // Release on Space: early drops it short, late drags it full, very late is a no-ball.
       if (keys.pressed("Space") && cur.tRun > cur.runupDur * 0.4) {
         const stamina = this.inn.bowler.stamina;
@@ -480,6 +497,7 @@ export class MatchScene {
 
   release(releaseError) {
     const cur = this.cur;
+    if (cur.aftertouch) cur.intent = { ...cur.intent, aftertouch: cur.aftertouch };
     cur.delivery = this.match.deliver(cur.intent, releaseError);
     cur.t = 0;
     const atBat = crossingAtZ(cur.delivery.samples, CONTACT_Z_FRONT);

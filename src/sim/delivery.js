@@ -27,6 +27,15 @@ const SPIN_EFFORT_TURN = { low: 1.15, med: 1, high: 0.85 };
 
 /** Seam-up variations that otherwise behave like a seam ball. */
 const SEAM_LIKE = new Set(["seam", "bouncer", "yorker", "slower", "cutter"]);
+/**
+ * Aftertouch (the player holding left/right through the run-up), at full
+ * strength: extra sideways swing (m/s^2) for seamers, extra turn (m/s) for
+ * spinners, and how much it costs in accuracy (spray multiplier).
+ */
+const AFTERTOUCH_SWING = 2.2;
+const AFTERTOUCH_SPIN = 0.8;
+const AFTERTOUCH_SPRAY = 0.6;
+
 const SPEED_FACTOR = { slower: 0.78, cutter: 0.9, armBall: 1.06 };
 
 /** Half-width (seconds) of the perfect-release window at the delivery stride; shrinks as the bowler tires. */
@@ -51,7 +60,9 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
   let speed = bowlingSpeed(skills) * EFFORT_SPEED[intent.effort] * (0.88 + 0.12 * stamina) * (SPEED_FACTOR[type] ?? 1);
   speed *= 1 + rng.normal(0, 0.012);
 
-  const spray = (1.35 - skills.accuracy) * (1 + tiredness * 1.3) * EFFORT_SPRAY[intent.effort];
+  const touch = intent.aftertouch ?? 0;
+  const spray =
+    (1.35 - skills.accuracy) * (1 + tiredness * 1.3) * EFFORT_SPRAY[intent.effort] * (1 + AFTERTOUCH_SPRAY * Math.abs(touch));
   const badRelease = Math.abs(releaseError) > 0.1 ? 2.2 : 1;
   const line =
     intent.line + rng.normal(0, 0.075 * spray * badRelease) + Math.abs(releaseError) * 1.6 * (rng.next() < 0.5 ? -1 : 1);
@@ -135,6 +146,9 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
   const vy = (0.5 * GRAVITY * flightTime * flightTime - hand.y) / flightTime;
   const vx = (line - hand.x - 0.5 * swingAcc * 0.85 * flightTime * flightTime) / flightTime;
   const release = { t: 0, x: hand.x, y: hand.y, z: hand.z, vx, vy, vz: -speed };
+  // Aftertouch: extra movement put on after the aim was set (and unread by the batter).
+  if (touch && spinner) spinKick += AFTERTOUCH_SPIN * touch;
+  else if (touch) swingAcc += AFTERTOUCH_SWING * touch;
 
   let flight = simulateFlight(release, swingAcc, seamKick, spinKick, bounce, paceKept, []);
   // Landing in the footmarks: spin grips and rips, anything else does something odd.

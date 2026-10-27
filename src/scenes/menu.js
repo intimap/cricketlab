@@ -2,6 +2,7 @@ import { WIDTH, HEIGHT, COLORS, ctx, fillRect, drawPanel } from "../engine/scree
 import { drawText, wrapText } from "../engine/text.js";
 import { keys } from "../engine/input.js";
 import { sfx } from "../engine/audio.js";
+import { load, save } from "../engine/storage.js";
 import { PITCH_TYPES } from "../sim/conditions.js";
 import { FORMATS, CLASSICS, OVERS_CHOICES } from "../sim/formats.js";
 
@@ -27,11 +28,14 @@ const BOWL_HELP = [
 
 export class Menu {
   sel = 0;
-  cfg = { format: "spell", mode: "bat", pitch: "green", overs: 20, classic: CLASSIC_IDS[0] };
+  /** The last game chosen is remembered. */
+  cfg = { format: "spell", mode: "bat", pitch: "green", overs: 20, classic: CLASSIC_IDS[0], ...load("menu", {}) };
   t = 0;
 
   constructor(game) {
     this.game = game;
+    if (!FORMATS[this.cfg.format]) this.cfg.format = "spell";
+    if (!CLASSIC_IDS.includes(this.cfg.classic)) this.cfg.classic = CLASSIC_IDS[0];
   }
 
   get classic() {
@@ -43,7 +47,13 @@ export class Menu {
     const cfg = this.cfg;
     const format = ["format", "GAME", FORMATS[cfg.format].name];
     if (cfg.format === "classic") {
-      return [format, ["classic", "MATCH", this.classic.title], ["start", "", "START  >"]];
+      const won = load("classicsWon", {});
+      const done = CLASSIC_IDS.filter((id) => won[id]).length;
+      return [
+        format,
+        ["classic", "MATCH", `${this.classic.title}${won[cfg.classic] ? "  WON" : ""}`],
+        ["start", "", `START  >     (${done}/${CLASSICS.length} WON)`],
+      ];
     }
     const overs = `${cfg.overs} OVERS${cfg.overs === 90 ? " (A FULL DAY)" : cfg.format === "match" ? " EACH" : ""}`;
     return [
@@ -81,7 +91,10 @@ export class Menu {
       if (key === "overs") cfg.overs = cycle(OVERS_CHOICES[cfg.format], cfg.overs, dir);
       if (key === "classic") cfg.classic = cycle(CLASSIC_IDS, cfg.classic, dir);
     }
-    if (keys.pressed("Enter") || (keys.pressed("Space") && key === "start")) this.game.startMatch({ ...cfg });
+    if (keys.pressed("Enter") || (keys.pressed("Space") && key === "start")) {
+      save("menu", cfg);
+      this.game.startMatch({ ...cfg });
+    }
   }
 
   draw() {

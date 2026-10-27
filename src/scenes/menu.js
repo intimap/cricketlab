@@ -75,13 +75,13 @@ export class Menu {
             "BATTING: SPACE TO FACE UP, THEN S DRIVE / Q CUT-PULL / W LOFT AS IT ARRIVES",
             "A = DEFEND.  NO KEY = LEAVE.  HOLD SHIFT FOR POWER, BUT PLAY IT EARLIER",
             "ARROWS AIM.  DOWN+W RAMP, DOWN+LEFT/RIGHT+Q SWEEP.  UP/DOWN = RUN",
-            "O = SIMULATE THE OVER   C = CAMERA   V = VIEW FIELD   ESC = PAUSE / SCORECARD",
+            "O = SIMULATE THE OVER   C = CAMERA   V = VIEW FIELD   ESC = MENU",
           ]
         : [
             "BOWLING: ARROWS SET LINE & LENGTH, NUMBERS PICK THE BALL, E EFFORT, F FIELD",
             "SPACE TO RUN IN, SPACE AGAIN IN THE GOLD ZONE OF THE METER TO RELEASE",
             "FIND EACH BATTER'S WEAKNESS. SET HIM UP, THEN CHANGE IT.  H = APPEAL  R = REVIEW",
-            "V = DRAG FIELDERS   O = SIMULATE THE OVER   C = CAMERA   ESC = PAUSE",
+            "V = DRAG FIELDERS   O = SIMULATE THE OVER   C = CAMERA   ESC = MENU",
           ];
     help.forEach((line, i) =>
       drawText(line, 320, 248 + i * 12, { align: "center", color: i === 0 ? COLORS.gold : COLORS.cream }),

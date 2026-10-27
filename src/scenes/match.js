@@ -15,6 +15,7 @@ import { boothCall } from "../sim/commentators.js";
 import { makeKit } from "../render/sprites.js";
 import { projectWide, unprojectWide } from "../render/camera.js";
 import { drawMatch } from "./match-view.js";
+import { PauseMenu } from "./pause-menu.js";
 
 /** Backlift before the downswing, normal and power shots. */
 const BACKLIFT_TIME = 0.07;
@@ -70,6 +71,7 @@ export class MatchScene {
   chirp = null;
   dragIdx = -1;
   pausedFrom = "ready";
+  pauseMenu = new PauseMenu();
 
   constructor(game, cfg) {
     this.game = game;
@@ -176,13 +178,17 @@ export class MatchScene {
     this.phaseT += dt;
     this.commT += dt;
 
-    if (keys.pressed("Escape") && this.phase !== "inningsEnd") {
-      if (this.phase === "pause") {
-        this.setPhase(this.pausedFrom);
-      } else if (this.phase !== "fieldEdit") {
-        this.pausedFrom = this.phase;
-        this.setPhase("pause");
-      }
+    if (this.phase === "pause") {
+      const action = this.pauseMenu.update();
+      if (action === "resume") this.setPhase(this.pausedFrom);
+      else if (action === "quit") this.game.toMenu();
+      return;
+    }
+    if (keys.pressed("Escape") && this.phase !== "inningsEnd" && this.phase !== "fieldEdit") {
+      this.pausedFrom = this.phase;
+      this.pauseMenu.open();
+      this.setPhase("pause");
+      return;
     }
     if (keys.pressed("KeyC")) {
       this.cam = this.cam === "auto" ? "close" : this.cam === "close" ? "wide" : "auto";
@@ -191,9 +197,6 @@ export class MatchScene {
     }
 
     switch (this.phase) {
-      case "pause":
-        if (keys.pressed("KeyQ")) this.game.toMenu();
-        return;
       case "ready":
         this.updateReady();
         break;

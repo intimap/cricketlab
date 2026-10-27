@@ -24,6 +24,16 @@ export class Innings {
   placements = presetPlacements("attacking");
   customField = false;
   newBallAvailable = false;
+  /** 0..1, builds with dots and maidens on the batting side; boundaries release it. */
+  pressure = 0;
+  /** The next legal ball follows a no-ball: the batter can only be run out. */
+  freeHit = false;
+  /** Bouncers so far this over (more than two is a no-ball). */
+  overBouncers = 0;
+  /** Unsuccessful DRS reviews left for each side. */
+  reviews = { bat: 2, bowl: 2 };
+  /** How much the umpire has been pestered by appeals; makes him slower to give LBWs. */
+  irritation = 0;
 
   constructor(batTeam, bowlTeam, pitch, oversLimit, rng) {
     this.batTeam = batTeam;
@@ -41,6 +51,8 @@ export class Innings {
       how: "",
       batted: i < 2,
       dotStreak: 0,
+      /** Recent deliveries faced, for the batter's memory (see plans.js). */
+      seen: [],
     }));
     this.bowl = bowlTeam.players
       .filter((p) => p.bowl)
@@ -163,6 +175,14 @@ export class Innings {
     if (extra !== "wd" && extra !== "nb") bowler.runs += rec.runsBat;
     bowler.overRuns += rec.total - (extra === "b" || extra === "lb" ? rec.extra.runs : 0);
 
+    if (rec.seenBall) {
+      batter.seen.push(rec.seenBall);
+      if (batter.seen.length > 6) batter.seen.shift();
+    }
+    this.updatePressure(rec);
+    if (extra === "nb") this.freeHit = true;
+    else if (rec.legal) this.freeHit = false;
+
     let symbol = rec.total === 0 ? "." : String(rec.total);
     if (extra === "wd") symbol = "WD";
     if (extra === "nb") symbol = "NB";
@@ -217,6 +237,9 @@ export class Innings {
         if (other.rested >= 2) other.spell = 0;
       }
       this.lastOverBowler = rec.bowler;
+      this.overBouncers = 0;
+      this.irritation *= 0.8;
+      if (bowler.overRuns === 0) this.pressure = clamp(this.pressure + 0.1);
       [this.striker, this.nonStriker] = [this.nonStriker, this.striker];
       this.overBalls = [];
       if (this.ball.overs >= 80 && this.ball.number === 1) this.newBallAvailable = true;
@@ -224,6 +247,19 @@ export class Innings {
 
     result.inningsOver = this.isOver;
     return result;
+  }
+
+  /** Dots and wickets build pressure; runs ease it and a boundary all but releases it. */
+  updatePressure(rec) {
+    // Eases off by itself; only a real drought of runs keeps it high.
+    let p = this.pressure * 0.94;
+    if (rec.wicket) p += 0.12;
+    else if (rec.boundary) p *= 0.25;
+    else if (rec.extra.type === "wd" || rec.extra.type === "nb") p -= 0.04;
+    else if (rec.total === 0) p += 0.035;
+    else if (rec.total === 1) p -= 0.03;
+    else p -= 0.06;
+    this.pressure = clamp(p);
   }
 
   /** Swap ends if the batters crossed an odd number of times. */

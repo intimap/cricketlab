@@ -242,7 +242,8 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
     : clamp(0.55 + 0.3 * bat.technique + 0.1 * state.settled + 0.05 * bat.vsPace, 0, 0.95);
   const aimX = late.x + (early.x - late.x) * (1 - adjust);
   const aimY = late.y + (early.y - late.y) * (1 - adjust);
-  const jitter = 0.013 * (1.25 - bat.technique) * (1 + (1 - state.settled) * 0.6);
+  // `difficulty` (from plans.js): above 1 when the ball targets a weakness or springs a surprise.
+  const jitter = 0.013 * (1.25 - bat.technique) * (1 + (1 - state.settled) * 0.6) * (shot.difficulty ?? 1);
   const batX = aimX + rng.normal(0, jitter);
   const batY = aimY + rng.normal(0, jitter * 1.5);
   const latErr = at.x - batX;

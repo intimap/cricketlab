@@ -1,5 +1,6 @@
 import { clamp } from "../math.js";
 import { Rng } from "./rng.js";
+import { pickWeakness } from "./plans.js";
 
 // Average batting skill by role; individual ratings are drawn around it.
 const ROLE_BASE = { opener: 0.74, top: 0.78, middle: 0.72, keeper: 0.62, allround: 0.58, tail: 0.36, bunny: 0.22 };
@@ -46,7 +47,7 @@ const BOWLING_STYLES = {
     recovery: 0.55,
     consistency: 0.65,
     resilience: 0.7,
-    repertoire: ["seam", "outswing", "inswing"],
+    repertoire: ["seam", "outswing", "inswing", "bouncer", "yorker", "slower"],
   },
   swing: {
     pace: 0.7,
@@ -58,7 +59,7 @@ const BOWLING_STYLES = {
     recovery: 0.65,
     consistency: 0.72,
     resilience: 0.65,
-    repertoire: ["outswing", "inswing", "seam"],
+    repertoire: ["outswing", "inswing", "seam", "yorker", "slower"],
   },
   medium: {
     pace: 0.5,
@@ -70,7 +71,7 @@ const BOWLING_STYLES = {
     recovery: 0.75,
     consistency: 0.78,
     resilience: 0.6,
-    repertoire: ["seam", "outswing", "inswing"],
+    repertoire: ["seam", "outswing", "inswing", "cutter", "slower"],
   },
   offspin: {
     pace: 0.4,
@@ -82,7 +83,7 @@ const BOWLING_STYLES = {
     recovery: 0.85,
     consistency: 0.75,
     resilience: 0.65,
-    repertoire: ["offspin", "seam"],
+    repertoire: ["offspin", "armBall", "seam"],
   },
   legspin: {
     pace: 0.38,
@@ -94,7 +95,7 @@ const BOWLING_STYLES = {
     recovery: 0.8,
     consistency: 0.6,
     resilience: 0.7,
-    repertoire: ["legspin", "seam"],
+    repertoire: ["legspin", "googly", "seam"],
   },
 };
 
@@ -107,6 +108,8 @@ function bowler(style, quality, overrides = {}) {
 
 function makeTeam(name, abbr, colour, colour2, seed, roster) {
   const rng = new Rng(seed);
+  // Weaknesses come from their own stream so they don't disturb the ratings.
+  const quirks = new Rng(seed * 31 + 7);
   const players = roster.map((p) => {
     const words = p.name.split(" ");
     return {
@@ -117,6 +120,7 @@ function makeTeam(name, abbr, colour, colour2, seed, roster) {
       bowl: p.bowl,
       field: fieldingSkills(rng, p.keeper),
       keeper: p.keeper,
+      weakness: pickWeakness(p.role, quirks),
     };
   });
   return { name, abbr, colour, colour2, players: players.slice(0, 11), reserves: players.slice(11) };

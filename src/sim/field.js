@@ -48,10 +48,54 @@ const PRESETS = {
     spot("deep square leg", -98, 58),
     spot("long-on", -6, 62),
   ],
+  // Short-ball trap: catchers for the top-edged hook and the fend.
+  bouncer: [
+    spot("first slip", 172, 15.2),
+    spot("gully", 125, 12),
+    spot("point", 92, 23),
+    spot("mid-off", 12, 28),
+    spot("short leg", -95, 5.5),
+    spot("leg gully", -140, 11),
+    spot("deep square leg", -95, 60),
+    spot("deep fine leg", -155, 60),
+    spot("mid-on", -14, 28),
+  ],
+  // Slips plus a leg slip for the ball that's set up to come back in.
+  legSlip: [
+    spot("first slip", 173, 15.2),
+    spot("second slip", 168, 15.2),
+    spot("gully", 128, 12),
+    spot("cover", 58, 27),
+    spot("mid-off", 12, 28),
+    spot("mid-on", -14, 28),
+    spot("short leg", -95, 5.5),
+    spot("leg slip", -172, 14),
+    spot("fine leg", -160, 55),
+  ],
+  // Everyone on the ring saving singles, to strangle the scoring.
+  ring: [
+    spot("first slip", 173, 15.2),
+    spot("point", 92, 21),
+    spot("cover", 58, 22),
+    spot("extra cover", 35, 23),
+    spot("mid-off", 12, 23),
+    spot("mid-on", -14, 23),
+    spot("midwicket", -55, 22),
+    spot("square leg", -95, 21),
+    spot("fine leg", -160, 30),
+  ],
 };
 
-export const PRESET_ORDER = ["attacking", "balanced", "defensive", "spin"];
-export const PRESET_LABELS = { attacking: "ATTACKING", balanced: "BALANCED", defensive: "DEFENSIVE", spin: "SPIN" };
+export const PRESET_ORDER = ["attacking", "balanced", "defensive", "spin", "bouncer", "legSlip", "ring"];
+export const PRESET_LABELS = {
+  attacking: "ATTACKING",
+  balanced: "BALANCED",
+  defensive: "DEFENSIVE",
+  spin: "SPIN",
+  bouncer: "BOUNCER TRAP",
+  legSlip: "LEG SLIP TRAP",
+  ring: "RING FIELD",
+};
 
 export function presetPlacements(preset) {
   return PRESETS[preset].map((s) => ({ name: s.name, pos: fromBearing(s.bearing, s.dist) }));

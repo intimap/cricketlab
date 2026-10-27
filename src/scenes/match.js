@@ -6,11 +6,11 @@ import { Rng } from "../sim/rng.js";
 import { australia, england, isSpinner } from "../sim/teams.js";
 import { Match } from "../sim/match.js";
 import { PITCH_LENGTH } from "../sim/geometry.js";
-import { EFFORTS, crossingAtZ } from "../sim/delivery.js";
+import { EFFORTS, crossingAtZ, releaseSweetSpot } from "../sim/delivery.js";
 import { CONTACT_Z_FRONT, CONTACT_Z_BACK, SWING_TIME, NORMAL_CHARGE } from "../sim/batting.js";
 import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from "../sim/field.js";
 import { pickBowler } from "../sim/ai.js";
-import { pickSledges } from "../sim/commentary.js";
+import { pickSledges, pickChirp } from "../sim/commentary.js";
 import { makeKit } from "../render/sprites.js";
 import { projectWide, unprojectWide } from "../render/camera.js";
 import { drawMatch } from "./match-view.js";
@@ -63,6 +63,8 @@ export class MatchScene {
   particles = [];
   walkOff = null;
   sledges = [];
+  /** A close fielder's chirp after the bat is beaten: { text, t0 }. */
+  chirp = null;
   dragIdx = -1;
   pausedFrom = "ready";
 
@@ -117,6 +119,7 @@ export class MatchScene {
     this.sledges = [];
     this.timeScale = 1;
     if (this.cam === "auto") this.view = "close";
+    if (inn.freeHit) this.big("FREE HIT", COLORS.gold, "THE BATTER CAN ONLY BE RUN OUT", 1.6);
     if (this.human === "bat") {
       const { intent, releaseError } = this.match.aiPlan();
       this.cur = this.newBall(intent, releaseError);
@@ -200,6 +203,18 @@ export class MatchScene {
         break;
       case "flight":
         this.updateFlight(dt);
+        if (this.human === "bowl" && keys.pressed("KeyH")) this.appeal();
+        break;
+      case "appeal":
+        // A moment to shout after the ball is dead.
+        if (keys.pressed("KeyH")) this.appeal();
+        if (this.cur.appealed || this.phaseT > 1.1) this.decideLbw();
+        break;
+      case "decision":
+        this.updateDecision();
+        break;
+      case "review":
+        if (this.phaseT > 3.4 || (this.phaseT > 1.2 && keys.pressed("Space"))) this.endReview();
         break;
       case "after": {
         this.updateFlight(dt);
@@ -385,8 +400,22 @@ export class MatchScene {
     cur.tRun += dt;
     if (this.human === "bowl") {
       // Release on Space: early drops it short, late drags it full, very late is a no-ball.
-      if (keys.pressed("Space") && cur.tRun > cur.runupDur * 0.4) this.release(clamp(cur.tRun - cur.runupDur, -0.35, 0.3));
-      else if (cur.tRun > cur.runupDur + 0.17) this.release(0.17 + Math.random() * 0.03);
+      if (keys.pressed("Space") && cur.tRun > cur.runupDur * 0.4) {
+        const stamina = this.inn.bowler.stamina;
+        let err = cur.tRun - cur.runupDur;
+        cur.releaseMark = err;
+        // Inside the sweet spot (smaller when tired) the release is perfect; outside it, fatigue makes it worse.
+        if (Math.abs(err) <= releaseSweetSpot(stamina)) {
+          err = 0;
+          this.flash("PERFECT RELEASE", COLORS.gold);
+        } else {
+          err *= 1.3 - 0.3 * stamina;
+        }
+        this.release(clamp(err, -0.35, 0.3));
+      } else if (cur.tRun > cur.runupDur + 0.17) {
+        cur.releaseMark = 0.17;
+        this.release(0.17 + Math.random() * 0.03);
+      }
     } else if (cur.tRun >= cur.runupDur + clamp(cur.aiReleaseError, -0.08, 0.08)) {
       this.release(cur.aiReleaseError);
     }
@@ -662,6 +691,101 @@ export class MatchScene {
 
   ballDead() {
     const cur = this.cur;
+    // A pad hit that might be LBW: appeal first, then the umpire, then perhaps DRS.
+    if (!cur.lbwChecked && this.match.lbwAppeal(cur.play)) {
+      cur.lbwChecked = true;
+      if (this.human === "bowl") {
+        if (cur.appealed) this.decideLbw();
+        else this.setPhase("appeal");
+      } else {
+        // The computer's fielders always go up.
+        cur.appealed = true;
+        sfx.appeal();
+        this.banner("HOWZAT?", COLORS.cream, 0.9, 3, 60);
+        this.decideLbw();
+      }
+      return;
+    }
+    this.completeBall();
+  }
+
+  /** The player shouts. Appealing when there's nothing in it irritates the umpire. */
+  appeal() {
+    const cur = this.cur;
+    if (!cur?.play || !cur.contactDone || cur.appealed) return;
+    cur.appealed = true;
+    sfx.appeal();
+    this.banner("HOWZAT?", COLORS.cream, 0.9, 3, 60);
+    const res = cur.play.res;
+    if (!res.padHit || res.touchedBat) {
+      this.inn.irritation += 0.6;
+      this.flash("THE UMPIRE IS UNMOVED");
+    }
+  }
+
+  decideLbw() {
+    const cur = this.cur;
+    if (!cur.appealed) {
+      this.completeBall();
+      return;
+    }
+    const res = cur.play.res;
+    const out = this.match.umpireLbw(cur.play);
+    if (this.human === "bowl" && !res.lbw && res.lbwNote !== "umpire's call, not out") this.inn.irritation += 1;
+    cur.onField = out;
+    this.banner(out ? "THE FINGER GOES UP" : "NOT OUT", out ? COLORS.red : COLORS.cream, 1.6, 3, 60);
+    if (out) sfx.cheer(0.8);
+    else sfx.groan();
+    this.setPhase("decision");
+  }
+
+  /** The side that lost the decision may review it: the player by pressing R, the computer if it smells a mistake. */
+  updateDecision() {
+    const cur = this.cur;
+    const inn = this.inn;
+    const loser = cur.onField ? "bat" : "bowl";
+    const playerSide = this.human === "bowl" ? "bowl" : "bat";
+    if (loser === playerSide) {
+      if (inn.reviews[loser] > 0 && keys.pressed("KeyR")) this.startReview(loser);
+      else if (this.phaseT > 2.8 || keys.pressed("Space")) this.endDecision();
+    } else if (this.phaseT > 1) {
+      const t = this.match.tracking(cur.play);
+      const wrong = cur.onField ? t.verdict === "notOut" : t.verdict === "out";
+      if (inn.reviews[loser] > 0 && this.match.rng.chance(wrong ? 0.65 : 0.1)) this.startReview(loser);
+      else this.endDecision();
+    }
+  }
+
+  startReview(side) {
+    const cur = this.cur;
+    cur.reviewBy = side;
+    cur.tracking = this.match.tracking(cur.play);
+    this.big("REVIEW", COLORS.gold, side === "bat" ? "THE BATTER REVIEWS" : "THE FIELDING SIDE REVIEWS", 1.2);
+    this.setPhase("review");
+  }
+
+  endReview() {
+    const cur = this.cur;
+    const t = cur.tracking;
+    let out = cur.onField;
+    if (t.verdict === "out") out = true;
+    else if (t.verdict === "notOut") out = false;
+    const won = cur.reviewBy === "bat" ? !out : out;
+    // Umpire's call: the on-field decision stands and the review is kept.
+    if (!won && t.verdict !== "umpiresCall") this.inn.reviews[cur.reviewBy]--;
+    const sub = out !== cur.onField ? "DECISION OVERTURNED" : t.verdict === "umpiresCall" ? "UMPIRE'S CALL" : "REVIEW LOST";
+    cur.onField = out;
+    this.big(out ? "OUT" : "NOT OUT", out ? COLORS.red : COLORS.cream, sub, 1.6);
+    this.endDecision();
+  }
+
+  endDecision() {
+    if (this.cur.onField) this.match.giveLbw(this.cur.play);
+    this.completeBall();
+  }
+
+  completeBall() {
+    const cur = this.cur;
     const done = this.match.finish(cur.play);
     cur.done = done;
     this.commentary = done.rec.commentary ?? "";
@@ -712,6 +836,11 @@ export class MatchScene {
       }
     }
     for (const m of done.applied.milestones) this.banner(m, COLORS.gold, 2.2, 2, 150, this.now + 0.4);
+    // Beat the bat and the close fielders let him know about it, which gets under his skin.
+    if (done.rec.beatBat && Math.random() < 0.35) {
+      this.chirp = { text: pickChirp(this.inn.bowlTeam.abbr), t0: this.now + 0.3 };
+      this.inn.pressure = clamp(this.inn.pressure + 0.06);
+    }
     this.setPhase("after");
   }
 

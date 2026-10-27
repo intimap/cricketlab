@@ -29,6 +29,7 @@ export function playerKit(teamKit, player) {
     hairStyle: look.hairStyle ?? "short",
     beard: look.beard ?? "none",
     number: look.number ?? 0,
+    extras: look.extras ?? [],
     height: look.height ?? 1.82,
   };
 }
@@ -345,6 +346,10 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     limb(shoulder, elbow, 4.5, 3.6, kit.skin, darken(kit.skin, 35));
     limb(shoulder, sleeve, 5, 4.4, kit.shirt, kit.shade);
     limb(elbow, hand, 3.4, 2.6, kit.skin, darken(kit.skin, 35));
+    if ((kit.extras ?? []).includes("sweatbands")) {
+      const w = at({ x: elbow.x + (hand.x - elbow.x) * 0.72, y: elbow.y + (hand.y - elbow.y) * 0.72 });
+      fillCircle(w.x, w.y, 3.2 * scale, kit.cap2);
+    }
   };
   arm(backShoulder, backElbow, topHand);
   arm(frontShoulder, frontElbow, bottomHand);
@@ -632,11 +637,23 @@ function drawFigureBody(x, y, height, opts) {
       bare(head.x + 4.9 - wide, head.y - 3, wide, 1 + drop, hair);
     }
     if (!opts.bat) {
-      // Eyes.
-      const eye = Math.max(1, Math.round(0.8 * k));
-      for (const dx of [-1.7, 1.7]) {
-        const e = at({ x: head.x + dx, y: head.y - 0.2 });
-        fillRect(e.x, e.y, eye, eye, "#1d1d22");
+      const extras = kit.extras ?? [];
+      if (extras.includes("sunglasses")) {
+        // Wraparounds, with a glint.
+        bare(head.x - 3.6, head.y - 0.8, 7.2, 1.8, "#15171c");
+        bare(head.x - 2.6, head.y - 0.4, 1, 0.5, "#8fb8d8");
+      } else {
+        // Eyes.
+        const eye = Math.max(1, Math.round(0.8 * k));
+        for (const dx of [-1.7, 1.7]) {
+          const e = at({ x: head.x + dx, y: head.y - 0.2 });
+          fillRect(e.x, e.y, eye, eye, "#1d1d22");
+        }
+      }
+      if (extras.includes("zinc")) {
+        // Zinc cream on the nose and lips.
+        bare(head.x - 0.7, head.y + 0.3, 1.6, 1.4, "#f6f6f0");
+        bare(head.x - 1.4, head.y + 2.5, 2.8, 0.7, "#f6f6f0");
       }
     }
     if (!opts.bat) drawFacialHair(kit, head, h, k, false, bare);
@@ -712,6 +729,11 @@ function drawFigureBody(x, y, height, opts) {
     limb(s, e, 2.4, 2, kit.skin, skinShade);
     limb(s, sleeve, 2.7, 2.3, shirt, shirtShade);
     limb(e, hands[i], umpire ? 2 : 1.8, 1.5, umpire ? shirt : kit.skin, umpire ? shirtShade : skinShade);
+    if (!umpire && (kit.extras ?? []).includes("sweatbands")) {
+      const wrist = { x: e.x + (hands[i].x - e.x) * 0.78, y: e.y + (hands[i].y - e.y) * 0.78 };
+      const w = at(wrist);
+      fillCircle(w.x, w.y, 1.9 * k, kit.cap2);
+    }
     const hand = at(hands[i]);
     fillCircle(hand.x, hand.y, (opts.bat ? 2.2 : 1.8) * k, opts.bat ? "#f1f1f1" : kit.skin);
   }

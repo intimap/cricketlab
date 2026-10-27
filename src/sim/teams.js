@@ -121,10 +121,11 @@ const HAIR = {
 /**
  * How a player looks on screen: height (m), skin tone, hair colour and style
  * (short, buzz, curly, long, bald), facial hair (none, stubble, moustache,
- * full) and shirt number.
+ * full), shirt number, and extras: "sunglasses", "zinc" (sunscreen on the
+ * nose and lips) and "sweatbands".
  */
-function look(height, skin, hair, hairStyle, beard, number) {
-  return { height, skin: SKIN[skin], hair: HAIR[hair], hairStyle, beard, number };
+function look(height, skin, hair, hairStyle, beard, number, extras = []) {
+  return { height, skin: SKIN[skin], hair: HAIR[hair], hairStyle, beard, number, extras };
 }
 
 const DEFAULT_LOOK = look(1.82, "light", "brown", "short", "none", 0);
@@ -163,14 +164,14 @@ export function australia() {
     { name: "Trevor Hearn", look: look(1.83, "light", "brown", "short", "none", 23), nick: "Hearny", role: "opener", flair: 0.1 },
     {
       name: "Marcus La Bonshane",
-      look: look(1.78, "light", "darkBrown", "short", "stubble", 33),
+      look: look(1.78, "light", "darkBrown", "short", "stubble", 33, ["sunglasses"]),
       nick: "Bonny",
       role: "top",
       short: "La Bonshane",
     },
     {
       name: "Stan Smoth",
-      look: look(1.74, "light", "darkBrown", "short", "none", 49),
+      look: look(1.74, "light", "darkBrown", "short", "none", 49, ["zinc", "sweatbands"]),
       nick: "Smudge",
       role: "top",
       bowl: bowler("legspin", 0.15, { spin: 0.55, accuracy: 0.55, stamina: 0.6 }),
@@ -184,10 +185,16 @@ export function australia() {
       flair: 0.1,
       bowl: bowler("medium", 0.55, { pace: 0.66 }),
     },
-    { name: "Allan Corey", look: look(1.78, "light", "brown", "short", "full", 4), nick: "Corey", role: "keeper", keeper: true },
+    {
+      name: "Allan Corey",
+      look: look(1.78, "light", "brown", "short", "full", 4, ["sunglasses"]),
+      nick: "Corey",
+      role: "keeper",
+      keeper: true,
+    },
     {
       name: "Pete Crimmins",
-      look: look(1.92, "light", "darkBrown", "short", "stubble", 30),
+      look: look(1.92, "light", "darkBrown", "short", "stubble", 30, ["sweatbands"]),
       nick: "Crims",
       role: "tail",
       bowl: bowler("fast", 0.85, { pace: 0.88 }),
@@ -201,7 +208,7 @@ export function australia() {
     },
     {
       name: "Michael Stork",
-      look: look(1.97, "fair", "sandy", "short", "none", 56),
+      look: look(1.97, "fair", "sandy", "short", "none", 56, ["sunglasses"]),
       nick: "Storky",
       role: "tail",
       flair: 0.15,
@@ -209,7 +216,7 @@ export function australia() {
     },
     {
       name: "Nate Lewins",
-      look: look(1.81, "fair", "brown", "bald", "stubble", 67),
+      look: look(1.81, "fair", "brown", "bald", "stubble", 67, ["zinc"]),
       nick: "Lewo",
       role: "bunny",
       bowl: bowler("offspin", 0.8),
@@ -217,7 +224,7 @@ export function australia() {
     // Reserves
     {
       name: "Travis Headley",
-      look: look(1.79, "fair", "ginger", "short", "moustache", 62),
+      look: look(1.79, "fair", "ginger", "short", "moustache", 62, ["sunglasses"]),
       nick: "Heady",
       role: "middle",
       flair: 0.2,
@@ -252,14 +259,14 @@ export function england() {
   return makeTeam("ENGLAND", "ENG", "#1d2f6f", "#c8102e", 202, [
     {
       name: "Zach Crawley",
-      look: look(1.96, "fair", "lightBrown", "short", "none", 16),
+      look: look(1.96, "fair", "lightBrown", "short", "none", 16, ["sunglasses"]),
       nick: "Creepy",
       role: "opener",
       flair: 0.1,
     },
     {
       name: "Benny Dackett",
-      look: look(1.7, "fair", "brown", "short", "stubble", 17),
+      look: look(1.7, "fair", "brown", "short", "stubble", 17, ["zinc"]),
       nick: "Ducky",
       role: "opener",
       flair: 0.2,
@@ -267,21 +274,21 @@ export function england() {
     { name: "Ollie Popes", look: look(1.75, "light", "darkBrown", "short", "none", 80), nick: "Popey", role: "top" },
     {
       name: "Joey Rutt",
-      look: look(1.83, "fair", "brown", "short", "none", 66),
+      look: look(1.83, "fair", "brown", "short", "none", 66, ["sweatbands"]),
       nick: "Rutty",
       role: "top",
       bowl: bowler("offspin", 0.3, { spin: 0.6, accuracy: 0.72, stamina: 0.75 }),
     },
     {
       name: "Harry Brookes",
-      look: look(1.83, "light", "brown", "short", "none", 88),
+      look: look(1.83, "light", "brown", "short", "none", 88, ["sunglasses"]),
       nick: "Brooky",
       role: "middle",
       flair: 0.2,
     },
     {
       name: "Benny Stokeson",
-      look: look(1.85, "fair", "ginger", "short", "full", 55),
+      look: look(1.85, "fair", "ginger", "short", "full", 55, ["sweatbands"]),
       nick: "Stokesy",
       role: "allround",
       flair: 0.15,
@@ -311,14 +318,14 @@ export function england() {
     },
     {
       name: "Joffrey Archard",
-      look: look(1.88, "dark", "black", "buzz", "stubble", 22),
+      look: look(1.88, "dark", "black", "buzz", "stubble", 22, ["sunglasses"]),
       nick: "Archie",
       role: "tail",
       bowl: bowler("fast", 0.85, { pace: 0.93 }),
     },
     {
       name: "Mark Woot",
-      look: look(1.78, "fair", "brown", "bald", "full", 33),
+      look: look(1.78, "fair", "brown", "bald", "full", 33, ["sunglasses", "zinc"]),
       nick: "Woody",
       role: "bunny",
       bowl: bowler("fast", 0.75, { pace: 0.97, stamina: 0.5 }),

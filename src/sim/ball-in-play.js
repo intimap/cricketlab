@@ -2,6 +2,9 @@ import { clamp } from "../math.js";
 import { BOUNDARY, ENDS, GRAVITY, RUN_LENGTH, PITCH_LENGTH, CREASE, distFromCentre } from "./geometry.js";
 import { keeperSpot } from "./field.js";
 
+/** How badly computer batters misjudge a run (seconds, standard deviation, for an average runner). */
+const RUN_MISJUDGE = 0.36;
+
 /** Fielder acceleration (m/s^2). */
 const FIELDER_ACCEL = 5.5;
 
@@ -79,6 +82,8 @@ export class BallInPlay {
   /** Each runner's end when the current run started, so it can be called back. */
   runStartFrom = null;
   runsAttempted = 0;
+  /** The computer batters' error judging the next run (seconds); drawn once per decision. */
+  misjudge = null;
   idleSince = 0;
   riskSince = null;
   /** How long a fielder holding the ball by the stumps takes to break them. */
@@ -686,6 +691,7 @@ export class BallInPlay {
       }
       this.runStartFrom = null;
       this.idleSince = this.t;
+      this.misjudge = null;
     }
   }
 
@@ -717,7 +723,11 @@ export class BallInPlay {
     const slowest = Math.min(...this.runners.map((r) => r.speed));
     const runTime = RUN_LENGTH / slowest + (this.runsAttempted === 0 ? 0.32 : 0.36);
     const safety = 0.85 - 0.6 * aggression;
-    if (runTime + safety < ballBack) this.requestRun();
+    if (this.misjudge === null) {
+      const running = (this.setup.striker.bat.running + this.setup.nonStriker.bat.running) / 2;
+      this.misjudge = this.setup.rng.normal(0, RUN_MISJUDGE * (1.3 - running));
+    }
+    if (runTime + safety < ballBack + this.misjudge) this.requestRun();
   }
 
   moveFielders(dt) {

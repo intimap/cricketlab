@@ -60,7 +60,7 @@ export function pickOverPlan(inn, rng) {
   if (isSpinner(skills)) {
     if (weakness === "earlySpin" && inn.batterState(inn.striker).settled < 0.5) return "flight";
     const rough = inn.pitch.roughPatches[0]?.strength ?? 0;
-    return rough > 0.25 && rng.chance(0.6) ? "rough" : inn.pressure > 0.4 ? "squeeze" : "stock";
+    return rough > 0.25 && rng.chance(0.4) ? "rough" : inn.pressure > 0.4 ? "squeeze" : "stock";
   }
   if ((weakness === "hook" || weakness === "bouncer") && skills.style === "fast" && inn.bowler.stamina > 0.45) return "short";
   if (weakness === "offStump") return "corridor";
@@ -255,6 +255,9 @@ export function pickShot(d, inn, rng) {
     const hooker = batter.p.weakness === "hook";
     const takeOn = (aggression * 0.6 + skills.vsPace * 0.2) * (hooker ? 1 : height > 1.6 ? 0.3 : height > 1.35 ? 0.5 : 1);
     type = roll < takeOn ? "cutpull" : "leave";
+  } else if (!spinner && pitchZ < 2.6 && pitchZ > 1.3 && onStumps) {
+    // Yorker on the stumps: dig it out, unless he's going for broke.
+    type = roll < aggression * 0.3 ? "drive" : "defend";
   } else if (pitchZ < 4.2 && pitchZ > 1.3) {
     type = roll < 0.5 + aggression * 0.45 ? (spinner && rng.chance(aggression * 0.35) ? "loft" : "drive") : "defend";
   } else if (pitchZ > 8 && onStumps) {
@@ -267,7 +270,7 @@ export function pickShot(d, inn, rng) {
     type = roll < leaveOdds ? "leave" : rng.chance(0.4) ? "defend" : "drive";
   }
   // Weaknesses pull the bat towards the wrong shot.
-  if (batter.p.weakness === "offStump" && weak > 0 && type === "leave" && rng.chance(0.55 * weak)) type = "drive";
+  if (batter.p.weakness === "offStump" && weak > 0 && type === "leave" && rng.chance(0.25 * weak)) type = "drive";
   if (batter.p.weakness === "hook" && seenBall.length === "short" && height > 1.1) type = "cutpull";
   if (batter.p.weakness === "bouncer" && weak > 0 && height > 1.1 && rng.chance(0.7)) type = "defend";
   // Under pressure (or on a free hit) the impatient ones go for it.
@@ -277,6 +280,8 @@ export function pickShot(d, inn, rng) {
     type = pitchZ > 8 ? "cutpull" : "loft";
     slog = true;
   }
+  // Nobody drives a ball at chest height.
+  if ((type === "drive" || type === "loft") && height > 1.2) type = height > 1.5 ? "leave" : "defend";
   let softPush = false;
   if (type === "defend" && height < 1.1 && rng.chance(0.25 + 0.3 * aggression)) {
     type = "drive";

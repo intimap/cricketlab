@@ -219,7 +219,8 @@ export class BallInPlay {
         if ((this.boundaryAt !== null && p.t >= this.boundaryAt) || (best && p.t >= best.t)) break;
         const travelled = Math.hypot(p.x - this.origin.x, p.z - this.origin.z);
         const catchable = res.touchedBat && !p.bounced && p.y > 0.12 && p.y < 2.7 && travelled > 2.2;
-        const fieldable = p.y < (f.role === "keeper" ? 2.4 : 2.1);
+        // The keeper leaps for anything he can; others take it up to about head height.
+        const fieldable = p.y < (f.role === "keeper" ? 2.8 : 2.1);
         if (!catchable && !fieldable) continue;
         const dist = Math.hypot(f.pos.x - p.x, f.pos.z - p.z);
         const covered = runDistance(Math.max(0, p.t - startAt), f.speed);

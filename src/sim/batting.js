@@ -19,6 +19,9 @@ export const SWING_TIME = {
 };
 
 const isSweep = (type) => type === "sweep" || type === "reverseSweep";
+/** Extra vertical bat error (m) when hooking a ball above the shoulder: top edges and gloves. */
+const HOOK_ERROR = 0.09;
+
 /** Shot power (0..1) of a normal, non-power player shot. */
 export const NORMAL_CHARGE = 0.35;
 
@@ -58,6 +61,8 @@ function expectedAt(d, readTime, z, bat) {
 /** 0..1: how well the chosen shot suits the ball (height at contact, pitching length, line). */
 function shotSuitability(type, height, pitchZ, line, spinner) {
   let s = 1;
+  // A yorker at the toes can be dug out, but it's very hard to hit.
+  if (pitchZ > 1.2 && pitchZ < 2.6 && !spinner && type !== "defend" && type !== "leave") s -= 0.5;
   if (type === "drive") {
     if (height > 0.95) s -= (height - 0.95) * 1.3;
     if (pitchZ > 8) s -= 0.35;
@@ -249,7 +254,7 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
   // Hooking a ball up around the head is a gamble: hard to get on top of.
   const hooking = shot.type === "cutpull" && at.x <= 0.2 && at.y > 1.35;
   const batX = aimX + rng.normal(0, jitter);
-  const batY = aimY + rng.normal(0, jitter * 1.5 * (hooking ? 2.2 : 1));
+  const batY = aimY + rng.normal(0, jitter * 1.5) + (hooking ? rng.normal(0, HOOK_ERROR) : 0);
   const latErr = at.x - batX;
   const vErr = at.y - batY;
   const height = at.y;
@@ -304,7 +309,7 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
       } else if (isSweep(shot.type)) {
         speed = (batSpeed + 0.25 * ballSpeed + 4) * (0.5 + 0.5 * quality) * ball.batPace;
       } else {
-        speed = (batSpeed + 0.42 * ballSpeed) * (0.5 + 0.5 * quality) * ball.batPace * (hooking ? 0.85 : 1);
+        speed = (batSpeed + 0.42 * ballSpeed) * (0.5 + 0.5 * quality) * ball.batPace * (hooking ? 0.7 : 1);
       }
       if (mistimed && !defending) speed *= 0.7;
       let dir = natural;

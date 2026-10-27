@@ -116,7 +116,7 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
   const disguised = type === "googly" || type === "armBall" || type === "slower";
 
   // Coefficient of restitution at the bounce, with occasional shooters and lifters.
-  const expectedBounce = 0.5 * pitch.bounce * ball.bounceFactor * (spinner ? 0.92 : 1) * (type === "bouncer" ? 1.12 : 1);
+  const expectedBounce = 0.5 * pitch.bounce * ball.bounceFactor * (spinner ? 0.92 : 1);
   let bounce = expectedBounce * (1 + rng.normal(0, pitch.variability));
   let bounceNote = "";
   const roll = rng.next();
@@ -142,7 +142,7 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
   let inRough = false;
   if (rough > 0.05) {
     inRough = true;
-    if (spinKick) spinKick *= 1 + 1.6 * rough;
+    if (spinKick) spinKick *= 1 + 0.45 * rough;
     else seamKick += rng.normal(0, 0.4 * rough);
     bounce *= 1 + rng.normal(0, 0.15 * rough);
     flight = simulateFlight(release, swingAcc, seamKick, spinKick, bounce, paceKept, []);

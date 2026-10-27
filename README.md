@@ -72,6 +72,7 @@ src/
     booth-lines.js    each commentator's lines for every situation
     match.js          plays innings ball by ball, swaps sides, works out the result
     formats.js        game formats and Classic Match challenges (data)
+    runup.js          the player's run-up and release meter: rhythm, ramp, stride surges
   render/
     camera.js         projections for the close (either end) and wide views
     sprites.js        batter, figures, ball

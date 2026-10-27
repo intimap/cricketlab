@@ -7,7 +7,8 @@ import { Rng } from "../sim/rng.js";
 import { isSpinner } from "../sim/teams.js";
 import { createMatch } from "../sim/formats.js";
 import { PITCH_LENGTH } from "../sim/geometry.js";
-import { EFFORTS, crossingAtZ, releaseSweetSpot } from "../sim/delivery.js";
+import { EFFORTS, crossingAtZ } from "../sim/delivery.js";
+import { planRunup, meterPos, releaseError, METER_FROM } from "../sim/runup.js";
 import { CONTACT_Z_FRONT, CONTACT_Z_BACK, SWING_TIME, NORMAL_CHARGE } from "../sim/batting.js";
 import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from "../sim/field.js";
 import { pickBowler } from "../sim/ai.js";
@@ -176,10 +177,13 @@ export class MatchScene {
   newBall(intent, aiReleaseError) {
     const spinner = this.spinner;
     const style = this.inn.bowler.p.bowl.style;
+    // The player's run-up varies ball to ball (see runup.js); the AI's is steady.
+    const runup = this.human === "bowl" ? planRunup(style, intent.effort, this.inn.bowler.stamina) : null;
     return {
       intent,
       aiReleaseError,
-      runupDur: spinner ? 1.5 : style === "fast" ? 2.5 : 2.2,
+      runup,
+      runupDur: runup ? runup.dur : spinner ? 1.5 : style === "fast" ? 2.5 : 2.2,
       runupStartZ: spinner ? 25.5 : 33,
       /** Time since the run-up started. */
       tRun: 0,
@@ -474,20 +478,22 @@ export class MatchScene {
         cur.aftertouch = clamp((cur.aftertouch ?? 0) + (held * this.screenTurn * dt) / AFTERTOUCH_BUILD, -1, 1);
       }
       // Release on Space: early drops it short, late drags it full, very late is a no-ball.
-      if (keys.pressed("Space") && cur.tRun > cur.runupDur * 0.4) {
+      const r = cur.runup;
+      const pos = meterPos(r, cur.tRun);
+      if (keys.pressed("Space") && pos > METER_FROM) {
         const stamina = this.inn.bowler.stamina;
-        let err = cur.tRun - cur.runupDur;
-        cur.releaseMark = err;
-        // Inside the sweet spot (smaller when tired) the release is perfect; outside it, fatigue makes it worse.
-        if (Math.abs(err) <= releaseSweetSpot(stamina)) {
+        let err = releaseError(r, pos);
+        cur.releaseMark = pos;
+        // Inside the gold zone the release is perfect; outside it, fatigue makes it worse.
+        if (Math.abs(err) <= r.zone) {
           err = 0;
           this.flash("PERFECT RELEASE", COLORS.gold);
         } else {
           err *= 1.3 - 0.3 * stamina;
         }
         this.release(clamp(err, -0.35, 0.3));
-      } else if (cur.tRun > cur.runupDur + 0.17) {
-        cur.releaseMark = 0.17;
+      } else if (releaseError(r, pos) > 0.17) {
+        cur.releaseMark = pos;
         this.release(0.17 + Math.random() * 0.03);
       }
     } else if (cur.tRun >= cur.runupDur + clamp(cur.aiReleaseError, -0.08, 0.08)) {

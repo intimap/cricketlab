@@ -66,15 +66,12 @@ function wideX(x) {
   return WIDE_CX + Math.sign(x) * w;
 }
 
-/** World point to screen: { x, y, s } where s scales sprites (smaller further away). */
-export function projectWide(x, y, z) {
-  const sy = wideY(MID_PITCH - z);
-  const s = 0.7 + 0.3 * ((sy - WIDE_FAR_Y) / (WIDE_NEAR_Y - WIDE_FAR_Y));
-  return { x: wideX(x), y: sy - y * 2.4 * s, s };
+/** Ground point to screen through the piecewise-linear mapping alone. */
+function rawWide(x, z) {
+  return { x: wideX(x), y: wideY(MID_PITCH - z) };
 }
 
-/** Screen point to ground position (inverse of projectWide at y = 0). */
-export function unprojectWide(sx, sy) {
+function rawUnprojectWide(sx, sy) {
   const dx = sx - WIDE_CX;
   const a = Math.abs(dx);
   const x =
@@ -88,4 +85,62 @@ export function unprojectWide(sx, sy) {
   else if (dy > 0) d = MID_PITCH + ((dy - WIDE_HALF_PITCH) / (WIDE_NEAR_Y - WIDE_CY - WIDE_HALF_PITCH)) * (BOUNDARY - MID_PITCH);
   else d = -(MID_PITCH + ((-dy - WIDE_HALF_PITCH) / (WIDE_CY - WIDE_HALF_PITCH - WIDE_FAR_Y)) * (BOUNDARY - MID_PITCH));
   return { x, z: MID_PITCH - d };
+}
+
+// The boundary rope as painted in the wide background: an ellipse, slightly
+// deeper on the near side. The linear mapping above puts the 66 m boundary on
+// a rounded rectangle instead, so it is bent to fit this.
+const ROPE = { cx: 318.5, cy: 215, rx: 297.5, ryFar: 108, ryNear: 113 };
+
+/** t > 0 where the ray from the ground centre along (vx, vy) meets the painted rope. */
+function ropeHit(vx, vy) {
+  const ox = WIDE_CX - ROPE.cx;
+  const oy = WIDE_CY - ROPE.cy;
+  for (const [ry, near] of [
+    [ROPE.ryFar, false],
+    [ROPE.ryNear, true],
+  ]) {
+    const a = (vx / ROPE.rx) ** 2 + (vy / ry) ** 2;
+    const b = 2 * ((ox * vx) / ROPE.rx ** 2 + (oy * vy) / ry ** 2);
+    const c = (ox / ROPE.rx) ** 2 + (oy / ry) ** 2 - 1;
+    const t = (-b + Math.sqrt(b * b - 4 * a * c)) / (2 * a);
+    if (WIDE_CY + t * vy >= ROPE.cy === near) return t;
+  }
+  return 1;
+}
+
+/**
+ * How much to stretch a ground point's offset from the centre so the boundary
+ * lands on the painted rope. 1 at the middle, easing to the full correction
+ * at the boundary and beyond.
+ */
+function ropeCorrection(x, z) {
+  const dz = z - MID_PITCH;
+  const dist = Math.hypot(x, dz);
+  if (dist < 1e-6) return 1;
+  const edge = rawWide((x / dist) * BOUNDARY, MID_PITCH + (dz / dist) * BOUNDARY);
+  const k = ropeHit(edge.x - WIDE_CX, edge.y - WIDE_CY);
+  return 1 + (k - 1) * Math.min(1, (dist / BOUNDARY) ** 2);
+}
+
+/** World point to screen: { x, y, s } where s scales sprites (smaller further away). */
+export function projectWide(x, y, z) {
+  const raw = rawWide(x, z);
+  const k = ropeCorrection(x, z);
+  const sx = WIDE_CX + (raw.x - WIDE_CX) * k;
+  const sy = WIDE_CY + (raw.y - WIDE_CY) * k;
+  const s = 0.7 + 0.3 * ((sy - WIDE_FAR_Y) / (WIDE_NEAR_Y - WIDE_FAR_Y));
+  return { x: sx, y: sy - y * 2.4 * s, s };
+}
+
+/** Screen point to ground position (inverse of projectWide at y = 0). */
+export function unprojectWide(sx, sy) {
+  // Undo the rope correction by fixed-point iteration; it changes slowly, so this converges fast.
+  let k = 1;
+  let g = rawUnprojectWide(sx, sy);
+  for (let i = 0; i < 8; i++) {
+    g = rawUnprojectWide(WIDE_CX + (sx - WIDE_CX) / k, WIDE_CY + (sy - WIDE_CY) / k);
+    k = ropeCorrection(g.x, g.z);
+  }
+  return g;
 }

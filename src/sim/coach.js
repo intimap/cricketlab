@@ -1,4 +1,4 @@
-import { DELIVERY_NAMES, crossingAtZ, lengthName, lineName } from "./delivery.js";
+import { DELIVERY_NAMES, crossingAtZ, lengthName, lineName, movementText } from "./delivery.js";
 import { shotSuitability, CONTACT_Z_FRONT } from "./batting.js";
 
 /**
@@ -128,16 +128,8 @@ export function bowlingFeedback({ delivery, intent, releaseError, perfect, rec, 
   lines.push(`AT THE STUMPS: ${lineName(lineAt).toUpperCase()} - AIMED ${lineName(intent.line).toUpperCase()}`);
 
   // Movement: in the air before the bounce, and off the pitch after it.
-  const tAir = Math.max(0, (delivery.release.z - pitchZ) / delivery.speed);
-  const swing = 0.5 * delivery.swingAcc * tAir * tAir;
-  const tAfter = pitchZ / Math.max(1, delivery.speed * delivery.paceKept);
-  const kick = (delivery.spinKick + delivery.seamKick) * tAfter;
-  const cm = (m) => `${Math.round(Math.abs(m) * 100)} CM`;
-  const way = (m) => (m > 0 ? "AWAY" : "IN");
-  const moves = [`PACE ${kmh(delivery)} KM/H`];
-  if (Math.abs(swing) > 0.03) moves.push(`${delivery.reversing ? "REVERSE " : ""}SWING ${cm(swing)} ${way(swing)}`);
-  if (Math.abs(kick) > 0.03) moves.push(`${spinner ? "TURN" : "SEAM"} ${cm(kick)} ${way(kick)}`);
-  lines.push(moves.join("   "));
+  const moved = movementText(delivery);
+  lines.push(`PACE ${kmh(delivery)} KM/H${moved ? "   " + moved : "   WENT STRAIGHT ON"}`);
 
   const lengthOff = pitchZ - intent.length;
   const lineOff = lineAt - intent.line;

@@ -3,7 +3,7 @@
  * their own voices: Bunnings dry and sparing, Lorry beside himself, Grog
  * with an opinion on everything.
  * Placeholders: {b} batter, {w} bowler, {n} the number that matters, {k} a
- * count in words (wickets in a collapse).
+ * count in words (wickets in a collapse) or a direction ("AWAY", "BACK IN").
  */
 export const MOMENT_LINES = {
   hatTrick: {
@@ -218,6 +218,29 @@ export const MOMENT_LINES = {
     bunnings: ["{n} NEEDED FROM {k} BALLS. INTERESTING.", "THE EQUATION NOW: {n} FROM {k}."],
     lorry: ["{n} OFF {k}! IT'S ALL HAPPENING!", "{n} NEEDED, {k} BALLS LEFT! I CAN'T BEAR IT!"],
     grog: ["{n} FROM {k}. IT'S IN THE BALANCE.", "THEY NEED {n} OFF {k}. ONE BIG OVER CHANGES EVERYTHING."],
+  },
+  jaffa: {
+    bunnings: ["WHAT A DELIVERY. THAT MOVED {n} CM {k} AND {b} NEVER SAW IT.", "AN ABSOLUTE PEACH. {n} CM {k}, PAST THE BAT."],
+    lorry: ["OH, WHAT A BALL! A JAFFA! {n} CM {k}! HE'S BEATEN HIM COMPLETELY!", "UNPLAYABLE! THAT'S MOVED {n} CM {k}!"],
+    grog: [
+      "THAT'S A JAFFA. {n} CM {k}. NOTHING {b} COULD DO ABOUT THAT.",
+      "WORLD-CLASS DELIVERY. {n} CM {k} AFTER IT LEFT {w}'S HAND.",
+    ],
+  },
+  rapid: {
+    bunnings: ["{n} KILOMETRES AN HOUR. QUICK.", "THE SPEED GUN SAYS {n}. THAT'S HURRYING HIM."],
+    lorry: ["{n} K'S! THAT IS RAPID! FASTER THAN MY CAR!", "LOOK AT THE SPEED! {n}! HE'S FLYING IN!"],
+    grog: ["{n} KM/H. GENUINE PACE. THE BATTERS DON'T LIKE THAT.", "{w} IS CRANKING IT UP. {n} ON THE GUN."],
+  },
+  bigSwing: {
+    bunnings: ["THAT SWUNG {n} CM {k}. LOVELY SHAPE.", "HANGING IN THE AIR, THEN {n} CM {k}. MARVELLOUS."],
+    lorry: ["LOOK AT THAT SWING! {n} CM {k}! IT'S BANANA-SHAPED!", "IT'S SWINGING LIKE A BOOMERANG! {n} CM!"],
+    grog: ["{n} CM OF SWING. THE CONDITIONS ARE PERFECT FOR {w}.", "PROPER SWING BOWLING. {n} CM {k}."],
+  },
+  bigTurn: {
+    bunnings: ["THAT SPUN {n} CM. THE PITCH IS STARTING TO HELP.", "BIG TURN THERE. {n} CM {k}."],
+    lorry: ["IT'S TURNED A MILE! {n} CM! LOOK AT THAT!", "SQUARE! IT'S SPUN SQUARE! {n} CM!"],
+    grog: ["{n} CM OF TURN. THAT'S A BIG RIP FROM {w}.", "IT GRIPPED AND SPUN {n} CM. BATTING'S GETTING HARD."],
   },
   fifty: {
     bunnings: ["FIFTY FOR {b}. {n} BALLS. A VERY TIDY INNINGS.", "{b} RAISES HIS BAT. FIFTY, AND WELL EARNED."],

@@ -76,8 +76,8 @@ class Pixels {
 
 /**
  * The scenery a view is built on: either one painting (an asset id), or a
- * stack of layers drawn in order, each { image, y } (an asset id placed at
- * row y) or { clouds: id, count, top, bottom } (clouds cut from a sheet and
+ * stack of layers drawn in order, each { image, x, y } (an asset id placed
+ * at column x, row y) or { clouds: id, count, top, bottom } (clouds cut from a sheet and
  * scattered by the seed between those rows).
  */
 function sceneryCanvas(scenery, images, seed) {
@@ -87,7 +87,7 @@ function sceneryCanvas(scenery, images, seed) {
   const ctx = canvas.getContext("2d");
   const layers = typeof scenery === "string" ? [{ image: scenery, y: 0 }] : scenery;
   for (const layer of layers) {
-    if (layer.image) ctx.drawImage(images[layer.image], 0, layer.y ?? 0);
+    if (layer.image) ctx.drawImage(images[layer.image], layer.x ?? 0, layer.y ?? 0);
     if (layer.clouds) scatterClouds(ctx, images[layer.clouds], layer, seed);
   }
   return canvas;
@@ -313,8 +313,10 @@ export function buildWide(ground, images, pitch, seed = 1) {
   const ringColour = rgb(ring.colour);
   const white = rgb(ground.crease);
 
-  const top = Math.floor(ROPE.cy - ROPE.ryFar);
-  const bottom = Math.ceil(ROPE.cy + ROPE.ryNear);
+  // Without a painting underneath (groundFrom set), the grass outside the rope is drawn too, a shade darker.
+  const outside = view.groundFrom !== undefined;
+  const top = outside ? view.groundFrom : Math.floor(ROPE.cy - ROPE.ryFar);
+  const bottom = outside ? H - 1 : Math.ceil(ROPE.cy + ROPE.ryNear);
   for (let y = top; y <= bottom; y++) {
     const ry = y < ROPE.cy ? ROPE.ryFar : ROPE.ryNear;
     const dy = (y - ROPE.cy) / ry;
@@ -324,7 +326,10 @@ export function buildWide(ground, images, pitch, seed = 1) {
     for (let x = 0; x < W; x++) {
       const dx = (x - ROPE.cx) / ROPE.rx;
       const d = Math.sqrt(dx * dx + dy * dy);
-      if (d > 1) continue;
+      if (d > 1) {
+        if (outside) px.put(x, y, texture(shade(grass, -10), x, y, seed + 7));
+        continue;
+      }
       // Pixels in from the rope, roughly.
       const inFrom = (1 - d) * Math.min(ROPE.rx, ry);
       if (inFrom < 1) {
@@ -388,7 +393,11 @@ export function buildWide(ground, images, pitch, seed = 1) {
       }
     }
   }
-  return px.done();
+  const canvas = px.done();
+  // Anything standing in front of the field (trees in the corners).
+  const g = canvas.getContext("2d");
+  for (const layer of view.foreground ?? []) g.drawImage(images[layer.image], layer.x ?? 0, layer.y ?? 0);
+  return canvas;
 }
 
 /** Both views for a ground and the current state of the pitch. */

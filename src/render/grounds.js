@@ -41,7 +41,7 @@ export const GROUNDS = {
   },
 };
 
-/** A ground built from layered close-view art (tools/art/make_scenery.py), with a choice of fence. */
+/** A ground built from layered art (tools/art/make_scenery.py and make_scenery_wide.py), with a choice of fence. */
 function parklands(name, fence) {
   const oval = GROUNDS.oval;
   return {
@@ -56,14 +56,32 @@ function parklands(name, fence) {
         { clouds: "close/clouds", count: 5, top: 25, bottom: 62 },
         { image: "close/treeline", y: 40 },
         { image: "close/stands", y: 58 },
-        { image: fence, y: 112 },
+        { image: `close/${fence}`, y: 112 },
+      ],
+    },
+    wide: {
+      ...oval.wide,
+      // Sky, trees, stands and fence above the field; the fence's foot meets the top of the rope (row 107).
+      scenery: [
+        { image: "wide/sky", y: 0 },
+        { clouds: "close/clouds", count: 4, top: 0, bottom: 26 },
+        { image: "wide/treeline", y: 9 },
+        { image: "wide/stands", y: 51 },
+        { image: `wide/${fence}`, y: 93 },
+      ],
+      // Grass is drawn from here down, outside the rope too.
+      groundFrom: 107,
+      // Trees in the near corners, over the edge of the field.
+      foreground: [
+        { image: "wide/trees-left", x: 0, y: 255 },
+        { image: "wide/trees-right", x: 360, y: 255 },
       ],
     },
   };
 }
 
-GROUNDS.parklands = parklands("PARKLANDS OVAL", "close/fence-picket");
-GROUNDS.parklandsBoards = parklands("PARKLANDS (BOARDS)", "close/fence-ads");
+GROUNDS.parklands = parklands("PARKLANDS OVAL", "fence-picket");
+GROUNDS.parklandsBoards = parklands("PARKLANDS (BOARDS)", "fence-ads");
 
 /**
  * How each pitch type looks: base colour, its specks, how wear changes it,

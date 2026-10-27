@@ -12,6 +12,13 @@ export const ASSET_URLS = {
   "close/stands": new URL("../assets/close/stands.png", import.meta.url),
   "close/fence-picket": new URL("../assets/close/fence-picket.png", import.meta.url),
   "close/fence-ads": new URL("../assets/close/fence-ads.png", import.meta.url),
+  "wide/sky": new URL("../assets/wide/sky.png", import.meta.url),
+  "wide/treeline": new URL("../assets/wide/treeline.png", import.meta.url),
+  "wide/stands": new URL("../assets/wide/stands.png", import.meta.url),
+  "wide/fence-picket": new URL("../assets/wide/fence-picket.png", import.meta.url),
+  "wide/fence-ads": new URL("../assets/wide/fence-ads.png", import.meta.url),
+  "wide/trees-left": new URL("../assets/wide/trees-left.png", import.meta.url),
+  "wide/trees-right": new URL("../assets/wide/trees-right.png", import.meta.url),
 };
 
 /** Load them all: resolves to { id: HTMLImageElement }. */

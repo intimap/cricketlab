@@ -58,13 +58,16 @@ export function makeKit(cap, cap2, skin = "#d8a27a") {
 
 /**
  * Key poses for the close-up striker. px/py: hands, angle: bat angle in
- * degrees (0 = straight down), step: front foot forward, lean: body lean,
- * back: weight on the back foot.
+ * degrees (0 = straight down; positive lifts it back, negative carries it through),
+ * plane: how much of that swing runs along the pitch - towards or away from the
+ * camera behind him - rather than across the screen (BAT_PLANE unless given:
+ * a straight bat; cross-bat shots swing nearer the screen's plane),
+ * step: front foot forward, lean: body lean, back: weight on the back foot.
  */
 export const BATTER_POSES = {
   stance: { px: 11, py: -44, angle: 14, step: 0, lean: 0, back: 0 },
-  lift0: { px: 12, py: -52, angle: 60, step: 0, lean: 0, back: 0 },
-  lift1: { px: 13, py: -62, angle: 140, step: 0, lean: -1, back: 0 },
+  lift0: { px: 12, py: -54, angle: 100, step: 0, lean: 0, back: 0 },
+  lift1: { px: 11, py: -64, angle: 150, step: 0, lean: -1, back: 0 },
   /** Small back-and-across movement as the bowler delivers. */
   trigger: { px: 12, py: -46, angle: 22, step: 0, lean: 1, back: 0.6 },
   contactFront: { px: 12, py: -40, angle: 0, step: 1.4, lean: 5, back: 0 },
@@ -73,23 +76,23 @@ export const BATTER_POSES = {
   coverDriveEnd: { px: 6, py: -76, angle: -158, step: 1.4, lean: 6, back: 0 },
   straightDriveEnd: { px: -1, py: -84, angle: -176, step: 1.4, lean: 3, back: 0 },
   onDriveEnd: { px: -8, py: -72, angle: -128, step: 1.3, lean: 0, back: 0 },
-  clipEnd: { px: 2, py: -50, angle: -55, step: 1, lean: -1, back: 0 },
+  clipEnd: { px: 2, py: -50, angle: -55, step: 1, lean: -1, back: 0, plane: 0.4 },
   loftEnd: { px: -4, py: -86, angle: -178, step: 1.5, lean: 2, back: 0 },
-  slogEnd: { px: -12, py: -80, angle: -112, step: 1.2, lean: -3, back: 0 },
-  cutEnd: { px: 18, py: -56, angle: 95, step: 0, lean: 3, back: 1 },
-  lateCutEnd: { px: 18, py: -44, angle: 78, step: 0, lean: 4, back: 1 },
-  pullEnd: { px: -6, py: -62, angle: -105, step: 0, lean: -3, back: 1 },
-  hookEnd: { px: -10, py: -82, angle: -82, step: 0, lean: -5, back: 1 },
+  slogEnd: { px: -12, py: -80, angle: -112, step: 1.2, lean: -3, back: 0, plane: 0.3 },
+  cutEnd: { px: 18, py: -56, angle: 95, step: 0, lean: 3, back: 1, plane: 0 },
+  lateCutEnd: { px: 18, py: -44, angle: 78, step: 0, lean: 4, back: 1, plane: 0.2 },
+  pullEnd: { px: -6, py: -62, angle: -105, step: 0, lean: -3, back: 1, plane: 0 },
+  hookEnd: { px: -10, py: -82, angle: -82, step: 0, lean: -5, back: 1, plane: 0.1 },
   defendFront: { px: 13, py: -42, angle: -4, step: 1.3, lean: 6, back: 0 },
   defendBack: { px: 12, py: -48, angle: 2, step: 0, lean: 2, back: 1 },
   leave: { px: 3, py: -88, angle: 172, step: 0.3, lean: -2, back: 0 },
   // Ramp: bat face up over the shoulder. Sweeps: down on one knee.
-  rampContact: { px: 10, py: -64, angle: 165, step: 0.6, lean: 2, back: 0.3, drop: 6 },
-  rampEnd: { px: 6, py: -84, angle: 178, step: 0.6, lean: 0, back: 0.3, drop: 6 },
-  sweepContact: { px: 2, py: -24, angle: -75, step: 1.6, lean: 7, back: 0, drop: 14 },
-  sweepEnd: { px: -12, py: -48, angle: -140, step: 1.6, lean: 4, back: 0, drop: 14 },
-  reverseSweepContact: { px: 20, py: -26, angle: 75, step: 1.6, lean: 6, back: 0, drop: 14 },
-  reverseSweepEnd: { px: 30, py: -48, angle: 140, step: 1.6, lean: 5, back: 0, drop: 14 },
+  rampContact: { px: 10, py: -64, angle: 165, step: 0.6, lean: 2, back: 0.3, drop: 6, plane: 0.5 },
+  rampEnd: { px: 6, py: -84, angle: 178, step: 0.6, lean: 0, back: 0.3, drop: 6, plane: 0.5 },
+  sweepContact: { px: 2, py: -24, angle: -75, step: 1.6, lean: 7, back: 0, drop: 14, plane: 0 },
+  sweepEnd: { px: -12, py: -48, angle: -140, step: 1.6, lean: 4, back: 0, drop: 14, plane: 0 },
+  reverseSweepContact: { px: 20, py: -26, angle: 75, step: 1.6, lean: 6, back: 0, drop: 14, plane: 0 },
+  reverseSweepEnd: { px: 30, py: -48, angle: 140, step: 1.6, lean: 5, back: 0, drop: 14, plane: 0 },
   // Reactions.
   beaten: { px: 9, py: -54, angle: 40, step: 0.6, lean: -3, back: 0.3 },
   padFlinch: { px: 6, py: -60, angle: 60, step: 0.4, lean: -4, back: 0.6 },
@@ -106,8 +109,14 @@ export function lerpPose(a, b, t) {
     lean: a.lean + (b.lean - a.lean) * k,
     back: a.back + (b.back - a.back) * k,
     drop: (a.drop ?? 0) + ((b.drop ?? 0) - (a.drop ?? 0)) * k,
+    plane: (a.plane ?? BAT_PLANE) + ((b.plane ?? BAT_PLANE) - (a.plane ?? BAT_PLANE)) * k,
   };
 }
+
+/** A straight bat swings almost entirely along the pitch: lifted back towards the keeper, through towards the bowler. */
+const BAT_PLANE = 0.85;
+/** How far up the screen a bat end moves per unit it goes down the pitch (the camera looks slightly down). */
+const BAT_DEPTH_RISE = 0.25;
 
 function lighten(hex) {
   const n = parseInt(hex.slice(1), 16);
@@ -255,8 +264,13 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   const head = { x: chest.x + lean * 0.4 + 1, y: chest.y - 12 };
 
   // Hands on the handle: top hand (left) above the bottom hand (right).
+  // The bat in 3D: `near` is how far it points back towards the camera (0-1), which on screen
+  // shortens it and draws its toe a little lower and bigger. From the bowler's end, back is away from us.
   const a = (pose.angle * Math.PI) / 180;
-  const dir = { x: Math.sin(a), y: Math.cos(a) };
+  const plane = pose.plane ?? BAT_PLANE;
+  const towardCamera = Math.sin(a) * plane * (front ? -1 : 1);
+  const dir = { x: Math.sin(a) * (1 - plane), y: Math.cos(a) + towardCamera * BAT_DEPTH_RISE };
+  const near = Math.max(0, towardCamera);
   const topHand = { x: pose.px, y: pose.py + frontLift * 0.5 };
   const bottomHand = { x: topHand.x + dir.x * 4.5, y: topHand.y + dir.y * 4.5 };
   // Elbows hang below the line from shoulder to hand.
@@ -377,12 +391,27 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   arm(backShoulder, backElbow, topHand);
   arm(frontShoulder, frontElbow, bottomHand);
 
-  // Bat: handle then blade.
+  // Bat: handle then blade, the blade widening towards the toe as it comes nearer the camera.
   const shoulder = { x: topHand.x + dir.x * 9, y: topHand.y + dir.y * 9 };
   const toe = { x: topHand.x + dir.x * 36, y: topHand.y + dir.y * 36 };
   line({ x: topHand.x - dir.x * 2, y: topHand.y - dir.y * 2 }, shoulder, 2, GRIP);
-  line(shoulder, toe, 6, BAT_EDGE);
-  line({ x: shoulder.x + 0.6, y: shoulder.y }, { x: toe.x + 0.6, y: toe.y }, 4, BAT_FACE);
+  const len = Math.hypot(toe.x - shoulder.x, toe.y - shoulder.y) || 1;
+  const side = { x: -(toe.y - shoulder.y) / len, y: (toe.x - shoulder.x) / len };
+  const blade = (w0, w1, dx, color) =>
+    poly(
+      [
+        { x: shoulder.x + dx + side.x * w0, y: shoulder.y + side.y * w0 },
+        { x: toe.x + dx + side.x * w1, y: toe.y + side.y * w1 },
+        { x: toe.x + dx - side.x * w1, y: toe.y - side.y * w1 },
+        { x: shoulder.x + dx - side.x * w0, y: shoulder.y - side.y * w0 },
+      ],
+      color,
+    );
+  const toeWidth = 3 * (1 + 0.45 * near);
+  blade(3, toeWidth, 0, BAT_EDGE);
+  blade(2, toeWidth - 1, 0.6, BAT_FACE);
+  // Pointing back at us, the toe's end shows as a block of bare willow.
+  if (near > 0.4) fillCircle(at(toe).x, at(toe).y, toeWidth * 0.8 * scale, BAT_EDGE);
   // Gloves.
   for (const g of [topHand, bottomHand]) {
     const p = at(g);

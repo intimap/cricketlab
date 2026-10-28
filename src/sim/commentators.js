@@ -1,4 +1,5 @@
 import { MOMENT_LINES, TALKING_POINTS, REPLIES } from "./booth-lines.js";
+import { CHAT_TOPICS, CHAT_REPLIES } from "./booth-chat.js";
 
 /**
  * The commentary box: three voices who take turns at the microphone, an over
@@ -90,12 +91,71 @@ const QUIET_CHANCE = 0.12;
 
 /** How often a second voice chimes in after a big moment. */
 const REPLY_CHANCE = 0.45;
+/** How often the box talks between overs. */
+const CHAT_CHANCE = 0.7;
 
 const NUMBER_WORDS = ["NO", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN"];
 
 /** Lines used lately, so the box doesn't repeat itself. */
 const recent = [];
-const RECENT_LINES = 30;
+const RECENT_LINES = 40;
+
+function pickFresh(lines, rng) {
+  const fresh = lines.filter((l) => !recent.includes(l));
+  const line = rng.pick(fresh.length ? fresh : lines);
+  recent.push(line);
+  if (recent.length > RECENT_LINES) recent.shift();
+  return line;
+}
+
+/**
+ * Talk between overs, once the over is done: the next over's voice raises
+ * something (Commentary.chatTopic) and another answers. A list of { who, text }, often empty.
+ */
+export function boothChat(comm, inn, rng) {
+  if (!rng.chance(CHAT_CHANCE)) return [];
+  const chat = comm.chatTopic(inn);
+  if (!chat) return [];
+  let lead = inn.overNo % COMMENTATORS.length;
+  let text;
+  if (chat.topic === "story") {
+    // Whoever still has a story to tell.
+    const tellers = [lead, (lead + 1) % 3, (lead + 2) % 3];
+    for (const who of tellers) {
+      text = comm.story(COMMENTATORS[who].id);
+      if (text) {
+        lead = who;
+        break;
+      }
+    }
+    if (!text) return [];
+  } else {
+    const f = chat.facts;
+    text = pickFresh(CHAT_TOPICS[chat.topic][COMMENTATORS[lead].id], rng)
+      .replace(/\{b\}/g, f.b ?? "")
+      .replace(/\{p\}/g, f.p ?? "")
+      .replace(/\{w\}/g, f.w ?? "")
+      // Fielders are known by where they stand.
+      .replace(/\{f\}/g, !f.f ? "THE FIELDER" : f.f.startsWith("the ") ? f.f : `THE MAN AT ${f.f}`)
+      .replace(/\{zone\}/g, f.zone ?? "")
+      .replace(/\{figs\}/g, f.figs ?? "")
+      .replace(/\{overs\}/g, String(f.overs ?? ""))
+      .replace(/\{need\}/g, String(f.need ?? ""))
+      .replace(/\{left\}/g, String(f.left ?? ""))
+      .replace(/\{balls\}/g, String(f.balls ?? ""))
+      .replace(/\{n\}/g, String(f.n ?? ""))
+      .replace(/\{r\}/g, String(f.r ?? ""))
+      .toUpperCase();
+  }
+  const next = (lead + 1 + (rng.chance(0.5) ? 1 : 0)) % COMMENTATORS.length;
+  const replies = CHAT_REPLIES[COMMENTATORS[next].id];
+  const mood = chat.topic === "story" ? "story" : CHAT_TOPICS[chat.topic].mood;
+  const reply = pickFresh(replies[chat.topic] ?? replies[mood], rng).replace(/\{prev\}/g, COMMENTATORS[lead].first);
+  return [
+    { who: lead, text },
+    { who: next, text: reply },
+  ];
+}
 
 /**
  * Who speaks after a ball, and what they say: a list of { who, text } calls
@@ -104,13 +164,7 @@ const RECENT_LINES = 30;
  */
 export function boothCall(rec, generic, names, rng) {
   const duty = rec.over % COMMENTATORS.length;
-  const pick = (lines) => {
-    const fresh = lines.filter((l) => !recent.includes(l));
-    const line = rng.pick(fresh.length ? fresh : lines);
-    recent.push(line);
-    if (recent.length > RECENT_LINES) recent.shift();
-    return line;
-  };
+  const pick = (lines) => pickFresh(lines, rng);
   const fill = (text) =>
     text
       .replace(/\{b\}/g, names.batter)

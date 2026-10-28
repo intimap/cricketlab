@@ -1,5 +1,7 @@
 import { isSpinner } from "./teams.js";
 import { WEAKNESSES } from "./plans.js";
+import { composeCall, shotArea } from "./describe.js";
+import { STORIES } from "./booth-chat.js";
 
 // Placeholders: {b} batter, {w} bowler, {f} fielder, {r} runs, {s} shot name,
 // {note} LBW verdict reason.
@@ -226,16 +228,89 @@ const BATTLE_LINES = {
 
 const capitalise = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-/** Picks a line of commentary for each ball, avoiding recent repeats. */
+/** A batter's scoring zones, as they're spoken of. */
+const ZONE_NAMES = {
+  straight: "the V",
+  "the covers": "the covers",
+  midwicket: "midwicket",
+  point: "point",
+  "square leg": "square leg",
+  "third man": "third man",
+  "fine leg": "fine leg",
+};
+const ZONE_REMARKS = [
+  "That's {n} of his {r} through {zone} now.",
+  "{zone} again. {n} of his {r} have gone there.",
+  "He loves {zone}, {b}. {n} of his {r}.",
+];
+
+/** How often an ordinary ball that met the middle is described from its parts instead of a stock line. */
+const BUILT_CALLS = 0.55;
+/** Overs between remarks on the same thing: a bowler's length or figures, a batter's zones or tempo, the chase. */
+const TOPIC_REST = { length: 12, figs: 12, zone: 8, pace: 8, stand: 8, chase: 3 };
+const restFor = (key) => TOPIC_REST[key.split(":")[0]] ?? 5;
+
+/**
+ * Picks a line of commentary for each ball, avoiding recent repeats, and
+ * remembers the match as it goes - where each batter scores, where each
+ * bowler lands it, who was dropped - for the talk between overs (chatTopic).
+ * Has its own dice, so the words never change how the match plays out.
+ */
 export class Commentary {
   recent = [];
   /** When each batter's weakness was last hinted at (balls faced). */
   hinted = new Map();
   /** One-off colour remarks already made this innings. */
   flags = new Set();
+  /** Batter name -> runs by zone. */
+  zones = new Map();
+  /** Bowler name -> deliveries by length, and how many were wide. */
+  lengths = new Map();
+  /** Catches put down: { batter (index), name, on, fielder, said }. */
+  drops = [];
+  /** Topic key -> over it was last raised. */
+  raised = new Map();
+  /** The last few chat topics, so the box moves on. */
+  lastTopics = [];
+  storiesTold = new Set();
+  sawReverse = false;
 
   constructor(rng) {
     this.rng = rng;
+  }
+
+  /** Take note of a ball for later: zones, lengths, drops. */
+  remember(rec, batter, bowler) {
+    const seen = rec.seenBall;
+    if (seen && rec.extra.type !== "wd") {
+      const l = this.lengths.get(bowler.p.short) ?? { yorker: 0, full: 0, good: 0, back: 0, short: 0, wide: 0, total: 0 };
+      l[seen.length]++;
+      if (seen.line === "wide") l.wide++;
+      l.total++;
+      this.lengths.set(bowler.p.short, l);
+    }
+    if (rec.exit && rec.runsBat > 0 && !rec.wicket) {
+      const z = this.zones.get(batter.p.short) ?? {};
+      const zone = shotArea(rec.exit, true).zone;
+      z[zone] = (z[zone] ?? 0) + rec.runsBat;
+      this.zones.set(batter.p.short, z);
+    }
+    if (rec.dropped)
+      this.drops.push({ batter: rec.striker, name: batter.p.short, on: batter.runs, fielder: rec.dropped, said: false });
+    if (rec.reversing) this.sawReverse = true;
+  }
+
+  /** A batter's busiest scoring zone: { zone, n } or null. */
+  topZone(name) {
+    const z = Object.entries(this.zones.get(name) ?? {}).sort((a, b) => b[1] - a[1])[0];
+    return z ? { zone: ZONE_NAMES[z[0]], n: z[1] } : null;
+  }
+
+  /** Has this been raised within the last few overs? Marks it raised if not. */
+  fresh(key, over, rest = restFor(key)) {
+    if (over - (this.raised.get(key) ?? -99) < rest) return false;
+    this.raised.set(key, over);
+    return true;
   }
 
   pick(lines) {
@@ -251,6 +326,7 @@ export class Commentary {
     const batter = inn.bat[rec.wicket ? rec.wicket.batter : rec.striker];
     const bowler = inn.bowl[rec.bowler];
     const spin = isSpinner(bowler.p.bowl);
+    this.remember(rec, inn.bat[rec.striker], bowler);
     const fill = (text, fielder = "") =>
       text
         .replace(/\{b\}/g, batter.p.short)
@@ -311,6 +387,11 @@ export class Commentary {
     else if (rec.total === 2) text = this.pick(LINES.two);
     else text = this.pick(LINES.three);
     text = fill(text);
+    // Most balls that met the middle get described from what actually happened.
+    if (!rec.boundary || this.rng.chance(0.5)) {
+      const built = this.rng.chance(BUILT_CALLS) && composeCall(rec, batter.p.short, spin, this.rng);
+      if (built) text = built;
+    }
 
     if (batter.balls <= 1 && rec.runsBat > 0 && rec.striker > 1) text = fill(this.pick(COLOUR_LINES.newBatter));
 
@@ -328,7 +409,112 @@ export class Commentary {
       colour("settled", batter.balls > 150);
     const battle = this.battleLine(rec, batter, fill);
     if (battle) return `${text} ${battle}`;
-    return extra ? `${text} ${extra}` : text;
+    if (extra) return `${text} ${extra}`;
+    const zone = this.zoneRemark(rec, batter, inn);
+    return zone ? `${text} ${zone}` : text;
+  }
+
+  /** After runs, now and then: how many of them have come through his favourite area. */
+  zoneRemark(rec, batter, inn) {
+    if (rec.runsBat < 2 || !rec.exit) return "";
+    const runs = batter.runs + rec.runsBat;
+    const top = this.topZone(batter.p.short);
+    const here = ZONE_NAMES[shotArea(rec.exit, true).zone];
+    if (!top || top.zone !== here || top.n < 14 || top.n < runs * 0.4) return "";
+    if (!this.rng.chance(0.5) || !this.fresh(`zone:${batter.p.short}`, inn.overNo, 4)) return "";
+    return this.pick(ZONE_REMARKS)
+      .replace(/\{zone\}/g, here)
+      .replace(/\{n\}/g, String(top.n))
+      .replace(/\{r\}/g, String(runs))
+      .replace(/\{b\}/g, batter.p.short);
+  }
+
+  /**
+   * Something worth talking about between overs, as { topic, facts } (see
+   * booth-chat.js), or null. Read once the over is complete.
+   */
+  chatTopic(inn) {
+    const over = inn.overNo;
+    const options = [];
+    const add = (topic, weight, facts, key = topic) => options.push({ topic, weight, facts, key });
+    const pair = [inn.bat[inn.striker], inn.bat[inn.nonStriker]].filter(Boolean);
+
+    for (const d of this.drops) {
+      const b = inn.bat[d.batter];
+      if (!d.said && !b.out && b.runs - d.on >= 15) add("dropCost", 3, { b: d.name, n: d.on, r: b.runs, f: d.fielder, drop: d });
+    }
+    for (const b of pair) {
+      const top = this.topZone(b.p.short);
+      if (top && b.runs >= 20 && top.n >= b.runs * 0.4)
+        add("zone", 2, { b: b.p.short, zone: top.zone, n: top.n, r: b.runs }, `zone:${b.p.short}`);
+      const sr = b.balls ? (100 * b.runs) / b.balls : 0;
+      if (b.balls >= 40 && sr < 30) add("grinding", 1.5, { b: b.p.short, r: b.runs, balls: b.balls }, `pace:${b.p.short}`);
+      if (b.balls >= 20 && sr > 85) add("flowing", 1.5, { b: b.p.short, r: b.runs, balls: b.balls }, `pace:${b.p.short}`);
+    }
+    const w = inn.bowl[inn.lastOverBowler];
+    const l = w && this.lengths.get(w.p.short);
+    if (l && l.total >= 18) {
+      const share = (n) => n / l.total;
+      const facts = { w: w.p.short };
+      if (share(l.back + l.short) > 0.45 && !isSpinner(w.p.bowl)) add("tooShort", 2, facts, `length:${w.p.short}`);
+      else if (share(l.full + l.yorker) > 0.45) add("tooFull", 2, facts, `length:${w.p.short}`);
+      else if (share(l.wide) > 0.4) add("tooWide", 2, facts, `length:${w.p.short}`);
+      else if (share(l.good) > 0.5 && w.runs * 6 < w.balls * 3) add("onLength", 2, facts, `length:${w.p.short}`);
+    }
+    if (w && w.balls >= 24) {
+      const figs = { w: w.p.short, figs: `${w.wkts} FOR ${w.runs}`, overs: Math.floor(w.balls / 6) };
+      const econ = (6 * w.runs) / w.balls;
+      if (w.wkts >= 3) add("wickets", 1.5, figs, `figs:${w.p.short}`);
+      else if (econ > 5.5) add("expensive", 1.5, figs, `figs:${w.p.short}`);
+      else if (econ < 2.5) add("miserly", 1.5, figs, `figs:${w.p.short}`);
+    }
+    if (inn.partnership.runs >= 50) {
+      const [b, p] = pair;
+      add(
+        "partnership",
+        1.5,
+        { b: b.p.short, p: p?.p.short ?? "HIS PARTNER", n: inn.partnership.runs },
+        `stand:${inn.wkts}:${Math.floor(inn.partnership.runs / 25)}`,
+      );
+    }
+    if (inn.target !== null && inn.ballsLeft > 0 && inn.ballsLeft <= 150 && inn.runsNeeded > 0) {
+      const rate = inn.requiredRate;
+      const going = Math.max(inn.runRate, 3);
+      const topic = rate < going * 0.85 ? "cruising" : rate > going * 1.3 ? "steep" : "tight";
+      add(topic, 2, { need: inn.runsNeeded, left: inn.ballsLeft }, "chase");
+    }
+    const wear = inn.pitch.wear;
+    const pitch = inn.pitch.type.id;
+    if (pitch === "dust" && wear > 0.2) add("turning", 1, {}, "turning:once");
+    if (pitch === "cracked" && wear > 0.2) add("cracks", 1, {}, "cracks:once");
+    if (pitch === "green" && wear > 0.3) add("flat", 1, {}, "flat:once");
+    if (this.sawReverse) add("reversing", 1, {}, "reversing:once");
+    if (inn.ball.hardness < 0.6) add("softBall", 1, {}, "soft:once");
+    if (inn.newBallAvailable) add("newBallDue", 1.5, {}, "newball");
+    add("story", 0.6, {}, `story:${over}`);
+
+    const ready = options.filter(
+      (o) =>
+        !this.lastTopics.includes(o.topic) &&
+        !(o.key.endsWith(":once") && this.raised.has(o.key)) &&
+        over - (this.raised.get(o.key) ?? -99) >= restFor(o.key),
+    );
+    if (!ready.length) return null;
+    let roll = this.rng.next() * ready.reduce((s, o) => s + o.weight, 0);
+    const choice = ready.find((o) => (roll -= o.weight) <= 0) ?? ready[ready.length - 1];
+    this.raised.set(choice.key, over);
+    this.lastTopics = [...this.lastTopics, choice.topic].slice(-2);
+    if (choice.facts.drop) choice.facts.drop.said = true;
+    return { topic: choice.topic, facts: choice.facts };
+  }
+
+  /** A story from this commentator that he hasn't told yet this match, or null. */
+  story(id) {
+    const left = STORIES[id].filter((s) => !this.storiesTold.has(s));
+    if (!left.length) return null;
+    const s = this.rng.pick(left);
+    this.storiesTold.add(s);
+    return s;
   }
 
   /** A line about the battle: set-ups, repeats, weaknesses showing, free hits. */

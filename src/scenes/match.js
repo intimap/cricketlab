@@ -14,9 +14,9 @@ import { CONTACT_Z_FRONT, CONTACT_Z_BACK, SWING_TIME, NORMAL_CHARGE } from "../s
 import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from "../sim/field.js";
 import { pickBowler } from "../sim/ai.js";
 import { pickSledges, pickChirp } from "../sim/commentary.js";
-import { boothCall } from "../sim/commentators.js";
+import { boothCall, boothChat } from "../sim/commentators.js";
 import { makeKit } from "../render/sprites.js";
-import { scheduleCalls } from "../render/booth.js";
+import { scheduleCalls, boothDuration } from "../render/booth.js";
 import { buildGround } from "../render/ground.js";
 import { GROUNDS } from "../render/grounds.js";
 import { LIGHTS } from "../render/light.js";
@@ -328,7 +328,9 @@ export class MatchScene {
         this.updateReturn(dt);
         break;
       case "overEnd":
-        if (this.phaseT > 2.4 || keys.pressed("Space") || keys.pressed("Enter")) this.nextBall();
+        // Wait for the box to finish talking (within reason), unless the player moves on.
+        if (this.phaseT > clamp(this.boothEndsAt() - this.now, 2.4, 9) || keys.pressed("Space") || keys.pressed("Enter"))
+          this.nextBall();
         break;
       case "chooseBowler":
         this.updateChooseBowler();
@@ -976,6 +978,13 @@ export class MatchScene {
     this.setPhase("after");
   }
 
+  /** When the last scheduled commentary call comes off air. */
+  boothEndsAt() {
+    if (!this.booth?.length) return this.now;
+    const last = this.booth[this.booth.length - 1];
+    return last.t0 + boothDuration(last.text);
+  }
+
   /** Who in the commentary box calls this ball, and what they say (one or two voices). */
   callFromBooth(done) {
     const { rec } = done;
@@ -987,7 +996,11 @@ export class MatchScene {
     };
     // Presentation only, so it draws on Math.random and leaves the match's dice alone.
     const rng = { pick: (list) => list[Math.floor(Math.random() * list.length)], chance: (p) => Math.random() < p };
-    return boothCall(rec, rec.commentary ?? "", names, rng);
+    const calls = boothCall(rec, rec.commentary ?? "", names, rng);
+    // At the end of a quiet over the box gets talking (after a big moment, they've said enough).
+    if (done.applied.overEnded && !done.applied.inningsOver && calls.length === 1)
+      calls.push(...boothChat(this.match.comm, inn, rng));
+    return calls;
   }
 
   /** The nets coach's verdict on the ball just finished. */

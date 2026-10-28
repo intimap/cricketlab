@@ -1,5 +1,6 @@
 // Keyboard and mouse state, polled once per frame. "Pressed" flags last for
 // the frame in which the key/button went down; call endFrame() after update.
+// On-screen touch buttons press the same keys (pressKey/releaseKey), and a finger on the game acts as the mouse.
 
 const held = new Set();
 const pressedThisFrame = new Set();
@@ -19,13 +20,12 @@ export const keys = {
  * @param onGesture called on every key/mouse press (used to unlock audio)
  */
 export function initInput(target, toGameCoords, onGesture) {
+  gesture = onGesture;
   window.addEventListener("keydown", (e) => {
     if (CAPTURED_KEYS.has(e.code)) e.preventDefault();
-    onGesture();
-    if (!held.has(e.code)) pressedThisFrame.add(e.code);
-    held.add(e.code);
+    pressKey(e.code);
   });
-  window.addEventListener("keyup", (e) => held.delete(e.code));
+  window.addEventListener("keyup", (e) => releaseKey(e.code));
   window.addEventListener("blur", () => held.clear());
   target.addEventListener("mousemove", (e) => {
     const p = toGameCoords(e);
@@ -44,6 +44,44 @@ export function initInput(target, toGameCoords, onGesture) {
     if (mouse.down) mouse.released = true;
     mouse.down = false;
   });
+  // One finger on the game is the mouse (dragging fielders); no scrolling or zooming the page.
+  const touchAt = (e) => {
+    e.preventDefault();
+    const p = toGameCoords(e.changedTouches[0]);
+    mouse.x = p.x;
+    mouse.y = p.y;
+  };
+  target.addEventListener(
+    "touchstart",
+    (e) => {
+      touchAt(e);
+      mouse.down = true;
+      mouse.pressed = true;
+      onGesture();
+    },
+    { passive: false },
+  );
+  target.addEventListener("touchmove", touchAt, { passive: false });
+  const touchEnd = (e) => {
+    touchAt(e);
+    if (mouse.down) mouse.released = true;
+    mouse.down = false;
+  };
+  target.addEventListener("touchend", touchEnd, { passive: false });
+  target.addEventListener("touchcancel", touchEnd, { passive: false });
+}
+
+let gesture = () => {};
+
+/** A key goes down - from the keyboard or an on-screen button. */
+export function pressKey(code) {
+  gesture();
+  if (!held.has(code)) pressedThisFrame.add(code);
+  held.add(code);
+}
+
+export function releaseKey(code) {
+  held.delete(code);
 }
 
 export function endFrame() {

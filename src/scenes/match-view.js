@@ -39,6 +39,7 @@ import {
   playerKit,
 } from "../render/sprites.js";
 import { drawBooth, boothShowing } from "../render/booth.js";
+import { spriteSlot, spriteSettings, frameAt } from "../render/batter-sprites.js";
 import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import { HUD_Y, staminaColor, drawScoreBar, drawMiniMap, drawBanners, drawScorecard, drawSpeechBubble } from "../render/hud.js";
 
@@ -385,6 +386,7 @@ function drawStriker(scene) {
   // His own look; taller players are drawn bigger.
   const kit = playerKit(scene.kitBat, inn.bat[inn.striker].p);
   const tall = kit.height / STANDARD_HEIGHT;
+  if (!fromBowler && drawSpriteStriker(scene, cur, t, x, y, tall)) return;
   if (fromBowler) {
     // Down the far end, facing us.
     const p = projectClose(STRIKER_X, 0, CREASE);
@@ -392,6 +394,57 @@ function drawStriker(scene) {
   } else {
     drawBatter(x, y, tall, pose, kit, kit.number || inn.striker + 1);
   }
+}
+
+/** Where the sprite's feet go, against the rig's origin (px). */
+const SPRITE_FEET_X = 6;
+
+/**
+ * Test: the sprite batter from behind, for the shots that have frames (see batter-sprites.js).
+ * Returns false to leave it to the rig: a shot with no frames is the rig's for the whole ball.
+ */
+function drawSpriteStriker(scene, cur, t, x, y, tall) {
+  let slot = "stance";
+  let from = 0;
+  let contactAt = 0;
+  let shift = 0;
+  if (cur?.swingType && cur.swingAt !== null) {
+    const type = cur.swingType;
+    const at = type === "cutpull" ? crossingAtZ(cur.delivery.samples, CONTACT_Z_BACK) : null;
+    const shot = type === "drive" ? "drive" : type === "cutpull" && backFootShot(at?.x ?? cur.lineAtBat, at?.y ?? 0) === "pull" ? "pull" : null;
+    if (!shot || !spriteSlot(shot)) return false;
+    from = cur.backliftAt;
+    contactAt = cur.swingAt + SWING_TIME[type];
+    if (t >= from) slot = shot;
+    // Into the line of the ball: the whole figure shifts across, as the rig's body does.
+    const reach = clamp((projectFromStriker(cur.lineAtBat, 0, 1.9).x - (x + 12)) * 0.8, -8, 26);
+    const k = (t - cur.swingAt) / SWING_TIME[type];
+    if (k > 0.3 && k < 1.6) shift = reach * Math.min(1, k) * (1.6 - k);
+  } else if (cur && (cur.defendAt !== null || cur.swingType)) {
+    return false;
+  } else if (cur && (cur.leaveAt !== null || (scene.human === "bat" && cur.delivery && !cur.shot))) {
+    from = cur.leaveAt ?? scene.arrival("drive") - 0.22;
+    if (t >= from) {
+      if (!spriteSlot("leave")) return false;
+      slot = "leave";
+    }
+  }
+  // No stance frames: stand in the first frame of whatever he's about to play.
+  if (!spriteSlot(slot)) slot = ["drive", "pull", "leave"].find((k) => spriteSlot(k)) ?? null;
+  if (!slot) return false;
+  const s = spriteSlot(slot);
+  const frame = slot === "stance" || t < from ? s.frames[0] : frameAt(slot, t, from, contactAt);
+  const body = (spriteSlot("stance") ?? s).body;
+  const scale = spriteSettings.scale === "native" ? 1 : (BATTER_HEIGHT_PX * tall) / body;
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(
+    frame,
+    Math.round(x + SPRITE_FEET_X + shift - s.anchor.x * scale),
+    Math.round(y - s.anchor.y * scale),
+    Math.round(frame.width * scale),
+    Math.round(frame.height * scale),
+  );
+  return true;
 }
 
 /** Blinking crosshair where the player is aiming to pitch the ball. */

@@ -71,13 +71,74 @@
       .touch-device .keys {
         display: none;
       }
+      /* Sprite test panel (test builds only). */
+      #sprite-panel {
+        flex: none;
+        background: var(--night);
+        border-top: 1px solid #2c6b45;
+        font: 12px/1.5 var(--mono);
+        color: var(--cream);
+        padding: 8px max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px));
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 16px;
+        align-items: center;
+        justify-content: center;
+      }
+      #sprite-panel ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px 16px;
+      }
+      #sprite-panel .dim,
+      #sprite-panel [data-status] {
+        color: var(--dim);
+      }
+      #sprite-panel b {
+        color: var(--gold);
+        font-weight: 600;
+      }
+      #sprite-panel button,
+      #sprite-panel .file {
+        font: inherit;
+        color: var(--cream);
+        background: var(--strip);
+        border: 1px solid #2c6b45;
+        border-radius: 4px;
+        padding: 4px 8px;
+        cursor: pointer;
+      }
+      #sprite-panel .file input {
+        display: none;
+      }
+      #sprite-panel input[type="number"] {
+        width: 3.5em;
+        font: inherit;
+        background: var(--strip);
+        color: var(--cream);
+        border: 1px solid #2c6b45;
+        border-radius: 4px;
+      }
     </style>
   </head>
-  <body>
+  <body data-start="nets">
     <div id="game"></div>
     <div class="keys" aria-label="Controls">
       <span><b>Click the game</b>, then <b>Enter</b> to start</span>
       <span><b>Esc</b> menu &amp; instructions</span>
+    </div>
+    <div id="sprite-panel" aria-label="Sprite test">
+      <span><b>Sprite test</b> <span data-source></span></span>
+      <ul data-slots></ul>
+      <label class="file">Load sprite zip<input type="file" accept=".zip,application/zip" data-file /></label>
+      <button data-starter>Starter frames</button>
+      <button data-on></button>
+      <button data-scale></button>
+      <button data-copy>Copy settings</button>
+      <span data-status></span>
     </div>
     <script type="module" src="src/main.js"></script>
   </body>

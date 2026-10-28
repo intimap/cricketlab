@@ -8,6 +8,7 @@ import { Menu } from "./scenes/menu.js";
 import { MatchScene } from "./scenes/match.js";
 import { ScoreboardScene } from "./scenes/scoreboard.js";
 import { warmScores } from "./engine/scores.js";
+import { initSpritePanel } from "./sprite-panel.js";
 
 function loadImage(url) {
   return new Promise((resolve, reject) => {
@@ -67,6 +68,10 @@ class Game {
     this.menu = new Menu(this);
     warmScores();
     this.scene = this.menu;
+    // Sprite test: the panel under the game, and straight into the nets with the bat.
+    const panel = document.getElementById("sprite-panel");
+    if (panel) await initSpritePanel(panel, assets["sprites/test-batter"]);
+    if (document.body.dataset.start === "nets") this.startMatch({ ...this.menu.cfg, format: "nets", mode: "bat" });
 
     let last = performance.now();
     const frame = (now) => {

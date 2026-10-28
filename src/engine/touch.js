@@ -4,7 +4,7 @@ import { pressKey, releaseKey } from "./input.js";
  * On-screen buttons for phones and tablets: each one presses a key the game
  * already reads, so the scenes don't know the difference. Only built on a
  * touch screen. The buttons shown follow what the player is doing (the
- * scene's `touchMode`: "menu", "bat" or "bowl").
+ * scene's `touchMode`: "menu", "entry" (typing a name), "bat" or "bowl").
  *
  * Buttons: [label, key code, modes they show in (all if omitted), hold?]
  */
@@ -30,6 +30,12 @@ const ACTIONS = {
   menu: [
     ["OK", "Enter", "big"],
     ["BACK", "Escape"],
+  ],
+  entry: [
+    // Not a real key: the name entry opens the phone's own keyboard when it sees this.
+    ["KEYBOARD", "OpenKeyboard"],
+    ["DELETE", "ArrowLeft"],
+    ["OK", "Enter", "big"],
   ],
   bat: [
     ["DRIVE", "KeyS"],

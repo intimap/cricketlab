@@ -17,7 +17,10 @@ python3 -m http.server 8000
 npx serve .
 ```
 
-Then open http://localhost:8000. It needs a keyboard.
+Then open http://localhost:8000. It plays with a keyboard, or with on-screen buttons on a phone or tablet.
+
+It starts straight into a 10-over match at Parklands Oval; **Esc → Quit to menu** reaches the other games (Nets,
+Classic Matches, a single spell, longer or shorter matches).
 
 To publish it, turn on GitHub Pages (Settings → Pages → Deploy from branch → `main`, `/ (root)`).
 
@@ -31,6 +34,22 @@ To publish it, turn on GitHub Pages (Settings → Pages → Deploy from branch �
 | Between balls | **O** sim an over, **P** sim 5 overs, **V** view the field                                                                                                                                                                                                                                                                       |
 | Appeals       | **H** to appeal for LBW when bowling (appealing for nothing irritates the umpire). **R** to review a decision that goes against you (two unsuccessful reviews per innings)                                                                                                                                                       |
 | Anytime       | **C** camera, **M** sound, **Esc** pause and scorecard                                                                                                                                                                                                                                                                           |
+
+## High scores
+
+Every finished match and Classic Match ends on an arcade high-score screen: the result (won or lost by so many
+runs or wickets), a name of up to 15 letters (type it, or Up/Down to change a letter, Right for the next, Left to
+take one back; on a phone, KEYBOARD opens the phone's own keyboard), then the table. Nets and single spells have no
+table. Each kind of game has its own table (`match-10`, `match-20`, `classic-lastOver`...); the menu's HIGH SCORES
+row shows the one for the game chosen.
+
+Ranking: wins above ties above losses. Wins by wickets (you chased it down) come first, more wickets in hand then
+more balls to spare; then wins by runs, biggest margin first. Losses by runs (you fell short chasing) rank above
+losses by wickets, narrowest first. Equal results keep the order they were set in.
+
+Published as a claude.ai artifact (declared with the `db` capability), the tables are kept in the artifact's shared
+database, so everyone who opens it sees the same scores. Anywhere else, or when the viewer isn't allowed to write
+to it, scores are kept in this browser's storage instead and the table says so.
 
 ## Bowling: the battle
 
@@ -54,7 +73,10 @@ src/
     screen.js         640x360 pixel frame buffer, scaling, drawing primitives
     text.js           5x7 bitmap font
     input.js          keyboard and mouse state, polled per frame
+    touch.js          on-screen buttons for phones, pressing the same keys
     audio.js          synthesised sound effects and crowd
+    storage.js        small settings kept in this browser
+    scores.js         high-score tables: the artifact's shared database, or this browser
   sim/                the cricket model, no drawing in here
     geometry.js       pitch dimensions and the world coordinate system
     rng.js            seedable random numbers
@@ -74,6 +96,7 @@ src/
     formats.js        game formats and Classic Match challenges (data)
     runup.js          the player's run-up and release meter: rhythm, ramp, stride surges
     coach.js          the nets coach: a verdict on every ball faced or bowled
+    leaderboard.js    high-score entries from a result, and how they rank
   render/
     camera.js         projections for the close (either end) and wide views
     sprites.js        batter, figures, ball
@@ -86,6 +109,7 @@ src/
     match.js          the match: phases, player input, timing, events
     match-view.js     drawing for the match scene
     pause-menu.js     the Esc menu: scorecard, instructions, sound
+    scoreboard.js     the arcade high-score screen: name entry and the table
 ```
 
 The rule of thumb: `sim/` knows nothing about the screen, `engine/` knows nothing about cricket, and
@@ -109,7 +133,8 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **Game modes and Classic Matches:** `sim/formats.js` (challenges are plain data). AI chase and
   limited-overs tempo constants are at the top of `sim/ai.js`.
 - **Ground art:** images live in `assets/` (layer art in `assets/close/`), listed by id in `src/assets.js`;
-  grounds pick their layers in `src/render/grounds.js`. `tools/art/make_scenery.py` regenerates the
+  grounds pick their layers in `src/render/grounds.js` (`hidden: true` keeps a ground off the menu; The Oval is
+  hidden for now). `tools/art/make_scenery.py` regenerates the
   Parklands close-view layers.
 - **One-file builds:** `python3 tools/build-single.py out.html [--ref main] [--stamp]` bundles the game
   with its images inlined (needs esbuild).

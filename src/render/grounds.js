@@ -12,6 +12,8 @@
 export const GROUNDS = {
   oval: {
     name: "THE OVAL",
+    // Not offered on the menu for now (Parklands is built on it, so it stays). Drop this to bring it back.
+    hidden: true,
     grass: { light: "#60a72e", dark: "#448f31" },
     // Worn, lighter grass in a band round the pitch (flecked with bare earth), with a dark line on its outer edge.
     surround: { colour: "#8aa630", fleck: "#a1a839", edge: "#5a7224", width: 0.26 },
@@ -46,6 +48,7 @@ function parklands(name, fence) {
   const oval = GROUNDS.oval;
   return {
     ...oval,
+    hidden: false,
     name,
     close: {
       ...oval.close,
@@ -82,6 +85,10 @@ function parklands(name, fence) {
 
 GROUNDS.parklands = parklands("PARKLANDS OVAL", "fence-picket");
 GROUNDS.parklandsBoards = parklands("PARKLANDS (BOARDS)", "fence-ads");
+
+/** The grounds the menu offers, the first being the default. */
+export const GROUND_CHOICES = Object.keys(GROUNDS).filter((id) => !GROUNDS[id].hidden);
+export const DEFAULT_GROUND = "parklands";
 
 /**
  * How each pitch type looks: base colour, its specks, how wear changes it,

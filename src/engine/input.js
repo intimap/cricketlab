@@ -4,6 +4,10 @@
 
 const held = new Set();
 const pressedThisFrame = new Set();
+/** Characters typed this frame (outside a text field), in order. */
+const typedThisFrame = [];
+/** Called the moment a key goes down, inside the event (for things only a user gesture may do). */
+const keyListeners = new Set();
 const CAPTURED_KEYS = new Set(["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Tab"]);
 
 /** Mouse position in frame-buffer coordinates plus button state. */
@@ -12,7 +16,14 @@ export const mouse = { x: 0, y: 0, down: false, pressed: false, released: false 
 export const keys = {
   down: (code) => held.has(code),
   pressed: (code) => pressedThisFrame.has(code),
+  typed: () => typedThisFrame,
 };
+
+/** Listen for keys going down, synchronously; returns a function that stops listening. */
+export function onKeyDown(fn) {
+  keyListeners.add(fn);
+  return () => keyListeners.delete(fn);
+}
 
 /**
  * @param target element receiving mouse events
@@ -22,7 +33,10 @@ export const keys = {
 export function initInput(target, toGameCoords, onGesture) {
   gesture = onGesture;
   window.addEventListener("keydown", (e) => {
-    if (CAPTURED_KEYS.has(e.code)) e.preventDefault();
+    // A focused text field (name entry) types its own characters, Space included.
+    const typing = e.target instanceof HTMLInputElement;
+    if (CAPTURED_KEYS.has(e.code) && !(typing && e.code === "Space")) e.preventDefault();
+    if (!typing && e.key.length === 1 && !e.ctrlKey && !e.metaKey) typedThisFrame.push(e.key);
     pressKey(e.code);
   });
   window.addEventListener("keyup", (e) => releaseKey(e.code));
@@ -78,6 +92,7 @@ export function pressKey(code) {
   gesture();
   if (!held.has(code)) pressedThisFrame.add(code);
   held.add(code);
+  for (const fn of keyListeners) fn(code);
 }
 
 export function releaseKey(code) {
@@ -86,6 +101,7 @@ export function releaseKey(code) {
 
 export function endFrame() {
   pressedThisFrame.clear();
+  typedThisFrame.length = 0;
   mouse.pressed = false;
   mouse.released = false;
 }

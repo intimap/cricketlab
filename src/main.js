@@ -6,6 +6,8 @@ import { unlockAudio, toggleMute } from "./engine/audio.js";
 import { loadAssets } from "./assets.js";
 import { Menu } from "./scenes/menu.js";
 import { MatchScene } from "./scenes/match.js";
+import { ScoreboardScene } from "./scenes/scoreboard.js";
+import { warmScores } from "./engine/scores.js";
 
 function loadImage(url) {
   return new Promise((resolve, reject) => {
@@ -63,7 +65,9 @@ class Game {
     const close = assets["ground-close"];
     this.images = { ...assets, close, wide: assets["ground-wide"], stumps: cutOutStumps(close) };
     this.menu = new Menu(this);
-    this.scene = this.menu;
+    warmScores();
+    // Straight into a game: the 10-over match everyone's high scores are set in. Esc reaches the menu.
+    this.startMatch(this.menu.startupGame);
 
     let last = performance.now();
     const frame = (now) => {
@@ -82,6 +86,10 @@ class Game {
 
   startMatch(cfg) {
     this.scene = new MatchScene(this, cfg);
+  }
+
+  showScores(cfg) {
+    this.scene = new ScoreboardScene(this, cfg);
   }
 
   toMenu() {

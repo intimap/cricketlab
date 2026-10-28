@@ -1,6 +1,7 @@
 import { PITCH_TYPES, Pitch } from "./conditions.js";
 import { Innings } from "./innings.js";
 import { Commentary } from "./commentary.js";
+import { Rng } from "./rng.js";
 import { MomentTracker } from "./moments.js";
 import { isSpinner } from "./teams.js";
 import { bowlDelivery, movementOf } from "./delivery.js";
@@ -33,7 +34,8 @@ export class Match {
     // Limited-overs games (anything with a target to set or chase) are played in a hurry, more so the shorter they are.
     this.tempo = this.totalInnings > 1 || opts.target ? clamp((60 - overs) / 55, 0.15, 1) : 0;
     this.pitch = new Pitch(PITCH_TYPES[pitchId]);
-    this.comm = new Commentary(rng);
+    // The commentary has its own dice (seeded from the match's), so what's said never changes what happens.
+    this.comm = new Commentary(new Rng(rng.state ^ 0x5bd1e995));
     this.beginInnings(batTeam, bowlTeam, opts.target ?? null);
     if (opts.start) this.inn.startFrom(opts.start);
   }
@@ -268,6 +270,7 @@ export class Match {
       dropped: out.catchDropped,
       lbwNote: res.lbwNote && !res.lbw ? res.lbwNote : "",
       reversing: delivery.reversing,
+      exit: contact.exit ? { x: contact.exit.x, z: contact.exit.z } : null,
       bounceNote: delivery.bounceNote,
       beatBat,
     };

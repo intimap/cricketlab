@@ -10,6 +10,7 @@ import { BallInPlay } from "./ball-in-play.js";
 import { pickBowler, pickOverPlan, pickFieldPreset, pickDeliveryPlan, pickShot, battingAggression } from "./ai.js";
 import { describeBall } from "./plans.js";
 import { clamp } from "../math.js";
+import { bearingOf } from "./geometry.js";
 
 /**
  * Runs a game innings by innings, ball by ball. The scene drives it for balls
@@ -131,7 +132,9 @@ export class Match {
     const state = inn.batterState(inn.striker);
     const striker = inn.bat[inn.striker];
     const nonStriker = inn.bat[inn.nonStriker];
-    const res = resolveDelivery(delivery, shot, striker.p.bat, state, inn.ball, this.spinner, this.rng);
+    // Where the fielders are (plus the bowler, straight), for a well-hit ball to find the gaps.
+    const field = [0, ...inn.placements.slice(0, 9).map((p) => bearingOf(p.pos.x, p.pos.z))];
+    const res = resolveDelivery(delivery, shot, striker.p.bat, state, inn.ball, this.spinner, this.rng, field);
     const live = new BallInPlay({
       res,
       strikerIdx: inn.striker,

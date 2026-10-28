@@ -1,5 +1,4 @@
-import { clamp, angleDiff } from "../math.js";
-import { bearingOf } from "./geometry.js";
+import { clamp } from "../math.js";
 import { isSpinner, bowlingSpeed } from "./teams.js";
 import { simulateFlight, crossingAtZ } from "./delivery.js";
 import { reactionTime } from "./batting.js";
@@ -346,31 +345,9 @@ export function pickShot(d, inn, rng) {
     type,
     charge,
     timingError,
-    aim: type === "leave" || type === "defend" ? null : pickGap(inn, type, line),
+    // Forward or back in defence, from his read of the length (so a misread can leave him on the wrong foot).
+    foot: type === "defend" ? (pitchZ > 6.8 ? "back" : "front") : null,
     difficulty: hard,
     battle: { seenBall, weak, familiar, surprise },
   };
-}
-
-/** Bearing within the shot's natural arc that is furthest from any fielder. */
-function pickGap(inn, type, line) {
-  const arc = {
-    drive: line > 0.1 ? [-10, 85] : [-55, 40],
-    loft: [-60, 50],
-    cutpull: line > 0.2 ? [70, 135] : [-120, -50],
-    sweep: [-135, -70],
-    reverseSweep: [70, 135],
-  }[type];
-  if (!arc) return null;
-  const fielders = inn.placements.map((p) => bearingOf(p.pos.x, p.pos.z));
-  let best = (arc[0] + arc[1]) / 2;
-  let bestGap = -1;
-  for (let b = arc[0]; b <= arc[1]; b += 5) {
-    const gap = Math.min(...fielders.map((f) => Math.abs(angleDiff(b, f))), 90);
-    if (gap > bestGap) {
-      bestGap = gap;
-      best = b;
-    }
-  }
-  return best;
 }

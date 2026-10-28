@@ -39,10 +39,11 @@ const ACTIONS = {
   ],
   bat: [
     ["DRIVE", "KeyS"],
+    ["BACK FOOT", "KeyQ"],
     ["LOFT", "KeyW"],
-    ["CUT/PULL", "KeyQ"],
-    ["DEFEND", "KeyA"],
+    ["FWD DEF", "KeyA"],
     ["POWER", "ShiftLeft", "hold"],
+    ["BACK DEF", "KeyD"],
     ["GO", "Space", "big"],
   ],
   bowl: [

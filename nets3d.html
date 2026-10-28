@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="claude:viewport-fit-sides" content="cover" />
+    <title>Cricket Lab 3D Nets</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Barlow:wght@500;600&display=swap"
+    />
+    <style>
+      /* One screen: the 3D scene fills it; the nets tally top-left, the coach top-right, shots along the bottom. */
+      :root {
+        --night: #0c1a12;
+        --panel: rgba(9, 22, 15, 0.8);
+        --cream: #f3ecd4;
+        --dim: #a9bba5;
+        --gold: #e9b93a;
+        --good: #79d27b;
+        --bad: #e2574c;
+        --display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+        --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+        color-scheme: dark;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        background: var(--night);
+        color: var(--cream);
+        font-family: var(--body);
+        overflow: hidden;
+      }
+      #scene {
+        position: fixed;
+        inset: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+      }
+      .hud {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        padding: calc(12px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px))
+          calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: 10px;
+      }
+      .top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .panel {
+        background: var(--panel);
+        border-radius: 6px;
+        padding: 8px 12px;
+      }
+      .board {
+        display: grid;
+        gap: 4px;
+        font-family: var(--display);
+        font-variant-numeric: tabular-nums;
+        border: 1px solid rgba(233, 185, 58, 0.35);
+      }
+      .board .title {
+        font-weight: 800;
+        font-size: 18px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--gold);
+      }
+      .board .row {
+        display: flex;
+        gap: 14px;
+      }
+      .board .lbl {
+        font-size: 11px;
+        color: var(--dim);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        display: block;
+      }
+      .board .val {
+        font-size: 20px;
+        font-weight: 600;
+      }
+      .board .sub {
+        font-family: var(--body);
+        font-size: 13px;
+        color: var(--dim);
+      }
+      .coach {
+        max-width: 360px;
+        min-width: 0;
+        font-size: 14px;
+        line-height: 1.35;
+      }
+      .coach .result {
+        font-family: var(--display);
+        font-weight: 800;
+        font-size: 24px;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+      .coach .result.good {
+        color: var(--good);
+      }
+      .coach .result.poor {
+        color: var(--bad);
+      }
+      .coach .result.ok {
+        color: var(--gold);
+      }
+      .coach ul {
+        margin: 2px 0 0;
+        padding: 0;
+        list-style: none;
+        color: var(--dim);
+      }
+      .coach li.tip {
+        color: var(--cream);
+      }
+      .call {
+        align-self: center;
+        justify-self: center;
+        font-family: var(--display);
+        font-weight: 800;
+        font-size: clamp(40px, 9vw, 84px);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        text-align: center;
+        text-shadow: 0 3px 0 rgba(0, 0, 0, 0.45);
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .call.show {
+        opacity: 1;
+      }
+      .controls {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+        pointer-events: auto;
+      }
+      .controls + .controls {
+        margin-top: 8px;
+      }
+      button {
+        font: 600 15px/1 var(--body);
+        color: var(--cream);
+        background: var(--panel);
+        border: 1px solid rgba(243, 236, 212, 0.28);
+        border-radius: 8px;
+        padding: 12px 14px;
+        min-width: 86px;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      button kbd {
+        font: 600 12px var(--display);
+        color: var(--gold);
+        margin-left: 6px;
+        letter-spacing: 0.08em;
+      }
+      button.chip {
+        font-size: 13px;
+        padding: 8px 10px;
+        min-width: 0;
+        color: var(--dim);
+      }
+      button.on,
+      button:active {
+        background: var(--gold);
+        color: var(--night);
+      }
+      button.chip.on {
+        background: var(--panel);
+        color: var(--gold);
+        border-color: var(--gold);
+      }
+      button.on kbd,
+      button:active kbd {
+        color: var(--night);
+      }
+      button.chip.on kbd {
+        color: var(--gold);
+      }
+      button:focus-visible {
+        outline: 2px solid var(--gold);
+        outline-offset: 2px;
+      }
+      .stamp {
+        text-align: center;
+        font-size: 11px;
+        color: var(--dim);
+        margin: 6px 0 0;
+      }
+      @media (max-width: 560px) {
+        .shots button {
+          min-width: 0;
+          flex: 1 1 28%;
+          padding: 12px 6px;
+        }
+        .coach {
+          max-width: none;
+          flex: 1 1 100%;
+        }
+        button kbd {
+          display: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .call {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="scene" aria-label="3D cricket nets: the batter facing an endless spell"></canvas>
+    <div class="hud">
+      <div class="top">
+        <div class="panel board" aria-live="polite">
+          <span class="title">Nets · <span id="pitch-name">green top</span></span>
+          <div class="row">
+            <span><span class="lbl">Balls</span><span class="val" id="t-balls">0</span></span>
+            <span><span class="lbl">Good</span><span class="val" id="t-good">0</span></span>
+            <span><span class="lbl">Out</span><span class="val" id="t-outs">0</span></span>
+            <span><span class="lbl">4s / 6s</span><span class="val" id="t-bound">0 / 0</span></span>
+          </div>
+          <span class="sub" id="bowler"></span>
+          <span class="sub" id="speed"></span>
+        </div>
+        <div class="panel coach" aria-live="polite">
+          <div class="result" id="coach-title">Nets</div>
+          <ul id="coach-lines">
+            <li>Pick your shot as the ball pitches. He plays it.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="call" id="call"></div>
+      <div>
+        <div class="controls shots">
+          <button data-shot="drive">Drive<kbd>S</kbd></button>
+          <button data-shot="loft">Loft<kbd>W</kbd></button>
+          <button data-shot="cutpull">Back foot<kbd>Q</kbd></button>
+          <button data-shot="defend-front">Block<kbd>A</kbd></button>
+          <button data-shot="defend-back">Back block<kbd>D</kbd></button>
+          <button id="b-power">Power<kbd>Shift</kbd></button>
+        </div>
+        <div class="controls">
+          <button class="chip" id="b-cam"><span>Behind the batter</span><kbd>C</kbd></button>
+          <button class="chip" data-aid="mark">Pitch mark<kbd>M</kbd></button>
+          <button class="chip" data-aid="trail">Trail<kbd>T</kbd></button>
+          <button class="chip" data-aid="shadow">Shadow</button>
+          <button class="chip" data-aid="follow">Follow ball<kbd>F</kbd></button>
+          <button class="chip" id="b-pitch">Pitch<kbd>P</kbd></button>
+          <button class="chip" id="b-sound">Sound<kbd>N</kbd></button>
+        </div>
+        <p class="stamp"><!--stamp--></p>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script type="module" src="src/nets3d/main.js"></script>
+  </body>
+</html>

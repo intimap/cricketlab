@@ -51,7 +51,7 @@ function parklands(name, fence) {
       ...oval.close,
       // Layers in the painting's rows: sky, clouds, trees, stands, fence; the ground starts at row 124.
       scenery: [
-        { image: "close/sky", y: 0 },
+        { image: "close/sky", y: 0, sky: true },
         // Rows 0-23 are above the top of the screen, so the clouds and trees start below that.
         { clouds: "close/clouds", count: 5, top: 25, bottom: 62 },
         { image: "close/treeline", y: 40 },
@@ -63,7 +63,7 @@ function parklands(name, fence) {
       ...oval.wide,
       // Sky, trees, stands and fence above the field; the fence's foot meets the top of the rope (row 107).
       scenery: [
-        { image: "wide/sky", y: 0 },
+        { image: "wide/sky", y: 0, sky: true },
         { clouds: "close/clouds", count: 4, top: 0, bottom: 26 },
         { image: "wide/treeline", y: 9 },
         { image: "wide/stands", y: 51 },

@@ -12,12 +12,6 @@ export const easeIn = (t) => {
   return k * k;
 };
 
-/** Eases out past the end and settles back: a follow-through that swings through, then holds. */
-export const easeOutBack = (t, overshoot = 1.6) => {
-  const k = Math.max(0, Math.min(1, t)) - 1;
-  return 1 + (overshoot + 1) * k * k * k + overshoot * k * k;
-};
-
 export const easeOut = (t) => {
   const k = Math.max(0, Math.min(1, t));
   return 1 - (1 - k) * (1 - k);

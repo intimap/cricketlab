@@ -1,5 +1,6 @@
 import { COLORS, ctx, fillRect, plot, drawLine, fillCircle, fillEllipse, fillPolygon } from "../engine/screen.js";
 import { drawText } from "../engine/text.js";
+import { joint, solvePose, blendPoses, rigPose } from "./batter-rig.js";
 
 const BAT_FACE = "#e6cc92";
 const BAT_EDGE = "#b8955a";
@@ -65,7 +66,9 @@ export function makeKit(cap, cap2, skin = "#d8a27a") {
 }
 
 /**
- * Key poses for the close-up striker. px/py: hands, angle: bat angle in
+ * Key poses for the close-up striker, as authored: where the top hand and the
+ * bat should be, and the stance. Each is solved into joint angles within the
+ * human range of motion (batter-rig.js) to give BATTER_POSES. px/py: top hand, angle: bat angle in
  * degrees (0 = straight down; positive lifts it back, negative carries it through),
  * plane: how much of that swing runs along the pitch - towards or away from the
  * camera behind him - rather than across the screen (BAT_PLANE unless given:
@@ -74,15 +77,17 @@ export function makeKit(cap, cap2, skin = "#d8a27a") {
  * (and the back foot stepping back and across), turn: hips and shoulders
  * opened up towards the bowler (0 side-on, 1 chest to the bowler), drop: crouch.
  */
-export const BATTER_POSES = {
+// Every key pose is one the body can make: both hands on the handle, the wrist inside its range,
+// the elbows bending the way the shot needs (checked against batter-rig.js's limits).
+const BATTER_KEYS = {
   // Feet shoulder-width apart, knees flexed, weight forward; the bat rests behind the back toe.
-  stance: { px: 11, py: -42, angle: 16, step: 0, lean: 2, back: 0 },
+  stance: { px: 10, py: -42, angle: 16, step: 0, lean: 2, back: 0 },
   lift0: { px: 12, py: -52, angle: 100, step: 0, lean: 1, back: 0 },
   lift1: { px: 11, py: -62, angle: 150, step: 0, lean: 0, back: 0 },
   /** Small back-and-across movement as the bowler delivers. */
   trigger: { px: 12, py: -44, angle: 24, step: 0, lean: 2, back: 0.35 },
   // Contact: a long front-foot stride, head over the ball; or back and across, tall.
-  contactFront: { px: 13, py: -36, angle: 0, step: 1.9, lean: 7, back: 0 },
+  contactFront: { px: 13, py: -37, angle: 0, step: 1.9, lean: 7, back: 0 },
   contactBack: { px: 12, py: -46, angle: 10, step: 0, lean: 2, back: 1, turn: 0.25 },
   // Cross-bat contact: the pull and hook flat across the line in front of him, the cut flat out to the off side.
   // (Their finishes are written the long way round, 255 not -105, so the bat swings on up over the
@@ -90,22 +95,30 @@ export const BATTER_POSES = {
   pullContact: { px: 7, py: -56, angle: 92, step: 0, lean: 0, back: 1, plane: 0, turn: 0.55 },
   hookContact: { px: 6, py: -70, angle: 98, step: 0, lean: -2, back: 1, plane: 0, turn: 0.6 },
   cutContact: { px: 17, py: -52, angle: 104, step: 0, lean: 4, back: 1, plane: 0.1, turn: 0.1 },
+  // Through the ball: after contact the hands keep going along the line of the drive, towards the
+  // bowler, arms bent, before they rise into the finish (a breakdown pose between the two).
+  driveThrough: { px: 15, py: -58, angle: -95, step: 1.9, lean: 7, back: 0, turn: 0.1 },
+  // The pull and hook carry on flat through the line, the toe swinging round towards the bowler, before the finish.
+  pullThrough: { px: 11, py: -60, angle: 90, step: 0, lean: -1, back: 1, plane: -0.9, turn: 0.8 },
+  // ...and the bat comes up over his head into the finish over the shoulder (not back down through his legs).
+  pullOver: { bend: 1, px: 14, py: -89, angle: 180, step: 0, lean: -2, back: 1, plane: 0, turn: 0.9 },
+  hookThrough: { px: 9, py: -73, angle: 95, step: 0, lean: -3, back: 1, plane: -0.9, turn: 0.85 },
   // Follow-throughs, by where the shot went. Drives stay side-on; cross-bat shots open right up.
   coverDriveEnd: { px: 6, py: -74, angle: -158, step: 1.9, lean: 7, back: 0, turn: 0.1 },
   straightDriveEnd: { px: -1, py: -82, angle: -176, step: 1.9, lean: 5, back: 0, turn: 0.2 },
-  onDriveEnd: { px: -8, py: -70, angle: -128, step: 1.7, lean: 3, back: 0, turn: 0.4 },
+  onDriveEnd: { px: -10, py: -72, angle: -128, step: 1.7, lean: 3, back: 0, turn: 0.4 },
   clipEnd: { px: 2, py: -48, angle: -55, step: 1.3, lean: 1, back: 0, plane: 0.4, turn: 0.5 },
   loftEnd: { px: -4, py: -86, angle: -178, step: 1.9, lean: 3, back: 0, turn: 0.3 },
   slogEnd: { px: -12, py: -80, angle: -112, step: 1.4, lean: -2, back: 0, plane: 0.3, turn: 0.85 },
   cutEnd: { px: 18, py: -56, angle: 95, step: 0, lean: 4, back: 1, plane: 0, turn: 0.15 },
   lateCutEnd: { px: 18, py: -44, angle: 78, step: 0, lean: 5, back: 1, plane: 0.2, turn: 0 },
-  pullEnd: { px: -6, py: -62, angle: 255, step: 0, lean: -3, back: 1, plane: 0, turn: 0.95 },
+  pullEnd: { bend: 1, shFrom: 0, px: -28, py: -80, angle: 255, step: 0, lean: -3, back: 1, plane: 0, turn: 0.95 },
   hookEnd: { px: -10, py: -82, angle: 278, step: 0, lean: -5, back: 1, plane: 0.1, turn: 1 },
   defendFront: { px: 14, py: -38, angle: -4, step: 1.8, lean: 8, back: 0 },
   defendBack: { px: 12, py: -48, angle: 2, step: 0, lean: 3, back: 1, turn: 0.1 },
   leave: { px: 3, py: -88, angle: 172, step: 0.3, lean: -2, back: 0.2 },
   // Ramp: bat face up over the shoulder. Sweeps: down on one knee.
-  rampContact: { px: 10, py: -64, angle: 165, step: 0.6, lean: 2, back: 0.3, drop: 6, plane: 0.5, turn: 0.4 },
+  rampContact: { px: 11, py: -66, angle: 165, step: 0.6, lean: 2, back: 0.3, drop: 6, plane: 0.5, turn: 0.4 },
   rampEnd: { px: 6, py: -84, angle: 178, step: 0.6, lean: 0, back: 0.3, drop: 6, plane: 0.5, turn: 0.5 },
   sweepContact: { px: 2, py: -24, angle: -75, step: 1.6, lean: 7, back: 0, drop: 14, plane: 0, turn: 0.4 },
   sweepEnd: { px: -12, py: -48, angle: -140, step: 1.6, lean: 4, back: 0, drop: 14, plane: 0, turn: 0.8 },
@@ -116,29 +129,30 @@ export const BATTER_POSES = {
   padFlinch: { px: 6, py: -60, angle: 60, step: 0.4, lean: -4, back: 0.6, turn: 0.3 },
 };
 
-/** Blend two poses; `beyond` lets t run a little past 1 (an overshoot that settles back). */
-export function lerpPose(a, b, t, beyond = false) {
-  const k = beyond ? Math.max(0, Math.min(1.25, t)) : Math.max(0, Math.min(1, t));
-  const turn = b.angle - a.angle;
-  return {
-    px: a.px + (b.px - a.px) * k,
-    py: a.py + (b.py - a.py) * k,
-    angle: a.angle + turn * k,
-    step: a.step + (b.step - a.step) * k,
-    lean: a.lean + (b.lean - a.lean) * k,
-    back: a.back + (b.back - a.back) * k,
-    drop: (a.drop ?? 0) + ((b.drop ?? 0) - (a.drop ?? 0)) * k,
-    turn: (a.turn ?? 0) + ((b.turn ?? 0) - (a.turn ?? 0)) * k,
-    plane: (a.plane ?? BAT_PLANE) + ((b.plane ?? BAT_PLANE) - (a.plane ?? BAT_PLANE)) * k,
-  };
+/** The key poses as joint angles: blend them with lerpPose, draw them with drawBatter. */
+export const BATTER_POSES = Object.fromEntries(Object.entries(BATTER_KEYS).map(([name, key]) => [name, solvePose(key)]));
+
+/** The poses a follow-through passes through, in order, on its way to `finish` (breakdowns). */
+const BREAKDOWNS = new Map([
+  ...["coverDriveEnd", "straightDriveEnd", "onDriveEnd", "loftEnd"].map((n) => [BATTER_POSES[n], [BATTER_POSES.driveThrough]]),
+  [BATTER_POSES.pullEnd, [BATTER_POSES.pullThrough, BATTER_POSES.pullOver]],
+  [BATTER_POSES.hookEnd, [BATTER_POSES.hookThrough]],
+]);
+
+/**
+ * The follow-through from `contact` to `finish` at progress u (0-1): eased overall, so it
+ * slows into the finish, passing through any breakdown poses on the way.
+ */
+export function followThrough(contact, finish, u) {
+  const path = [contact, ...(BREAKDOWNS.get(finish) ?? []), finish];
+  const e = easeOutQuad(u) * (path.length - 1);
+  const i = Math.min(path.length - 2, Math.floor(e));
+  return blendPoses(path[i], path[i + 1], e - i);
 }
+const easeOutQuad = (t) => 1 - (1 - Math.max(0, Math.min(1, t))) ** 2;
 
-const clamp01 = (v) => Math.max(0, Math.min(1, v));
-
-/** A straight bat swings almost entirely along the pitch: lifted back towards the keeper, through towards the bowler. */
-const BAT_PLANE = 0.85;
-/** How far up the screen a bat end moves per unit it goes down the pitch (the camera looks slightly down). */
-const BAT_DEPTH_RISE = 0.25;
+/** Blend two poses joint by joint (see blendPoses); `opts.wrist` lets the wrist lag behind. */
+export const lerpPose = (a, b, t, opts) => blendPoses(a, b, t, opts);
 
 function lighten(hex) {
   const n = parseInt(hex.slice(1), 16);
@@ -148,37 +162,12 @@ function lighten(hex) {
   return `rgb(${r},${g},${b})`;
 }
 
-// Bone lengths for the striker's skeleton, in close-view pixels at scale 1.
-const THIGH = 22;
-const SHIN = 23;
-const UPPER_ARM = 19;
-const FOREARM = 18;
-
 function darken(hex, amount = 40) {
   const n = parseInt(hex.slice(1), 16);
   const r = Math.max(0, ((n >> 16) & 255) - amount);
   const g = Math.max(0, ((n >> 8) & 255) - amount);
   const b = Math.max(0, (n & 255) - amount);
   return `rgb(${r},${g},${b})`;
-}
-
-/**
- * Two-bone inverse kinematics: where the middle joint (knee or elbow) sits so
- * bones of length l1 and l2 join `from` to `to`. `prefer` picks between the
- * two mirror-image solutions.
- */
-function joint(from, to, l1, l2, prefer) {
-  const dx = to.x - from.x;
-  const dy = to.y - from.y;
-  const dist = Math.hypot(dx, dy) || 0.01;
-  const d = Math.min(dist, l1 + l2 - 0.01);
-  const along = (l1 * l1 - l2 * l2 + d * d) / (2 * d);
-  const out = Math.sqrt(Math.max(0, l1 * l1 - along * along));
-  const ux = dx / dist;
-  const uy = dy / dist;
-  const mx = from.x + ux * along;
-  const my = from.y + uy * along;
-  return prefer({ x: mx - uy * out, y: my + ux * out }, { x: mx + uy * out, y: my - ux * out });
 }
 
 /**
@@ -261,62 +250,11 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     drawLine(p.x, p.y, q.x, q.y, Math.max(1, Math.round(w * scale)), color);
   };
 
-  // --- Skeleton ---
-  const frontLift = -7 * pose.step + 3 * pose.back;
-  // Crouch: lowers the hips and everything above (down on one knee for a sweep).
-  const drop = pose.drop ?? 0;
-  const lean = pose.lean;
-  const turn = pose.turn ?? 0;
-  // Side-on, as seen from behind: the back (right) foot is nearest the camera,
-  // the front (left) foot further down the pitch, so higher up the screen.
-  // Going back, the back foot steps back (towards us) and across towards off stump.
-  const backFoot = { x: -5 + 5 * pose.back - (drop > 8 ? 5 : 0), y: -3 + 2 * pose.back };
-  const frontFoot = { x: 6 + 2 * pose.step - pose.back, y: -9 + frontLift };
-  // Striding forward carries the hips with it (up the screen, in this view); knees stay flexed.
-  const pelvis = { x: 1 + lean * 0.5 + 2 * pose.back, y: -44 + drop + frontLift * 0.5 + pose.back };
-  // Opening up turns the hips square: they spread across the screen.
-  const backHip = { x: pelvis.x - 2.5 - 1.5 * turn, y: pelvis.y };
-  const frontHip = { x: pelvis.x + 3 + 1.5 * turn, y: pelvis.y - 2 * (1 - turn) };
-  // Knees bend towards the off side, where he faces; down low for a sweep, the back knee goes to the turf.
-  const offSide = (a, b) => (a.x > b.x ? a : b);
-  const backKnee = joint(backHip, backFoot, THIGH, SHIN, (a, b) => (drop > 8 ? (a.y > b.y ? a : b) : offSide(a, b)));
-  // Striding out, the front shin stays upright over the planted foot while the thigh, pointing
-  // away down the pitch, foreshortens. (Solving it at full length would splay the knee out
-  // sideways, like a raised knee.)
-  const planted = drop > 8 ? 0 : clamp01((pose.step - 0.3) / 0.9);
-  const solvedKnee = joint(frontHip, frontFoot, THIGH, SHIN, offSide);
-  const plantedKnee = { x: frontFoot.x + 3, y: frontFoot.y - SHIN * 0.78 };
-  const frontKnee = {
-    x: solvedKnee.x + (plantedKnee.x - solvedKnee.x) * planted,
-    y: solvedKnee.y + (plantedKnee.y - solvedKnee.y) * planted,
-  };
-  // On a big stride the back heel comes up, the weight going on to the front foot.
-  const heel = drop > 8 ? 0 : clamp01((pose.step - 0.9) / 0.8);
-  const chest = { x: pelvis.x + lean * 0.9, y: pelvis.y - 29 + Math.abs(lean) * 0.25 };
-  // Shoulders side-on: the right one near us, the left one pointing down the pitch.
-  // Leaning into a drive dips the front shoulder; opening up squares them across the screen.
-  const span = 7 + 2.5 * turn;
-  const backShoulder = { x: chest.x - span, y: chest.y - lean * 0.3 };
-  const frontShoulder = { x: chest.x + span, y: chest.y - 2 * (1 - turn) + lean * 0.5 };
-  const head = { x: chest.x + lean * 0.4 + 1, y: chest.y - 12 };
-
-  // Hands on the handle: top hand (left) above the bottom hand (right).
-  // The bat in 3D: `near` is how far it points back towards the camera (0-1), which on screen
-  // shortens it and draws its toe a little lower and bigger. From the bowler's end, back is away from us.
-  const a = (pose.angle * Math.PI) / 180;
-  const plane = pose.plane ?? BAT_PLANE;
-  const towardCamera = Math.sin(a) * plane * (front ? -1 : 1);
-  const dir = { x: Math.sin(a) * (1 - plane), y: Math.cos(a) + towardCamera * BAT_DEPTH_RISE };
-  const near = Math.max(0, towardCamera);
-  const topHand = { x: pose.px, y: pose.py + frontLift * 0.5 };
-  const bottomHand = { x: topHand.x + dir.x * 4.5, y: topHand.y + dir.y * 4.5 };
-  // A right-hander: the front (left) arm holds the top of the handle, the back (right) arm the bottom.
-  // The front arm comes across in front of the body with its elbow up and out towards the
-  // off side (the high front elbow); the back elbow tucks in, hanging below its arm.
-  const lower = (p, q) => (p.y > q.y ? p : q);
-  const leading = (p, q) => (p.x - 0.4 * p.y > q.x - 0.4 * q.y ? p : q);
-  const frontElbow = joint(frontShoulder, topHand, UPPER_ARM, FOREARM, leading);
-  const backElbow = joint(backShoulder, bottomHand, UPPER_ARM, FOREARM, lower);
+  // --- Skeleton (batter-rig.js): built outwards from the body by the pose's joint angles ---
+  const rig = rigPose(pose, front);
+  const { backFoot, frontFoot, pelvis, backHip, frontHip, backKnee, frontKnee, heel, chest } = rig;
+  const { backShoulder, frontShoulder, head, turn, lean, topHand, frontElbow, backElbow, backHand, dir, near } = rig;
+  const plane = pose.plane;
 
   // --- Flesh and kit ---
   groundShadow(x + (backFoot.x + 2) * scale, y - 2 * scale, 13 * scale, 4.5 * scale, 0.28);
@@ -454,7 +392,7 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   };
   // The front arm across the front of the body, then the near (back) arm over it.
   arm(frontShoulder, frontElbow, topHand);
-  arm(backShoulder, backElbow, bottomHand);
+  arm(backShoulder, backElbow, backHand);
 
   // Bat: handle then blade, the blade widening towards the toe as it comes nearer the camera.
   const shoulder = { x: topHand.x + dir.x * 9, y: topHand.y + dir.y * 9 };
@@ -504,7 +442,7 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   // Gloves: padded white with a team-coloured cuff towards the wrist, and shaded finger rolls.
   for (const [g, elbow] of [
     [topHand, frontElbow],
-    [bottomHand, backElbow],
+    [backHand, backElbow],
   ]) {
     const p = at(g);
     const e = at(elbow);

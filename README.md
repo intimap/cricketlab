@@ -110,6 +110,7 @@ src/
   render/
     camera.js         projections for the close (either end) and wide views
     sprites.js        batter, figures, ball
+    batter-rig.js     the batter's skeleton: joint angles, human range-of-motion limits, posing
     hud.js            score bar, mini-map, banners, scorecard, speech bubbles
     booth.js          commentator portraits and the commentary popup
     grounds.js        grounds as data: stripe layout, colours, pitch looks, which paintings to use

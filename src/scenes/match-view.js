@@ -1,6 +1,6 @@
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect, drawLine, drawPanel, drawBar } from "../engine/screen.js";
 import { drawText, wrapText } from "../engine/text.js";
-import { clamp, easeIn, easeOut, easeOutBack } from "../math.js";
+import { clamp, easeOut } from "../math.js";
 import { CREASE, PITCH_LENGTH, MID_PITCH } from "../sim/geometry.js";
 import { isSpinner } from "../sim/teams.js";
 import {
@@ -29,6 +29,7 @@ import {
 import {
   BATTER_POSES,
   lerpPose,
+  followThrough,
   drawBatter,
   drawFigure,
   drawTinyFigure,
@@ -41,11 +42,16 @@ import { drawBooth, boothShowing } from "../render/booth.js";
 import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import { HUD_Y, staminaColor, drawScoreBar, drawMiniMap, drawBanners, drawScorecard, drawSpeechBubble } from "../render/hud.js";
 
-const FOLLOW_THROUGH_TIME = 0.22;
+const FOLLOW_THROUGH_TIME = 0.26;
 /** The bat stays at the moment of impact this long (s) before the follow-through. */
 const CONTACT_HOLD = 0.035;
-/** In the downswing the hands lead and the bat lags, then whips through: its angle eases in this much harder. */
-const BAT_LAG = 1.8;
+/**
+ * The downswing accelerates into contact (arms eased in by this power: gentler than squaring,
+ * which kept the peak speed nearer a person's in the game's short swing), and the wrists stay
+ * cocked and uncock late (they ease in WRIST_LAG times harder).
+ */
+const DOWNSWING_EASE = 1.5;
+const WRIST_LAG = 1.8;
 const WALK_OFF_TIME = 8;
 const SLEDGE_TIME = 2.4;
 const PANEL_TEXT = { align: "center", outline: "rgba(0,0,0,0.7)" };
@@ -271,7 +277,7 @@ function drawBrokenStumps(z) {
 function readyPose(scene, cur, t) {
   if (cur && t > -0.35) return lerpPose(BATTER_POSES.stance, BATTER_POSES.trigger, easeOut((t + 0.35) / 0.2));
   const tap = Math.max(0, Math.sin(scene.now * 2.6)) ** 8;
-  return { ...BATTER_POSES.stance, angle: BATTER_POSES.stance.angle + 12 * tap };
+  return { ...BATTER_POSES.stance, wrist: BATTER_POSES.stance.wrist + 12 * tap };
 }
 
 /** The moment of impact for a back-foot shot, by the shot the ball calls for. */
@@ -334,11 +340,12 @@ function drawStriker(scene) {
       const k = (t - cur.swingAt) / SWING_TIME[type];
       const after = t - cur.swingAt - SWING_TIME[type] - CONTACT_HOLD;
       if (k < 1) {
-        pose = lerpPose(top, contact, easeIn(k));
-        pose = { ...pose, angle: top.angle + (contact.angle - top.angle) * easeIn(k) ** BAT_LAG };
+        const arms = clamp(k) ** DOWNSWING_EASE;
+        pose = lerpPose(top, contact, arms, { wrist: arms ** WRIST_LAG });
       } else if (after < 0) pose = contact;
-      else pose = lerpPose(contact, finishPose(cur, type), easeOutBack(after / FOLLOW_THROUGH_TIME), true);
-      if (k > 0.3 && k < 1.6) pose = { ...pose, px: pose.px + reach * Math.min(1, k) * (1.6 - k) };
+      else pose = followThrough(contact, finishPose(cur, type), after / FOLLOW_THROUGH_TIME);
+      // Moving into the line of the ball is the body's job: it shifts across, the arms go with it.
+      if (k > 0.3 && k < 1.6) pose = { ...pose, reach: reach * Math.min(1, k) * (1.6 - k) };
       shotDoneAt = cur.swingAt + SWING_TIME[type] + CONTACT_HOLD + FOLLOW_THROUGH_TIME;
     } else if (cur.swingType && cur.swingAt !== null && t >= cur.backliftAt) {
       const charge = cur.shot?.charge ?? NORMAL_CHARGE;
@@ -351,7 +358,7 @@ function drawStriker(scene) {
       const back = playsBack("defend", cur.shot?.foot, cur.delivery?.pitchedAt?.z ?? 5);
       const block = back ? BATTER_POSES.defendBack : BATTER_POSES.defendFront;
       pose = lerpPose(ready, block, easeOut((t - cur.defendAt) / 0.09));
-      pose = { ...pose, px: pose.px + reach * clamp((t - cur.defendAt) / 0.15) };
+      pose = { ...pose, reach: reach * clamp((t - cur.defendAt) / 0.15) };
       shotDoneAt = cur.defendAt + 0.3;
     } else if (cur.leaveAt !== null && t >= cur.leaveAt) {
       pose = lerpPose(ready, BATTER_POSES.leave, (t - cur.leaveAt) / 0.18);

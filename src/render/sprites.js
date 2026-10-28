@@ -6,7 +6,15 @@ const BAT_EDGE = "#b8955a";
 const GRIP = "#2b2b33";
 const PAD = "#fbfbf6";
 const PAD_SHADE = "#c9c9c0";
-const BOOT = "#3a3a3a";
+/** Cricket boots: white, with a dark sole. */
+const BOOT = "#f2f1ea";
+const BOOT_SHADE = "#c8c6bc";
+const SOLE = "#4a4a46";
+const GLOVE = "#f4f4f0";
+const GLOVE_SHADE = "#cfcfc8";
+/** The back of the blade: its spine, and the maker's sticker. */
+const BAT_SPINE = "#c9a86e";
+const BAT_STICKER = "#a8322b";
 const HAIR = "#3b2a1e";
 
 /** Draw something mirrored left-to-right about screen column x (front view <-> back view). */
@@ -62,44 +70,55 @@ export function makeKit(cap, cap2, skin = "#d8a27a") {
  * plane: how much of that swing runs along the pitch - towards or away from the
  * camera behind him - rather than across the screen (BAT_PLANE unless given:
  * a straight bat; cross-bat shots swing nearer the screen's plane),
- * step: front foot forward, lean: body lean, back: weight on the back foot.
+ * step: front foot forward, lean: body lean, back: weight on the back foot
+ * (and the back foot stepping back and across), turn: hips and shoulders
+ * opened up towards the bowler (0 side-on, 1 chest to the bowler), drop: crouch.
  */
 export const BATTER_POSES = {
-  stance: { px: 11, py: -44, angle: 14, step: 0, lean: 0, back: 0 },
-  lift0: { px: 12, py: -54, angle: 100, step: 0, lean: 0, back: 0 },
-  lift1: { px: 11, py: -64, angle: 150, step: 0, lean: -1, back: 0 },
+  // Feet shoulder-width apart, knees flexed, weight forward; the bat rests behind the back toe.
+  stance: { px: 11, py: -42, angle: 16, step: 0, lean: 2, back: 0 },
+  lift0: { px: 12, py: -52, angle: 100, step: 0, lean: 1, back: 0 },
+  lift1: { px: 11, py: -62, angle: 150, step: 0, lean: 0, back: 0 },
   /** Small back-and-across movement as the bowler delivers. */
-  trigger: { px: 12, py: -46, angle: 22, step: 0, lean: 1, back: 0.6 },
-  contactFront: { px: 12, py: -40, angle: 0, step: 1.4, lean: 5, back: 0 },
-  contactBack: { px: 12, py: -46, angle: 10, step: 0, lean: 1, back: 1 },
-  // Follow-throughs, by where the shot went.
-  coverDriveEnd: { px: 6, py: -76, angle: -158, step: 1.4, lean: 6, back: 0 },
-  straightDriveEnd: { px: -1, py: -84, angle: -176, step: 1.4, lean: 3, back: 0 },
-  onDriveEnd: { px: -8, py: -72, angle: -128, step: 1.3, lean: 0, back: 0 },
-  clipEnd: { px: 2, py: -50, angle: -55, step: 1, lean: -1, back: 0, plane: 0.4 },
-  loftEnd: { px: -4, py: -86, angle: -178, step: 1.5, lean: 2, back: 0 },
-  slogEnd: { px: -12, py: -80, angle: -112, step: 1.2, lean: -3, back: 0, plane: 0.3 },
-  cutEnd: { px: 18, py: -56, angle: 95, step: 0, lean: 3, back: 1, plane: 0 },
-  lateCutEnd: { px: 18, py: -44, angle: 78, step: 0, lean: 4, back: 1, plane: 0.2 },
-  pullEnd: { px: -6, py: -62, angle: -105, step: 0, lean: -3, back: 1, plane: 0 },
-  hookEnd: { px: -10, py: -82, angle: -82, step: 0, lean: -5, back: 1, plane: 0.1 },
-  defendFront: { px: 13, py: -42, angle: -4, step: 1.3, lean: 6, back: 0 },
-  defendBack: { px: 12, py: -48, angle: 2, step: 0, lean: 2, back: 1 },
-  leave: { px: 3, py: -88, angle: 172, step: 0.3, lean: -2, back: 0 },
+  trigger: { px: 12, py: -44, angle: 24, step: 0, lean: 2, back: 0.35 },
+  // Contact: a long front-foot stride, head over the ball; or back and across, tall.
+  contactFront: { px: 13, py: -36, angle: 0, step: 1.9, lean: 7, back: 0 },
+  contactBack: { px: 12, py: -46, angle: 10, step: 0, lean: 2, back: 1, turn: 0.25 },
+  // Cross-bat contact: the pull and hook flat across the line in front of him, the cut flat out to the off side.
+  // (Their finishes are written the long way round, 255 not -105, so the bat swings on up over the
+  // front shoulder rather than back down through his legs.)
+  pullContact: { px: 7, py: -56, angle: 92, step: 0, lean: 0, back: 1, plane: 0, turn: 0.55 },
+  hookContact: { px: 6, py: -70, angle: 98, step: 0, lean: -2, back: 1, plane: 0, turn: 0.6 },
+  cutContact: { px: 17, py: -52, angle: 104, step: 0, lean: 4, back: 1, plane: 0.1, turn: 0.1 },
+  // Follow-throughs, by where the shot went. Drives stay side-on; cross-bat shots open right up.
+  coverDriveEnd: { px: 6, py: -74, angle: -158, step: 1.9, lean: 7, back: 0, turn: 0.1 },
+  straightDriveEnd: { px: -1, py: -82, angle: -176, step: 1.9, lean: 5, back: 0, turn: 0.2 },
+  onDriveEnd: { px: -8, py: -70, angle: -128, step: 1.7, lean: 3, back: 0, turn: 0.4 },
+  clipEnd: { px: 2, py: -48, angle: -55, step: 1.3, lean: 1, back: 0, plane: 0.4, turn: 0.5 },
+  loftEnd: { px: -4, py: -86, angle: -178, step: 1.9, lean: 3, back: 0, turn: 0.3 },
+  slogEnd: { px: -12, py: -80, angle: -112, step: 1.4, lean: -2, back: 0, plane: 0.3, turn: 0.85 },
+  cutEnd: { px: 18, py: -56, angle: 95, step: 0, lean: 4, back: 1, plane: 0, turn: 0.15 },
+  lateCutEnd: { px: 18, py: -44, angle: 78, step: 0, lean: 5, back: 1, plane: 0.2, turn: 0 },
+  pullEnd: { px: -6, py: -62, angle: 255, step: 0, lean: -3, back: 1, plane: 0, turn: 0.95 },
+  hookEnd: { px: -10, py: -82, angle: 278, step: 0, lean: -5, back: 1, plane: 0.1, turn: 1 },
+  defendFront: { px: 14, py: -38, angle: -4, step: 1.8, lean: 8, back: 0 },
+  defendBack: { px: 12, py: -48, angle: 2, step: 0, lean: 3, back: 1, turn: 0.1 },
+  leave: { px: 3, py: -88, angle: 172, step: 0.3, lean: -2, back: 0.2 },
   // Ramp: bat face up over the shoulder. Sweeps: down on one knee.
-  rampContact: { px: 10, py: -64, angle: 165, step: 0.6, lean: 2, back: 0.3, drop: 6, plane: 0.5 },
-  rampEnd: { px: 6, py: -84, angle: 178, step: 0.6, lean: 0, back: 0.3, drop: 6, plane: 0.5 },
-  sweepContact: { px: 2, py: -24, angle: -75, step: 1.6, lean: 7, back: 0, drop: 14, plane: 0 },
-  sweepEnd: { px: -12, py: -48, angle: -140, step: 1.6, lean: 4, back: 0, drop: 14, plane: 0 },
-  reverseSweepContact: { px: 20, py: -26, angle: 75, step: 1.6, lean: 6, back: 0, drop: 14, plane: 0 },
-  reverseSweepEnd: { px: 30, py: -48, angle: 140, step: 1.6, lean: 5, back: 0, drop: 14, plane: 0 },
+  rampContact: { px: 10, py: -64, angle: 165, step: 0.6, lean: 2, back: 0.3, drop: 6, plane: 0.5, turn: 0.4 },
+  rampEnd: { px: 6, py: -84, angle: 178, step: 0.6, lean: 0, back: 0.3, drop: 6, plane: 0.5, turn: 0.5 },
+  sweepContact: { px: 2, py: -24, angle: -75, step: 1.6, lean: 7, back: 0, drop: 14, plane: 0, turn: 0.4 },
+  sweepEnd: { px: -12, py: -48, angle: -140, step: 1.6, lean: 4, back: 0, drop: 14, plane: 0, turn: 0.8 },
+  reverseSweepContact: { px: 20, py: -26, angle: 75, step: 1.6, lean: 6, back: 0, drop: 14, plane: 0, turn: 0.2 },
+  reverseSweepEnd: { px: 30, py: -48, angle: 140, step: 1.6, lean: 5, back: 0, drop: 14, plane: 0, turn: 0.4 },
   // Reactions.
-  beaten: { px: 9, py: -54, angle: 40, step: 0.6, lean: -3, back: 0.3 },
-  padFlinch: { px: 6, py: -60, angle: 60, step: 0.4, lean: -4, back: 0.6 },
+  beaten: { px: 9, py: -52, angle: 40, step: 0.8, lean: -2, back: 0.3 },
+  padFlinch: { px: 6, py: -60, angle: 60, step: 0.4, lean: -4, back: 0.6, turn: 0.3 },
 };
 
-export function lerpPose(a, b, t) {
-  const k = Math.max(0, Math.min(1, t));
+/** Blend two poses; `beyond` lets t run a little past 1 (an overshoot that settles back). */
+export function lerpPose(a, b, t, beyond = false) {
+  const k = beyond ? Math.max(0, Math.min(1.25, t)) : Math.max(0, Math.min(1, t));
   const turn = b.angle - a.angle;
   return {
     px: a.px + (b.px - a.px) * k,
@@ -109,9 +128,12 @@ export function lerpPose(a, b, t) {
     lean: a.lean + (b.lean - a.lean) * k,
     back: a.back + (b.back - a.back) * k,
     drop: (a.drop ?? 0) + ((b.drop ?? 0) - (a.drop ?? 0)) * k,
+    turn: (a.turn ?? 0) + ((b.turn ?? 0) - (a.turn ?? 0)) * k,
     plane: (a.plane ?? BAT_PLANE) + ((b.plane ?? BAT_PLANE) - (a.plane ?? BAT_PLANE)) * k,
   };
 }
+
+const clamp01 = (v) => Math.max(0, Math.min(1, v));
 
 /** A straight bat swings almost entirely along the pitch: lifted back towards the keeper, through towards the bowler. */
 const BAT_PLANE = 0.85;
@@ -244,23 +266,38 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   // Crouch: lowers the hips and everything above (down on one knee for a sweep).
   const drop = pose.drop ?? 0;
   const lean = pose.lean;
+  const turn = pose.turn ?? 0;
   // Side-on, as seen from behind: the back (right) foot is nearest the camera,
   // the front (left) foot further down the pitch, so higher up the screen.
-  const backFoot = { x: -3 - 2 * pose.back - (drop > 8 ? 5 : 0), y: -3 };
-  const frontFoot = { x: 4 + 2 * pose.step, y: -9 + frontLift };
-  // Striding forward carries the hips with it (up the screen, in this view).
-  const pelvis = { x: 1 + lean * 0.5, y: -47 + drop + frontLift * 0.5 + pose.back };
-  const backHip = { x: pelvis.x - 2.5, y: pelvis.y };
-  const frontHip = { x: pelvis.x + 3, y: pelvis.y - 2 };
+  // Going back, the back foot steps back (towards us) and across towards off stump.
+  const backFoot = { x: -5 + 5 * pose.back - (drop > 8 ? 5 : 0), y: -3 + 2 * pose.back };
+  const frontFoot = { x: 6 + 2 * pose.step - pose.back, y: -9 + frontLift };
+  // Striding forward carries the hips with it (up the screen, in this view); knees stay flexed.
+  const pelvis = { x: 1 + lean * 0.5 + 2 * pose.back, y: -44 + drop + frontLift * 0.5 + pose.back };
+  // Opening up turns the hips square: they spread across the screen.
+  const backHip = { x: pelvis.x - 2.5 - 1.5 * turn, y: pelvis.y };
+  const frontHip = { x: pelvis.x + 3 + 1.5 * turn, y: pelvis.y - 2 * (1 - turn) };
   // Knees bend towards the off side, where he faces; down low for a sweep, the back knee goes to the turf.
   const offSide = (a, b) => (a.x > b.x ? a : b);
   const backKnee = joint(backHip, backFoot, THIGH, SHIN, (a, b) => (drop > 8 ? (a.y > b.y ? a : b) : offSide(a, b)));
-  const frontKnee = joint(frontHip, frontFoot, THIGH, SHIN, offSide);
+  // Striding out, the front shin stays upright over the planted foot while the thigh, pointing
+  // away down the pitch, foreshortens. (Solving it at full length would splay the knee out
+  // sideways, like a raised knee.)
+  const planted = drop > 8 ? 0 : clamp01((pose.step - 0.3) / 0.9);
+  const solvedKnee = joint(frontHip, frontFoot, THIGH, SHIN, offSide);
+  const plantedKnee = { x: frontFoot.x + 3, y: frontFoot.y - SHIN * 0.78 };
+  const frontKnee = {
+    x: solvedKnee.x + (plantedKnee.x - solvedKnee.x) * planted,
+    y: solvedKnee.y + (plantedKnee.y - solvedKnee.y) * planted,
+  };
+  // On a big stride the back heel comes up, the weight going on to the front foot.
+  const heel = drop > 8 ? 0 : clamp01((pose.step - 0.9) / 0.8);
   const chest = { x: pelvis.x + lean * 0.9, y: pelvis.y - 29 + Math.abs(lean) * 0.25 };
   // Shoulders side-on: the right one near us, the left one pointing down the pitch.
-  // Leaning into a drive dips the front shoulder.
-  const backShoulder = { x: chest.x - 7, y: chest.y - lean * 0.3 };
-  const frontShoulder = { x: chest.x + 7, y: chest.y - 2 + lean * 0.5 };
+  // Leaning into a drive dips the front shoulder; opening up squares them across the screen.
+  const span = 7 + 2.5 * turn;
+  const backShoulder = { x: chest.x - span, y: chest.y - lean * 0.3 };
+  const frontShoulder = { x: chest.x + span, y: chest.y - 2 * (1 - turn) + lean * 0.5 };
   const head = { x: chest.x + lean * 0.4 + 1, y: chest.y - 12 };
 
   // Hands on the handle: top hand (left) above the bottom hand (right).
@@ -279,52 +316,75 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   const frontElbow = joint(frontShoulder, bottomHand, UPPER_ARM, FOREARM, lower);
 
   // --- Flesh and kit ---
-  groundShadow(x + 1 * scale, y - 2 * scale, 15 * scale, 5 * scale, 0.28);
-  const leg = (hip, knee, foot, toe) => {
+  groundShadow(x + (backFoot.x + 2) * scale, y - 2 * scale, 13 * scale, 4.5 * scale, 0.28);
+  // The front foot casts its own: it's planted on the turf, not lifted.
+  groundShadow(x + (frontFoot.x + 1) * scale, y + (frontFoot.y + 2) * scale, 8 * scale, 2.6 * scale, 0.22);
+  const leg = (hip, knee, foot, toe, heelUp) => {
     limb(hip, knee, 6, 5, kit.pants, kit.shade);
-    // Pad from just above the knee to the boot, with a knee roll and straps.
+    // Pad from just above the knee to the boot.
     const top = { x: knee.x + (hip.x - knee.x) * 0.22, y: knee.y + (hip.y - knee.y) * 0.22 };
     // Seen edge-on: the pad's face (and its straps) turned to the off side.
     limb(top, foot, 4.4, 4, PAD, PAD_SHADE);
     const len = Math.hypot(foot.x - top.x, foot.y - top.y) || 1;
-    const nx = Math.abs((foot.y - top.y) / len);
-    const ny = -(foot.x - top.x) / len;
-    for (const t of [0.12, 0.45, 0.75]) {
-      const c = { x: top.x + (foot.x - top.x) * t, y: top.y + (foot.y - top.y) * t };
-      line({ x: c.x + nx * 0.5, y: c.y + ny * 0.5 }, { x: c.x + nx * 4, y: c.y + ny * 4 }, 1, PAD_SHADE);
+    const ux = (foot.x - top.x) / len;
+    const uy = (foot.y - top.y) / len;
+    const nx = Math.abs(uy);
+    const ny = -ux;
+    // The vertical bolsters (cane ridges) down the pad.
+    for (const off of [-1.6, 1.4]) {
+      line(
+        { x: top.x + nx * off + ux * 3, y: top.y + ny * off + uy * 3 },
+        { x: foot.x + nx * off - ux * 3, y: foot.y + ny * off - uy * 3 },
+        1,
+        PAD_SHADE,
+      );
     }
+    // Straps round the back of the leg.
+    for (const t of [0.3, 0.62]) {
+      const c = { x: top.x + (foot.x - top.x) * t, y: top.y + (foot.y - top.y) * t };
+      line({ x: c.x + nx * 0.5, y: c.y + ny * 0.5 }, { x: c.x + nx * 4.4, y: c.y + ny * 4.4 }, 1, PAD_SHADE);
+    }
+    // The knee roll: a padded band across the knee, a touch wider than the pad.
+    const roll = at({ x: knee.x + nx * 0.6, y: knee.y + ny * 0.6 });
+    fillEllipse(roll.x, roll.y, 5 * scale, 2.8 * scale, PAD_SHADE);
+    fillEllipse(roll.x - 0.5 * scale, roll.y - 0.4 * scale, 4.4 * scale, 2.1 * scale, PAD);
+    // White boot, the heel lifting on a big stride, on a dark spiked sole.
+    const up = 3 * heelUp;
+    const boot = [
+      { x: foot.x - 5, y: foot.y - 2 - up },
+      { x: foot.x + 4 + toe, y: foot.y - 2 },
+      { x: foot.x + 5 + toe, y: foot.y + 2 },
+      { x: foot.x - 5, y: foot.y + 2 - up * 1.3 },
+    ];
+    poly(boot, BOOT);
     poly(
-      [
-        { x: foot.x - 5, y: foot.y - 2 },
-        { x: foot.x + 4 + toe, y: foot.y - 2 },
-        { x: foot.x + 5 + toe, y: foot.y + 2.5 },
-        { x: foot.x - 5, y: foot.y + 2.5 },
-      ],
-      BOOT,
+      [boot[0], { x: foot.x - 1, y: foot.y - 2 - up * 0.6 }, { x: foot.x - 1, y: foot.y + 2 - up * 0.8 }, boot[3]],
+      BOOT_SHADE,
     );
+    line({ x: boot[3].x, y: boot[3].y + 0.6 }, { x: boot[2].x, y: boot[2].y + 0.6 }, 1, SOLE);
   };
   // The far (front) leg first, so the near one overlaps it; toes point to the off side.
-  leg(frontHip, frontKnee, frontFoot, 2);
-  leg(backHip, backKnee, backFoot, 2);
+  leg(frontHip, frontKnee, frontFoot, 2, 0);
+  leg(backHip, backKnee, backFoot, 2, heel);
 
   // Hips, side-on.
   poly(
     [
-      { x: pelvis.x - 7, y: pelvis.y - 7 },
-      { x: pelvis.x + 7, y: pelvis.y - 8 },
+      { x: pelvis.x - 7 - 1.5 * turn, y: pelvis.y - 7 },
+      { x: pelvis.x + 7 + 1.5 * turn, y: pelvis.y - 8 + turn },
       { x: frontHip.x + 4, y: frontHip.y + 3 },
       { x: backHip.x - 4, y: backHip.y + 4 },
     ],
     kit.pants,
   );
 
-  // Torso side-on: chest to the off side, tapering to the waist.
-  const waistL = { x: pelvis.x - 6, y: pelvis.y - 6 };
-  const waistR = { x: pelvis.x + 6.5, y: pelvis.y - 6 };
+  // Torso side-on: chest to the off side, tapering to the waist. Opened up, we see his whole back.
+  const waistL = { x: pelvis.x - 6 - turn, y: pelvis.y - 6 };
+  const waistR = { x: pelvis.x + 6.5 + turn, y: pelvis.y - 6 };
   const torso = [
     { x: backShoulder.x - 1, y: backShoulder.y - 1 },
-    { x: chest.x - 4, y: chest.y - 4 },
-    { x: chest.x + 4, y: chest.y - 4 },
+    { x: chest.x - 4 - 2 * turn, y: chest.y - 4 },
+    { x: chest.x + 4 + 2 * turn, y: chest.y - 4 },
     { x: frontShoulder.x + 1, y: frontShoulder.y - 1 },
     { x: frontShoulder.x - 1, y: frontShoulder.y + 9 },
     waistR,
@@ -332,21 +392,22 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     { x: backShoulder.x + 1, y: backShoulder.y + 9 },
   ];
   poly(torso, kit.shirt);
-  // Shadow down the right flank and under the shoulder blades.
+  // Shadow down the right flank, narrowing as he turns his back to us.
+  const flank = 3 * (1 - 0.7 * turn);
   poly(
     [
-      { x: frontShoulder.x - 3, y: frontShoulder.y + 1 },
+      { x: frontShoulder.x - flank, y: frontShoulder.y + 1 },
       { x: frontShoulder.x + 1, y: frontShoulder.y - 1 },
       { x: frontShoulder.x - 1, y: frontShoulder.y + 9 },
       waistR,
-      { x: waistR.x - 3, y: waistR.y },
+      { x: waistR.x - flank, y: waistR.y },
     ],
     kit.shade,
   );
   line({ x: chest.x - 2, y: chest.y + 2 }, { x: pelvis.x - 2 + lean * 0.2, y: pelvis.y - 8 }, 1, kit.shade);
   if (number) {
-    // The number is on his back, which is half turned away from us.
-    drawText(String(number), at({ x: chest.x - 2.5, y: 0 }).x, at({ x: 0, y: chest.y + 5 }).y, {
+    // The number is on his back: half turned away side-on, square to us when he opens up.
+    drawText(String(number), at({ x: chest.x - 2.5 * (1 - turn), y: 0 }).x, at({ x: 0, y: chest.y + 5 }).y, {
       align: "center",
       color: kit.cap,
       shadow: null,
@@ -410,13 +471,44 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   const toeWidth = 3 * (1 + 0.45 * near);
   blade(3, toeWidth, 0, BAT_EDGE);
   blade(2, toeWidth - 1, 0.6, BAT_FACE);
+  // From behind a straight bat we see its back: the spine down the middle, the splice
+  // where the handle joins, and the maker's sticker. Turned flat across, it shows less.
+  if (!front && plane > 0.45) {
+    line(
+      { x: shoulder.x + 0.6 + dir.x * 3, y: shoulder.y + dir.y * 3 },
+      { x: toe.x + 0.6 - dir.x * 2, y: toe.y - dir.y * 2 },
+      1,
+      BAT_SPINE,
+    );
+    line(
+      { x: shoulder.x + 0.6 + side.x * 1.5, y: shoulder.y + side.y * 1.5 },
+      { x: shoulder.x + 0.6 + dir.x * 4, y: shoulder.y + dir.y * 4 },
+      1,
+      BAT_EDGE,
+    );
+    line(
+      { x: shoulder.x + 0.6 - side.x * 1.5, y: shoulder.y - side.y * 1.5 },
+      { x: shoulder.x + 0.6 + dir.x * 4, y: shoulder.y + dir.y * 4 },
+      1,
+      BAT_EDGE,
+    );
+    const s = { x: shoulder.x + 0.6 + dir.x * 9, y: shoulder.y + dir.y * 9 };
+    line({ x: s.x - side.x * 1.4, y: s.y - side.y * 1.4 }, { x: s.x + side.x * 1.4, y: s.y + side.y * 1.4 }, 2, BAT_STICKER);
+  }
   // Pointing back at us, the toe's end shows as a block of bare willow.
   if (near > 0.4) fillCircle(at(toe).x, at(toe).y, toeWidth * 0.8 * scale, BAT_EDGE);
-  // Gloves.
-  for (const g of [topHand, bottomHand]) {
+  // Gloves: padded white with a team-coloured cuff towards the wrist, and shaded finger rolls.
+  for (const [g, elbow] of [
+    [topHand, backElbow],
+    [bottomHand, frontElbow],
+  ]) {
     const p = at(g);
-    fillCircle(p.x, p.y, 3 * scale, "#f1f1f1");
-    fillCircle(p.x + scale, p.y + scale, 1.3 * scale, kit.cap2);
+    const e = at(elbow);
+    const l = Math.hypot(e.x - p.x, e.y - p.y) || 1;
+    fillCircle(p.x + ((e.x - p.x) / l) * 3.2 * scale, p.y + ((e.y - p.y) / l) * 3.2 * scale, 2.7 * scale, kit.cap2);
+    fillCircle(p.x, p.y, 3.7 * scale, GLOVE_SHADE);
+    fillCircle(p.x - 0.5 * scale, p.y - 0.5 * scale, 3.1 * scale, GLOVE);
+    line({ x: g.x - 2, y: g.y + 1 }, { x: g.x + 2, y: g.y + 1 }, 1, GLOVE_SHADE);
   }
 }
 

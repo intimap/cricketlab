@@ -1,6 +1,6 @@
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect, drawLine, drawPanel, drawBar } from "../engine/screen.js";
 import { drawText, wrapText } from "../engine/text.js";
-import { clamp, easeIn, easeOut } from "../math.js";
+import { clamp, easeIn, easeOut, easeOutBack } from "../math.js";
 import { CREASE, PITCH_LENGTH, MID_PITCH } from "../sim/geometry.js";
 import { isSpinner } from "../sim/teams.js";
 import {
@@ -41,7 +41,11 @@ import { drawBooth, boothShowing } from "../render/booth.js";
 import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import { HUD_Y, staminaColor, drawScoreBar, drawMiniMap, drawBanners, drawScorecard, drawSpeechBubble } from "../render/hud.js";
 
-const FOLLOW_THROUGH_TIME = 0.15;
+const FOLLOW_THROUGH_TIME = 0.22;
+/** The bat stays at the moment of impact this long (s) before the follow-through. */
+const CONTACT_HOLD = 0.035;
+/** In the downswing the hands lead and the bat lags, then whips through: its angle eases in this much harder. */
+const BAT_LAG = 1.8;
 const WALK_OFF_TIME = 8;
 const SLEDGE_TIME = 2.4;
 const PANEL_TEXT = { align: "center", outline: "rgba(0,0,0,0.7)" };
@@ -270,6 +274,15 @@ function readyPose(scene, cur, t) {
   return { ...BATTER_POSES.stance, angle: BATTER_POSES.stance.angle + 12 * tap };
 }
 
+/** The moment of impact for a back-foot shot, by the shot the ball calls for. */
+function backFootContact(cur) {
+  const at = crossingAtZ(cur.delivery.samples, CONTACT_Z_BACK);
+  const back = backFootShot(at?.x ?? cur.lineAtBat, at?.y ?? 0);
+  if (back === "cut") return BATTER_POSES.cutContact;
+  if (back === "pull") return (at?.y ?? 0) > 1.35 ? BATTER_POSES.hookContact : BATTER_POSES.pullContact;
+  return BATTER_POSES.contactBack;
+}
+
 /** Follow-through for the shot being played, chosen by where the ball went (or was meant to go). */
 function finishPose(cur, type) {
   const contact = cur.play?.res.contact;
@@ -313,16 +326,20 @@ function drawStriker(scene) {
       const top = lerpPose(BATTER_POSES.lift0, BATTER_POSES.lift1, cur.shot?.charge ?? 0.5);
       const contact =
         {
-          cutpull: BATTER_POSES.contactBack,
+          cutpull: backFootContact(cur),
           ramp: BATTER_POSES.rampContact,
           sweep: BATTER_POSES.sweepContact,
           reverseSweep: BATTER_POSES.reverseSweepContact,
         }[type] ?? BATTER_POSES.contactFront;
       const k = (t - cur.swingAt) / SWING_TIME[type];
-      if (k < 1) pose = lerpPose(top, contact, easeIn(k));
-      else pose = lerpPose(contact, finishPose(cur, type), easeOut((t - cur.swingAt - SWING_TIME[type]) / FOLLOW_THROUGH_TIME));
+      const after = t - cur.swingAt - SWING_TIME[type] - CONTACT_HOLD;
+      if (k < 1) {
+        pose = lerpPose(top, contact, easeIn(k));
+        pose = { ...pose, angle: top.angle + (contact.angle - top.angle) * easeIn(k) ** BAT_LAG };
+      } else if (after < 0) pose = contact;
+      else pose = lerpPose(contact, finishPose(cur, type), easeOutBack(after / FOLLOW_THROUGH_TIME), true);
       if (k > 0.3 && k < 1.6) pose = { ...pose, px: pose.px + reach * Math.min(1, k) * (1.6 - k) };
-      shotDoneAt = cur.swingAt + SWING_TIME[type] + FOLLOW_THROUGH_TIME;
+      shotDoneAt = cur.swingAt + SWING_TIME[type] + CONTACT_HOLD + FOLLOW_THROUGH_TIME;
     } else if (cur.swingType && cur.swingAt !== null && t >= cur.backliftAt) {
       const charge = cur.shot?.charge ?? NORMAL_CHARGE;
       pose = lerpPose(

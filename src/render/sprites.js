@@ -15,8 +15,25 @@ function mirrored(x, draw) {
   ctx.save();
   ctx.translate(cx * 2, 0);
   ctx.scale(-1, 1);
+  flipped = !flipped;
   draw();
+  flipped = !flipped;
   ctx.restore();
+}
+let flipped = false;
+
+/** How far shadows are drawn out by a low sun (light.js); 1 is round, straight underneath. */
+let shadowStretch = 1;
+export function setShadowStretch(stretch) {
+  shadowStretch = stretch;
+}
+
+/** A shadow on the ground round (x, y): drawn out long, towards the camera and to the right, when the sun is low. */
+function groundShadow(x, y, rx, ry, alpha) {
+  const s = shadowStretch;
+  // Mirrored figures still cast to the screen's right.
+  const lean = (s - 1) * rx * 0.75 * (flipped ? -1 : 1);
+  fillEllipse(x + lean, y + (s - 1) * ry * 0.4, rx * s, ry, `rgba(0,0,0,${alpha})`);
 }
 
 /** A player's own kit: the team's, with his skin, hair, beard, shirt number and height (see teams.js looks). */
@@ -248,7 +265,7 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   const frontElbow = joint(frontShoulder, bottomHand, UPPER_ARM, FOREARM, lower);
 
   // --- Flesh and kit ---
-  fillEllipse(x + 1 * scale, y - 2 * scale, 15 * scale, 5 * scale, "rgba(0,0,0,0.28)");
+  groundShadow(x + 1 * scale, y - 2 * scale, 15 * scale, 5 * scale, 0.28);
   const leg = (hip, knee, foot, toe) => {
     limb(hip, knee, 6, 5, kit.pants, kit.shade);
     // Pad from just above the knee to the boot, with a knee roll and straps.
@@ -534,7 +551,7 @@ function drawFigureBody(x, y, height, opts) {
   });
   const elbows = [0, 1].map((i) => joint(shoulders[i], hands[i], 9.5, 9, outward(i ? 1 : -1)));
 
-  fillEllipse(x, y, 9 * k, 2 * k, "rgba(0,0,0,0.3)");
+  groundShadow(x, y, 9 * k, 2 * k, 0.3);
 
   // Legs, with pads for a batter, then boots.
   for (const i of [0, 1]) {
@@ -770,7 +787,7 @@ export function drawTinyFigure(x, y, scale, pose, cap, phase = 0, opts = {}) {
   const k = Math.max(1, scale * 1.45);
   const rect = (rx, ry, w, h, color) =>
     fillRect(x + rx * k, y + ry * k, Math.max(1, Math.round(w * k)), Math.max(1, Math.round(h * k)), color);
-  fillEllipse(x, y, 3 * k, 1, "rgba(0,0,0,0.35)");
+  groundShadow(x, y, 3 * k, 1, 0.35);
   if (pose === "dive" || pose === "down") {
     rect(-4, -3, 8, 2, COLORS.cream);
     rect(-5, -4, 2, 2, cap);
@@ -811,5 +828,5 @@ export function drawBall(x, y, radius, shine) {
 }
 
 export function drawShadow(x, y, radius) {
-  fillEllipse(x, y, Math.max(1, radius * 1.1), Math.max(0.5, radius * 0.45), "rgba(0,0,0,0.38)");
+  groundShadow(x, y, Math.max(1, radius * 1.1), Math.max(0.5, radius * 0.45), 0.38);
 }

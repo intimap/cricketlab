@@ -2,6 +2,7 @@ import { clamp } from "../math.js";
 import { PITCH_LENGTH } from "../sim/geometry.js";
 import { CLOSE_Y_OFFSET, closeGroundY, closeRowDepth, projectFromStriker, projectWide, ROPE } from "./camera.js";
 import { PITCH_LOOKS } from "./grounds.js";
+import { LIGHTS } from "./light.js";
 
 /**
  * The layer compositor: builds each view's background once (per match, and
@@ -77,10 +78,10 @@ class Pixels {
 /**
  * The scenery a view is built on: either one painting (an asset id), or a
  * stack of layers drawn in order, each { image, x, y } (an asset id placed
- * at column x, row y) or { clouds: id, count, top, bottom } (clouds cut from a sheet and
- * scattered by the seed between those rows).
+ * at column x, row y; `sky: true` marks the sky) or { clouds: id, count, top, bottom } (clouds cut from a sheet and
+ * scattered by the seed between those rows). A low sun warms the sky towards the horizon.
  */
-function sceneryCanvas(scenery, images, seed) {
+function sceneryCanvas(scenery, images, seed, light) {
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
@@ -89,8 +90,61 @@ function sceneryCanvas(scenery, images, seed) {
   for (const layer of layers) {
     if (layer.image) ctx.drawImage(images[layer.image], layer.x ?? 0, layer.y ?? 0);
     if (layer.clouds) scatterClouds(ctx, images[layer.clouds], layer, seed);
+    if (layer.sky && light.glow) {
+      // Over the sky alone (it's all that's on the canvas yet), strongest at its foot - much of which the trees hide.
+      const top = layer.y ?? 0;
+      const foot = top + images[layer.image].height;
+      const [r, g, b] = rgb(light.glow.colour);
+      const wash = ctx.createLinearGradient(0, top, 0, foot);
+      wash.addColorStop(0, `rgba(${r},${g},${b},0.3)`);
+      wash.addColorStop(0.5, `rgba(${r},${g},${b},1)`);
+      wash.addColorStop(1, `rgba(${r},${g},${b},1)`);
+      ctx.save();
+      ctx.globalAlpha = light.glow.amount;
+      ctx.globalCompositeOperation = "source-atop";
+      ctx.fillStyle = wash;
+      ctx.fillRect(0, top, W, foot - top);
+      ctx.restore();
+    }
   }
   return canvas;
+}
+
+/**
+ * For each column, the top row of the scenery standing on the ground (every image layer but the sky),
+ * or null for a single painting, where stands and sky can't be told apart.
+ */
+function skyline(scenery, images) {
+  if (typeof scenery === "string") return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  for (const layer of scenery) {
+    if (layer.image && !layer.sky) ctx.drawImage(images[layer.image], layer.x ?? 0, layer.y ?? 0);
+  }
+  const a = ctx.getImageData(0, 0, W, H).data;
+  const tops = [];
+  for (let x = 0; x < W; x++) {
+    let y = 0;
+    while (y < H && a[(y * W + x) * 4 + 3] === 0) y++;
+    tops.push(y);
+  }
+  return tops;
+}
+
+/** The shadow the stands and trees throw across the outfield (from the ground's first row down), when the sun is low. */
+function castShade(px, view, images, light) {
+  const tops = light.shade && skyline(view.scenery, images);
+  if (!tops) return;
+  const colour = rgb(light.shade.colour);
+  for (let x = 0; x < W; x++) {
+    const reach = Math.max(0, view.groundFrom - tops[x]) * light.shade.length;
+    for (let y = view.groundFrom; y < view.groundFrom + reach; y++) {
+      // A softer last row.
+      px.blend(x, y, colour, light.shade.amount * Math.min(1, view.groundFrom + reach - y));
+    }
+  }
 }
 
 /** The separate sprites on a sheet: bounding boxes of its opaque islands (cached on the image). */
@@ -186,8 +240,8 @@ function cracks(count, seed) {
 
 // --- Close view ------------------------------------------------------------
 
-export function buildClose(ground, images, pitch, seed = 1) {
-  const px = new Pixels(sceneryCanvas(ground.close.scenery, images, seed));
+export function buildClose(ground, images, pitch, seed = 1, sun = LIGHTS.midday) {
+  const px = new Pixels(sceneryCanvas(ground.close.scenery, images, seed, sun));
   const view = ground.close;
   const light = rgb(ground.grass.light);
   const dark = rgb(ground.grass.dark);
@@ -225,6 +279,7 @@ export function buildClose(ground, images, pitch, seed = 1) {
       px.put(x, y, c);
     }
   }
+  castShade(px, view, images, sun);
 
   // Fill a world-space rectangle on the ground (x1..x2 across, z1..z2 along); at least one pixel each way.
   const fillWorld = (x1, x2, z1, z2, colour, blend = 1) => {
@@ -299,8 +354,8 @@ export function buildClose(ground, images, pitch, seed = 1) {
 
 // --- Wide view -------------------------------------------------------------
 
-export function buildWide(ground, images, pitch, seed = 1) {
-  const px = new Pixels(sceneryCanvas(ground.wide.scenery, images, seed));
+export function buildWide(ground, images, pitch, seed = 1, sun = LIGHTS.midday) {
+  const px = new Pixels(sceneryCanvas(ground.wide.scenery, images, seed, sun));
   const view = ground.wide;
   const light = rgb(view.grass.light);
   const dark = rgb(view.grass.dark);
@@ -347,6 +402,7 @@ export function buildWide(ground, images, pitch, seed = 1) {
       if (Math.abs(Math.sqrt(cx * cx + cy * cy) - 1) * ring.ry < 0.55) px.blend(x, y, ringColour, 0.75);
     }
   }
+  if (outside) castShade(px, view, images, sun);
 
   // The pitch, its rim and creases. Lengthways they come from the camera's mapping;
   // across, the wide view draws the strip narrower than true (as the painting did) - see wide.pitch.
@@ -400,10 +456,10 @@ export function buildWide(ground, images, pitch, seed = 1) {
   return canvas;
 }
 
-/** Both views for a ground and the current state of the pitch. */
-export function buildGround(ground, images, pitch, seed = 1) {
+/** Both views for a ground, the current state of the pitch and the time of day (`sun`, from light.js). */
+export function buildGround(ground, images, pitch, seed = 1, sun = LIGHTS.midday) {
   return {
-    close: buildClose(ground, images, pitch, seed),
-    wide: buildWide(ground, images, pitch, seed),
+    close: buildClose(ground, images, pitch, seed, sun),
+    wide: buildWide(ground, images, pitch, seed, sun),
   };
 }

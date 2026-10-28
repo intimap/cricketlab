@@ -6,12 +6,14 @@ import { load, save } from "../engine/storage.js";
 import { PITCH_TYPES } from "../sim/conditions.js";
 import { FORMATS, CLASSICS, OVERS_CHOICES } from "../sim/formats.js";
 import { GROUNDS } from "../render/grounds.js";
+import { LIGHTS } from "../render/light.js";
 
 const FORMAT_IDS = Object.keys(FORMATS);
 const MODES = ["bat", "bowl"];
 const PITCHES = ["green", "dust", "cracked"];
 const CLASSIC_IDS = CLASSICS.map((c) => c.id);
 const GROUND_IDS = Object.keys(GROUNDS);
+const LIGHT_IDS = Object.keys(LIGHTS);
 
 const cycle = (list, value, dir) => list[(list.indexOf(value) + dir + list.length) % list.length];
 
@@ -38,6 +40,7 @@ export class Menu {
     overs: 20,
     classic: CLASSIC_IDS[0],
     ground: GROUND_IDS[0],
+    light: LIGHT_IDS[0],
     ...load("menu", {}),
   };
   t = 0;
@@ -47,6 +50,7 @@ export class Menu {
     if (!FORMATS[this.cfg.format]) this.cfg.format = "spell";
     if (!CLASSIC_IDS.includes(this.cfg.classic)) this.cfg.classic = CLASSIC_IDS[0];
     if (!GROUNDS[this.cfg.ground]) this.cfg.ground = GROUND_IDS[0];
+    if (!LIGHTS[this.cfg.light]) this.cfg.light = LIGHT_IDS[0];
   }
 
   get classic() {
@@ -72,6 +76,7 @@ export class Menu {
         ["mode", "PRACTISE", cfg.mode === "bat" ? "BATTING (AUSTRALIA)" : "BOWLING (AUSTRALIA)"],
         ["pitch", "PITCH", PITCH_TYPES[cfg.pitch].name],
         ["ground", "GROUND", GROUNDS[cfg.ground].name],
+        ["light", "LIGHT", LIGHTS[cfg.light].name],
         ["start", "", "START  >"],
       ];
     }
@@ -81,6 +86,7 @@ export class Menu {
       ["mode", "YOU", cfg.mode === "bat" ? "BAT FIRST (AUSTRALIA)" : "BOWL FIRST (AUSTRALIA)"],
       ["pitch", "PITCH", PITCH_TYPES[cfg.pitch].name],
       ["ground", "GROUND", GROUNDS[cfg.ground].name],
+      ["light", "LIGHT", LIGHTS[cfg.light].name],
       ["overs", cfg.format === "match" ? "INNINGS" : "SPELL", overs],
       ["start", "", "START  >"],
     ];
@@ -110,6 +116,7 @@ export class Menu {
       if (key === "mode") cfg.mode = cycle(MODES, cfg.mode, dir);
       if (key === "pitch") cfg.pitch = cycle(PITCHES, cfg.pitch, dir);
       if (key === "ground") cfg.ground = cycle(GROUND_IDS, cfg.ground, dir);
+      if (key === "light") cfg.light = cycle(LIGHT_IDS, cfg.light, dir);
       if (key === "overs") cfg.overs = cycle(OVERS_CHOICES[cfg.format], cfg.overs, dir);
       if (key === "classic") cfg.classic = cycle(CLASSIC_IDS, cfg.classic, dir);
     }
@@ -130,10 +137,12 @@ export class Menu {
     const rows = this.rows;
     if (this.sel >= rows.length) this.sel = rows.length - 1;
     drawPanel(130, 98, 380, 132);
+    // Rows close up a little when there are more of them.
+    const step = rows.length > 6 ? 14 : 16;
     rows.forEach(([key, label, value], i) => {
-      const y = 110 + i * 16;
+      const y = 110 + i * step;
       const selected = this.sel === i;
-      if (selected) fillRect(138, y - 4, 364, 15, "#24563a");
+      if (selected) fillRect(138, y - 4, 364, step - 1, "#24563a");
       drawText(label, 150, y, { color: COLORS.dim });
       const color = selected ? COLORS.gold : COLORS.cream;
       if (key !== "start") drawText(`< ${value} >`, 210, y, { color, align: "left" });
@@ -147,7 +156,7 @@ export class Menu {
           ? FORMATS[cfg.format].blurb
           : PITCH_TYPES[cfg.pitch].blurb;
     wrapText(blurb, 60).forEach((line, i) =>
-      drawText(line, 320, 110 + rows.length * 16 + 4 + i * 10, { align: "center", color: COLORS.dim }),
+      drawText(line, 320, 110 + rows.length * step + 4 + i * 10, { align: "center", color: COLORS.dim }),
     );
 
     drawPanel(40, 238, 560, 84, "#0d2318");

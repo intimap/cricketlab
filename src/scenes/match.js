@@ -19,6 +19,7 @@ import { makeKit } from "../render/sprites.js";
 import { scheduleCalls } from "../render/booth.js";
 import { buildGround } from "../render/ground.js";
 import { GROUNDS } from "../render/grounds.js";
+import { LIGHTS } from "../render/light.js";
 import { projectWide, unprojectWide } from "../render/camera.js";
 import { drawMatch } from "./match-view.js";
 import { PauseMenu } from "./pause-menu.js";
@@ -94,6 +95,7 @@ export class MatchScene {
     this.nets = this.match.nets;
     /** The ground's backgrounds, built from its data and the pitch (and rebuilt as it wears). */
     this.ground = GROUNDS[cfg.ground] ?? GROUNDS.oval;
+    this.light = LIGHTS[cfg.light] ?? LIGHTS.midday;
     this.buildGround();
     /** Nets: balls faced or bowled, and how many the coach rated good. */
     this.netsTally = { balls: 0, good: 0 };
@@ -163,7 +165,7 @@ export class MatchScene {
   buildGround() {
     const pitch = this.inn.pitch;
     this.groundWear = Math.floor(pitch.wear * GROUND_WEAR_STEPS);
-    this.groundArt = buildGround(this.ground, this.game.images, pitch);
+    this.groundArt = buildGround(this.ground, this.game.images, pitch, 1, this.light);
   }
 
   nextBall() {

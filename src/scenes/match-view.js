@@ -34,6 +34,7 @@ import {
   drawTinyFigure,
   drawBall,
   drawShadow,
+  setShadowStretch,
   playerKit,
 } from "../render/sprites.js";
 import { drawBooth, boothShowing } from "../render/booth.js";
@@ -54,8 +55,17 @@ const STRIKER_X = -0.14;
 
 export function drawMatch(scene) {
   const tracking = scene.phase === "review" || scene.phase === "appeal" || scene.phase === "decision";
+  setShadowStretch(scene.light.shadow.stretch);
   if ((scene.view === "wide" || scene.phase === "fieldEdit") && !tracking) drawWide(scene);
   else drawClose(scene);
+  // The time of day's colour, over everything on the field (not the scoreboard and panels drawn after).
+  if (scene.light.tint) {
+    ctx.save();
+    ctx.globalCompositeOperation = "multiply";
+    ctx.fillStyle = scene.light.tint;
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    ctx.restore();
+  }
   const effort = scene.cur?.intent.effort ?? scene.effort;
   const label = scene.inn.bowler
     ? `${DELIVERY_NAMES[scene.cur?.intent.type ?? scene.deliveryType]} ${scene.spinner ? SPIN_EFFORT_NAMES[effort] : effort.toUpperCase()}`

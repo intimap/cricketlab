@@ -5,7 +5,7 @@ import { isSpinner, bowlingSpeed } from "./teams.js";
 export const EFFORTS = ["low", "med", "high"];
 const EFFORT_SPEED = { low: 0.93, med: 1, high: 1.055 };
 const EFFORT_SPRAY = { low: 0.8, med: 1, high: 1.4 };
-export const EFFORT_STAMINA = { low: 0.65, med: 1, high: 1.6 };
+export const EFFORT_STAMINA = { low: 0.65, med: 1, high: 2.6 };
 
 export const DELIVERY_NAMES = {
   seam: "SEAM",

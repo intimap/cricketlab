@@ -587,7 +587,12 @@ function drawPanels(scene) {
     const ending = scene.ending;
     drawScorecard(inn, 20, 18, 600, 290, ending.title);
     drawText(ending.sub, WIDTH / 2, 284, { align: "center", color: COLORS.cream });
-    drawText(ending.next ? "ENTER = START THE CHASE" : "ENTER = MENU", WIDTH / 2, 296, { align: "center", color: COLORS.gold });
+    drawText(
+      ending.next ? "ENTER = START THE CHASE" : scene.hasScoreboard ? "ENTER = HIGH SCORES" : "ENTER = MENU",
+      WIDTH / 2,
+      296,
+      { align: "center", color: COLORS.gold },
+    );
   }
 }
 

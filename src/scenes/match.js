@@ -18,11 +18,13 @@ import { boothCall, boothChat, boothJoke } from "../sim/commentators.js";
 import { makeKit } from "../render/sprites.js";
 import { scheduleCalls, boothDuration } from "../render/booth.js";
 import { buildGround } from "../render/ground.js";
-import { GROUNDS } from "../render/grounds.js";
+import { GROUNDS, DEFAULT_GROUND } from "../render/grounds.js";
 import { LIGHTS } from "../render/light.js";
 import { projectWide, unprojectWide } from "../render/camera.js";
 import { drawMatch } from "./match-view.js";
 import { PauseMenu } from "./pause-menu.js";
+import { ScoreboardScene } from "./scoreboard.js";
+import { boardFor, resultEntry } from "../sim/leaderboard.js";
 
 /** Backlift before the downswing, normal and power shots. */
 const BACKLIFT_TIME = 0.07;
@@ -94,7 +96,7 @@ export class MatchScene {
     this.human = this.match.human;
     this.nets = this.match.nets;
     /** The ground's backgrounds, built from its data and the pitch (and rebuilt as it wears). */
-    this.ground = GROUNDS[cfg.ground] ?? GROUNDS.oval;
+    this.ground = GROUNDS[cfg.ground] ?? GROUNDS[DEFAULT_GROUND];
     this.light = LIGHTS[cfg.light] ?? LIGHTS.midday;
     this.buildGround();
     /** Nets: balls faced or bowled, and how many the coach rated good. */
@@ -146,6 +148,11 @@ export class MatchScene {
       sub: good ? "WELL PLAYED!" : good === null ? "WHAT A FINISH!" : "BETTER LUCK NEXT TIME",
       good,
     };
+  }
+
+  /** Does this game's result go on a high-score table (a finished match or Classic Match)? */
+  get hasScoreboard() {
+    return !this.match.hasNextInnings && !!this.match.result && !!boardFor(this.cfg);
   }
 
   setPhase(phase) {
@@ -346,6 +353,8 @@ export class MatchScene {
           if (this.match.hasNextInnings) {
             this.match.nextInnings();
             this.game.scene = new MatchScene(this.game, this.cfg, this.match);
+          } else if (this.hasScoreboard) {
+            this.game.scene = new ScoreboardScene(this.game, this.cfg, resultEntry(this.match));
           } else {
             this.game.toMenu();
           }

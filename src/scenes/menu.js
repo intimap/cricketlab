@@ -5,15 +5,18 @@ import { sfx } from "../engine/audio.js";
 import { load, save } from "../engine/storage.js";
 import { PITCH_TYPES } from "../sim/conditions.js";
 import { FORMATS, CLASSICS, OVERS_CHOICES } from "../sim/formats.js";
-import { GROUNDS } from "../render/grounds.js";
+import { GROUNDS, GROUND_CHOICES, DEFAULT_GROUND } from "../render/grounds.js";
 import { LIGHTS } from "../render/light.js";
 
 const FORMAT_IDS = Object.keys(FORMATS);
 const MODES = ["bat", "bowl"];
 const PITCHES = ["green", "dust", "cracked"];
 const CLASSIC_IDS = CLASSICS.map((c) => c.id);
-const GROUND_IDS = Object.keys(GROUNDS);
+const GROUND_IDS = GROUND_CHOICES;
 const LIGHT_IDS = Object.keys(LIGHTS);
+
+/** The overs a side in the start-up match, the one friends compete on. */
+const DEFAULT_MATCH_OVERS = 10;
 
 const cycle = (list, value, dir) => list[(list.indexOf(value) + dir + list.length) % list.length];
 
@@ -32,14 +35,14 @@ const BOWL_HELP = [
 
 export class Menu {
   sel = 0;
-  /** The last game chosen is remembered. */
+  /** The last game chosen is remembered, except that each visit starts on a 10-over match (see the constructor). */
   cfg = {
-    format: "spell",
+    format: "match",
     mode: "bat",
     pitch: "green",
-    overs: 20,
+    overs: DEFAULT_MATCH_OVERS,
     classic: CLASSIC_IDS[0],
-    ground: GROUND_IDS[0],
+    ground: DEFAULT_GROUND,
     light: LIGHT_IDS[0],
     ...load("menu", {}),
   };
@@ -49,10 +52,14 @@ export class Menu {
 
   constructor(game) {
     this.game = game;
-    if (!FORMATS[this.cfg.format]) this.cfg.format = "spell";
+    if (!FORMATS[this.cfg.format]) this.cfg.format = "match";
     if (!CLASSIC_IDS.includes(this.cfg.classic)) this.cfg.classic = CLASSIC_IDS[0];
-    if (!GROUNDS[this.cfg.ground]) this.cfg.ground = GROUND_IDS[0];
+    if (!GROUND_IDS.includes(this.cfg.ground)) this.cfg.ground = DEFAULT_GROUND;
     if (!LIGHTS[this.cfg.light]) this.cfg.light = LIGHT_IDS[0];
+    // The game opens on the 10-over match everyone's high scores are set in, with START picked.
+    this.cfg.format = "match";
+    this.cfg.overs = DEFAULT_MATCH_OVERS;
+    this.sel = this.rows.findIndex(([key]) => key === "start");
   }
 
   get classic() {
@@ -70,6 +77,7 @@ export class Menu {
         format,
         ["classic", "MATCH", `${this.classic.title}${won[cfg.classic] ? "  WON" : ""}`],
         ["start", "", `START  >     (${done}/${CLASSICS.length} WON)`],
+        ["scores", "", "HIGH SCORES  >"],
       ];
     }
     if (cfg.format === "nets") {
@@ -91,6 +99,7 @@ export class Menu {
       ["light", "LIGHT", LIGHTS[cfg.light].name],
       ["overs", cfg.format === "match" ? "INNINGS" : "SPELL", overs],
       ["start", "", "START  >"],
+      ...(cfg.format === "match" ? [["scores", "", "HIGH SCORES  >"]] : []),
     ];
   }
 
@@ -108,7 +117,7 @@ export class Menu {
     const dir = keys.pressed("ArrowRight") ? 1 : keys.pressed("ArrowLeft") ? -1 : 0;
     const cfg = this.cfg;
     const key = rows[this.sel][0];
-    if (dir && key !== "start") {
+    if (dir && key !== "start" && key !== "scores") {
       sfx.click();
       if (key === "format") {
         cfg.format = cycle(FORMAT_IDS, cfg.format, dir);
@@ -122,7 +131,11 @@ export class Menu {
       if (key === "overs") cfg.overs = cycle(OVERS_CHOICES[cfg.format], cfg.overs, dir);
       if (key === "classic") cfg.classic = cycle(CLASSIC_IDS, cfg.classic, dir);
     }
-    if (keys.pressed("Enter") || (keys.pressed("Space") && key === "start")) {
+    if (key === "scores" && (keys.pressed("Enter") || keys.pressed("Space"))) {
+      save("menu", cfg);
+      sfx.click();
+      this.game.showScores({ ...cfg });
+    } else if (keys.pressed("Enter") || (keys.pressed("Space") && key === "start")) {
       save("menu", cfg);
       this.game.startMatch({ ...cfg });
     }
@@ -140,14 +153,14 @@ export class Menu {
     if (this.sel >= rows.length) this.sel = rows.length - 1;
     drawPanel(130, 98, 380, 132);
     // Rows close up a little when there are more of them.
-    const step = rows.length > 6 ? 14 : 16;
+    const step = rows.length > 7 ? 12 : rows.length > 6 ? 14 : 16;
     rows.forEach(([key, label, value], i) => {
       const y = 110 + i * step;
       const selected = this.sel === i;
       if (selected) fillRect(138, y - 4, 364, step - 1, "#24563a");
       drawText(label, 150, y, { color: COLORS.dim });
       const color = selected ? COLORS.gold : COLORS.cream;
-      if (key !== "start") drawText(`< ${value} >`, 210, y, { color, align: "left" });
+      if (key !== "start" && key !== "scores") drawText(`< ${value} >`, 210, y, { color, align: "left" });
       else drawText(value, 320, y, { color, align: "center" });
     });
     const cfg = this.cfg;

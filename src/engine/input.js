@@ -105,11 +105,3 @@ export function endFrame() {
   mouse.pressed = false;
   mouse.released = false;
 }
-
-/** Compass bearing in degrees of the held arrow keys (0 = up), or null if none. */
-export function arrowBearing() {
-  const dx = (held.has("ArrowRight") ? 1 : 0) - (held.has("ArrowLeft") ? 1 : 0);
-  const dy = (held.has("ArrowUp") ? 1 : 0) - (held.has("ArrowDown") ? 1 : 0);
-  if (!dx && !dy) return null;
-  return (Math.atan2(dx, dy) * 180) / Math.PI;
-}

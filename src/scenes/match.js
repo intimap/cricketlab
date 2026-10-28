@@ -1,5 +1,5 @@
 import { COLORS } from "../engine/screen.js";
-import { keys, mouse, arrowBearing } from "../engine/input.js";
+import { keys, mouse } from "../engine/input.js";
 import { sfx } from "../engine/audio.js";
 import { load, save } from "../engine/storage.js";
 import { clamp } from "../math.js";
@@ -10,7 +10,7 @@ import { PITCH_LENGTH } from "../sim/geometry.js";
 import { EFFORTS, crossingAtZ } from "../sim/delivery.js";
 import { planRunup, meterPos, releaseError, METER_FROM } from "../sim/runup.js";
 import { battingFeedback, bowlingFeedback } from "../sim/coach.js";
-import { CONTACT_Z_FRONT, CONTACT_Z_BACK, SWING_TIME, NORMAL_CHARGE } from "../sim/batting.js";
+import { CONTACT_Z_FRONT, CONTACT_Z_BACK, SWING_TIME, NORMAL_CHARGE, playsBack } from "../sim/batting.js";
 import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from "../sim/field.js";
 import { pickBowler } from "../sim/ai.js";
 import { pickSledges, pickChirp } from "../sim/commentary.js";
@@ -34,7 +34,10 @@ const POWER_CHARGE = 0.95;
 const PLAYER_TIMING_WINDOW = 1.35;
 /** Ball time runs slower while the player is waiting to play a shot. */
 const PLAYER_SLOWMO = 0.8;
+/** Front foot: S drive, W loft. Back foot: Q (cut, punch, pull, hook or glance, as the ball dictates). */
 const SHOT_KEYS = { KeyS: "drive", KeyQ: "cutpull", KeyW: "loft" };
+/** Defence: A forward, D back. */
+const DEFEND_KEYS = { KeyA: "front", KeyD: "back" };
 /** How long the scene lingers after a wicket. */
 const WICKET_PAUSE = 6.5;
 const MAX_SLEDGES = 3;
@@ -561,7 +564,7 @@ export class MatchScene {
       const shot = this.match.aiShot(cur.delivery);
       cur.shot = shot;
       cur.play = this.match.resolve(cur.intent, cur.delivery, shot);
-      const arrive = this.arrival(shot.type);
+      const arrive = this.arrival(shot.type, shot.foot);
       if (shot.type === "defend") cur.defendAt = arrive - 0.25;
       else if (shot.type === "leave") cur.leaveAt = arrive - 0.28;
       else {
@@ -574,15 +577,10 @@ export class MatchScene {
     this.setPhase("flight");
   }
 
-  /** Ball time at which the ball reaches the bat for a given shot. */
-  arrival(shotType) {
+  /** Ball time at which the ball reaches the bat for a given shot (and, for defence, foot). */
+  arrival(shotType, foot = null) {
     const d = this.cur.delivery;
-    const pitchZ = d.pitchedAt?.z ?? 0;
-    const back =
-      shotType === "cutpull" ||
-      shotType === "ramp" ||
-      (shotType === "defend" && pitchZ > 6.8) ||
-      (shotType === "leave" && pitchZ > 7);
+    const back = playsBack(shotType, foot, d.pitchedAt?.z ?? 0);
     return crossingAtZ(d.samples, back ? CONTACT_Z_BACK : CONTACT_Z_FRONT)?.t ?? 0.6;
   }
 
@@ -602,7 +600,9 @@ export class MatchScene {
     for (const [key, type] of Object.entries(SHOT_KEYS)) {
       if (keys.pressed(key) && !cur.shot) this.commitSwing(t, this.shotVariant(type), power);
     }
-    if (keys.pressed("KeyA") && !cur.shot) this.commitDefend(t);
+    for (const [key, foot] of Object.entries(DEFEND_KEYS)) {
+      if (keys.pressed(key) && !cur.shot) this.commitDefend(t, foot);
+    }
     if (cur.delivery && !cur.shot) {
       const arrive = crossingAtZ(cur.delivery.samples, CONTACT_Z_FRONT)?.t ?? 0.6;
       if (t > arrive + 0.05) this.commitLeave();
@@ -630,21 +630,20 @@ export class MatchScene {
       type,
       charge: power ? POWER_CHARGE : NORMAL_CHARGE,
       timingError,
-      aim: arrowBearing(),
       windowMult: PLAYER_TIMING_WINDOW,
     };
     cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);
   }
 
-  commitDefend(t) {
+  commitDefend(t, foot) {
     const cur = this.cur;
-    const arrive = this.arrival("defend");
+    const arrive = this.arrival("defend", foot);
     cur.defendAt = t;
     cur.shot = {
       type: "defend",
+      foot,
       charge: 0,
       timingError: Math.max(0, t + 0.12 - arrive),
-      aim: arrowBearing(),
       windowMult: PLAYER_TIMING_WINDOW,
     };
     cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);
@@ -653,7 +652,7 @@ export class MatchScene {
   commitLeave() {
     const cur = this.cur;
     cur.leaveAt = this.clock();
-    cur.shot = { type: "leave", charge: 0, timingError: 0, aim: null };
+    cur.shot = { type: "leave", charge: 0, timingError: 0 };
     cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);
   }
 

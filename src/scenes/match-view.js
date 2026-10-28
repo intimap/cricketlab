@@ -13,7 +13,7 @@ import {
   lineName,
   movementParts,
 } from "../sim/delivery.js";
-import { SWING_TIME, NORMAL_CHARGE, CONTACT_Z_BACK } from "../sim/batting.js";
+import { SWING_TIME, NORMAL_CHARGE, CONTACT_Z_BACK, playsBack, backFootShot, driveBearing } from "../sim/batting.js";
 import { PRESET_LABELS, keeperSpot } from "../sim/field.js";
 import {
   CLOSE_Y_OFFSET,
@@ -276,15 +276,16 @@ function finishPose(cur, type) {
   if (type === "ramp") return BATTER_POSES.rampEnd;
   if (type === "sweep") return BATTER_POSES.sweepEnd;
   if (type === "reverseSweep") return BATTER_POSES.reverseSweepEnd;
-  if (type === "cutpull") {
-    if (cur.lineAtBat > 0.2) return contact?.shotName === "late cut" ? BATTER_POSES.lateCutEnd : BATTER_POSES.cutEnd;
-    const height = crossingAtZ(cur.delivery.samples, CONTACT_Z_BACK)?.y ?? 0;
-    return height > 1.35 ? BATTER_POSES.hookEnd : BATTER_POSES.pullEnd;
-  }
   const bearing =
-    contact?.kind === "middle"
-      ? (Math.atan2(contact.exit.x, contact.exit.z) * 180) / Math.PI
-      : (cur.shot?.aim ?? clamp(cur.lineAtBat * 75, -50, 70));
+    contact?.kind === "middle" ? (Math.atan2(contact.exit.x, contact.exit.z) * 180) / Math.PI : driveBearing(cur.lineAtBat);
+  if (type === "cutpull") {
+    const at = crossingAtZ(cur.delivery.samples, CONTACT_Z_BACK);
+    const back = backFootShot(at?.x ?? cur.lineAtBat, at?.y ?? 0);
+    if (back === "cut") return contact?.shotName === "late cut" ? BATTER_POSES.lateCutEnd : BATTER_POSES.cutEnd;
+    if (back === "punch") return bearing > 25 ? BATTER_POSES.coverDriveEnd : BATTER_POSES.straightDriveEnd;
+    if (back === "glance") return BATTER_POSES.clipEnd;
+    return (at?.y ?? 0) > 1.35 ? BATTER_POSES.hookEnd : BATTER_POSES.pullEnd;
+  }
   if (type === "loft") return bearing < -35 ? BATTER_POSES.slogEnd : BATTER_POSES.loftEnd;
   if (bearing < -60) return BATTER_POSES.clipEnd;
   if (bearing < -15) return BATTER_POSES.onDriveEnd;
@@ -303,7 +304,7 @@ function drawStriker(scene) {
   const ready = readyPose(scene, cur, t);
   let pose = ready;
   if (cur) {
-    const arrive = cur.delivery ? scene.arrival(cur.swingType ?? cur.shot?.type ?? "drive") : 0.6;
+    const arrive = cur.delivery ? scene.arrival(cur.swingType ?? cur.shot?.type ?? "drive", cur.shot?.foot) : 0.6;
     // Reach towards the line of the ball.
     const reach = clamp((projectFromStriker(cur.lineAtBat, 0, 1.9).x - (x + 12)) * 0.8, -8, 26);
     let shotDoneAt = null;
@@ -330,7 +331,8 @@ function drawStriker(scene) {
         easeOut((t - cur.backliftAt) / Math.max(0.01, cur.swingAt - cur.backliftAt)),
       );
     } else if (cur.defendAt !== null && t >= cur.defendAt) {
-      const block = (cur.delivery?.pitchedAt?.z ?? 5) > 6.8 ? BATTER_POSES.defendBack : BATTER_POSES.defendFront;
+      const back = playsBack("defend", cur.shot?.foot, cur.delivery?.pitchedAt?.z ?? 5);
+      const block = back ? BATTER_POSES.defendBack : BATTER_POSES.defendFront;
       pose = lerpPose(ready, block, easeOut((t - cur.defendAt) / 0.09));
       pose = { ...pose, px: pose.px + reach * clamp((t - cur.defendAt) / 0.15) };
       shotDoneAt = cur.defendAt + 0.3;

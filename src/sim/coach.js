@@ -18,16 +18,18 @@ const LENGTH_MISS = 1;
 const LINE_MISS = 0.15;
 
 const SHOT_NAMES = {
-  drive: "DRIVE (S)",
-  cutpull: "CUT / PULL (Q)",
+  drive: "FRONT-FOOT DRIVE (S)",
+  cutpull: "BACK-FOOT SHOT (Q)",
   loft: "LOFT (W)",
-  defend: "DEFEND (A)",
+  defend: "FORWARD DEFENCE (A)",
+  defendBack: "BACK-FOOT DEFENCE (D)",
   leave: "LEAVE",
   ramp: "RAMP",
   sweep: "SWEEP",
   reverseSweep: "REVERSE SWEEP",
 };
-const CHOICES = ["drive", "cutpull", "loft", "defend", "leave"];
+/** The main options; "defendBack" is defence on the back foot. */
+const CHOICES = ["drive", "cutpull", "loft", "defend", "defendBack", "leave"];
 const ms = (s) => `${Math.round(Math.abs(s) * 1000)} MS`;
 const kmh = (d) => Math.round(d.speed * 3.6);
 
@@ -71,7 +73,8 @@ function contactText(rec) {
 /** Feedback for the player's batting: the ball, the shot, timing, choice and a tip. */
 export function battingFeedback({ delivery, shot, rec, spinner }) {
   const lines = [describeDelivery(delivery, spinner)];
-  const type = shot?.type ?? "leave";
+  // Defence is told apart by its foot.
+  const type = shot?.type === "defend" && shot.foot === "back" ? "defendBack" : (shot?.type ?? "leave");
   const at = crossingAtZ(delivery.samples, CONTACT_Z_FRONT);
   const height = at?.y ?? 0.6;
   const line = at?.x ?? delivery.intent.line;
@@ -87,15 +90,22 @@ export function battingFeedback({ delivery, shot, rec, spinner }) {
   }
 
   // Was it the right shot? Compare with the best of the main options.
-  const suit = (t) => (t === "leave" ? (Math.abs(line) > 0.3 ? 0.9 : 0.2) : shotSuitability(t, height, pitchZ, line, spinner));
+  const suit = (t) =>
+    t === "leave"
+      ? Math.abs(line) > 0.3
+        ? 0.9
+        : 0.2
+      : t.startsWith("defend")
+        ? shotSuitability("defend", height, pitchZ, line, spinner, t === "defendBack" ? "back" : "front")
+        : shotSuitability(t, height, pitchZ, line, spinner);
   const best = CHOICES.reduce((a, b) => (suit(b) > suit(a) ? b : a));
   const gap = suit(best) - suit(type);
   const goodChoice = gap < CHOICE_GAP;
   lines.push(goodChoice ? "SHOT CHOICE: GOOD" : `SHOT CHOICE: ${SHOT_NAMES[best]} WAS THE PERCENTAGE PLAY`);
 
   let tip = "";
-  if (!goodChoice && pitchZ > 8) tip = "SHORT BALL: ROCK BACK AND CUT OR PULL (Q), OR LEAVE IT.";
-  else if (!goodChoice && pitchZ < 4.5) tip = "PITCHED UP: GET FORWARD AND DRIVE (S).";
+  if (!goodChoice && pitchZ > 8) tip = "SHORT BALL: GET ON THE BACK FOOT. ATTACK IT (Q), DEFEND IT (D), OR LEAVE IT.";
+  else if (!goodChoice && pitchZ < 4.5) tip = "PITCHED UP: GET ON THE FRONT FOOT. DRIVE IT (S) OR BLOCK IT (A).";
   else if (!goodChoice && Math.abs(line) > 0.35) tip = "WELL OUTSIDE OFF: LEAVE IT, OR CUT IF IT'S SHORT.";
   else if (shot && !timingGood && Math.abs(shot.timingError) > TIMING_BAD) {
     tip =

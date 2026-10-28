@@ -38,6 +38,7 @@ import {
   playerKit,
 } from "../render/sprites.js";
 import { drawBooth, boothShowing } from "../render/booth.js";
+import { drawScoreboard } from "../render/scoreboard.js";
 import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import { HUD_Y, staminaColor, drawScoreBar, drawMiniMap, drawBanners, drawScorecard, drawSpeechBubble } from "../render/hud.js";
 
@@ -84,6 +85,7 @@ function drawClose(scene) {
   setCloseEnd(scene.closeEnd === "bowl");
   const fromBowler = closeFromBowlerEnd();
   ctx.drawImage(scene.groundArt.close, 0, CLOSE_Y_OFFSET, WIDTH, HEIGHT);
+  drawScoreboard(scene, scene.ground.close.scoreboard, CLOSE_Y_OFFSET);
   const cur = scene.cur;
   const inn = scene.inn;
   const live = cur?.play?.live;
@@ -384,6 +386,7 @@ function drawTarget(scene) {
 
 function drawWide(scene) {
   ctx.drawImage(scene.groundArt.wide, 0, 0, WIDTH, HEIGHT);
+  drawScoreboard(scene, scene.ground.wide.scoreboard);
   const inn = scene.inn;
   const cur = scene.cur;
   const live = cur?.play?.live;

@@ -37,6 +37,8 @@ export const GROUNDS = {
       // The strip as painted from up here (px): half its width at the far and near ends,
       // the worn rim round it, and how tall the stumps stand.
       pitch: { halfFar: 18, halfNear: 21, rim: 6, stumps: 9 },
+      // The painted scoreboard's face, where the live score goes (scoreboard.js); rows for each line.
+      scoreboard: { x: 527, y: 72, w: 57, h: 28, face: "#232323", lines: [76, 83, 90] },
     },
   },
 };
@@ -58,6 +60,8 @@ function parklands(name, fence) {
         { image: "close/stands", y: 58 },
         { image: `close/${fence}`, y: 112 },
       ],
+      // The big screen between the stands (in the painting's rows; its foot is behind the fence).
+      scoreboard: { x: 290, y: 76, w: 60, h: 36, face: "#3b4046", big: true, lines: [78, 87, 96, 105] },
     },
     wide: {
       ...oval.wide,
@@ -69,6 +73,8 @@ function parklands(name, fence) {
         { image: "wide/stands", y: 51 },
         { image: `wide/${fence}`, y: 93 },
       ],
+      // The scoreboard in the stands, below its clock.
+      scoreboard: { x: 527, y: 63, w: 55, h: 22, face: "#1c2b25", lines: [64, 71, 78] },
       // Grass is drawn from here down, outside the rope too.
       groundFrom: 107,
       // Trees in the near corners, over the edge of the field.

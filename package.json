@@ -1,0 +1,9 @@
+{
+  "name": "cricketlab",
+  "private": true,
+  "type": "module",
+  "description": "The game itself needs no packages; this is for the Netlify Function behind /api/scores.",
+  "dependencies": {
+    "@netlify/blobs": "10.7.13"
+  }
+}

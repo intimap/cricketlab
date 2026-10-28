@@ -18,6 +18,10 @@ export const NAME_MAX = 15;
 /** Characters a name may use: what the pixel font draws. */
 export const NAME_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .-'!&";
 
+/** Table names (boardFor) and entry ids, as anything that stores scores accepts them. */
+export const BOARD_PATTERN = /^(match-\d{1,2}|classic-[A-Za-z0-9]{1,24})$/;
+export const ID_PATTERN = /^[a-z0-9-]{1,40}$/;
+
 /** Uppercase, drop anything the font can't draw, at most NAME_MAX characters. */
 export function cleanName(text) {
   return [...String(text ?? "").toUpperCase()]
@@ -87,7 +91,8 @@ export function validEntry(raw) {
   const at = Number(raw.at);
   if (!name || !Number.isFinite(rank) || !Number.isFinite(at) || typeof raw.board !== "string") return null;
   const short = (s, n) => cleanText(s).slice(0, n);
-  return { board: raw.board, name, rank, at, text: short(raw.text, 30), score: short(raw.score, 16), id: raw.id };
+  const id = typeof raw.id === "string" && ID_PATTERN.test(raw.id) ? raw.id : null;
+  return { board: raw.board, name, rank, at, text: short(raw.text, 30), score: short(raw.score, 16), id };
 }
 
 function cleanText(s) {

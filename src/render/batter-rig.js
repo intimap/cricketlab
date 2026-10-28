@@ -26,9 +26,10 @@ export const BONES = { thigh: 22, shin: 23, upperArm: 19, forearm: 18, handle: 4
  * Range of motion, as it shows in the picture (degrees).
  *   elbow: bend from straight (it never bends backwards);
  *   wrist: the bat off the line of the front forearm, cocked back or rolled through;
- *   knee: bend from straight (deep: down on one knee for a sweep needs it).
+ *   knee: bend from straight (deep: down on one knee for a sweep needs it);
+ *   twist: the shoulders turned against the hips (the spine's rotation at the waist).
  */
-export const LIMITS = { elbow: 145, wrist: 95, knee: 150 };
+export const LIMITS = { elbow: 145, wrist: 95, knee: 150, twist: 45 };
 
 /**
  * The front arm's shoulder angle is kept in this range, so blending two poses
@@ -97,14 +98,19 @@ function bend(a, mid, b) {
 
 /**
  * The body from the pose's stance fields: step (front foot forward), back
- * (weight back, back foot back and across), lean, turn (hips and shoulders
- * opened up, 0 side-on to 1 square), drop (crouch), reach (towards the line).
+ * (weight back, back foot back and across), lean (bending forward at the
+ * waist), hips and turn (the hips' and the shoulders' turn, 0 side-on to 1
+ * square to the bowler, a quarter turn; below 0 coiled closed), drop
+ * (crouch), reach (towards the line). The shoulders can only twist so far
+ * against the hips (LIMITS.twist).
  */
 function body(p) {
   const step = p.step ?? 0;
   const back = p.back ?? 0;
   const lean = p.lean ?? 0;
-  const turn = p.turn ?? 0;
+  const hipTurn = p.hips ?? p.turn ?? 0;
+  const twistLimit = LIMITS.twist / 90;
+  const turn = clamp(p.turn ?? 0, hipTurn - twistLimit, hipTurn + twistLimit);
   const drop = p.drop ?? 0;
   const reach = p.reach ?? 0;
   const frontLift = -7 * step + 3 * back;
@@ -117,8 +123,9 @@ function body(p) {
   // A long stride lowers him into it (the front knee bends), as well as carrying the hips forward.
   const lunge = clamp01((step - 0.3) / 1.4);
   const pelvis = { x: 1 + lean * 0.5 + 2 * back + reach * 0.25, y: -44 + drop + frontLift * 0.5 + back + LUNGE_DROP * lunge };
-  const backHip = { x: pelvis.x - 2.5 - 1.5 * turn, y: pelvis.y };
-  const frontHip = { x: pelvis.x + 3 + 1.5 * turn, y: pelvis.y - 2 * (1 - turn) };
+  // The hips turn on their own: opening up spreads them across the screen.
+  const backHip = { x: pelvis.x - 2.5 - 1.5 * hipTurn, y: pelvis.y };
+  const frontHip = { x: pelvis.x + 3 + 1.5 * hipTurn, y: pelvis.y - 2 * (1 - hipTurn) };
   // Knees bend towards the off side, where he faces; down low for a sweep, the back knee goes to the turf.
   const offSide = (a, b) => (a.x > b.x ? a : b);
   const backKnee = joint(backHip, backFoot, BONES.thigh, BONES.shin, (a, b) =>
@@ -139,8 +146,10 @@ function body(p) {
   const frontKnee = kneeAt(plant);
   // On a big stride the back heel comes up, the weight going on to the front foot.
   const heel = (1 - kneel) * clamp01((step - 0.9) / 0.8);
-  // Leaning tips the spine forward over the ball, bringing the shoulders down as well as across.
-  const chest = { x: pelvis.x + lean * 0.9 + reach * 0.5, y: pelvis.y - 29 + Math.abs(lean) * 0.55 };
+  // The spine in two: pelvis to waist, then waist to chest. Leaning bends it forward at the waist,
+  // over the ball, bringing the shoulders down as well as across.
+  const waist = { x: pelvis.x + lean * 0.35, y: pelvis.y - 9 + Math.abs(lean) * 0.2 };
+  const chest = { x: waist.x + lean * 0.55 + reach * 0.5, y: waist.y - 20 + Math.abs(lean) * 0.35 };
   // Shoulders side-on: the right one near us, the left one pointing down the pitch.
   // Leaning into a drive dips the front shoulder; opening up squares them across the screen.
   const span = 7 + 2.5 * turn;
@@ -152,6 +161,7 @@ function body(p) {
     backFoot,
     frontFoot,
     pelvis,
+    waist,
     backHip,
     frontHip,
     backKnee,
@@ -162,6 +172,7 @@ function body(p) {
     frontShoulder,
     head,
     turn,
+    hipTurn,
     lean,
   };
 }
@@ -201,6 +212,7 @@ export function solvePose(target) {
     back: target.back ?? 0,
     drop: target.drop ?? 0,
     turn: target.turn ?? 0,
+    hips: target.hips ?? target.turn ?? 0,
     plane: target.plane ?? BAT_PLANE,
     reach: 0,
   };
@@ -248,6 +260,8 @@ export function solvePose(target) {
 export function blendPoses(a, b, t, opts = {}) {
   const k = clamp01(t);
   const kw = opts.wrist === undefined ? k : clamp01(opts.wrist);
+  // The hips can lead the shoulders (opts.hips: their own progress), as they do into a shot.
+  const kh = opts.hips === undefined ? k : clamp01(opts.hips);
   const mix = (f, d = 0) => (a[f] ?? d) + ((b[f] ?? d) - (a[f] ?? d)) * k;
   return {
     step: mix("step"),
@@ -255,6 +269,7 @@ export function blendPoses(a, b, t, opts = {}) {
     back: mix("back"),
     drop: mix("drop"),
     turn: mix("turn"),
+    hips: (a.hips ?? a.turn ?? 0) + ((b.hips ?? b.turn ?? 0) - (a.hips ?? a.turn ?? 0)) * kh,
     reach: mix("reach"),
     plane: mix("plane", BAT_PLANE),
     // The front arm keeps to its range (see FRONT_ARM_FROM), so this is a plain blend.
@@ -323,6 +338,7 @@ export function rigPose(pose, front = false) {
       wrist: Math.abs(wrist),
       frontKnee: bend(b.frontHip, b.frontKnee, b.frontFoot),
       backKnee: bend(b.backHip, b.backKnee, b.backFoot),
+      twist: Math.abs(b.turn - b.hipTurn) * 90,
     },
   };
 }

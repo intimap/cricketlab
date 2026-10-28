@@ -48,7 +48,8 @@ const CONTACT_HOLD = 0.035;
 /**
  * The downswing accelerates into contact (arms eased in by this power: gentler than squaring,
  * which kept the peak speed nearer a person's in the game's short swing), and the wrists stay
- * cocked and uncock late (they ease in WRIST_LAG times harder).
+ * cocked and uncock late (they ease in WRIST_LAG times harder). The body moves in order, as a
+ * batter's does: the hips lead (eased out: they open first), then shoulders and arms, then wrists.
  */
 const DOWNSWING_EASE = 1.5;
 const WRIST_LAG = 1.8;
@@ -341,7 +342,7 @@ function drawStriker(scene) {
       const after = t - cur.swingAt - SWING_TIME[type] - CONTACT_HOLD;
       if (k < 1) {
         const arms = clamp(k) ** DOWNSWING_EASE;
-        pose = lerpPose(top, contact, arms, { wrist: arms ** WRIST_LAG });
+        pose = lerpPose(top, contact, arms, { wrist: arms ** WRIST_LAG, hips: easeOut(k) });
       } else if (after < 0) pose = contact;
       else pose = followThrough(contact, finishPose(cur, type), after / FOLLOW_THROUGH_TIME);
       // Moving into the line of the ball is the body's job: it shifts across, the arms go with it.

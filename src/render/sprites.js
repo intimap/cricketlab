@@ -310,10 +310,13 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   const near = Math.max(0, towardCamera);
   const topHand = { x: pose.px, y: pose.py + frontLift * 0.5 };
   const bottomHand = { x: topHand.x + dir.x * 4.5, y: topHand.y + dir.y * 4.5 };
-  // Elbows hang below the line from shoulder to hand.
+  // A right-hander: the front (left) arm holds the top of the handle, the back (right) arm the bottom.
+  // The front arm comes across in front of the body with its elbow up and out towards the
+  // off side (the high front elbow); the back elbow tucks in, hanging below its arm.
   const lower = (p, q) => (p.y > q.y ? p : q);
-  const backElbow = joint(backShoulder, topHand, UPPER_ARM, FOREARM, lower);
-  const frontElbow = joint(frontShoulder, bottomHand, UPPER_ARM, FOREARM, lower);
+  const leading = (p, q) => (p.x - 0.4 * p.y > q.x - 0.4 * q.y ? p : q);
+  const frontElbow = joint(frontShoulder, topHand, UPPER_ARM, FOREARM, leading);
+  const backElbow = joint(backShoulder, bottomHand, UPPER_ARM, FOREARM, lower);
 
   // --- Flesh and kit ---
   groundShadow(x + (backFoot.x + 2) * scale, y - 2 * scale, 13 * scale, 4.5 * scale, 0.28);
@@ -449,8 +452,9 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
       fillCircle(w.x, w.y, 3.2 * scale, kit.cap2);
     }
   };
-  arm(backShoulder, backElbow, topHand);
-  arm(frontShoulder, frontElbow, bottomHand);
+  // The front arm across the front of the body, then the near (back) arm over it.
+  arm(frontShoulder, frontElbow, topHand);
+  arm(backShoulder, backElbow, bottomHand);
 
   // Bat: handle then blade, the blade widening towards the toe as it comes nearer the camera.
   const shoulder = { x: topHand.x + dir.x * 9, y: topHand.y + dir.y * 9 };
@@ -499,8 +503,8 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   if (near > 0.4) fillCircle(at(toe).x, at(toe).y, toeWidth * 0.8 * scale, BAT_EDGE);
   // Gloves: padded white with a team-coloured cuff towards the wrist, and shaded finger rolls.
   for (const [g, elbow] of [
-    [topHand, backElbow],
-    [bottomHand, frontElbow],
+    [topHand, frontElbow],
+    [bottomHand, backElbow],
   ]) {
     const p = at(g);
     const e = at(elbow);

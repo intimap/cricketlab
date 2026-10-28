@@ -44,6 +44,8 @@ export class Menu {
     ...load("menu", {}),
   };
   t = 0;
+  /** Which on-screen buttons a touch screen shows (engine/touch.js). */
+  touchMode = "menu";
 
   constructor(game) {
     this.game = game;

@@ -1,6 +1,7 @@
 import { WIDTH, HEIGHT, COLORS, initScreen, present, toGameCoords, fillRect } from "./engine/screen.js";
 import { drawText } from "./engine/text.js";
 import { initInput, keys, endFrame } from "./engine/input.js";
+import { initTouch } from "./engine/touch.js";
 import { unlockAudio, toggleMute } from "./engine/audio.js";
 import { loadAssets } from "./assets.js";
 import { Menu } from "./scenes/menu.js";
@@ -53,6 +54,7 @@ class Game {
   async boot(container) {
     const screen = initScreen(container);
     initInput(screen, toGameCoords, unlockAudio);
+    const touch = initTouch();
     fillRect(0, 0, WIDTH, HEIGHT, COLORS.green);
     drawText("LOADING...", WIDTH / 2, HEIGHT / 2, { align: "center" });
     present();
@@ -69,6 +71,7 @@ class Game {
       last = now;
       if (keys.pressed("KeyM")) toggleMute();
       this.scene.update(dt);
+      touch(this.scene.touchMode);
       this.scene.draw();
       present();
       endFrame();

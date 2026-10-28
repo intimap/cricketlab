@@ -157,6 +157,11 @@ export class MatchScene {
     return this.match.inn;
   }
 
+  /** Which on-screen buttons a touch screen shows (engine/touch.js): the pause menu's, or batting or bowling. */
+  get touchMode() {
+    return this.phase === "pause" ? "menu" : this.human;
+  }
+
   get spinner() {
     return isSpinner(this.inn.bowler?.p.bowl);
   }

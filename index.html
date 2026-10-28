@@ -2,7 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>Cricket Lab</title>
     <style>
       /* One-screen arcade cabinet: the game canvas fills the frame, a slim key strip sits underneath. */
@@ -61,21 +62,20 @@
         color: var(--gold);
         font-weight: 600;
       }
-      .touch {
-        display: none;
-        color: var(--cream);
+      /* On a touch screen the on-screen buttons (src/engine/touch.js) take the key strip's place. */
+      .touch-device body {
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
       }
-      @media (pointer: coarse) and (hover: none) {
-        .touch {
-          display: inline;
-        }
+      .touch-device .keys {
+        display: none;
       }
     </style>
   </head>
   <body>
     <div id="game"></div>
     <div class="keys" aria-label="Controls">
-      <span class="touch">Cricket Lab needs a keyboard, so play it on a computer.</span>
       <span><b>Click the game</b>, then <b>Enter</b> to start</span>
       <span><b>Esc</b> menu &amp; instructions</span>
     </div>

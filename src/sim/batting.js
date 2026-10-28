@@ -6,17 +6,66 @@ import { simulateFlight, crossingAtZ, sampleAtTime, hitsStumps, isWide } from ".
 export const CONTACT_Z_FRONT = 1.95;
 export const CONTACT_Z_BACK = 0.85;
 
-/** Seconds from starting the downswing to the bat reaching the ball. */
+/** Seconds from starting the downswing to the bat reaching the ball: a person's speed. */
 export const SWING_TIME = {
-  drive: 0.085,
-  cutpull: 0.075,
-  loft: 0.1,
-  ramp: 0.07,
-  sweep: 0.09,
-  reverseSweep: 0.1,
-  defend: 0.12,
+  drive: 0.16,
+  cutpull: 0.14,
+  loft: 0.18,
+  ramp: 0.12,
+  sweep: 0.16,
+  reverseSweep: 0.17,
+  defend: 0.2,
   leave: 0,
 };
+
+/**
+ * The player picks the shot while the ball is in flight, and the batter plays it: his trigger,
+ * backlift and swing, at a person's speed, timed to meet the ball. The skill is in when you
+ * commit (seconds before the ball reaches the bat, the "lead"):
+ *   - the ideal lead is about the time it takes to play the shot, around when the ball pitches
+ *     (a quick is read before it bounces, a spinner nearer the bounce);
+ *   - commit early and he's guessing: he plays it off his read at that moment, so late swing,
+ *     seam or turn can beat him;
+ *   - commit late and he's rushed: a cut-short backlift and a late bat.
+ * The window either side of ideal widens with his timing and how settled he is.
+ */
+export const COMMIT = {
+  /** The ideal lead, between these (s). */
+  idealMin: 0.24,
+  idealMax: 0.38,
+  /** Half-width of the good window (s), for an average batter. */
+  window: 0.07,
+  /** Late beyond the window: the bat arrives this much late per second rushed. */
+  rush: 0.45,
+  /** Early beyond the window by this much (s) and he can barely adjust to the ball at all. */
+  earlyFade: 0.25,
+  /** Undecided this close to the ball (s): he leaves it. */
+  lastCall: 0.08,
+};
+
+/** The ideal moment to commit to a shot (seconds before contact at `arrive`): around the bounce. */
+export function idealCommitLead(d, arrive) {
+  const bounce = d.bounceIndex >= 0 ? d.samples[d.bounceIndex].t : arrive;
+  return clamp(arrive - bounce, COMMIT.idealMin, COMMIT.idealMax);
+}
+
+/**
+ * How a shot committed `lead` seconds before contact is played: { timingError (s, + late),
+ * readLead (he plays off his read this long before contact; null if he read it in time),
+ * early (s beyond the window), verdict "early" | "good" | "rushed", off (lead - ideal) }.
+ */
+export function committedTiming(lead, ideal, bat, state, rng) {
+  const window = COMMIT.window * (0.7 + 0.6 * bat.timing) * (0.85 + 0.3 * state.settled);
+  const off = lead - ideal;
+  // The batter's own execution varies a little, whatever the decision.
+  let timingError = rng.normal(0, 0.006 + 0.01 * (1 - bat.timing));
+  if (off < -window) {
+    timingError += (-off - window) * COMMIT.rush;
+    return { timingError, readLead: null, early: 0, verdict: "rushed", off };
+  }
+  if (off > window) return { timingError, readLead: lead, early: off - window, verdict: "early", off };
+  return { timingError, readLead: null, early: 0, verdict: "good", off };
+}
 
 const isSweep = (type) => type === "sweep" || type === "reverseSweep";
 /** Extra vertical bat error (m) when hooking a ball above the shoulder: top edges and gloves. */
@@ -333,12 +382,16 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
 
   // The batter commits from an early read and adjusts with a later one.
   const react = reactionTime(bat, state, spinner, d.speed);
-  const earlyRead = clamp(react + 0.13 + (spinner ? 0.05 * (1 - bat.footwork) : 0), 0.15, 0.42);
+  // Committed early (the player's shot): he plays off his read at that moment, and can barely adjust.
+  const earlyRead = Math.max(clamp(react + 0.13 + (spinner ? 0.05 * (1 - bat.footwork) : 0), 0.15, 0.42), shot.readLead ?? 0);
   const late = expectedAt(d, at.t - react, at.z, bat) ?? at;
   const early = expectedAt(d, at.t - earlyRead, at.z, bat) ?? late;
-  const adjust = spinner
-    ? clamp(0.42 + 0.25 * bat.technique + 0.1 * state.settled + 0.15 * bat.vsSpin + 0.05 * bat.footwork, 0, 0.95)
-    : clamp(0.55 + 0.3 * bat.technique + 0.1 * state.settled + 0.05 * bat.vsPace, 0, 0.95);
+  const guessed = clamp(1 - (shot.early ?? 0) / COMMIT.earlyFade, 0.2, 1);
+  const adjust =
+    guessed *
+    (spinner
+      ? clamp(0.42 + 0.25 * bat.technique + 0.1 * state.settled + 0.15 * bat.vsSpin + 0.05 * bat.footwork, 0, 0.95)
+      : clamp(0.55 + 0.3 * bat.technique + 0.1 * state.settled + 0.05 * bat.vsPace, 0, 0.95));
   const aimX = late.x + (early.x - late.x) * (1 - adjust);
   const aimY = late.y + (early.y - late.y) * (1 - adjust);
   const wrong = wrongFoot(shot.type, footBack, pitchZ, bat.footwork);

@@ -42,7 +42,7 @@ import { drawBooth, boothShowing } from "../render/booth.js";
 import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import { HUD_Y, staminaColor, drawScoreBar, drawMiniMap, drawBanners, drawScorecard, drawSpeechBubble } from "../render/hud.js";
 
-const FOLLOW_THROUGH_TIME = 0.26;
+const FOLLOW_THROUGH_TIME = 0.42;
 /** The bat stays at the moment of impact this long (s) before the follow-through. */
 const CONTACT_HOLD = 0.035;
 /**
@@ -357,7 +357,7 @@ function drawStriker(scene) {
     } else if (cur.defendAt !== null && t >= cur.defendAt) {
       const back = playsBack("defend", cur.shot?.foot, cur.delivery?.pitchedAt?.z ?? 5);
       const block = back ? BATTER_POSES.defendBack : BATTER_POSES.defendFront;
-      pose = lerpPose(ready, block, easeOut((t - cur.defendAt) / 0.09));
+      pose = lerpPose(ready, block, easeOut((t - cur.defendAt) / 0.18));
       pose = { ...pose, reach: reach * clamp((t - cur.defendAt) / 0.15) };
       shotDoneAt = cur.defendAt + 0.3;
     } else if (cur.leaveAt !== null && t >= cur.leaveAt) {

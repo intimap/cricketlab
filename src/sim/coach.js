@@ -82,8 +82,19 @@ export function battingFeedback({ delivery, shot, rec, spinner }) {
 
   lines.push(`YOUR SHOT: ${SHOT_NAMES[type] ?? type.toUpperCase()} - ${contactText(rec)}`);
 
+  // The player's decision: when they committed, against the ideal (see COMMIT in batting.js).
   let timingGood = true;
-  if (shot && type !== "leave") {
+  const commit = shot?.commit;
+  if (shot && type !== "leave" && commit) {
+    timingGood = commit.verdict === "good";
+    lines.push(
+      commit.verdict === "good"
+        ? "DECISION: SPOT ON - PICKED IT AS IT PITCHED"
+        : commit.verdict === "early"
+          ? `DECISION: ${ms(commit.off)} EARLY - GUESSED BEFORE YOU'D READ IT`
+          : `DECISION: ${ms(commit.off)} LATE - RUSHED INTO IT`,
+    );
+  } else if (shot && type !== "leave") {
     const err = shot.timingError ?? 0;
     timingGood = Math.abs(err) <= TIMING_PERFECT;
     lines.push(timingGood ? "TIMING: PERFECT" : `TIMING: ${ms(err)} ${err > 0 ? "LATE" : "EARLY"}`);
@@ -107,6 +118,8 @@ export function battingFeedback({ delivery, shot, rec, spinner }) {
   if (!goodChoice && pitchZ > 8) tip = "SHORT BALL: GET ON THE BACK FOOT. ATTACK IT (Q), DEFEND IT (D), OR LEAVE IT.";
   else if (!goodChoice && pitchZ < 4.5) tip = "PITCHED UP: GET ON THE FRONT FOOT. DRIVE IT (S) OR BLOCK IT (A).";
   else if (!goodChoice && Math.abs(line) > 0.35) tip = "WELL OUTSIDE OFF: LEAVE IT, OR CUT IF IT'S SHORT.";
+  else if (commit && commit.verdict === "rushed") tip = "PICK YOUR SHOT SOONER: AS THE BALL PITCHES, NOT AS IT ARRIVES.";
+  else if (commit && commit.verdict === "early") tip = "WAIT A FRACTION: SEE IT PITCH, THEN CHOOSE.";
   else if (shot && !timingGood && Math.abs(shot.timingError) > TIMING_BAD) {
     tip =
       shot.timingError > 0
@@ -117,7 +130,10 @@ export function battingFeedback({ delivery, shot, rec, spinner }) {
   else if (goodChoice && timingGood) tip = "TEXTBOOK. DO THAT AGAIN.";
 
   const good = !rec.wicket && goodChoice && (timingGood || type === "leave") && rec.contact !== "none";
-  const poor = !!rec.wicket || (!goodChoice && rec.contact === "none") || (shot && Math.abs(shot.timingError ?? 0) > TIMING_BAD);
+  const poor =
+    !!rec.wicket ||
+    (!goodChoice && rec.contact === "none") ||
+    (shot && (commit ? commit.verdict !== "good" && rec.contact === "none" : Math.abs(shot.timingError ?? 0) > TIMING_BAD));
   if (tip) lines.push(`COACH: ${tip}`);
   return { title: resultText(rec), lines, grade: good ? "good" : poor ? "poor" : "ok" };
 }

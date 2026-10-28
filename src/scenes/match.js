@@ -10,7 +10,16 @@ import { PITCH_LENGTH } from "../sim/geometry.js";
 import { EFFORTS, crossingAtZ } from "../sim/delivery.js";
 import { planRunup, meterPos, releaseError, METER_FROM } from "../sim/runup.js";
 import { battingFeedback, bowlingFeedback } from "../sim/coach.js";
-import { CONTACT_Z_FRONT, CONTACT_Z_BACK, SWING_TIME, NORMAL_CHARGE, playsBack } from "../sim/batting.js";
+import {
+  CONTACT_Z_FRONT,
+  CONTACT_Z_BACK,
+  SWING_TIME,
+  NORMAL_CHARGE,
+  COMMIT,
+  playsBack,
+  idealCommitLead,
+  committedTiming,
+} from "../sim/batting.js";
 import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from "../sim/field.js";
 import { pickBowler } from "../sim/ai.js";
 import { pickSledges, pickChirp } from "../sim/commentary.js";
@@ -27,8 +36,12 @@ import { ScoreboardScene } from "./scoreboard.js";
 import { boardFor, resultEntry } from "../sim/leaderboard.js";
 
 /** Backlift before the downswing, normal and power shots. */
-const BACKLIFT_TIME = 0.07;
-const POWER_BACKLIFT_TIME = 0.2;
+const BACKLIFT_TIME = 0.15;
+const POWER_BACKLIFT_TIME = 0.22;
+/** A rushed backlift is cut short, but never to less than this (s). */
+const MIN_BACKLIFT = 0.04;
+/** Defence: the bat comes down to meet the ball this long (s) before it arrives. */
+const DEFENCE_TIME = 0.25;
 const POWER_CHARGE = 0.95;
 /** The player's timing window is wider than the AI's. */
 const PLAYER_TIMING_WINDOW = 1.35;
@@ -604,8 +617,9 @@ export class MatchScene {
       if (keys.pressed(key) && !cur.shot) this.commitDefend(t, foot);
     }
     if (cur.delivery && !cur.shot) {
+      // Still undecided with the ball nearly on him: he lets it go.
       const arrive = crossingAtZ(cur.delivery.samples, CONTACT_Z_FRONT)?.t ?? 0.6;
-      if (t > arrive + 0.05) this.commitLeave();
+      if (t > arrive - COMMIT.lastCall) this.commitLeave();
     }
   }
 
@@ -619,17 +633,37 @@ export class MatchScene {
     return type;
   }
 
+  /** How the batter plays a shot committed at ball time t: see COMMIT in batting.js. */
+  commitTiming(t, type, foot = null) {
+    const inn = this.inn;
+    const arrive = this.arrival(type, foot);
+    const lead = arrive - t;
+    const timing = committedTiming(
+      lead,
+      idealCommitLead(this.cur.delivery, arrive),
+      inn.bat[inn.striker].p.bat,
+      inn.batterState(inn.striker),
+      this.match.rng,
+    );
+    return { arrive, lead, timing };
+  }
+
   commitSwing(t, type, power) {
     const cur = this.cur;
+    const { arrive, lead, timing } = this.commitTiming(t, type);
+    // He plays it himself, timed to the ball: the swing starts so the bat arrives on time (give or
+    // take his timing), the backlift before it, cut short if he's been left rushing.
     cur.swingType = type;
-    cur.backliftAt = t;
-    cur.swingAt = t + (power ? POWER_BACKLIFT_TIME : BACKLIFT_TIME);
-    const timingError = cur.swingAt + SWING_TIME[type] - this.arrival(type);
+    cur.swingAt = Math.max(t + MIN_BACKLIFT, arrive - SWING_TIME[type] + timing.timingError);
+    cur.backliftAt = Math.max(t, cur.swingAt - (power ? POWER_BACKLIFT_TIME : BACKLIFT_TIME));
     if (power) this.flash("POWER!", COLORS.gold);
     cur.shot = {
       type,
       charge: power ? POWER_CHARGE : NORMAL_CHARGE,
-      timingError,
+      timingError: cur.swingAt + SWING_TIME[type] - arrive,
+      readLead: timing.readLead,
+      early: timing.early,
+      commit: { lead, verdict: timing.verdict, off: timing.off },
       windowMult: PLAYER_TIMING_WINDOW,
     };
     cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);
@@ -637,13 +671,16 @@ export class MatchScene {
 
   commitDefend(t, foot) {
     const cur = this.cur;
-    const arrive = this.arrival("defend", foot);
-    cur.defendAt = t;
+    const { arrive, lead, timing } = this.commitTiming(t, "defend", foot);
+    cur.defendAt = Math.max(t, arrive - DEFENCE_TIME + timing.timingError);
     cur.shot = {
       type: "defend",
       foot,
       charge: 0,
-      timingError: Math.max(0, t + 0.12 - arrive),
+      timingError: Math.max(0, cur.defendAt + DEFENCE_TIME - arrive),
+      readLead: timing.readLead,
+      early: timing.early,
+      commit: { lead, verdict: timing.verdict, off: timing.off },
       windowMult: PLAYER_TIMING_WINDOW,
     };
     cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);

@@ -108,6 +108,12 @@ function pickFresh(lines, rng) {
   return line;
 }
 
+/** A joke (Commentary.joke) as booth calls. */
+export function boothJoke(joke) {
+  if (!joke) return [];
+  return joke.map(([id, text]) => ({ who: COMMENTATORS.findIndex((c) => c.id === id), text }));
+}
+
 /**
  * Talk between overs, once the over is done: the next over's voice raises
  * something (Commentary.chatTopic) and another answers. A list of { who, text }, often empty.
@@ -118,6 +124,7 @@ export function boothChat(comm, inn, rng) {
   if (!chat) return [];
   let lead = inn.overNo % COMMENTATORS.length;
   let text;
+  if (chat.topic === "joke") return boothJoke(comm.joke());
   if (chat.topic === "story") {
     // Whoever still has a story to tell.
     const tellers = [lead, (lead + 1) % 3, (lead + 2) % 3];

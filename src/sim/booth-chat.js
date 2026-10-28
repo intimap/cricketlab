@@ -282,3 +282,109 @@ export const CHAT_REPLIES = {
     ],
   },
 };
+
+/**
+ * Jokes for a boring stretch, to pass the time: little exchanges, each a list
+ * of [commentator id, line] in speaking order. Each is told once a match.
+ */
+export const JOKES = [
+  [
+    ["grog", "WHAT'S THE DIFFERENCE BETWEEN THIS PASSAGE OF PLAY AND A SLOTH?"],
+    ["lorry", "I DON'T KNOW, TONY!"],
+    ["grog", "THE SLOTH HAS A SENSE OF URGENCY."],
+  ],
+  [
+    ["lorry", "RICHIE! WHY DID THE CRICKET BALL GO TO THE DOCTOR?"],
+    ["bunnings", "I'VE NO IDEA, BILL."],
+    ["lorry", "IT WASN'T FEELING VERY BOWLED!"],
+    ["bunnings", "...MARVELLOUS."],
+  ],
+  [
+    ["bunnings", "I'M TOLD THE SCOREBOARD OPERATOR HAS NODDED OFF."],
+    ["grog", "HE'S NOT MISSING MUCH, RICHIE."],
+  ],
+  [
+    ["grog", "WHY ARE SPIDERS SO GOOD IN THE FIELD?"],
+    ["lorry", "WHY, TONY?"],
+    ["grog", "THEY CATCH EVERY FLY."],
+    ["lorry", "HA! I'M STEALING THAT ONE!"],
+  ],
+  [
+    ["lorry", "WHAT DO YOU CALL A BOWLER WHO NEVER TAKES A WICKET?"],
+    ["grog", "GO ON, BILL."],
+    ["lorry", "HANG ON. I HAD THIS ONE THIS MORNING."],
+    ["bunnings", "TAKE YOUR TIME, BILL. WE'VE GOT ALL DAY. APPARENTLY."],
+  ],
+  [
+    ["bunnings", "WHY DID THE GROUNDSMAN BRING A LADDER TO WORK?"],
+    ["lorry", "WHY, RICHIE?"],
+    ["bunnings", "HE HEARD THE BOUNCE WAS A BIT UP AND DOWN."],
+    ["grog", "THAT'S A PITCH REPORT AND A JOKE, RICHIE. I'M IMPRESSED."],
+  ],
+  [
+    ["grog", "I ASKED THE UMPIRE WHAT THE HIGHLIGHT OF THE SESSION HAD BEEN."],
+    ["bunnings", "AND?"],
+    ["grog", "HE SAID LUNCH."],
+  ],
+  [
+    ["lorry", "WHY DID THE BATTER BRING STRING TO THE MATCH?"],
+    ["grog", "GO ON."],
+    ["lorry", "SO HE COULD TIE UP ONE END!"],
+    ["grog", "THAT'S NOT BAD, BILL. THAT'S ACTUALLY NOT BAD."],
+  ],
+  [
+    ["grog", "WHAT'S A BOWLER'S FAVOURITE WAY TO RELAX?"],
+    ["bunnings", "DO TELL, TONY."],
+    ["grog", "A NICE LONG SPELL."],
+    ["bunnings", "HE'S HAVING ONE NOW, BY THE LOOK OF IT."],
+  ],
+  [
+    ["lorry", "KNOCK KNOCK!"],
+    ["bunnings", "WHO'S THERE?"],
+    ["lorry", "A RUN."],
+    ["bunnings", "A RUN WHO?"],
+    ["lorry", "EXACTLY! NOBODY'S SEEN ONE FOR AGES!"],
+  ],
+  [
+    ["grog", "THERE'S A CHAP IN THE MEMBERS WHO'S BEEN ASLEEP SINCE TEA."],
+    ["lorry", "LUCKY HIM, TONY!"],
+    ["bunnings", "I ENVY HIM, FRANKLY."],
+  ],
+  [
+    ["bunnings", "WHY WAS CINDERELLA SO HOPELESS AT CRICKET?"],
+    ["lorry", "WHY, RICHIE?"],
+    ["bunnings", "HER COACH WAS A PUMPKIN."],
+    ["lorry", "HA! RICHIE'S GOT JOKES!"],
+  ],
+  [
+    ["lorry", "THE PIGEONS AT FINE LEG HAVE STARTED A CARD GAME!"],
+    ["grog", "WHO'S WINNING, BILL?"],
+    ["lorry", "NOT THE BATTERS! THEY HAVEN'T SCORED IN AGES!"],
+  ],
+  [
+    ["grog", "THIS SESSION IS LIKE MY UNCLE'S HOLIDAY SLIDESHOW."],
+    ["bunnings", "LONG?"],
+    ["grog", "AND NOBODY KNOWS WHEN IT'LL END."],
+  ],
+  [
+    ["bunnings", "THE CROWD HAS STARTED A MEXICAN WAVE."],
+    ["lorry", "THAT'S THE MOST MOVEMENT WE'VE SEEN ALL OVER, RICHIE!"],
+  ],
+  [
+    ["lorry", "TONY, WHAT'S A BATTER'S FAVOURITE PART OF A PARTY?"],
+    ["grog", "I DON'T KNOW, BILL."],
+    ["lorry", "THE FOOD! NO, HANG ON. THE STUMPS! NO. ACTUALLY IT'S THE FOOD."],
+    ["grog", "RIGHT."],
+  ],
+  [
+    ["grog", "I'VE COUNTED THE SEATS IN THE MEMBERS' STAND. TWICE."],
+    ["bunnings", "AND?"],
+    ["grog", "THEY DIDN'T MATCH. I'M GOING AGAIN AFTER THIS OVER."],
+  ],
+  [
+    ["bunnings", "WHY DON'T CRICKETERS EVER GET LOST?"],
+    ["grog", "GO ON, RICHIE."],
+    ["bunnings", "THEY ALWAYS KNOW WHERE THE BOUNDARY IS."],
+    ["lorry", "THESE TWO DON'T! THEY HAVEN'T BEEN NEAR IT FOR AGES!"],
+  ],
+];

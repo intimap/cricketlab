@@ -1,7 +1,7 @@
 import { isSpinner } from "./teams.js";
 import { WEAKNESSES } from "./plans.js";
 import { composeCall, shotArea } from "./describe.js";
-import { STORIES } from "./booth-chat.js";
+import { STORIES, JOKES } from "./booth-chat.js";
 
 // Placeholders: {b} batter, {w} bowler, {f} fielder, {r} runs, {s} shot name,
 // {note} LBW verdict reason.
@@ -246,6 +246,11 @@ const ZONE_REMARKS = [
 
 /** How often an ordinary ball that met the middle is described from its parts instead of a stock line. */
 const BUILT_CALLS = 0.55;
+/** Quiet balls in a row (a run or less, nothing happening) before the box starts telling jokes. */
+const BORED_AFTER = 9;
+/** Balls between jokes told mid-over, once they're bored. */
+const JOKE_GAP = 14;
+
 /** Overs between remarks on the same thing: a bowler's length or figures, a batter's zones or tempo, the chase. */
 const TOPIC_REST = { length: 12, figs: 12, zone: 8, pace: 8, stand: 8, chase: 3 };
 const restFor = (key) => TOPIC_REST[key.split(":")[0]] ?? 5;
@@ -273,7 +278,12 @@ export class Commentary {
   /** The last few chat topics, so the box moves on. */
   lastTopics = [];
   storiesTold = new Set();
+  jokesTold = new Set();
   sawReverse = false;
+  /** Quiet balls in a row, and when the last joke was told (in balls). */
+  quietBalls = 0;
+  balls = 0;
+  lastJoke = -99;
 
   constructor(rng) {
     this.rng = rng;
@@ -298,6 +308,10 @@ export class Commentary {
     if (rec.dropped)
       this.drops.push({ batter: rec.striker, name: batter.p.short, on: batter.runs, fielder: rec.dropped, said: false });
     if (rec.reversing) this.sawReverse = true;
+    this.balls++;
+    // Maidens and dots building are what a lull is made of; anything with a bit of drama ends it.
+    const quiet = rec.total <= 1 && !rec.wicket && !rec.boundary && !rec.dropped && !rec.nearRunout;
+    this.quietBalls = quiet ? this.quietBalls + 1 : 0;
   }
 
   /** A batter's busiest scoring zone: { zone, n } or null. */
@@ -492,6 +506,8 @@ export class Commentary {
     if (inn.ball.hardness < 0.6) add("softBall", 1, {}, "soft:once");
     if (inn.newBallAvailable) add("newBallDue", 1.5, {}, "newball");
     add("story", 0.6, {}, `story:${over}`);
+    // A boring stretch: they'd rather tell jokes.
+    if (this.bored && this.balls - this.lastJoke >= JOKE_GAP / 2) add("joke", 6, {}, `joke:${over}`);
 
     const ready = options.filter(
       (o) =>
@@ -506,6 +522,25 @@ export class Commentary {
     this.lastTopics = [...this.lastTopics, choice.topic].slice(-2);
     if (choice.facts.drop) choice.facts.drop.said = true;
     return { topic: choice.topic, facts: choice.facts };
+  }
+
+  /** Has nothing happened for a while (and is there a joke left to tell)? */
+  get bored() {
+    return this.quietBalls >= BORED_AFTER && this.jokesTold.size < JOKES.length;
+  }
+
+  /**
+   * A joke to pass the time, as [commentator id, line] pairs, or null. `midOver`
+   * asks for one between balls, which needs a longer lull and a gap since the last.
+   */
+  joke(midOver = false) {
+    if (!this.bored) return null;
+    if (midOver && (this.quietBalls < BORED_AFTER * 1.5 || this.balls - this.lastJoke < JOKE_GAP)) return null;
+    const left = JOKES.filter((j) => !this.jokesTold.has(j));
+    const j = this.rng.pick(left);
+    this.jokesTold.add(j);
+    this.lastJoke = this.balls;
+    return j;
   }
 
   /** A story from this commentator that he hasn't told yet this match, or null. */

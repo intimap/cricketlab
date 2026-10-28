@@ -19,8 +19,8 @@ npx serve .
 
 Then open http://localhost:8000. It plays with a keyboard, or with on-screen buttons on a phone or tablet.
 
-It starts straight into a 10-over match at Parklands Oval; **Esc → Quit to menu** reaches the other games (Nets,
-Classic Matches, a single spell, longer or shorter matches).
+It opens on the menu with a 10-over match at Parklands Oval chosen, so Enter goes straight into it; the menu also
+has Nets, Classic Matches, a single spell and longer or shorter matches.
 
 To publish it, turn on GitHub Pages (Settings → Pages → Deploy from branch → `main`, `/ (root)`).
 

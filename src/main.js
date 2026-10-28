@@ -66,8 +66,7 @@ class Game {
     this.images = { ...assets, close, wide: assets["ground-wide"], stumps: cutOutStumps(close) };
     this.menu = new Menu(this);
     warmScores();
-    // Straight into a game: the 10-over match everyone's high scores are set in. Esc reaches the menu.
-    this.startMatch(this.menu.startupGame);
+    this.scene = this.menu;
 
     let last = performance.now();
     const frame = (now) => {

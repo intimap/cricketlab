@@ -35,7 +35,7 @@ const BOWL_HELP = [
 
 export class Menu {
   sel = 0;
-  /** The last game chosen is remembered. */
+  /** The last game chosen is remembered, except that each visit starts on a 10-over match (see the constructor). */
   cfg = {
     format: "match",
     mode: "bat",
@@ -56,11 +56,10 @@ export class Menu {
     if (!CLASSIC_IDS.includes(this.cfg.classic)) this.cfg.classic = CLASSIC_IDS[0];
     if (!GROUND_IDS.includes(this.cfg.ground)) this.cfg.ground = DEFAULT_GROUND;
     if (!LIGHTS[this.cfg.light]) this.cfg.light = LIGHT_IDS[0];
-  }
-
-  /** The game played on start-up: a 10-over match, with the player's other remembered choices. */
-  get startupGame() {
-    return { ...this.cfg, format: "match", overs: DEFAULT_MATCH_OVERS };
+    // The game opens on the 10-over match everyone's high scores are set in, with START picked.
+    this.cfg.format = "match";
+    this.cfg.overs = DEFAULT_MATCH_OVERS;
+    this.sel = this.rows.findIndex(([key]) => key === "start");
   }
 
   get classic() {

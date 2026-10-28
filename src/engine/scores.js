@@ -1,16 +1,18 @@
 import { load, save } from "./storage.js";
 
-// High-score tables. When the game runs as a published claude.ai artifact the
-// tables live in the artifact's shared database, so everyone who opens it sees
-// the same scores. Anywhere else (a local server, a saved file), or when the
-// shared store refuses, they fall back to this browser's storage.
+// High-score tables, kept in the first of these that works:
+//   1. a claude.ai artifact's shared database (when the game is published as one);
+//   2. the site's own score service, /api/scores (on Netlify: netlify/functions/scores.mjs);
+//   3. this browser's storage, so scores are at least remembered on this device.
+// Either shared store means everyone playing the same copy sees the same tables.
 //
-// Shared rows are one document each in the "scores" collection:
-//   { board, name, rank, at, text, score }
-// Callers check what comes back (anyone who can write the table can write anything).
+// Artifact rows are one document each in the "scores" collection:
+//   { board, name, rank, at, text, score, id }
+// Callers check what comes back (anyone who can write a table can write anything).
 
 const COLLECTION = "scores";
 const LOCAL_KEY = "scores";
+const API = "api/scores";
 /** How many rows of a table are read back. */
 const READ_LIMIT = 200;
 /** How many entries per table this browser keeps when it can't share. */
@@ -18,7 +20,7 @@ const LOCAL_LIMIT = 100;
 
 let dbPromise = null;
 
-/** The shared store, or null when this view hasn't got one. */
+/** The artifact's shared database, or null when this view hasn't got one. */
 function sharedDb() {
   if (!dbPromise) {
     const claude = typeof window !== "undefined" ? window.claude : undefined;
@@ -27,8 +29,29 @@ function sharedDb() {
   return dbPromise;
 }
 
-/** Set once the shared store has refused a write: keep this visit's scores on this device. */
+/** Set once a shared store has refused a write: keep this visit's scores on this device. */
 let sharedReadOnly = false;
+/** Set once the site has shown it has no score service (a plain file server, a saved copy). */
+let noApi = typeof location === "undefined" || !location.protocol.startsWith("http");
+
+/** Call the site's score service; resolves its entries, or null if there's no service to ask. */
+async function callApi(init, query = "") {
+  if (noApi) return null;
+  let res;
+  try {
+    res = await fetch(API + query, init);
+  } catch {
+    return null;
+  }
+  // No such service here (a 404 page, or not JSON at all): stop asking.
+  const type = res.headers.get("content-type") ?? "";
+  if (!type.includes("json")) {
+    noApi = true;
+    return null;
+  }
+  const body = await res.json().catch(() => null);
+  return res.ok && Array.isArray(body?.entries) ? body.entries : null;
+}
 
 function localEntries() {
   const all = load(LOCAL_KEY, []);
@@ -48,6 +71,25 @@ function saveLocal(entry) {
   save(LOCAL_KEY, kept);
 }
 
+async function addToDb(db, row) {
+  try {
+    await db.collection(COLLECTION).doc(row.id).set(row);
+    return true;
+  } catch (e) {
+    if (e?.code !== "unavailable") {
+      sharedReadOnly = true;
+      return false;
+    }
+  }
+  try {
+    await new Promise((r) => setTimeout(r, 400 + Math.random() * 600));
+    await db.collection(COLLECTION).doc(row.id).set(row);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Add an entry to its table. Resolves { id, shared }: shared is false when it
  * could only be kept in this browser.
@@ -55,27 +97,26 @@ function saveLocal(entry) {
 export async function addScore(entry) {
   const id = `${entry.at.toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const row = { ...entry, id };
-  const db = sharedReadOnly ? null : await sharedDb();
-  if (db) {
-    try {
-      await db.collection(COLLECTION).doc(id).set(row);
-      return { id, shared: true };
-    } catch (e) {
-      if (e?.code === "unavailable") {
-        try {
-          await new Promise((r) => setTimeout(r, 400 + Math.random() * 600));
-          await db.collection(COLLECTION).doc(id).set(row);
-          return { id, shared: true };
-        } catch {
-          // Fall through to this browser.
-        }
-      } else {
-        sharedReadOnly = true;
-      }
-    }
+  if (!sharedReadOnly) {
+    const db = await sharedDb();
+    if (db ? await addToDb(db, row) : await callApi(postInit(row))) return { id, shared: true };
   }
   saveLocal(row);
   return { id, shared: false };
+}
+
+const postInit = (row) => ({ method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(row) });
+
+/** A table from whichever shared store there is: its rows, or null without one. */
+async function sharedEntries(board) {
+  const db = await sharedDb();
+  if (!db) return callApi({}, `?board=${encodeURIComponent(board)}`);
+  try {
+    const snap = await db.collection(COLLECTION).where("board", "==", board).orderBy("rank", "desc").limit(READ_LIMIT).get();
+    return snap.docs.map((d) => ({ ...d.data(), id: d.id }));
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -84,16 +125,10 @@ export async function addScore(entry) {
  */
 export async function readScores(board) {
   const local = localEntries().filter((e) => e.board === board);
-  const db = await sharedDb();
-  if (!db) return { entries: local, shared: false };
-  try {
-    const snap = await db.collection(COLLECTION).where("board", "==", board).orderBy("rank", "desc").limit(READ_LIMIT).get();
-    const rows = snap.docs.map((d) => ({ ...d.data(), id: d.id }));
-    const ids = new Set(rows.map((r) => r.id));
-    return { entries: [...rows, ...local.filter((e) => !ids.has(e.id))], shared: true };
-  } catch {
-    return { entries: local, shared: false };
-  }
+  const rows = await sharedEntries(board);
+  if (!rows) return { entries: local, shared: false };
+  const ids = new Set(rows.map((r) => r.id));
+  return { entries: [...rows, ...local.filter((e) => !ids.has(e.id))], shared: true };
 }
 
 /** Start looking for the shared store early, so the first table reads quickly. */

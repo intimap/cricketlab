@@ -4,7 +4,8 @@ A 16-bit style Test cricket game (Australia v England) for the browser. Bat or b
 green top, a dust bowl or a cracked pitch, with a physics-based ball, wearing pitch and ageing ball,
 AI field placings and ball-by-ball commentary.
 
-Plain JavaScript modules and two images: no build step and no dependencies.
+Plain JavaScript modules and some images: no build step, and the game itself has no dependencies (`package.json`
+is only for the Netlify score service).
 
 ## Run it
 
@@ -47,9 +48,18 @@ Ranking: wins above ties above losses. Wins by wickets (you chased it down) come
 more balls to spare; then wins by runs, biggest margin first. Losses by runs (you fell short chasing) rank above
 losses by wickets, narrowest first. Equal results keep the order they were set in.
 
-Published as a claude.ai artifact (declared with the `db` capability), the tables are kept in the artifact's shared
-database, so everyone who opens it sees the same scores. Anywhere else, or when the viewer isn't allowed to write
-to it, scores are kept in this browser's storage instead and the table says so.
+The tables are shared by everyone playing the same copy of the game, kept in the first of these that works:
+
+- **claude.ai artifact:** the artifact's shared database (publish it with the `db` capability).
+- **Netlify:** the site's score service, `netlify/functions/scores.mjs` at `/api/scores`, which keeps each table
+  in Netlify Blobs. Netlify installs its one package (`@netlify/blobs`, in `package.json`) and deploys the
+  function along with the site; there's nothing to set up.
+- **Anywhere else** (a local server, a saved file), or when the viewer isn't allowed to write to the shared table:
+  this browser's storage, and the table says "on this device only".
+
+The score service checks what it's sent (known table names, a name the font can draw, a possible rank) and stamps
+each score with its own clock, but anyone who can reach the site can post a score, so treat the table as a game
+between friends rather than a record.
 
 ## Bowling: the battle
 
@@ -110,6 +120,9 @@ src/
     match-view.js     drawing for the match scene
     pause-menu.js     the Esc menu: scorecard, instructions, sound
     scoreboard.js     the arcade high-score screen: name entry and the table
+netlify/
+  functions/scores.mjs  the shared high-score service on Netlify (/api/scores)
+  score-table.mjs       its tables: checks scores, keeps each table's best 200, safe against saves at once
 ```
 
 The rule of thumb: `sim/` knows nothing about the screen, `engine/` knows nothing about cricket, and

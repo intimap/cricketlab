@@ -8,20 +8,25 @@ export const HUD_Y = 324;
 
 export const staminaColor = (s) => (s > 0.6 ? "#7cd67c" : s > 0.35 ? COLORS.gold : COLORS.red);
 
-/** Bottom bar: score, batters, this over, bowler, conditions and the commentary line. */
+/** Bottom bar: score, batters, this over, bowler and the commentary line (the pitch and ball are on the scorecard). */
 export function drawScoreBar(inn, commentary, deliveryLabel) {
   fillRect(0, HUD_Y, WIDTH, HEIGHT - HUD_Y, COLORS.gold2);
   fillRect(0, HUD_Y + 1, WIDTH, HEIGHT - HUD_Y - 1, COLORS.green);
   fillRect(0, HUD_Y + 1, WIDTH, 1, "#2c6b45");
 
-  // Row 1: score, batters, partnership, this over.
+  // The score, double size at the left edge, across the first two rows. The box fits the widest score,
+  // so the text beside it doesn't shift as the total grows.
   const y1 = HUD_Y + 4;
-  fillRect(2, y1 - 2, 88, 11, inn.batTeam.colour);
-  drawText(`${inn.batTeam.abbr} ${inn.runs}/${inn.wkts}`, 6, y1, { color: COLORS.white });
-  drawText(`OV ${inn.oversText}`, 96, y1, { color: COLORS.gold });
+  const scoreW = textWidth(`${inn.batTeam.abbr} 000/10`, 2) + 12;
+  fillRect(2, HUD_Y + 2, scoreW, 20, inn.batTeam.colour);
+  drawText(`${inn.batTeam.abbr} ${inn.runs}/${inn.wkts}`, 8, HUD_Y + 5, { color: COLORS.white, scale: 2 });
+  const left = scoreW + 8;
+
+  // Row 1: overs, batters, partnership, this over.
+  drawText(`OV ${inn.oversText}`, left, y1, { color: COLORS.gold });
   const striker = inn.bat[inn.striker];
   const other = inn.bat[inn.nonStriker];
-  let x = 152;
+  let x = left + 56;
   drawText("•", x, y1, { color: COLORS.gold });
   x += 7;
   x += drawText(`${striker.p.short.toUpperCase()} ${striker.runs}(${striker.balls})`, x, y1, { color: COLORS.cream }) + 10;
@@ -43,11 +48,11 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
     drawText(b, right + w / 2, y1 - 0.5, { align: "center", color: COLORS.white, shadow: null });
   }
 
-  // Row 2: bowler, delivery, stamina, pitch and ball.
+  // Row 2: bowler, delivery, stamina, pressure.
   const y2 = HUD_Y + 15;
   const bowler = inn.bowl[inn.currentBowler];
   if (bowler) {
-    x = 4;
+    x = left;
     x +=
       drawText(`${bowler.p.short.toUpperCase()} ${inn.bowlerFigures(bowler)} (${inn.bowlerOvers(bowler)})`, x, y2, {
         color: COLORS.cream,
@@ -62,16 +67,6 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
   drawText("PRS", x, y2, { color: COLORS.dim });
   x += 20;
   drawBar(x, y2 + 1, 28, 5, inn.pressure, inn.pressure > 0.6 ? COLORS.red : inn.pressure > 0.35 ? COLORS.gold : "#7ec8ff");
-  x += 34;
-  x = Math.max(x, 290);
-  x += drawText(`PITCH ${inn.pitch.type.name}`, x, y2, { color: COLORS.dim }) + 8;
-  const ball = inn.ball;
-  x +=
-    drawText(`BALL ${ball.overs.toFixed(1)} OV ${ball.label}`, x, y2, { color: ball.reverse > 0.3 ? COLORS.gold : COLORS.dim }) +
-    6;
-  drawText("H", x, y2, { color: COLORS.dim });
-  drawBar(x + 7, y2 + 1, 18, 2, ball.hardness, COLORS.cream);
-  drawBar(x + 7, y2 + 4, 18, 2, ball.shine, "#ff8a7a");
 
   // Row 3: commentary.
   drawText(commentary.length > 104 ? commentary.slice(0, 101) + ".." : commentary, 4, HUD_Y + 26, { color: COLORS.cream });

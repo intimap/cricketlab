@@ -12,6 +12,9 @@ import { describeBall } from "./plans.js";
 import { clamp } from "../math.js";
 import { bearingOf } from "./geometry.js";
 
+/** How often the on-field umpire gets an LBW wrong, either way. */
+const UMPIRE_ERROR = 0.15;
+
 /**
  * Runs a game innings by innings, ball by ball. The scene drives it for balls
  * the player takes part in; simBall() plays a whole ball with both sides on the AI.
@@ -164,13 +167,16 @@ export class Match {
     return res.padHit && (res.lbw || !!res.lbwNote) && !play.live.safe && !play.live.wicket;
   }
 
-  /** The on-field umpire's call on an LBW appeal. He gets slower to give them the more he's pestered. */
+  /**
+   * The on-field umpire's call on an LBW appeal: wrong UMPIRE_ERROR of the time either way (the tight
+   * ones are a toss-up). He gets slower to give them the more he's pestered.
+   */
   umpireLbw(play) {
     const res = play.res;
     const fed = this.inn.irritation;
-    if (res.lbw) return !this.rng.chance(0.08 + 0.05 * fed);
+    if (res.lbw) return !this.rng.chance(UMPIRE_ERROR + 0.05 * fed);
     if (res.lbwNote === "umpire's call, not out") return this.rng.chance(Math.max(0.1, 0.45 - 0.05 * fed));
-    return this.rng.chance(0.03);
+    return this.rng.chance(Math.max(0, UMPIRE_ERROR - 0.05 * fed));
   }
 
   /** Ball-tracking: "out", "umpiresCall" or "notOut", plus the reason shown on screen. */

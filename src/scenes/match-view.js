@@ -1,5 +1,5 @@
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect, drawLine, drawPanel, drawBar } from "../engine/screen.js";
-import { drawText, wrapText } from "../engine/text.js";
+import { drawText, textWidth, wrapText } from "../engine/text.js";
 import { clamp, easeIn, easeOut } from "../math.js";
 import { CREASE, PITCH_LENGTH, MID_PITCH } from "../sim/geometry.js";
 import { isSpinner } from "../sim/teams.js";
@@ -40,7 +40,16 @@ import {
 import { drawBooth, boothShowing } from "../render/booth.js";
 import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import { eyeMultiplier } from "../sim/eye.js";
-import { HUD_Y, staminaColor, drawScoreBar, drawMiniMap, drawBanners, drawScorecard, drawSpeechBubble } from "../render/hud.js";
+import {
+  HUD_Y,
+  staminaColor,
+  drawScoreBar,
+  drawScoreBox,
+  drawMiniMap,
+  drawBanners,
+  drawScorecard,
+  drawSpeechBubble,
+} from "../render/hud.js";
 
 const FOLLOW_THROUGH_TIME = 0.15;
 /** With no shot chosen, the striker starts lifting the bat out of the way this long before the ball arrives. */
@@ -61,10 +70,21 @@ const LEFT_CREASE = 0.02;
 const NON_STRIKER_X = -1.05;
 const BACKED_UP_Z = 17.9;
 
-export function drawMatch(scene) {
+/** Is the wide view on screen (rather than the close one)? DRS and appeals always use the close view. */
+function showingWide(scene) {
   const tracking = scene.phase === "review" || scene.phase === "appeal" || scene.phase === "decision";
+  return (scene.view === "wide" || scene.phase === "fieldEdit") && !tracking;
+}
+
+/** The speed gun's tallest (speed plus two lines of movement), in the bottom right corner above the score bar. */
+const SPEED_GUN_MAX_H = 42;
+/** The close view's mini-map, on the right just above where the speed gun pops up. */
+const MINI_MAP = { left: 552, top: HUD_Y - 3 - SPEED_GUN_MAX_H - 66 };
+const miniMapShown = (scene) => !showingWide(scene) && scene.phase !== "setup" && scene.phase !== "chooseBowler";
+
+export function drawMatch(scene) {
   setShadowStretch(scene.light.shadow.stretch);
-  if ((scene.view === "wide" || scene.phase === "fieldEdit") && !tracking) drawWide(scene);
+  if (showingWide(scene)) drawWide(scene);
   else drawClose(scene);
   // The time of day's colour, over everything on the field (not the scoreboard and panels drawn after).
   if (scene.light.tint) {
@@ -81,6 +101,8 @@ export function drawMatch(scene) {
   // The call types itself out, and stays up while the box talks.
   const booth = boothShowing(scene.booth, scene.now);
   drawScoreBar(scene.inn, scene.commentary.slice(0, Math.floor(scene.commT * 70)), label);
+  // The score in the corner, except over the full scorecard and the pause menu.
+  if (scene.phase !== "pause" && scene.phase !== "inningsEnd") drawScoreBox(scene.inn);
   if (booth) drawBooth(scene.booth, scene.now);
   drawBanners(scene.banners, scene.now);
   drawPanels(scene);
@@ -196,7 +218,7 @@ function drawClose(scene) {
   if (scene.phase === "setup") drawTarget(scene);
   for (const s of sprites) s.draw();
 
-  if (scene.phase !== "setup" && scene.phase !== "chooseBowler") {
+  if (miniMapShown(scene)) {
     const fielders = live ? live.fielders.filter((f) => f.role === "field").map((f) => f.pos) : inn.placements.map((p) => p.pos);
     const keeper = live ? live.fielders[0].pos : keeperSpot(scene.spinner);
     const runners = live
@@ -205,7 +227,14 @@ function drawClose(scene) {
           { x: -0.3, z: 1.2 },
           { x: -1, z: 19 },
         ];
-    drawMiniMap(552, 6, fielders, runners, live && cur?.contactDone ? { x: live.ball.pos.x, z: live.ball.pos.z } : null, keeper);
+    drawMiniMap(
+      MINI_MAP.left,
+      MINI_MAP.top,
+      fielders,
+      runners,
+      live && cur?.contactDone ? { x: live.ball.pos.x, z: live.ball.pos.z } : null,
+      keeper,
+    );
   }
   const chirp = scene.chirp;
   if (chirp && scene.now >= chirp.t0 && scene.now - chirp.t0 < 2.2) drawSpeechBubble(chirp.text, 430, 150);
@@ -411,9 +440,28 @@ function drawTarget(scene) {
 
 // --- Wide view: the whole ground. ---
 
+/**
+ * The ground's scoreboard, showing the real score: the batting side, then the side they're chasing
+ * (or the overs, in the first innings).
+ */
+function drawGroundScoreboard(board, inn) {
+  fillRect(board.x, board.y, board.w, board.h, board.colour);
+  const mid = board.x + board.w / 2;
+  // A narrow gap after the team, so even "AUS 487/10" fits the face.
+  const line = (name, figures, y, color) => {
+    const left = Math.round(mid - (textWidth(name) + 3 + textWidth(figures)) / 2);
+    drawText(name, left, y, { color, shadow: null });
+    drawText(figures, left + textWidth(name) + 3, y, { color, shadow: null });
+  };
+  line(inn.batTeam.abbr, `${inn.runs}/${inn.wkts}`, board.y + 1, board.top);
+  if (inn.target !== null) line(inn.bowlTeam.abbr, String(inn.target - 1), board.y + 11, board.bottom);
+  else line("OV", inn.oversText, board.y + 11, board.bottom);
+}
+
 function drawWide(scene) {
   ctx.drawImage(scene.groundArt.wide, 0, 0, WIDTH, HEIGHT);
   const inn = scene.inn;
+  if (scene.ground.wide.scoreboard) drawGroundScoreboard(scene.ground.wide.scoreboard, inn);
   const cur = scene.cur;
   const live = cur?.play?.live;
   const cap = scene.kitBowl.cap;

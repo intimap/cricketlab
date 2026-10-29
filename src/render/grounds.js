@@ -74,6 +74,8 @@ function parklands(name, fence) {
       ],
       // Grass is drawn from here down, outside the rope too.
       groundFrom: 107,
+      // The painted scoreboard's face below its clock (screen px), written over with the real score.
+      scoreboard: { x: 526, y: 64, w: 57, h: 21, colour: "#1c2b25", top: "#ffd23a", bottom: "#f4f4ee" },
       // Trees in the near corners, over the edge of the field.
       foreground: [
         { image: "wide/trees-left", x: 0, y: 255 },

@@ -76,8 +76,10 @@ function showingWide(scene) {
   return (scene.view === "wide" || scene.phase === "fieldEdit") && !tracking;
 }
 
-/** The close view's mini-map, in the bottom right corner just above the score bar. */
-const MINI_MAP = { left: 552, top: HUD_Y - 66 };
+/** The speed gun's tallest (speed plus two lines of movement), in the bottom right corner above the score bar. */
+const SPEED_GUN_MAX_H = 42;
+/** The close view's mini-map, on the right just above where the speed gun pops up. */
+const MINI_MAP = { left: 552, top: HUD_Y - 3 - SPEED_GUN_MAX_H - 66 };
 const miniMapShown = (scene) => !showingWide(scene) && scene.phase !== "setup" && scene.phase !== "chooseBowler";
 
 export function drawMatch(scene) {
@@ -657,8 +659,7 @@ function drawSpeedGun(scene) {
   const shown = scene.cur.contactDone || scene.cur.t > 1.2 ? (parts.length ? parts : ["STRAIGHT ON"]) : [];
   const w = 108;
   const h = 24 + shown.length * 9;
-  // In the corner, or beside the mini-map when that has it.
-  const x = miniMapShown(scene) ? MINI_MAP.left - 8 - w : WIDTH - w - 4;
+  const x = WIDTH - w - 4;
   const y = HUD_Y - h - 3;
   drawPanel(x, y, w, h, "rgba(10,28,18,0.88)", COLORS.gold2);
   drawText(`${Math.round(d.speed * 3.6)} KM/H`, x + w / 2, y + 5, { align: "center", color: COLORS.gold, scale: 2 });

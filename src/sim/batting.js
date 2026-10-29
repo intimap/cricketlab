@@ -238,7 +238,7 @@ function intoGap(bearing, field, reach) {
  * `field`: the fielders' bearings, for a well-struck ball to find the gaps.
  *
  * shot: { type: drive|cutpull|loft|defend|leave (or ramp/sweep/reverseSweep), charge, timingError,
- *         foot? ("front"/"back", for defence), windowMult? }
+ *         foot? ("front"/"back", for defence), windowMult?, eyeMult? (the player's eye, see eye.js) }
  */
 export function resolveDelivery(d, shot, bat, state, ball, spinner, rng, field = []) {
   const pitchZ = d.pitchedAt ? d.pitchedAt.z : 0;
@@ -341,6 +341,9 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
     : clamp(0.55 + 0.3 * bat.technique + 0.1 * state.settled + 0.05 * bat.vsPace, 0, 0.95);
   const aimX = late.x + (early.x - late.x) * (1 - adjust);
   const aimY = late.y + (early.y - late.y) * (1 - adjust);
+  // The player's eye: a bigger timing window and sweet spot, and more bat speed.
+  const eye = shot.eyeMult ?? 1;
+  const eyeEase = 1 + (eye - 1) / 2;
   const wrong = wrongFoot(shot.type, footBack, pitchZ, bat.footwork);
   const misfooted = Math.max(wrong.forward, wrong.back);
   // `difficulty` (from plans.js): above 1 when the ball targets a weakness or springs a surprise.
@@ -377,7 +380,7 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
       (spinner ? 1.25 : 1) *
       (shot.type === "ramp" || (isSweep(shot.type) && !spinner) ? 0.7 : 1) *
       (1 - WRONG_FOOT_WINDOW * misfooted);
-  const timing = shot.timingError / (window * (shot.windowMult ?? 1));
+  const timing = shot.timingError / (window * (shot.windowMult ?? 1) * eyeEase);
   if (Math.abs(timing) > 2.4) return noContact(timing < 0 ? "early" : "late");
 
   const reach = defending ? 0.1 : 0.09;
@@ -387,7 +390,7 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
     return { ...noContact("beaten"), batX };
   }
 
-  const sweetSpot = (defending ? 0.052 : 0.033) * (0.6 + 0.4 * suit);
+  const sweetSpot = (defending ? 0.052 : 0.033) * (0.6 + 0.4 * suit) * eyeEase;
   let kind;
   if (lat <= sweetSpot && Math.abs(vErr) < 0.12) kind = "middle";
   else if (Math.abs(vErr) >= 0.12) kind = vErr > 0 ? (height > 1.15 ? "gloved" : "topEdge") : "bottomEdge";
@@ -400,7 +403,7 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
   const contactQuality = kind === "middle" ? 1 - (0.35 * lat) / sweetSpot : 0.4;
   const quality = clamp(contactQuality * timingQuality * (0.7 + 0.3 * suit));
   const ballSpeed = Math.abs(at.vz);
-  const batSpeed = defending ? 0 : 8 + 26 * shot.charge * (0.55 + 0.45 * bat.power);
+  const batSpeed = defending ? 0 : (8 + 26 * shot.charge * (0.55 + 0.45 * bat.power)) * eye;
   const natural = shotBearing(shot.type, line, height, back);
 
   let speed, bearing, elevation;
@@ -485,6 +488,7 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
   return {
     kind,
     quality,
+    timed: !mistimed,
     missReason: "",
     shotName: shotName(shot.type, bearing, height, footBack, back),
     at,

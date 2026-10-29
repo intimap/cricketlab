@@ -39,6 +39,7 @@ import {
 } from "../render/sprites.js";
 import { drawBooth, boothShowing } from "../render/booth.js";
 import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
+import { eyeMultiplier } from "../sim/eye.js";
 import { HUD_Y, staminaColor, drawScoreBar, drawMiniMap, drawBanners, drawScorecard, drawSpeechBubble } from "../render/hud.js";
 
 const FOLLOW_THROUGH_TIME = 0.15;
@@ -583,6 +584,7 @@ function drawPanels(scene) {
 
   if (scene.feedback && (scene.phase === "after" || scene.phase === "return")) drawCoachCard(scene);
   if (!scene.nets && SPEED_GUN_PHASES.has(scene.phase)) drawSpeedGun(scene);
+  if (scene.human === "bat" && EYE_PHASES.has(scene.phase)) drawEyeMeter(scene);
   if (scene.phase === "pause") scene.pauseMenu.draw(inn, scene.closeEnd);
 
   if (scene.phase === "inningsEnd") {
@@ -613,6 +615,23 @@ function drawSpeedGun(scene) {
   drawPanel(x, y, w, h, "rgba(10,28,18,0.88)", COLORS.gold2);
   drawText(`${Math.round(d.speed * 3.6)} KM/H`, x + w / 2, y + 5, { align: "center", color: COLORS.gold, scale: 2 });
   shown.forEach((line, i) => drawText(line, x + w / 2, y + 21 + i * 9, { align: "center", color: COLORS.cream }));
+}
+
+const EYE_PHASES = new Set(["ready", "runup", "flight", "after", "return", "appeal", "decision", "review"]);
+
+/** The striker's eye: a bar that fills with well-timed shots, and the multiplier it gives the next one. */
+function drawEyeMeter(scene) {
+  const eye = scene.inn.bat[scene.inn.striker].eye;
+  const full = eye >= 1;
+  const w = 108;
+  const h = 24;
+  const x = 4;
+  const y = 4;
+  drawPanel(x, y, w, h, "rgba(10,28,18,0.88)", full ? COLORS.gold : COLORS.gold2);
+  drawText("EYE", x + 6, y + 5, { color: COLORS.gold });
+  drawText(`x${eyeMultiplier(eye).toFixed(2)}`, x + w - 6, y + 5, { color: eye > 0 ? COLORS.gold : COLORS.dim, align: "right" });
+  const glow = full && Math.floor(scene.now * 4) % 2 === 0;
+  drawBar(x + 6, y + 15, w - 12, 5, eye, glow ? COLORS.white : eye > 0.6 ? COLORS.gold : "#7ec8ff");
 }
 
 /** Nets: the coach's verdict on the last ball. */

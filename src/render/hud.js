@@ -14,14 +14,19 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
   fillRect(0, HUD_Y + 1, WIDTH, HEIGHT - HUD_Y - 1, COLORS.green);
   fillRect(0, HUD_Y + 1, WIDTH, 1, "#2c6b45");
 
-  // Row 1: score, batters, partnership, this over.
+  // The score, double size at the right-hand end, across the first two rows.
   const y1 = HUD_Y + 4;
-  fillRect(2, y1 - 2, 88, 11, inn.batTeam.colour);
-  drawText(`${inn.batTeam.abbr} ${inn.runs}/${inn.wkts}`, 6, y1, { color: COLORS.white });
-  drawText(`OV ${inn.oversText}`, 96, y1, { color: COLORS.gold });
+  const score = `${inn.batTeam.abbr} ${inn.runs}/${inn.wkts}`;
+  const scoreW = textWidth(score, 2) + 12;
+  const scoreX = WIDTH - 2 - scoreW;
+  fillRect(scoreX, HUD_Y + 2, scoreW, 20, inn.batTeam.colour);
+  drawText(score, WIDTH - 8, HUD_Y + 5, { color: COLORS.white, scale: 2, align: "right" });
+
+  // Row 1: overs, batters, partnership, this over.
+  drawText(`OV ${inn.oversText}`, 4, y1, { color: COLORS.gold });
   const striker = inn.bat[inn.striker];
   const other = inn.bat[inn.nonStriker];
-  let x = 152;
+  let x = 60;
   drawText("•", x, y1, { color: COLORS.gold });
   x += 7;
   x += drawText(`${striker.p.short.toUpperCase()} ${striker.runs}(${striker.balls})`, x, y1, { color: COLORS.cream }) + 10;
@@ -32,7 +37,7 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
     drawText(`P'SHIP ${inn.partnership.runs}(${inn.partnership.balls})`, x, y1, { color: COLORS.dim });
   }
 
-  let right = 636;
+  let right = scoreX - 4;
   const balls = inn.overBalls.slice(-8);
   for (let i = balls.length - 1; i >= 0; i--) {
     const b = balls[i];
@@ -43,7 +48,7 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
     drawText(b, right + w / 2, y1 - 0.5, { align: "center", color: COLORS.white, shadow: null });
   }
 
-  // Row 2: bowler, delivery, stamina, pitch and ball.
+  // Row 2: bowler, delivery, stamina, pressure.
   const y2 = HUD_Y + 15;
   const bowler = inn.bowl[inn.currentBowler];
   if (bowler) {

@@ -11,7 +11,7 @@ import { EFFORTS, crossingAtZ } from "../sim/delivery.js";
 import { planRunup, meterPos, releaseError, METER_FROM } from "../sim/runup.js";
 import { battingFeedback, bowlingFeedback } from "../sim/coach.js";
 import { CONTACT_Z_FRONT, CONTACT_Z_BACK, SWING_TIME, NORMAL_CHARGE, playsBack } from "../sim/batting.js";
-import { nextEye, eyeMultiplier } from "../sim/eye.js";
+import { nextEye, offStrikeEye, eyeMultiplier } from "../sim/eye.js";
 import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from "../sim/field.js";
 import { pickBowler } from "../sim/ai.js";
 import { pickSledges, pickChirp } from "../sim/commentary.js";
@@ -995,8 +995,10 @@ export class MatchScene {
     this.setPhase("after");
   }
 
-  /** Build (or lose) the striker's eye from the shot just played. */
+  /** Build (or lose) the striker's eye from the shot just played; the non-striker's fades. */
   updateEye(play) {
+    const partner = this.inn.bat[play.live.setup.nonStrikerIdx];
+    partner.eye = offStrikeEye(partner.eye);
     const batter = this.inn.bat[play.striker];
     const before = batter.eye;
     batter.eye = nextEye(before, play.shot, play.res);

@@ -67,7 +67,7 @@ The **EYE** meter (top left when you bat) fills as you get your eye in. Every we
 middled one fills it more; a well-timed block helps a bit. An air swing or a miss empties it, while leaves, edges and
 mistimed shots leave it as it is. The fuller it is, the bigger the multiplier on every shot you play (up to x1.4): more bat
 speed, and a slightly bigger timing window and sweet spot. Each batter has his own eye, so a new batter starts from
-nothing. The numbers are at the top of `sim/eye.js`.
+nothing, and off strike it fades by 0.15 for every ball his partner faces. The numbers are at the top of `sim/eye.js`.
 
 ## Bowling: the battle
 

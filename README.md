@@ -64,8 +64,9 @@ between friends rather than a record.
 ## Batting: your eye
 
 The **EYE** meter (top left when you bat) fills as you get your eye in. Every well-timed shot fills it a little, and a perfectly
-middled one fills it more; a well-timed block helps a bit. An air swing or a miss empties it, while leaves, edges and
-mistimed shots leave it as it is. The fuller it is, the bigger the multiplier on every shot you play (up to x1.4): more bat
+middled one fills it more; a well-timed block helps a bit. Being beaten (or bowled, or hit on the pad
+playing a shot) knocks 15% off what's left and an edge 5%, while an air swing empties it; leaves and mistimed shots leave
+it as it is. The fuller it is, the bigger the multiplier on every shot you play (up to x1.4): more bat
 speed, and a slightly bigger timing window and sweet spot. Each batter has his own eye, so a new batter starts from
 nothing, and off strike it fades by 0.15 for every ball his partner faces. The numbers are at the top of `sim/eye.js`.
 

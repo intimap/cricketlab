@@ -2,12 +2,16 @@ import { clamp } from "../math.js";
 
 /**
  * The player's "eye": 0..1, builds with every well-timed shot (more for one
- * perfectly middled) and is lost on an air swing or a miss. The better you
- * bat, the more you get your eye in, and every shot gets the bonus. Off
- * strike it fades a little with every ball his partner faces.
+ * perfectly middled), dents on a miss or an edge, and is lost on an air
+ * swing. The better you bat, the more you get your eye in, and every shot
+ * gets the bonus. Off strike it fades a little with every ball his partner
+ * faces.
  */
 const EYE_TIMED = 0.08;
 const EYE_MIDDLED = 0.18;
+/** Share of what's left kept after being beaten, and after an edge. */
+const EYE_KEPT_MISS = 0.85;
+const EYE_KEPT_EDGE = 0.95;
 /** Lost for each ball (wides and no-balls too) watched from the other end. */
 const EYE_OFF_STRIKE = 0.15;
 /** A well-timed block helps a little. */
@@ -25,14 +29,16 @@ export const offStrikeEye = (eye) => Math.max(0, eye - EYE_OFF_STRIKE);
 
 /**
  * The eye after shot `shot` (see batting.js) met the ball with result `res`.
- * Leaves change nothing, nor does an edge or a mistimed shot; an air swing
- * or a miss (beaten, bowled, on the pad) resets it.
+ * Leaves and mistimed shots change nothing. A miss (beaten, bowled, on the
+ * pad) costs 15% of what's left and an edge 5%; an air swing, the timing
+ * nowhere near, resets it.
  */
 export function nextEye(eye, shot, res) {
   if (shot.type === "leave") return eye;
   const contact = res.contact;
-  if (!res.touchedBat) return 0;
-  if (contact.kind !== "middle" || !contact.timed) return eye;
+  if (!res.touchedBat) return contact.missReason === "early" || contact.missReason === "late" ? 0 : eye * EYE_KEPT_MISS;
+  if (contact.kind !== "middle") return eye * EYE_KEPT_EDGE;
+  if (!contact.timed) return eye;
   if (shot.type === "defend") return clamp(eye + EYE_DEFENCE);
   return clamp(eye + (contact.quality >= EYE_PERFECT ? EYE_MIDDLED : EYE_TIMED));
 }

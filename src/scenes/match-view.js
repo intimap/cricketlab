@@ -42,7 +42,6 @@ import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import { eyeMultiplier } from "../sim/eye.js";
 import {
   HUD_Y,
-  SCORE_BOX,
   staminaColor,
   drawScoreBar,
   drawScoreBox,
@@ -71,10 +70,19 @@ const LEFT_CREASE = 0.02;
 const NON_STRIKER_X = -1.05;
 const BACKED_UP_Z = 17.9;
 
-export function drawMatch(scene) {
+/** Is the wide view on screen (rather than the close one)? DRS and appeals always use the close view. */
+function showingWide(scene) {
   const tracking = scene.phase === "review" || scene.phase === "appeal" || scene.phase === "decision";
+  return (scene.view === "wide" || scene.phase === "fieldEdit") && !tracking;
+}
+
+/** The close view's mini-map, in the bottom right corner just above the score bar. */
+const MINI_MAP = { left: 552, top: HUD_Y - 66 };
+const miniMapShown = (scene) => !showingWide(scene) && scene.phase !== "setup" && scene.phase !== "chooseBowler";
+
+export function drawMatch(scene) {
   setShadowStretch(scene.light.shadow.stretch);
-  if ((scene.view === "wide" || scene.phase === "fieldEdit") && !tracking) drawWide(scene);
+  if (showingWide(scene)) drawWide(scene);
   else drawClose(scene);
   // The time of day's colour, over everything on the field (not the scoreboard and panels drawn after).
   if (scene.light.tint) {
@@ -208,7 +216,7 @@ function drawClose(scene) {
   if (scene.phase === "setup") drawTarget(scene);
   for (const s of sprites) s.draw();
 
-  if (scene.phase !== "setup" && scene.phase !== "chooseBowler") {
+  if (miniMapShown(scene)) {
     const fielders = live ? live.fielders.filter((f) => f.role === "field").map((f) => f.pos) : inn.placements.map((p) => p.pos);
     const keeper = live ? live.fielders[0].pos : keeperSpot(scene.spinner);
     const runners = live
@@ -218,8 +226,8 @@ function drawClose(scene) {
           { x: -1, z: 19 },
         ];
     drawMiniMap(
-      552,
-      8 + SCORE_BOX.h,
+      MINI_MAP.left,
+      MINI_MAP.top,
       fielders,
       runners,
       live && cur?.contactDone ? { x: live.ball.pos.x, z: live.ball.pos.z } : null,
@@ -649,7 +657,8 @@ function drawSpeedGun(scene) {
   const shown = scene.cur.contactDone || scene.cur.t > 1.2 ? (parts.length ? parts : ["STRAIGHT ON"]) : [];
   const w = 108;
   const h = 24 + shown.length * 9;
-  const x = WIDTH - w - 4;
+  // In the corner, or beside the mini-map when that has it.
+  const x = miniMapShown(scene) ? MINI_MAP.left - 8 - w : WIDTH - w - 4;
   const y = HUD_Y - h - 3;
   drawPanel(x, y, w, h, "rgba(10,28,18,0.88)", COLORS.gold2);
   drawText(`${Math.round(d.speed * 3.6)} KM/H`, x + w / 2, y + 5, { align: "center", color: COLORS.gold, scale: 2 });

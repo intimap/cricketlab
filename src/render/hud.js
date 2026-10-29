@@ -70,7 +70,7 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
 }
 
 /** Width and height of the score box in the top right of the screen. */
-export const SCORE_BOX = { w: 132, h: 33 };
+const SCORE_BOX = { w: 132, h: 33 };
 
 /** The score, double size, with the overs under it, in a box in the top right corner. */
 export function drawScoreBox(inn) {

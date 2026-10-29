@@ -39,6 +39,8 @@ const PLAYER_SLOWMO = 0.8;
 const SHOT_KEYS = { KeyS: "drive", KeyQ: "cutpull", KeyW: "loft" };
 /** Defence: A forward, D back. */
 const DEFEND_KEYS = { KeyA: "front", KeyD: "back" };
+/** Seconds the player has to review a decision that went against them. */
+const REVIEW_WINDOW = 10;
 /** How long the scene lingers after a wicket. */
 const WICKET_PAUSE = 6.5;
 const MAX_SLEDGES = 3;
@@ -886,15 +888,24 @@ export class MatchScene {
     const inn = this.inn;
     const loser = cur.onField ? "bat" : "bowl";
     const playerSide = this.human === "bowl" ? "bowl" : "bat";
-    if (loser === playerSide) {
-      if (inn.reviews[loser] > 0 && keys.pressed("KeyR")) this.startReview(loser);
-      else if (this.phaseT > 2.8 || keys.pressed("Space")) this.endDecision();
+    if (loser === playerSide && inn.reviews[loser] > 0) {
+      // Play stops while the player decides; a moment's grace so a stray press doesn't accept it.
+      if (keys.pressed("KeyR")) this.startReview(loser);
+      else if (this.phaseT > REVIEW_WINDOW || (this.phaseT > 0.4 && (keys.pressed("Space") || keys.pressed("Enter"))))
+        this.endDecision();
+    } else if (loser === playerSide) {
+      if (this.phaseT > 2.8 || keys.pressed("Space")) this.endDecision();
     } else if (this.phaseT > 1) {
       const t = this.match.tracking(cur.play);
       const wrong = cur.onField ? t.verdict === "notOut" : t.verdict === "out";
       if (inn.reviews[loser] > 0 && this.match.rng.chance(wrong ? 0.65 : 0.1)) this.startReview(loser);
       else this.endDecision();
     }
+  }
+
+  /** Seconds left to review, while the player can. */
+  get reviewTimeLeft() {
+    return Math.max(0, REVIEW_WINDOW - this.phaseT);
   }
 
   startReview(side) {

@@ -524,13 +524,7 @@ function drawPanels(scene) {
   if (scene.phase === "decision") {
     const loser = cur.onField ? "bat" : "bowl";
     const playerSide = scene.human === "bowl" ? "bowl" : "bat";
-    if (loser === playerSide && inn.reviews[loser] > 0) {
-      drawText(`R: REVIEW (${inn.reviews[loser]} LEFT)   SPACE: ACCEPT`, WIDTH / 2, 6, {
-        ...PANEL_TEXT,
-        color: COLORS.gold,
-        scale: 2,
-      });
-    }
+    if (loser === playerSide && inn.reviews[loser] > 0) drawReviewChoice(scene, inn.reviews[loser]);
   }
   if (scene.phase === "review") drawReview(scene);
 
@@ -679,6 +673,19 @@ function drawReleaseMeter(scene) {
     fillRect(touch > 0 ? mid : mid + touch * 60, y + 10, Math.abs(touch) * 60, 3, COLORS.gold);
     drawText(scene.spinner ? "EXTRA SPIN" : "EXTRA SWING", mid, y + 15, { ...PANEL_TEXT, color: COLORS.gold });
   }
+}
+
+/** The decision went against the player: review it or accept it, against the clock. */
+function drawReviewChoice(scene, left) {
+  const w = 300;
+  const x = WIDTH / 2 - w / 2;
+  const y = 4;
+  const secs = scene.reviewTimeLeft;
+  drawPanel(x, y, w, 44, "rgba(10,28,18,0.92)", COLORS.gold);
+  drawText(scene.cur.onField ? "GIVEN OUT LBW" : "NOT OUT", WIDTH / 2, y + 6, { align: "center", color: COLORS.cream });
+  drawText(`R: REVIEW (${left} LEFT)    SPACE: ACCEPT`, WIDTH / 2, y + 18, { align: "center", color: COLORS.gold });
+  drawText(String(Math.ceil(secs)), x + w - 8, y + 6, { align: "right", color: secs < 3 ? COLORS.red : COLORS.dim });
+  drawBar(x + 8, y + 32, w - 16, 4, secs / 10, secs < 3 ? COLORS.red : COLORS.gold);
 }
 
 /** DRS ball-tracking: replay the ball's path to the stumps, then the three verdicts. */

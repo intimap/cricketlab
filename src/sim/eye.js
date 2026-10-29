@@ -12,8 +12,8 @@ const EYE_MIDDLED = 0.18;
 /** Share of what's left kept after being beaten, and after an edge. */
 const EYE_KEPT_MISS = 0.85;
 const EYE_KEPT_EDGE = 0.95;
-/** Lost for each ball (wides and no-balls too) watched from the other end. */
-const EYE_OFF_STRIKE = 0.15;
+/** Lost over an over watched from the other end, a sixth for each ball (wides and no-balls too). */
+const EYE_OFF_STRIKE_OVER = 0.05;
 /** A well-timed block helps a little. */
 const EYE_DEFENCE = 0.04;
 /** Contact quality (0..1) that counts as perfectly middled. */
@@ -25,7 +25,7 @@ export const EYE_MAX_MULT = 1.4;
 export const eyeMultiplier = (eye) => 1 + (EYE_MAX_MULT - 1) * eye;
 
 /** The non-striker's eye after a ball bowled to his partner. */
-export const offStrikeEye = (eye) => Math.max(0, eye - EYE_OFF_STRIKE);
+export const offStrikeEye = (eye) => Math.max(0, eye - EYE_OFF_STRIKE_OVER / 6);
 
 /**
  * The eye after shot `shot` (see batting.js) met the ball with result `res`.

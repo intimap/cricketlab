@@ -55,6 +55,11 @@ const BATTER_HEIGHT_PX = 92;
 const STANDARD_HEIGHT = 1.82;
 /** Where the striker stands across the crease (just leg side of middle). */
 const STRIKER_X = -0.14;
+/** Run progress (0..1) at which the striker has left his crease and is drawn as a runner. */
+const LEFT_CREASE = 0.02;
+/** The non-striker's spot across the pitch, and how far down he backs up once the ball is bowled. */
+const NON_STRIKER_X = -1.05;
+const BACKED_UP_Z = 17.9;
 
 export function drawMatch(scene) {
   const tracking = scene.phase === "review" || scene.phase === "appeal" || scene.phase === "decision";
@@ -111,19 +116,36 @@ function drawClose(scene) {
     draw: () =>
       figure(-0.62, 22.6, 1.78, { kit: { ...scene.kitBowl, cap: "#f4f4f0" }, pose: umpirePose, phase: 0, umpire: true }),
   });
-  const nonStrikerZ = nonStrikerDepth(scene);
-  const nonStrikerKit = playerKit(scene.kitBat, inn.bat[inn.nonStriker].p);
   const bowlerKit = playerKit(scene.kitBowl, inn.bowler?.p);
-  sprites.push({
-    z: nonStrikerZ,
-    draw: () =>
-      figure(-1.05, nonStrikerZ, nonStrikerKit.height, {
-        kit: nonStrikerKit,
-        pose: scene.phase === "runup" ? "backup" : "stand",
-        phase: scene.now * 1.4,
-        bat: true,
-      }),
-  });
+  const runners = live && cur.contactDone ? live.runners : null;
+  if (runners && (runners[1].target !== null || runners[1].progress < 1)) {
+    // Running: both batters along the pitch (the striker only once he's left his crease; until then he's
+    // drawn batting). Depths run from the crease to where the non-striker backed up, so nobody jumps.
+    for (const [i, r] of runners.entries()) {
+      if (i === 0 && r.progress <= LEFT_CREASE) continue;
+      const z = CREASE + r.progress * (BACKED_UP_Z - CREASE);
+      const x = i === 0 ? STRIKER_X + (NON_STRIKER_X - STRIKER_X) * clamp(r.progress / 0.15) : NON_STRIKER_X;
+      const kit = playerKit(scene.kitBat, inn.bat[r.bat].p);
+      const moving = r.target !== null && live.t >= r.startAt;
+      sprites.push({
+        z,
+        draw: () => figure(x, z, kit.height, { kit, pose: moving ? "run" : "stand", phase: scene.now * 3.5 + i, bat: true }),
+      });
+    }
+  } else {
+    const nonStrikerZ = nonStrikerDepth(scene);
+    const nonStrikerKit = playerKit(scene.kitBat, inn.bat[inn.nonStriker].p);
+    sprites.push({
+      z: nonStrikerZ,
+      draw: () =>
+        figure(NON_STRIKER_X, nonStrikerZ, nonStrikerKit.height, {
+          kit: nonStrikerKit,
+          pose: scene.phase === "runup" ? "backup" : "stand",
+          phase: scene.now * 1.4,
+          bat: true,
+        }),
+    });
+  }
   const bowler = bowlerState(scene);
   sprites.push({
     z: bowler.z,
@@ -209,7 +231,7 @@ function nonStrikerDepth(scene) {
   const cur = scene.cur;
   if (!cur) return 19.1;
   if (scene.phase === "runup") return 19.1 - clamp(cur.tRun / cur.runupDur) * 1.2;
-  return cur.delivery ? 17.9 : 19.1;
+  return cur.delivery ? BACKED_UP_Z : 19.1;
 }
 
 /** Bowler position and pose through run-up, delivery and follow-through. */
@@ -355,10 +377,10 @@ function drawStriker(scene) {
       if (res.padHit) pose = lerpPose(pose, BATTER_POSES.padFlinch, easeOut((t - res.start.t) / 0.12));
       else if (shotDoneAt !== null && t > shotDoneAt) pose = lerpPose(pose, BATTER_POSES.beaten, easeOut((t - shotDoneAt) / 0.2));
     }
-    // Hidden once out (and walking off) or once running.
+    // Hidden once out (and walking off), or once he's left his crease (drawn as a runner then).
     if (
       (cur.done && play && cur.done.rec.wicket?.batter === play.striker && scene.phase !== "flight" && !scene.nets) ||
-      (play && cur.contactDone && (play.live.runners[0].target !== null || play.live.runners[0].from === 1))
+      (play && cur.contactDone && play.live.runners[0].progress > LEFT_CREASE)
     ) {
       return;
     }

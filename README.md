@@ -113,6 +113,8 @@ src/
     commentary.js     the commentary box's ball-by-ball lines, over summaries and sledges
     moments.js        spots situations worth talking about (droughts, pressure, near run-outs...)
     commentators.js   the commentary box: who speaks after each ball
+    pack-voice.js     picks commentary-pack lines that are true of the ball, fresh each time
+    commentary-pack/  the commentary pack (v1): its lines as JSON, with its own README, checks and integration notes
     booth-lines.js    each commentator's lines for every situation
     match.js          plays innings ball by ball, swaps sides, works out the result
     formats.js        game formats and Classic Match challenges (data)
@@ -165,5 +167,8 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   with its images inlined (needs esbuild).
 - **Balance checks:** `node tools/sim-report.mjs [innings] [pitch]` simulates AI-vs-AI innings and prints
   run rates, dismissals, plan figures and commentary moments.
-- **Commentary:** `sim/call.js` for the plain call on the score bar; `sim/commentary.js` for the box's ball-by-ball lines; `sim/moments.js` to spot a new
-  kind of situation, then give each commentator lines for it in `sim/booth-lines.js`.
+- **Commentary:** `sim/call.js` for the plain call on the score bar. The box's call of each ball, its moment lines and
+  the commentators' reactions come from the commentary pack (`sim/commentary-pack/v1/`, its JSON files; each line says
+  when it's true of a ball), picked by `sim/pack-voice.js` and voiced in `sim/commentators.js`. A new batch goes in as
+  a new pack version (see the pack's README). `sim/moments.js` spots situations; moments the pack doesn't cover use
+  each commentator's lines in `sim/booth-lines.js`.

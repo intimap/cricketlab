@@ -1,0 +1,2036 @@
+{
+  "schema_version": "1.0.0",
+  "pack_id": "cricketlab-commentary-ordinary-v1",
+  "pack_version": "1.0.0",
+  "bank": "commentator_lines",
+  "entries": [
+    {
+      "id": "clab.v1.commentator_lines.defence.bunnings.001",
+      "category": "defence",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle"
+      },
+      "text": "A perfectly reasonable use of a cricket bat.",
+      "repeat_group": "commentator_lines.voice_defence_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.defence.bunnings.002",
+      "category": "defence",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle"
+      },
+      "text": "There is no extra charge for taking your time.",
+      "repeat_group": "commentator_lines.voice_defence_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.defence.bunnings.003",
+      "category": "defence",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle"
+      },
+      "text": "The scoring can wait a ball.",
+      "repeat_group": "commentator_lines.voice_defence_patience",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.defence.bunnings.004",
+      "category": "defence",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle"
+      },
+      "text": "A small piece of work, properly attended to.",
+      "repeat_group": "commentator_lines.voice_defence_patience",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.defence.lorry.001",
+      "category": "defence",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle"
+      },
+      "text": "Yes! Keep it out first, worry about the runs later!",
+      "repeat_group": "commentator_lines.voice_defence_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.defence.lorry.002",
+      "category": "defence",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle"
+      },
+      "text": "That's a ball dealt with! There's value in that!",
+      "repeat_group": "commentator_lines.voice_defence_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.defence.lorry.003",
+      "category": "defence",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle"
+      },
+      "text": "No run, but he's still there! That matters!",
+      "repeat_group": "commentator_lines.voice_defence_patience",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.defence.lorry.004",
+      "category": "defence",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle"
+      },
+      "text": "Bat on ball! Sometimes that's the whole job!",
+      "repeat_group": "commentator_lines.voice_defence_patience",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.defence.grog.001",
+      "category": "defence",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle"
+      },
+      "text": "That ball didn't have to become a scoring shot.",
+      "repeat_group": "commentator_lines.voice_defence_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.defence.grog.002",
+      "category": "defence",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle"
+      },
+      "text": "You can build an innings around leaving those alone on the scoreboard.",
+      "repeat_group": "commentator_lines.voice_defence_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.defence.grog.003",
+      "category": "defence",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle"
+      },
+      "text": "Defence is a choice, not a defeat.",
+      "repeat_group": "commentator_lines.voice_defence_patience",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.defence.grog.004",
+      "category": "defence",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle"
+      },
+      "text": "Make the bowler come back and do it again.",
+      "repeat_group": "commentator_lines.voice_defence_patience",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.single.bunnings.001",
+      "category": "single",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "They all count. Even the modest ones.",
+      "repeat_group": "commentator_lines.voice_single_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.single.bunnings.002",
+      "category": "single",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "The scorer has something to do.",
+      "repeat_group": "commentator_lines.voice_single_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.single.bunnings.003",
+      "category": "single",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "One is a useful number in this game.",
+      "repeat_group": "commentator_lines.voice_single_patience",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.single.bunnings.004",
+      "category": "single",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "A small deposit in the innings.",
+      "repeat_group": "commentator_lines.voice_single_patience",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.single.lorry.001",
+      "category": "single",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "One more! Keep adding them!",
+      "repeat_group": "commentator_lines.voice_single_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.single.lorry.002",
+      "category": "single",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "There's another run! Don't overlook those!",
+      "repeat_group": "commentator_lines.voice_single_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.single.lorry.003",
+      "category": "single",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "A single! That's how the total gets away from you!",
+      "repeat_group": "commentator_lines.voice_single_patience",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.single.lorry.004",
+      "category": "single",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "Keep the score moving! One does the job!",
+      "repeat_group": "commentator_lines.voice_single_patience",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.single.grog.001",
+      "category": "single",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "The ones are part of the job, too.",
+      "repeat_group": "commentator_lines.voice_single_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.single.grog.002",
+      "category": "single",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "You don't need a boundary to add to the problem.",
+      "repeat_group": "commentator_lines.voice_single_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.single.grog.003",
+      "category": "single",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "A run collected is a run the opposition has to answer.",
+      "repeat_group": "commentator_lines.voice_single_patience",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.single.grog.004",
+      "category": "single",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "Small additions give the innings something to build on.",
+      "repeat_group": "commentator_lines.voice_single_patience",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.outside_edge.bunnings.001",
+      "category": "outside_edge",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.boundary": {
+          "in": [
+            0,
+            4
+          ]
+        }
+      },
+      "text": "The scorebook doesn't ask which part of the bat.",
+      "repeat_group": "commentator_lines.voice_edge_book",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.outside_edge.bunnings.002",
+      "category": "outside_edge",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.boundary": {
+          "in": [
+            0,
+            4
+          ]
+        }
+      },
+      "text": "Not every contact is an endorsement.",
+      "repeat_group": "commentator_lines.voice_edge_book",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.outside_edge.bunnings.003",
+      "category": "outside_edge",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.boundary": {
+          "in": [
+            0,
+            4
+          ]
+        }
+      },
+      "text": "A little encouragement for the bowler there.",
+      "repeat_group": "commentator_lines.voice_edge_warning",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.outside_edge.bunnings.004",
+      "category": "outside_edge",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.boundary": {
+          "in": [
+            0,
+            4
+          ]
+        }
+      },
+      "text": "Something for both sides to think about.",
+      "repeat_group": "commentator_lines.voice_edge_warning",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.outside_edge.lorry.001",
+      "category": "outside_edge",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.boundary": {
+          "in": [
+            0,
+            4
+          ]
+        }
+      },
+      "text": "An edge! The bowler will take an interest in that!",
+      "repeat_group": "commentator_lines.voice_edge_book",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.outside_edge.lorry.002",
+      "category": "outside_edge",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.boundary": {
+          "in": [
+            0,
+            4
+          ]
+        }
+      },
+      "text": "Not the middle! That's for certain!",
+      "repeat_group": "commentator_lines.voice_edge_book",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.outside_edge.lorry.003",
+      "category": "outside_edge",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.boundary": {
+          "in": [
+            0,
+            4
+          ]
+        }
+      },
+      "text": "There's the edge! That's what makes this game!",
+      "repeat_group": "commentator_lines.voice_edge_warning",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.outside_edge.lorry.004",
+      "category": "outside_edge",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.boundary": {
+          "in": [
+            0,
+            4
+          ]
+        }
+      },
+      "text": "The bat has an edge for a reason! Dangerous business!",
+      "repeat_group": "commentator_lines.voice_edge_warning",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.outside_edge.grog.001",
+      "category": "outside_edge",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.boundary": {
+          "in": [
+            0,
+            4
+          ]
+        }
+      },
+      "text": "I'd take that as encouragement if I were bowling.",
+      "repeat_group": "commentator_lines.voice_edge_book",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.outside_edge.grog.002",
+      "category": "outside_edge",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.boundary": {
+          "in": [
+            0,
+            4
+          ]
+        }
+      },
+      "text": "That's the contact the bowler is looking for.",
+      "repeat_group": "commentator_lines.voice_edge_book",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.outside_edge.grog.003",
+      "category": "outside_edge",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.boundary": {
+          "in": [
+            0,
+            4
+          ]
+        }
+      },
+      "text": "An edge gives you a reason to keep asking the question.",
+      "repeat_group": "commentator_lines.voice_edge_warning",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.outside_edge.grog.004",
+      "category": "outside_edge",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.boundary": {
+          "in": [
+            0,
+            4
+          ]
+        }
+      },
+      "text": "The batter got away with that contact. The bowler should remember it.",
+      "repeat_group": "commentator_lines.voice_edge_warning",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.beaten.bunnings.001",
+      "category": "beaten",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "A run for neither side, but the bowler may feel otherwise.",
+      "repeat_group": "commentator_lines.voice_miss_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.beaten.bunnings.002",
+      "category": "beaten",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "The scoreboard is quiet. The contest isn't.",
+      "repeat_group": "commentator_lines.voice_miss_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.beaten.bunnings.003",
+      "category": "beaten",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "A good reason to watch the next delivery.",
+      "repeat_group": "commentator_lines.voice_miss_question",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.beaten.bunnings.004",
+      "category": "beaten",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "Something worth keeping in the bowler's notebook.",
+      "repeat_group": "commentator_lines.voice_miss_question",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.beaten.lorry.001",
+      "category": "beaten",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "He's missed it! That's a contest right there!",
+      "repeat_group": "commentator_lines.voice_miss_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.beaten.lorry.002",
+      "category": "beaten",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "No contact! The bowler has won that exchange!",
+      "repeat_group": "commentator_lines.voice_miss_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.beaten.lorry.003",
+      "category": "beaten",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "Past the bat! What a game this is!",
+      "repeat_group": "commentator_lines.voice_miss_question",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.beaten.lorry.004",
+      "category": "beaten",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "Beaten! There's plenty in a dot ball like that!",
+      "repeat_group": "commentator_lines.voice_miss_question",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.beaten.grog.001",
+      "category": "beaten",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "You've got to make the batter play. That's the reward.",
+      "repeat_group": "commentator_lines.voice_miss_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.beaten.grog.002",
+      "category": "beaten",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "A dot ball can tell you quite a lot.",
+      "repeat_group": "commentator_lines.voice_miss_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.beaten.grog.003",
+      "category": "beaten",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "The bowler has something to work with there.",
+      "repeat_group": "commentator_lines.voice_miss_question",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.beaten.grog.004",
+      "category": "beaten",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "Now decide whether to repeat the ball or change the question.",
+      "repeat_group": "commentator_lines.voice_miss_question",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.four.bunnings.001",
+      "category": "four",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4,
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "A productive piece of batting.",
+      "repeat_group": "commentator_lines.voice_four_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.four.bunnings.002",
+      "category": "four",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4,
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "Four is a pleasant answer to a delivery.",
+      "repeat_group": "commentator_lines.voice_four_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.four.bunnings.003",
+      "category": "four",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4,
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "A stroke worth a second look.",
+      "repeat_group": "commentator_lines.voice_four_contact",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.four.bunnings.004",
+      "category": "four",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4,
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "That makes the scorer's arithmetic quite simple.",
+      "repeat_group": "commentator_lines.voice_four_contact",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.four.lorry.001",
+      "category": "four",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4,
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "Four runs! That's the return you want!",
+      "repeat_group": "commentator_lines.voice_four_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.four.lorry.002",
+      "category": "four",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4,
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "A boundary! That moves things along!",
+      "repeat_group": "commentator_lines.voice_four_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.four.lorry.003",
+      "category": "four",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4,
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "Yes! He's got hold of that one!",
+      "repeat_group": "commentator_lines.voice_four_contact",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.four.lorry.004",
+      "category": "four",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4,
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "Four more! The middle of the bat has spoken!",
+      "repeat_group": "commentator_lines.voice_four_contact",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.four.grog.001",
+      "category": "four",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4,
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "Four runs changes the return from the whole over.",
+      "repeat_group": "commentator_lines.voice_four_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.four.grog.002",
+      "category": "four",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4,
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "A boundary makes the next delivery important.",
+      "repeat_group": "commentator_lines.voice_four_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.four.grog.003",
+      "category": "four",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4,
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "He has made good use of that ball.",
+      "repeat_group": "commentator_lines.voice_four_contact",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.four.grog.004",
+      "category": "four",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4,
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "The bowler has to respond without chasing the game.",
+      "repeat_group": "commentator_lines.voice_four_contact",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.six.bunnings.001",
+      "category": "six",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "The boundary was not quite far enough away.",
+      "repeat_group": "commentator_lines.voice_six_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.six.bunnings.002",
+      "category": "six",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "A rather emphatic contribution to the total.",
+      "repeat_group": "commentator_lines.voice_six_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.six.bunnings.003",
+      "category": "six",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "Six. That saves a little running.",
+      "repeat_group": "commentator_lines.voice_six_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.six.bunnings.004",
+      "category": "six",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "No need to consult the boundary fielder about that one.",
+      "repeat_group": "commentator_lines.voice_six_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.six.lorry.001",
+      "category": "six",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "Six! He's cleared it! All the way!",
+      "repeat_group": "commentator_lines.voice_six_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.six.lorry.002",
+      "category": "six",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "Over the rope! What a strike!",
+      "repeat_group": "commentator_lines.voice_six_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.six.lorry.003",
+      "category": "six",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "Six runs! A great big addition!",
+      "repeat_group": "commentator_lines.voice_six_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.six.lorry.004",
+      "category": "six",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "He's sent it beyond the boundary! Six of them!",
+      "repeat_group": "commentator_lines.voice_six_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.six.grog.001",
+      "category": "six",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "That is the risk and the reward of taking it on.",
+      "repeat_group": "commentator_lines.voice_six_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.six.grog.002",
+      "category": "six",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "The bowler needs a plan for the ball after that.",
+      "repeat_group": "commentator_lines.voice_six_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.six.grog.003",
+      "category": "six",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "Six runs can make a good over look very different.",
+      "repeat_group": "commentator_lines.voice_six_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.six.grog.004",
+      "category": "six",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "You can't put a fielder beyond the rope. Change the delivery.",
+      "repeat_group": "commentator_lines.voice_six_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.wicket.bunnings.001",
+      "category": "wicket",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket.how": {
+          "in": [
+            "bowled",
+            "caught",
+            "lbw",
+            "runout",
+            "stumped"
+          ]
+        }
+      },
+      "text": "A moment for the fielding side to enjoy.",
+      "repeat_group": "commentator_lines.voice_wicket_pause",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.wicket.bunnings.002",
+      "category": "wicket",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket.how": {
+          "in": [
+            "bowled",
+            "caught",
+            "lbw",
+            "runout",
+            "stumped"
+          ]
+        }
+      },
+      "text": "A batter's innings ends, and the game moves on.",
+      "repeat_group": "commentator_lines.voice_wicket_pause",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.wicket.bunnings.003",
+      "category": "wicket",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket.how": {
+          "in": [
+            "bowled",
+            "caught",
+            "lbw",
+            "runout",
+            "stumped"
+          ]
+        }
+      },
+      "text": "Wickets remain a very persuasive argument.",
+      "repeat_group": "commentator_lines.voice_wicket_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.wicket.bunnings.004",
+      "category": "wicket",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket.how": {
+          "in": [
+            "bowled",
+            "caught",
+            "lbw",
+            "runout",
+            "stumped"
+          ]
+        }
+      },
+      "text": "That has changed the scorecard rather more than a dot ball.",
+      "repeat_group": "commentator_lines.voice_wicket_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.wicket.lorry.001",
+      "category": "wicket",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket.how": {
+          "in": [
+            "bowled",
+            "caught",
+            "lbw",
+            "runout",
+            "stumped"
+          ]
+        }
+      },
+      "text": "Out! A wicket! That's the moment they wanted!",
+      "repeat_group": "commentator_lines.voice_wicket_pause",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.wicket.lorry.002",
+      "category": "wicket",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket.how": {
+          "in": [
+            "bowled",
+            "caught",
+            "lbw",
+            "runout",
+            "stumped"
+          ]
+        }
+      },
+      "text": "He's gone! The fielding side has its breakthrough!",
+      "repeat_group": "commentator_lines.voice_wicket_pause",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.wicket.lorry.003",
+      "category": "wicket",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket.how": {
+          "in": [
+            "bowled",
+            "caught",
+            "lbw",
+            "runout",
+            "stumped"
+          ]
+        }
+      },
+      "text": "A wicket falls! That's a big moment!",
+      "repeat_group": "commentator_lines.voice_wicket_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.wicket.lorry.004",
+      "category": "wicket",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket.how": {
+          "in": [
+            "bowled",
+            "caught",
+            "lbw",
+            "runout",
+            "stumped"
+          ]
+        }
+      },
+      "text": "Out of there! What a lift for the fielding side!",
+      "repeat_group": "commentator_lines.voice_wicket_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.wicket.grog.001",
+      "category": "wicket",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket.how": {
+          "in": [
+            "bowled",
+            "caught",
+            "lbw",
+            "runout",
+            "stumped"
+          ]
+        }
+      },
+      "text": "Take the wicket, then think clearly about the next task.",
+      "repeat_group": "commentator_lines.voice_wicket_pause",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.wicket.grog.002",
+      "category": "wicket",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket.how": {
+          "in": [
+            "bowled",
+            "caught",
+            "lbw",
+            "runout",
+            "stumped"
+          ]
+        }
+      },
+      "text": "That's an entry the batting side didn't want in the book.",
+      "repeat_group": "commentator_lines.voice_wicket_pause",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.wicket.grog.003",
+      "category": "wicket",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket.how": {
+          "in": [
+            "bowled",
+            "caught",
+            "lbw",
+            "runout",
+            "stumped"
+          ]
+        }
+      },
+      "text": "A wicket changes the calculation.",
+      "repeat_group": "commentator_lines.voice_wicket_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.wicket.grog.004",
+      "category": "wicket",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket.how": {
+          "in": [
+            "bowled",
+            "caught",
+            "lbw",
+            "runout",
+            "stumped"
+          ]
+        }
+      },
+      "text": "The fielding side has turned a ball into a breakthrough.",
+      "repeat_group": "commentator_lines.voice_wicket_value",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.dropped.bunnings.001",
+      "category": "dropped",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "An opportunity declined, unfortunately.",
+      "repeat_group": "commentator_lines.voice_drop_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.dropped.bunnings.002",
+      "category": "dropped",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "The replay will be less forgiving than I am.",
+      "repeat_group": "commentator_lines.voice_drop_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.dropped.bunnings.003",
+      "category": "dropped",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "We may have reason to remember that.",
+      "repeat_group": "commentator_lines.voice_drop_cost",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.dropped.bunnings.004",
+      "category": "dropped",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "A chance to start again, for one of the two sides.",
+      "repeat_group": "commentator_lines.voice_drop_cost",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.dropped.lorry.001",
+      "category": "dropped",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "Down! Oh, you want those to stick!",
+      "repeat_group": "commentator_lines.voice_drop_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.dropped.lorry.002",
+      "category": "dropped",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "The chance has gone! What a moment for the batter!",
+      "repeat_group": "commentator_lines.voice_drop_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.dropped.lorry.003",
+      "category": "dropped",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "A life! He's been given a life!",
+      "repeat_group": "commentator_lines.voice_drop_cost",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.dropped.lorry.004",
+      "category": "dropped",
+      "speaker": "lorry",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "Put down! They might feel that one later!",
+      "repeat_group": "commentator_lines.voice_drop_cost",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.dropped.grog.001",
+      "category": "dropped",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "Creating the chance is only half the job.",
+      "repeat_group": "commentator_lines.voice_drop_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.dropped.grog.002",
+      "category": "dropped",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "The bowler did enough to produce a catch. It had to be finished.",
+      "repeat_group": "commentator_lines.voice_drop_restraint",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.dropped.grog.003",
+      "category": "dropped",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "You can't put that wicket in the book yet.",
+      "repeat_group": "commentator_lines.voice_drop_cost",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    },
+    {
+      "id": "clab.v1.commentator_lines.dropped.grog.004",
+      "category": "dropped",
+      "speaker": "grog",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "The important thing now is how both sides respond.",
+      "repeat_group": "commentator_lines.voice_drop_cost",
+      "weight": 1,
+      "priority": 20,
+      "cooldown_balls": 48
+    }
+  ]
+}

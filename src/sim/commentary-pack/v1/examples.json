@@ -1,0 +1,2934 @@
+{
+  "schema_version": "1.0.0",
+  "note": "Synthetic completed-ball fixtures, not captured gameplay. Only a subset of the full rec is necessary for this content contract.",
+  "cases": [
+    {
+      "id": "leave_clean",
+      "synthetic": true,
+      "description": "leave clean",
+      "record": {
+        "shot": "leave",
+        "shotName": "",
+        "contact": "none",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "leave_general",
+      "excluded_categories": []
+    },
+    {
+      "id": "leave_off",
+      "synthetic": true,
+      "description": "leave off",
+      "record": {
+        "shot": "leave",
+        "shotName": "",
+        "contact": "none",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "off",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "leave_outside_off",
+      "excluded_categories": []
+    },
+    {
+      "id": "leave_width_not_called_wide",
+      "synthetic": true,
+      "description": "leave width not called wide",
+      "record": {
+        "shot": "leave",
+        "shotName": "",
+        "contact": "none",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "wide",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "leave_width",
+      "excluded_categories": [
+        "wide"
+      ]
+    },
+    {
+      "id": "front_foot_block",
+      "synthetic": true,
+      "description": "front foot block",
+      "record": {
+        "shot": "defend",
+        "shotName": "forward defence",
+        "contact": "middle",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "defence_forward",
+      "excluded_categories": []
+    },
+    {
+      "id": "back_foot_block",
+      "synthetic": true,
+      "description": "back foot block",
+      "record": {
+        "shot": "defend",
+        "shotName": "back-foot defence",
+        "contact": "middle",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "defence_back",
+      "excluded_categories": []
+    },
+    {
+      "id": "block_kept_low",
+      "synthetic": true,
+      "description": "block kept low",
+      "record": {
+        "shot": "defend",
+        "shotName": "forward defence",
+        "contact": "middle",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "low",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "defence_low_bounce",
+      "excluded_categories": []
+    },
+    {
+      "id": "block_extra_bounce",
+      "synthetic": true,
+      "description": "block extra bounce",
+      "record": {
+        "shot": "defend",
+        "shotName": "back-foot defence",
+        "contact": "middle",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "high",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "defence_high_bounce",
+      "excluded_categories": []
+    },
+    {
+      "id": "middled_without_runs",
+      "synthetic": true,
+      "description": "middled without runs",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "middled_dot",
+      "excluded_categories": []
+    },
+    {
+      "id": "mistimed_without_runs",
+      "synthetic": true,
+      "description": "mistimed without runs",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.3,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "mistimed_dot",
+      "excluded_categories": []
+    },
+    {
+      "id": "single_other_shot",
+      "synthetic": true,
+      "description": "single other shot",
+      "record": {
+        "shot": "cutpull",
+        "shotName": "pull",
+        "contact": "middle",
+        "runsBat": 1,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "single_middle",
+      "excluded_categories": []
+    },
+    {
+      "id": "two_runs",
+      "synthetic": true,
+      "description": "two runs",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 2,
+        "total": 2,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "two_middle",
+      "excluded_categories": []
+    },
+    {
+      "id": "three_runs",
+      "synthetic": true,
+      "description": "three runs",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 3,
+        "total": 3,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "three_middle",
+      "excluded_categories": []
+    },
+    {
+      "id": "drive_for_one",
+      "synthetic": true,
+      "description": "drive for one",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 1,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "drive_single",
+      "excluded_categories": []
+    },
+    {
+      "id": "cut_for_one",
+      "synthetic": true,
+      "description": "cut for one",
+      "record": {
+        "shot": "cutpull",
+        "shotName": "late cut",
+        "contact": "middle",
+        "runsBat": 1,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "cut_single",
+      "excluded_categories": []
+    },
+    {
+      "id": "leg_glance_for_one",
+      "synthetic": true,
+      "description": "leg glance for one",
+      "record": {
+        "shot": "cutpull",
+        "shotName": "leg glance",
+        "contact": "middle",
+        "runsBat": 1,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "leg_single",
+      "excluded_categories": []
+    },
+    {
+      "id": "edge_zero_is_not_proof_it_fell_short",
+      "synthetic": true,
+      "description": "edge zero is not proof it fell short",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "thinEdge",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "outside_edge_dot",
+      "excluded_categories": []
+    },
+    {
+      "id": "edge_single",
+      "synthetic": true,
+      "description": "edge single",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "thickEdge",
+        "runsBat": 1,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "outside_edge_single",
+      "excluded_categories": []
+    },
+    {
+      "id": "edge_two",
+      "synthetic": true,
+      "description": "edge two",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "thinEdge",
+        "runsBat": 2,
+        "total": 2,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "outside_edge_two",
+      "excluded_categories": []
+    },
+    {
+      "id": "edge_boundary",
+      "synthetic": true,
+      "description": "edge boundary",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "thickEdge",
+        "runsBat": 4,
+        "total": 4,
+        "boundary": 4,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "outside_edge_four",
+      "excluded_categories": []
+    },
+    {
+      "id": "inside_edge_dot",
+      "synthetic": true,
+      "description": "inside edge dot",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "insideEdge",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "inside_edge_dot",
+      "excluded_categories": []
+    },
+    {
+      "id": "inside_edge_scoring",
+      "synthetic": true,
+      "description": "inside edge scoring",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "insideEdge",
+        "runsBat": 1,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "inside_edge_runs",
+      "excluded_categories": []
+    },
+    {
+      "id": "top_edge_survives",
+      "synthetic": true,
+      "description": "top edge survives",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "topEdge",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "top_edge_dot",
+      "excluded_categories": []
+    },
+    {
+      "id": "glove_survives",
+      "synthetic": true,
+      "description": "glove survives",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "gloved",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "gloved_dot",
+      "excluded_categories": []
+    },
+    {
+      "id": "ordinary_miss",
+      "synthetic": true,
+      "description": "ordinary miss",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "none",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": true,
+        "missReason": "beaten",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "beaten_general",
+      "excluded_categories": []
+    },
+    {
+      "id": "early_miss",
+      "synthetic": true,
+      "description": "early miss",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "none",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": true,
+        "missReason": "early",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "beaten_early",
+      "excluded_categories": []
+    },
+    {
+      "id": "late_miss",
+      "synthetic": true,
+      "description": "late miss",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "none",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": true,
+        "missReason": "late",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "beaten_late",
+      "excluded_categories": []
+    },
+    {
+      "id": "spinner_miss",
+      "synthetic": true,
+      "description": "spinner miss",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "none",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": true,
+        "missReason": "beaten",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": true,
+          "swing": 0,
+          "offPitch": -0.35,
+          "kmh": 82
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "beaten_spin",
+      "excluded_categories": []
+    },
+    {
+      "id": "swing_miss",
+      "synthetic": true,
+      "description": "swing miss",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "none",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": true,
+        "missReason": "beaten",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": -0.3,
+          "offPitch": 0,
+          "kmh": 134
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "beaten_swing",
+      "excluded_categories": []
+    },
+    {
+      "id": "middled_boundary",
+      "synthetic": true,
+      "description": "middled boundary",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 4,
+        "total": 4,
+        "boundary": 4,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.9,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "middle_four",
+      "excluded_categories": []
+    },
+    {
+      "id": "middled_six",
+      "synthetic": true,
+      "description": "middled six",
+      "record": {
+        "shot": "loft",
+        "shotName": "lofted straight drive",
+        "contact": "middle",
+        "runsBat": 6,
+        "total": 6,
+        "boundary": 6,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.9,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "middle_six",
+      "excluded_categories": []
+    },
+    {
+      "id": "caught_ends_edge",
+      "synthetic": true,
+      "description": "caught ends edge",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "thinEdge",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": {
+          "how": "caught",
+          "batter": 0,
+          "fielder": "second slip",
+          "caughtBehind": false
+        },
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "caught_general",
+      "excluded_categories": [
+        "outside_edge_dot",
+        "middled_dot"
+      ]
+    },
+    {
+      "id": "keeper_catch",
+      "synthetic": true,
+      "description": "keeper catch",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "gloved",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": {
+          "how": "caught",
+          "batter": 0,
+          "fielder": "the keeper",
+          "caughtBehind": true
+        },
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "caught_behind",
+      "excluded_categories": [
+        "gloved_dot"
+      ]
+    },
+    {
+      "id": "bowled",
+      "synthetic": true,
+      "description": "bowled",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "none",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": {
+          "how": "bowled",
+          "batter": 0
+        },
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "bowled",
+      "excluded_categories": []
+    },
+    {
+      "id": "dragged_on",
+      "synthetic": true,
+      "description": "dragged on",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "insideEdge",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": {
+          "how": "bowled",
+          "batter": 0
+        },
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "played_on",
+      "excluded_categories": [
+        "inside_edge_dot"
+      ]
+    },
+    {
+      "id": "dropped_edge",
+      "synthetic": true,
+      "description": "dropped edge",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "thinEdge",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": "second slip",
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "dropped",
+      "excluded_categories": [
+        "outside_edge_dot"
+      ]
+    },
+    {
+      "id": "wide_call",
+      "synthetic": true,
+      "description": "wide call",
+      "record": {
+        "shot": "leave",
+        "shotName": "",
+        "contact": "none",
+        "runsBat": 0,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": "wd",
+          "runs": 1
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": false
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "wide",
+      "excluded_categories": [
+        "leave_general",
+        "single_middle"
+      ]
+    },
+    {
+      "id": "no_ball_plus_boundary",
+      "synthetic": true,
+      "description": "no ball plus boundary",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 4,
+        "total": 5,
+        "boundary": 4,
+        "extra": {
+          "type": "nb",
+          "runs": 1
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": false
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "no_ball",
+      "excluded_categories": [
+        "middle_four",
+        "single_middle"
+      ]
+    },
+    {
+      "id": "byes",
+      "synthetic": true,
+      "description": "byes",
+      "record": {
+        "shot": "leave",
+        "shotName": "",
+        "contact": "none",
+        "runsBat": 0,
+        "total": 2,
+        "boundary": 0,
+        "extra": {
+          "type": "b",
+          "runs": 2
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "byes",
+      "excluded_categories": [
+        "two_middle",
+        "leave_general"
+      ]
+    },
+    {
+      "id": "leg_byes",
+      "synthetic": true,
+      "description": "leg byes",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "none",
+        "runsBat": 0,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": "lb",
+          "runs": 1
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "missing",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "leg_byes",
+      "excluded_categories": [
+        "single_middle",
+        "pad_no_run"
+      ]
+    },
+    {
+      "id": "pad_without_appeal",
+      "synthetic": true,
+      "description": "pad without appeal",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "none",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "pitched outside leg",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "pad_no_run",
+      "excluded_categories": [
+        "beaten_general"
+      ]
+    },
+    {
+      "id": "bottom_edge_survives",
+      "synthetic": true,
+      "description": "bottom edge survives",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "bottomEdge",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "bottom_edge_dot",
+      "excluded_categories": []
+    },
+    {
+      "id": "single_last_ball_no_strike_claim",
+      "synthetic": true,
+      "description": "single last ball no strike claim",
+      "record": {
+        "shot": "cutpull",
+        "shotName": "pull",
+        "contact": "middle",
+        "runsBat": 1,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 6,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "single_middle",
+      "excluded_categories": []
+    },
+    {
+      "id": "four_all_run_not_boundary",
+      "synthetic": true,
+      "description": "four all run not boundary",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 4,
+        "total": 4,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": null,
+      "excluded_categories": [
+        "middle_four",
+        "outside_edge_four"
+      ]
+    },
+    {
+      "id": "edge_four_on_no_ball",
+      "synthetic": true,
+      "description": "edge four on no ball",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "thinEdge",
+        "runsBat": 4,
+        "total": 5,
+        "boundary": 4,
+        "extra": {
+          "type": "nb",
+          "runs": 1
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": false
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "no_ball",
+      "excluded_categories": [
+        "outside_edge_four"
+      ]
+    },
+    {
+      "id": "free_hit_drop_not_missed_wicket",
+      "synthetic": true,
+      "description": "free hit drop not missed wicket",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": "cover",
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": true,
+        "nearRunout": null,
+        "moment": {
+          "kind": "droppedOn",
+          "n": 12,
+          "k": 0
+        },
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": null,
+      "excluded_categories": [
+        "dropped"
+      ]
+    },
+    {
+      "id": "no_ball_drop_not_missed_wicket",
+      "synthetic": true,
+      "description": "no ball drop not missed wicket",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 0,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": "nb",
+          "runs": 1
+        },
+        "wicket": null,
+        "dropped": "cover",
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": false
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": null,
+      "excluded_categories": [
+        "dropped"
+      ]
+    },
+    {
+      "id": "missing_extra_is_not_clean",
+      "synthetic": true,
+      "description": "missing extra is not clean",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "thinEdge",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": null,
+      "excluded_categories": [
+        "outside_edge_dot"
+      ]
+    },
+    {
+      "id": "missing_contact_is_not_middle",
+      "synthetic": true,
+      "description": "missing contact is not middle",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "runsBat": 1,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": null,
+      "excluded_categories": [
+        "single_middle"
+      ]
+    },
+    {
+      "id": "missing_swing_is_not_swing_proof",
+      "synthetic": true,
+      "description": "missing swing is not swing proof",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "none",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": true,
+        "missReason": "beaten",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "beaten_general",
+      "excluded_categories": [
+        "beaten_swing"
+      ]
+    },
+    {
+      "id": "unknown_shot_label_uses_general",
+      "synthetic": true,
+      "description": "unknown shot label uses general",
+      "record": {
+        "shot": "cutpull",
+        "shotName": "unrecognised label",
+        "contact": "middle",
+        "runsBat": 1,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": null,
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "single_middle",
+      "excluded_categories": []
+    },
+    {
+      "id": "context_offTheMark",
+      "synthetic": true,
+      "description": "context offTheMark",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 1,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": {
+          "kind": "offTheMark",
+          "n": 50,
+          "k": 0
+        },
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "drive_single",
+      "excluded_categories": [],
+      "expected_context_category": "offTheMark"
+    },
+    {
+      "id": "context_droughtEnds",
+      "synthetic": true,
+      "description": "context droughtEnds",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 1,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": {
+          "kind": "droughtEnds",
+          "n": 12,
+          "k": 0
+        },
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "drive_single",
+      "excluded_categories": [],
+      "expected_context_category": "droughtEnds"
+    },
+    {
+      "id": "context_dotsBuilding",
+      "synthetic": true,
+      "description": "context dotsBuilding",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": {
+          "kind": "dotsBuilding",
+          "n": 18,
+          "k": 0
+        },
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "middled_dot",
+      "excluded_categories": [],
+      "expected_context_category": "dotsBuilding"
+    },
+    {
+      "id": "context_maiden",
+      "synthetic": true,
+      "description": "context maiden",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": {
+          "kind": "maiden",
+          "n": 50,
+          "k": 0
+        },
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "middled_dot",
+      "excluded_categories": [],
+      "expected_context_category": "maiden"
+    },
+    {
+      "id": "context_standBroken",
+      "synthetic": true,
+      "description": "context standBroken",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": {
+          "how": "caught",
+          "batter": 0,
+          "fielder": "cover",
+          "caughtBehind": false
+        },
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": {
+          "kind": "standBroken",
+          "n": 75,
+          "k": 0
+        },
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "caught_general",
+      "excluded_categories": [],
+      "expected_context_category": "standBroken"
+    },
+    {
+      "id": "context_fifty",
+      "synthetic": true,
+      "description": "context fifty",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 1,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": {
+          "kind": "fifty",
+          "n": 50,
+          "k": 0
+        },
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "drive_single",
+      "excluded_categories": [],
+      "expected_context_category": "fifty"
+    },
+    {
+      "id": "context_hundred",
+      "synthetic": true,
+      "description": "context hundred",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 1,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": {
+          "kind": "hundred",
+          "n": 50,
+          "k": 0
+        },
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "drive_single",
+      "excluded_categories": [],
+      "expected_context_category": "hundred"
+    },
+    {
+      "id": "context_collapse",
+      "synthetic": true,
+      "description": "context collapse",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": {
+          "how": "caught",
+          "batter": 0,
+          "fielder": "cover",
+          "caughtBehind": false
+        },
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": {
+          "kind": "collapse",
+          "n": 14,
+          "k": 3
+        },
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "caught_general",
+      "excluded_categories": [],
+      "expected_context_category": "collapse"
+    },
+    {
+      "id": "context_winningRuns",
+      "synthetic": true,
+      "description": "context winningRuns",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 1,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": {
+          "kind": "winningRuns",
+          "n": 50,
+          "k": 0
+        },
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "drive_single",
+      "excluded_categories": [],
+      "expected_context_category": "winningRuns"
+    },
+    {
+      "id": "context_droppedOn",
+      "synthetic": true,
+      "description": "context droppedOn",
+      "record": {
+        "shot": "drive",
+        "shotName": "cover drive",
+        "contact": "middle",
+        "runsBat": 0,
+        "total": 0,
+        "boundary": 0,
+        "extra": {
+          "type": null,
+          "runs": 0
+        },
+        "wicket": null,
+        "dropped": "cover",
+        "padVerdict": "",
+        "quality": 0.8,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": {
+          "kind": "droppedOn",
+          "n": 0,
+          "k": 0
+        },
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "dropped",
+      "excluded_categories": [],
+      "expected_context_category": "droppedOn"
+    },
+    {
+      "id": "maiden_can_include_byes",
+      "synthetic": true,
+      "description": "maiden can include byes",
+      "record": {
+        "shot": "leave",
+        "shotName": "",
+        "contact": "none",
+        "runsBat": 0,
+        "total": 1,
+        "boundary": 0,
+        "extra": {
+          "type": "b",
+          "runs": 1
+        },
+        "wicket": null,
+        "dropped": null,
+        "padVerdict": "",
+        "quality": 0,
+        "bounceNote": "",
+        "beatBat": false,
+        "missReason": "",
+        "freeHit": false,
+        "nearRunout": null,
+        "moment": {
+          "kind": "maiden",
+          "n": 0,
+          "k": 0
+        },
+        "seenBall": {
+          "line": "stumps",
+          "length": "good"
+        },
+        "movement": {
+          "spin": false,
+          "swing": 0,
+          "offPitch": 0,
+          "kmh": 132
+        },
+        "over": 3,
+        "ball": 2,
+        "legal": true
+      },
+      "names": {
+        "b": "LA BONSHANE",
+        "w": "STORK"
+      },
+      "expected_primary_category": "byes",
+      "excluded_categories": [],
+      "expected_context_category": "maiden"
+    }
+  ]
+}

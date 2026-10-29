@@ -1,0 +1,6760 @@
+{
+  "schema_version": "1.0.0",
+  "pack_id": "cricketlab-commentary-ordinary-v1",
+  "pack_version": "1.0.0",
+  "bank": "ball_calls",
+  "entries": [
+    {
+      "id": "clab.v1.ball_calls.leave_general.neutral.001",
+      "category": "leave_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none"
+      },
+      "text": "{b} watches it go. No run.",
+      "repeat_group": "ball_calls.leave_watch",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_general.neutral.002",
+      "category": "leave_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none"
+      },
+      "text": "No stroke from {b}. Nothing added.",
+      "repeat_group": "ball_calls.leave_restraint",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_general.neutral.003",
+      "category": "leave_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none"
+      },
+      "text": "Allowed to pass. The score stays as it was.",
+      "repeat_group": "ball_calls.leave_pass",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_general.neutral.004",
+      "category": "leave_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none"
+      },
+      "text": "{b} follows that one with the eyes, not the bat. No run.",
+      "repeat_group": "ball_calls.leave_watch",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_general.neutral.005",
+      "category": "leave_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none"
+      },
+      "text": "No temptation for {b}. Left alone.",
+      "repeat_group": "ball_calls.leave_restraint",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_general.neutral.006",
+      "category": "leave_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none"
+      },
+      "text": "Through without a stroke. No run.",
+      "repeat_group": "ball_calls.leave_pass",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_general.neutral.007",
+      "category": "leave_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none"
+      },
+      "text": "{b} is happy to wait. Lets that one go.",
+      "repeat_group": "ball_calls.leave_patience",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_general.neutral.008",
+      "category": "leave_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none"
+      },
+      "text": "The ball is watched through by {b}. Nothing doing.",
+      "repeat_group": "ball_calls.leave_patience",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_outside_off.neutral.001",
+      "category": "leave_outside_off",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none",
+        "rec.seenBall.line": "off"
+      },
+      "text": "Outside off, and {b} watches it pass. No run.",
+      "repeat_group": "ball_calls.leave_off_watch",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_outside_off.neutral.002",
+      "category": "leave_outside_off",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none",
+        "rec.seenBall.line": "off"
+      },
+      "text": "{b} leaves the one outside off. Nothing added.",
+      "repeat_group": "ball_calls.leave_off_restraint",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_outside_off.neutral.003",
+      "category": "leave_outside_off",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none",
+        "rec.seenBall.line": "off"
+      },
+      "text": "No stroke offered outside off stump. No run.",
+      "repeat_group": "ball_calls.leave_off_watch",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_outside_off.neutral.004",
+      "category": "leave_outside_off",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none",
+        "rec.seenBall.line": "off"
+      },
+      "text": "{b} keeps the bat out of that one. Left outside off.",
+      "repeat_group": "ball_calls.leave_off_restraint",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_outside_off.neutral.005",
+      "category": "leave_outside_off",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none",
+        "rec.seenBall.line": "off"
+      },
+      "text": "The ball is outside off; {b} lets it continue on its way.",
+      "repeat_group": "ball_calls.leave_off_pass",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_outside_off.neutral.006",
+      "category": "leave_outside_off",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none",
+        "rec.seenBall.line": "off"
+      },
+      "text": "{b} declines the invitation outside off. No run.",
+      "repeat_group": "ball_calls.leave_off_patience",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_outside_off.neutral.007",
+      "category": "leave_outside_off",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none",
+        "rec.seenBall.line": "off"
+      },
+      "text": "Outside the off stump. Left alone.",
+      "repeat_group": "ball_calls.leave_off_pass",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_outside_off.neutral.008",
+      "category": "leave_outside_off",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none",
+        "rec.seenBall.line": "off"
+      },
+      "text": "{b} waits for something else. No shot outside off.",
+      "repeat_group": "ball_calls.leave_off_patience",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_width.neutral.001",
+      "category": "leave_width",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none",
+        "rec.seenBall.line": "wide"
+      },
+      "text": "Width outside off, and {b} leaves it. No run.",
+      "repeat_group": "ball_calls.leave_width_watch",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_width.neutral.002",
+      "category": "leave_width",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none",
+        "rec.seenBall.line": "wide"
+      },
+      "text": "{b} has no interest in following that wide one.",
+      "repeat_group": "ball_calls.leave_width_restraint",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_width.neutral.003",
+      "category": "leave_width",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none",
+        "rec.seenBall.line": "wide"
+      },
+      "text": "A wide line outside off. No stroke, no run.",
+      "repeat_group": "ball_calls.leave_width_pass",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_width.neutral.004",
+      "category": "leave_width",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none",
+        "rec.seenBall.line": "wide"
+      },
+      "text": "{b} can afford to leave that line. Nothing added.",
+      "repeat_group": "ball_calls.leave_width_patience",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_width.neutral.005",
+      "category": "leave_width",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none",
+        "rec.seenBall.line": "wide"
+      },
+      "text": "Out there outside off. {b} doesn't go after it.",
+      "repeat_group": "ball_calls.leave_width_restraint",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_width.neutral.006",
+      "category": "leave_width",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none",
+        "rec.seenBall.line": "wide"
+      },
+      "text": "Allowed to pass well outside off. No run.",
+      "repeat_group": "ball_calls.leave_width_pass",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_width.neutral.007",
+      "category": "leave_width",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none",
+        "rec.seenBall.line": "wide"
+      },
+      "text": "{b} watches the ball outside off and keeps the bat away.",
+      "repeat_group": "ball_calls.leave_width_watch",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leave_width.neutral.008",
+      "category": "leave_width",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "leave",
+        "rec.contact": "none",
+        "rec.seenBall.line": "wide"
+      },
+      "text": "That line gets no response from {b}. Left alone.",
+      "repeat_group": "ball_calls.leave_width_patience",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_forward.neutral.001",
+      "category": "defence_forward",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.shotName": "forward defence"
+      },
+      "text": "Forward defence from {b}. No run.",
+      "repeat_group": "ball_calls.defence_forward_block",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_forward.neutral.002",
+      "category": "defence_forward",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.shotName": "forward defence"
+      },
+      "text": "{b} meets it with the middle in defence. Nothing added.",
+      "repeat_group": "ball_calls.defence_forward_middle",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_forward.neutral.003",
+      "category": "defence_forward",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.shotName": "forward defence"
+      },
+      "text": "Blocked on the front foot. The score doesn't move.",
+      "repeat_group": "ball_calls.defence_forward_block",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_forward.neutral.004",
+      "category": "defence_forward",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.shotName": "forward defence"
+      },
+      "text": "{b} is content to defend that one. No run.",
+      "repeat_group": "ball_calls.defence_forward_patience",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_forward.neutral.005",
+      "category": "defence_forward",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.shotName": "forward defence"
+      },
+      "text": "A clean defensive contact from {b}. No run.",
+      "repeat_group": "ball_calls.defence_forward_middle",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_forward.neutral.006",
+      "category": "defence_forward",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.shotName": "forward defence"
+      },
+      "text": "The front-foot block is all {b} wants there.",
+      "repeat_group": "ball_calls.defence_forward_patience",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_forward.neutral.007",
+      "category": "defence_forward",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.shotName": "forward defence"
+      },
+      "text": "Played defensively on the front foot. Nothing doing.",
+      "repeat_group": "ball_calls.defence_forward_block",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_forward.neutral.008",
+      "category": "defence_forward",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.shotName": "forward defence"
+      },
+      "text": "{b} finds the middle with the forward defence. No run.",
+      "repeat_group": "ball_calls.defence_forward_middle",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_back.neutral.001",
+      "category": "defence_back",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.shotName": "back-foot defence"
+      },
+      "text": "Back-foot defence. No run for {b}.",
+      "repeat_group": "ball_calls.defence_back_block",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_back.neutral.002",
+      "category": "defence_back",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.shotName": "back-foot defence"
+      },
+      "text": "{b} meets it cleanly on the back foot. Nothing added.",
+      "repeat_group": "ball_calls.defence_back_middle",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_back.neutral.003",
+      "category": "defence_back",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.shotName": "back-foot defence"
+      },
+      "text": "Blocked from the back foot. The score stays put.",
+      "repeat_group": "ball_calls.defence_back_block",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_back.neutral.004",
+      "category": "defence_back",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.shotName": "back-foot defence"
+      },
+      "text": "{b} goes back to defend. No run.",
+      "repeat_group": "ball_calls.defence_back_patience",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_back.neutral.005",
+      "category": "defence_back",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.shotName": "back-foot defence"
+      },
+      "text": "Middle of the bat in defence. {b} adds nothing.",
+      "repeat_group": "ball_calls.defence_back_middle",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_back.neutral.006",
+      "category": "defence_back",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.shotName": "back-foot defence"
+      },
+      "text": "A defensive response on the back foot. No run there.",
+      "repeat_group": "ball_calls.defence_back_patience",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_back.neutral.007",
+      "category": "defence_back",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.shotName": "back-foot defence"
+      },
+      "text": "{b} plays the back-foot block. Nothing doing.",
+      "repeat_group": "ball_calls.defence_back_block",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_back.neutral.008",
+      "category": "defence_back",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.shotName": "back-foot defence"
+      },
+      "text": "Clean contact with that back-foot defence. No run.",
+      "repeat_group": "ball_calls.defence_back_middle",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_low_bounce.neutral.001",
+      "category": "defence_low_bounce",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.bounceNote": "low"
+      },
+      "text": "Keeps low, but {b} gets bat to it. No run.",
+      "repeat_group": "ball_calls.defence_low_response",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_low_bounce.neutral.002",
+      "category": "defence_low_bounce",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.bounceNote": "low"
+      },
+      "text": "Low bounce there. {b} defends it.",
+      "repeat_group": "ball_calls.defence_low_warning",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_low_bounce.neutral.003",
+      "category": "defence_low_bounce",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.bounceNote": "low"
+      },
+      "text": "{b} deals with one that stays down. Nothing added.",
+      "repeat_group": "ball_calls.defence_low_response",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_low_bounce.neutral.004",
+      "category": "defence_low_bounce",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.bounceNote": "low"
+      },
+      "text": "A reminder about the bounce. Blocked by {b}.",
+      "repeat_group": "ball_calls.defence_low_warning",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_low_bounce.neutral.005",
+      "category": "defence_low_bounce",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.bounceNote": "low"
+      },
+      "text": "Less bounce than expected. {b} makes the defensive contact.",
+      "repeat_group": "ball_calls.defence_low_response",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_low_bounce.neutral.006",
+      "category": "defence_low_bounce",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.bounceNote": "low"
+      },
+      "text": "That one stays low. No run from the defence.",
+      "repeat_group": "ball_calls.defence_low_warning",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_low_bounce.neutral.007",
+      "category": "defence_low_bounce",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.bounceNote": "low"
+      },
+      "text": "{b} manages the low one with the bat. No run.",
+      "repeat_group": "ball_calls.defence_low_response",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_low_bounce.neutral.008",
+      "category": "defence_low_bounce",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.bounceNote": "low"
+      },
+      "text": "Not much lift off the surface. {b} keeps it out.",
+      "repeat_group": "ball_calls.defence_low_warning",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_high_bounce.neutral.001",
+      "category": "defence_high_bounce",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.bounceNote": "high"
+      },
+      "text": "Extra bounce, but {b} gets bat on it. No run.",
+      "repeat_group": "ball_calls.defence_high_response",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_high_bounce.neutral.002",
+      "category": "defence_high_bounce",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.bounceNote": "high"
+      },
+      "text": "That one lifts. {b} makes the defensive contact.",
+      "repeat_group": "ball_calls.defence_high_warning",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_high_bounce.neutral.003",
+      "category": "defence_high_bounce",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.bounceNote": "high"
+      },
+      "text": "{b} deals with the bounce and defends. Nothing added.",
+      "repeat_group": "ball_calls.defence_high_response",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_high_bounce.neutral.004",
+      "category": "defence_high_bounce",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.bounceNote": "high"
+      },
+      "text": "More bounce there. No run from the block.",
+      "repeat_group": "ball_calls.defence_high_warning",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_high_bounce.neutral.005",
+      "category": "defence_high_bounce",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.bounceNote": "high"
+      },
+      "text": "The ball gets up, and {b} meets it in defence.",
+      "repeat_group": "ball_calls.defence_high_response",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_high_bounce.neutral.006",
+      "category": "defence_high_bounce",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.bounceNote": "high"
+      },
+      "text": "A lively bounce. {b} keeps the ball out.",
+      "repeat_group": "ball_calls.defence_high_warning",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_high_bounce.neutral.007",
+      "category": "defence_high_bounce",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.bounceNote": "high"
+      },
+      "text": "{b} gets the bat to the one that climbs. No run.",
+      "repeat_group": "ball_calls.defence_high_response",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.defence_high_bounce.neutral.008",
+      "category": "defence_high_bounce",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.shot": "defend",
+        "rec.contact": "middle",
+        "rec.bounceNote": "high"
+      },
+      "text": "Some lift off the surface. Defended for no run.",
+      "repeat_group": "ball_calls.defence_high_warning",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middled_dot.neutral.001",
+      "category": "middled_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "middle",
+        "rec.shot": {
+          "not_in": [
+            "defend",
+            "leave"
+          ]
+        },
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "Finds the middle, but no run for {b}.",
+      "repeat_group": "ball_calls.dot_middle_result",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middled_dot.neutral.002",
+      "category": "middled_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "middle",
+        "rec.shot": {
+          "not_in": [
+            "defend",
+            "leave"
+          ]
+        },
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "Clean contact. The score stays where it is.",
+      "repeat_group": "ball_calls.dot_middle_score",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middled_dot.neutral.003",
+      "category": "middled_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "middle",
+        "rec.shot": {
+          "not_in": [
+            "defend",
+            "leave"
+          ]
+        },
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "{b} gets bat on ball nicely. Nothing added.",
+      "repeat_group": "ball_calls.dot_middle_result",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middled_dot.neutral.004",
+      "category": "middled_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "middle",
+        "rec.shot": {
+          "not_in": [
+            "defend",
+            "leave"
+          ]
+        },
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "A middled shot, and still a dot in the book.",
+      "repeat_group": "ball_calls.dot_middle_score",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middled_dot.neutral.005",
+      "category": "middled_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "middle",
+        "rec.shot": {
+          "not_in": [
+            "defend",
+            "leave"
+          ]
+        },
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "No run, despite the clean contact from {b}.",
+      "repeat_group": "ball_calls.dot_middle_result",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middled_dot.neutral.006",
+      "category": "middled_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "middle",
+        "rec.shot": {
+          "not_in": [
+            "defend",
+            "leave"
+          ]
+        },
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "The middle of the bat does the work. No change to the score.",
+      "repeat_group": "ball_calls.dot_middle_score",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middled_dot.neutral.007",
+      "category": "middled_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "middle",
+        "rec.shot": {
+          "not_in": [
+            "defend",
+            "leave"
+          ]
+        },
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "{b} connects cleanly. They take nothing from it.",
+      "repeat_group": "ball_calls.dot_middle_result",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middled_dot.neutral.008",
+      "category": "middled_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "middle",
+        "rec.shot": {
+          "not_in": [
+            "defend",
+            "leave"
+          ]
+        },
+        "rec.quality": {
+          "gte": 0.55
+        }
+      },
+      "text": "A clean strike without a run to show for it.",
+      "repeat_group": "ball_calls.dot_middle_score",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.mistimed_dot.neutral.001",
+      "category": "mistimed_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "middle",
+        "rec.shot": {
+          "not_in": [
+            "defend",
+            "leave"
+          ]
+        },
+        "rec.quality": {
+          "lt": 0.55
+        }
+      },
+      "text": "Not quite timed by {b}. No run.",
+      "repeat_group": "ball_calls.dot_timing_result",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.mistimed_dot.neutral.002",
+      "category": "mistimed_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "middle",
+        "rec.shot": {
+          "not_in": [
+            "defend",
+            "leave"
+          ]
+        },
+        "rec.quality": {
+          "lt": 0.55
+        }
+      },
+      "text": "{b} makes contact without finding the timing. Nothing added.",
+      "repeat_group": "ball_calls.dot_timing_score",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.mistimed_dot.neutral.003",
+      "category": "mistimed_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "middle",
+        "rec.shot": {
+          "not_in": [
+            "defend",
+            "leave"
+          ]
+        },
+        "rec.quality": {
+          "lt": 0.55
+        }
+      },
+      "text": "A mistimed stroke, and a dot ball.",
+      "repeat_group": "ball_calls.dot_timing_result",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.mistimed_dot.neutral.004",
+      "category": "mistimed_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "middle",
+        "rec.shot": {
+          "not_in": [
+            "defend",
+            "leave"
+          ]
+        },
+        "rec.quality": {
+          "lt": 0.55
+        }
+      },
+      "text": "No run. {b} hasn't got hold of that one.",
+      "repeat_group": "ball_calls.dot_timing_score",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.mistimed_dot.neutral.005",
+      "category": "mistimed_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "middle",
+        "rec.shot": {
+          "not_in": [
+            "defend",
+            "leave"
+          ]
+        },
+        "rec.quality": {
+          "lt": 0.55
+        }
+      },
+      "text": "The timing is missing from that shot. No run.",
+      "repeat_group": "ball_calls.dot_timing_result",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.mistimed_dot.neutral.006",
+      "category": "mistimed_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "middle",
+        "rec.shot": {
+          "not_in": [
+            "defend",
+            "leave"
+          ]
+        },
+        "rec.quality": {
+          "lt": 0.55
+        }
+      },
+      "text": "{b} connects, but it brings nothing to the total.",
+      "repeat_group": "ball_calls.dot_timing_score",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.mistimed_dot.neutral.007",
+      "category": "mistimed_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "middle",
+        "rec.shot": {
+          "not_in": [
+            "defend",
+            "leave"
+          ]
+        },
+        "rec.quality": {
+          "lt": 0.55
+        }
+      },
+      "text": "Not the contact {b} wanted. Nothing doing.",
+      "repeat_group": "ball_calls.dot_timing_result",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.mistimed_dot.neutral.008",
+      "category": "mistimed_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "middle",
+        "rec.shot": {
+          "not_in": [
+            "defend",
+            "leave"
+          ]
+        },
+        "rec.quality": {
+          "lt": 0.55
+        }
+      },
+      "text": "A shot played without much timing. The score stays put.",
+      "repeat_group": "ball_calls.dot_timing_score",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.single_middle.neutral.001",
+      "category": "single_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "One more for {b}.",
+      "repeat_group": "ball_calls.single_score",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.single_middle.neutral.002",
+      "category": "single_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "They take the single. The total moves on.",
+      "repeat_group": "ball_calls.single_running",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.single_middle.neutral.003",
+      "category": "single_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "{b} adds one more to the tally.",
+      "repeat_group": "ball_calls.single_strike",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.single_middle.neutral.004",
+      "category": "single_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "A single from that stroke.",
+      "repeat_group": "ball_calls.single_score",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.single_middle.neutral.005",
+      "category": "single_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "Through for one. Nothing more taken.",
+      "repeat_group": "ball_calls.single_running",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.single_middle.neutral.006",
+      "category": "single_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "One to {b}; another small addition.",
+      "repeat_group": "ball_calls.single_strike",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.single_middle.neutral.007",
+      "category": "single_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "The score goes up by one.",
+      "repeat_group": "ball_calls.single_score",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.single_middle.neutral.008",
+      "category": "single_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "They get a run from it. Just the single.",
+      "repeat_group": "ball_calls.single_running",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.two_middle.neutral.001",
+      "category": "two_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 2,
+        "rec.total": 2,
+        "rec.boundary": 0
+      },
+      "text": "Two added by {b}.",
+      "repeat_group": "ball_calls.two_result",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.two_middle.neutral.002",
+      "category": "two_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 2,
+        "rec.total": 2,
+        "rec.boundary": 0
+      },
+      "text": "They come back for a second. Two runs.",
+      "repeat_group": "ball_calls.two_running",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.two_middle.neutral.003",
+      "category": "two_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 2,
+        "rec.total": 2,
+        "rec.boundary": 0
+      },
+      "text": "A couple more to the total.",
+      "repeat_group": "ball_calls.two_score",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.two_middle.neutral.004",
+      "category": "two_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 2,
+        "rec.total": 2,
+        "rec.boundary": 0
+      },
+      "text": "{b} gets two from that shot.",
+      "repeat_group": "ball_calls.two_result",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.two_middle.neutral.005",
+      "category": "two_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 2,
+        "rec.total": 2,
+        "rec.boundary": 0
+      },
+      "text": "One wasn't enough. They complete the second.",
+      "repeat_group": "ball_calls.two_running",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.two_middle.neutral.006",
+      "category": "two_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 2,
+        "rec.total": 2,
+        "rec.boundary": 0
+      },
+      "text": "Two in the book for {b}.",
+      "repeat_group": "ball_calls.two_score",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.two_middle.neutral.007",
+      "category": "two_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 2,
+        "rec.total": 2,
+        "rec.boundary": 0
+      },
+      "text": "A pair of runs from that stroke.",
+      "repeat_group": "ball_calls.two_result",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.two_middle.neutral.008",
+      "category": "two_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 2,
+        "rec.total": 2,
+        "rec.boundary": 0
+      },
+      "text": "They turn it into two. The score moves on.",
+      "repeat_group": "ball_calls.two_running",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.three_middle.neutral.001",
+      "category": "three_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 3,
+        "rec.total": 3,
+        "rec.boundary": 0
+      },
+      "text": "Three runs for {b}.",
+      "repeat_group": "ball_calls.three_result",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.three_middle.neutral.002",
+      "category": "three_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 3,
+        "rec.total": 3,
+        "rec.boundary": 0
+      },
+      "text": "They complete the third. Three added.",
+      "repeat_group": "ball_calls.three_running",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.three_middle.neutral.003",
+      "category": "three_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 3,
+        "rec.total": 3,
+        "rec.boundary": 0
+      },
+      "text": "Three more in the book.",
+      "repeat_group": "ball_calls.three_score",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.three_middle.neutral.004",
+      "category": "three_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 3,
+        "rec.total": 3,
+        "rec.boundary": 0
+      },
+      "text": "{b} gets three from that stroke.",
+      "repeat_group": "ball_calls.three_result",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.three_middle.neutral.005",
+      "category": "three_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 3,
+        "rec.total": 3,
+        "rec.boundary": 0
+      },
+      "text": "Back they come once more. Three runs.",
+      "repeat_group": "ball_calls.three_running",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.three_middle.neutral.006",
+      "category": "three_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 3,
+        "rec.total": 3,
+        "rec.boundary": 0
+      },
+      "text": "The total moves up by three.",
+      "repeat_group": "ball_calls.three_score",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.three_middle.neutral.007",
+      "category": "three_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 3,
+        "rec.total": 3,
+        "rec.boundary": 0
+      },
+      "text": "A three to {b}. The tally keeps moving.",
+      "repeat_group": "ball_calls.three_result",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.three_middle.neutral.008",
+      "category": "three_middle",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 3,
+        "rec.total": 3,
+        "rec.boundary": 0
+      },
+      "text": "They make it through for three.",
+      "repeat_group": "ball_calls.three_running",
+      "weight": 1,
+      "priority": 25,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.drive_single.neutral.001",
+      "category": "drive_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "cover drive",
+            "off drive",
+            "straight drive",
+            "on drive",
+            "square drive",
+            "back-foot drive"
+          ]
+        }
+      },
+      "text": "{b} plays the {s} for one.",
+      "repeat_group": "ball_calls.drive_single_name",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.drive_single.neutral.002",
+      "category": "drive_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "cover drive",
+            "off drive",
+            "straight drive",
+            "on drive",
+            "square drive",
+            "back-foot drive"
+          ]
+        }
+      },
+      "text": "A single from the {s}.",
+      "repeat_group": "ball_calls.drive_single_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.drive_single.neutral.003",
+      "category": "drive_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "cover drive",
+            "off drive",
+            "straight drive",
+            "on drive",
+            "square drive",
+            "back-foot drive"
+          ]
+        }
+      },
+      "text": "The {s} brings {b} a run.",
+      "repeat_group": "ball_calls.drive_single_name",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.drive_single.neutral.004",
+      "category": "drive_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "cover drive",
+            "off drive",
+            "straight drive",
+            "on drive",
+            "square drive",
+            "back-foot drive"
+          ]
+        }
+      },
+      "text": "Driven, and they take one.",
+      "repeat_group": "ball_calls.drive_single_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.drive_single.neutral.005",
+      "category": "drive_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "cover drive",
+            "off drive",
+            "straight drive",
+            "on drive",
+            "square drive",
+            "back-foot drive"
+          ]
+        }
+      },
+      "text": "{b} gets one with that {s}.",
+      "repeat_group": "ball_calls.drive_single_name",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.drive_single.neutral.006",
+      "category": "drive_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "cover drive",
+            "off drive",
+            "straight drive",
+            "on drive",
+            "square drive",
+            "back-foot drive"
+          ]
+        }
+      },
+      "text": "A drive and a single. The innings moves along.",
+      "repeat_group": "ball_calls.drive_single_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.drive_single.neutral.007",
+      "category": "drive_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "cover drive",
+            "off drive",
+            "straight drive",
+            "on drive",
+            "square drive",
+            "back-foot drive"
+          ]
+        }
+      },
+      "text": "One added from the {s}.",
+      "repeat_group": "ball_calls.drive_single_name",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.drive_single.neutral.008",
+      "category": "drive_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "cover drive",
+            "off drive",
+            "straight drive",
+            "on drive",
+            "square drive",
+            "back-foot drive"
+          ]
+        }
+      },
+      "text": "{b} drives and completes the single.",
+      "repeat_group": "ball_calls.drive_single_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.cut_single.neutral.001",
+      "category": "cut_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "cut",
+            "late cut"
+          ]
+        }
+      },
+      "text": "A {s} from {b}. One run.",
+      "repeat_group": "ball_calls.cut_single_name",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.cut_single.neutral.002",
+      "category": "cut_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "cut",
+            "late cut"
+          ]
+        }
+      },
+      "text": "{b} cuts and takes the single.",
+      "repeat_group": "ball_calls.cut_single_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.cut_single.neutral.003",
+      "category": "cut_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "cut",
+            "late cut"
+          ]
+        }
+      },
+      "text": "One added with the {s}.",
+      "repeat_group": "ball_calls.cut_single_name",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.cut_single.neutral.004",
+      "category": "cut_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "cut",
+            "late cut"
+          ]
+        }
+      },
+      "text": "Cut away, and they get a run.",
+      "repeat_group": "ball_calls.cut_single_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.cut_single.neutral.005",
+      "category": "cut_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "cut",
+            "late cut"
+          ]
+        }
+      },
+      "text": "The {s} earns {b} one.",
+      "repeat_group": "ball_calls.cut_single_name",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.cut_single.neutral.006",
+      "category": "cut_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "cut",
+            "late cut"
+          ]
+        }
+      },
+      "text": "{b} finds a single from the cut.",
+      "repeat_group": "ball_calls.cut_single_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.cut_single.neutral.007",
+      "category": "cut_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "cut",
+            "late cut"
+          ]
+        }
+      },
+      "text": "A single to show for that {s}.",
+      "repeat_group": "ball_calls.cut_single_name",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.cut_single.neutral.008",
+      "category": "cut_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "cut",
+            "late cut"
+          ]
+        }
+      },
+      "text": "Cuts it, and the pair complete one.",
+      "repeat_group": "ball_calls.cut_single_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leg_single.neutral.001",
+      "category": "leg_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "leg glance",
+            "clip off the pads"
+          ]
+        }
+      },
+      "text": "{b} plays the {s} and takes one.",
+      "repeat_group": "ball_calls.leg_single_name",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leg_single.neutral.002",
+      "category": "leg_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "leg glance",
+            "clip off the pads"
+          ]
+        }
+      },
+      "text": "Worked to the leg side for a single.",
+      "repeat_group": "ball_calls.leg_single_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leg_single.neutral.003",
+      "category": "leg_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "leg glance",
+            "clip off the pads"
+          ]
+        }
+      },
+      "text": "A run from that {s}.",
+      "repeat_group": "ball_calls.leg_single_name",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leg_single.neutral.004",
+      "category": "leg_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "leg glance",
+            "clip off the pads"
+          ]
+        }
+      },
+      "text": "{b} adds one on the leg side.",
+      "repeat_group": "ball_calls.leg_single_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leg_single.neutral.005",
+      "category": "leg_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "leg glance",
+            "clip off the pads"
+          ]
+        }
+      },
+      "text": "The {s} brings a single.",
+      "repeat_group": "ball_calls.leg_single_name",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leg_single.neutral.006",
+      "category": "leg_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "leg glance",
+            "clip off the pads"
+          ]
+        }
+      },
+      "text": "A leg-side stroke and one more.",
+      "repeat_group": "ball_calls.leg_single_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leg_single.neutral.007",
+      "category": "leg_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "leg glance",
+            "clip off the pads"
+          ]
+        }
+      },
+      "text": "One to {b} from the {s}.",
+      "repeat_group": "ball_calls.leg_single_name",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leg_single.neutral.008",
+      "category": "leg_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0,
+        "rec.shotName": {
+          "in": [
+            "leg glance",
+            "clip off the pads"
+          ]
+        }
+      },
+      "text": "They take a single from that leg-side shot.",
+      "repeat_group": "ball_calls.leg_single_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_dot.neutral.001",
+      "category": "outside_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.total": 0,
+        "rec.boundary": 0
+      },
+      "text": "Outside edge. No run, and {b} survives.",
+      "repeat_group": "ball_calls.edge_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_dot.neutral.002",
+      "category": "outside_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.total": 0,
+        "rec.boundary": 0
+      },
+      "text": "A nick without a run or a wicket.",
+      "repeat_group": "ball_calls.edge_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_dot.neutral.003",
+      "category": "outside_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.total": 0,
+        "rec.boundary": 0
+      },
+      "text": "{b} finds the outside edge of the bat. Nothing added.",
+      "repeat_group": "ball_calls.edge_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_dot.neutral.004",
+      "category": "outside_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.total": 0,
+        "rec.boundary": 0
+      },
+      "text": "An edge, but no dismissal. The score stays put.",
+      "repeat_group": "ball_calls.edge_dot_relief",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_dot.neutral.005",
+      "category": "outside_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.total": 0,
+        "rec.boundary": 0
+      },
+      "text": "No run from that outside edge.",
+      "repeat_group": "ball_calls.edge_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_dot.neutral.006",
+      "category": "outside_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.total": 0,
+        "rec.boundary": 0
+      },
+      "text": "The edge is found; {b} is still there.",
+      "repeat_group": "ball_calls.edge_dot_relief",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_dot.neutral.007",
+      "category": "outside_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.total": 0,
+        "rec.boundary": 0
+      },
+      "text": "Off the outside edge. A dot in the book.",
+      "repeat_group": "ball_calls.edge_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_dot.neutral.008",
+      "category": "outside_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.total": 0,
+        "rec.boundary": 0
+      },
+      "text": "{w} gets an edge, but not a wicket. No run.",
+      "repeat_group": "ball_calls.edge_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_single.neutral.001",
+      "category": "outside_edge_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "Outside edge, and a single for {b}.",
+      "repeat_group": "ball_calls.edge_one_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_single.neutral.002",
+      "category": "outside_edge_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "{w} finds the edge. The batter gets a run.",
+      "repeat_group": "ball_calls.edge_one_bowler",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_single.neutral.003",
+      "category": "outside_edge_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "One in the book from an outside edge.",
+      "repeat_group": "ball_calls.edge_one_book",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_single.neutral.004",
+      "category": "outside_edge_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "Nicked, and they take one.",
+      "repeat_group": "ball_calls.edge_one_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_single.neutral.005",
+      "category": "outside_edge_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "An edge for the bowler, a single for {b}.",
+      "repeat_group": "ball_calls.edge_one_bowler",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_single.neutral.006",
+      "category": "outside_edge_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "Not the middle, but it still adds one.",
+      "repeat_group": "ball_calls.edge_one_book",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_single.neutral.007",
+      "category": "outside_edge_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "Off the outside edge for a run.",
+      "repeat_group": "ball_calls.edge_one_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_single.neutral.008",
+      "category": "outside_edge_single",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 1,
+        "rec.total": 1,
+        "rec.boundary": 0
+      },
+      "text": "A single from that nick. {b} stays in.",
+      "repeat_group": "ball_calls.edge_one_book",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_two.neutral.001",
+      "category": "outside_edge_two",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 2,
+        "rec.total": 2,
+        "rec.boundary": 0
+      },
+      "text": "Outside edge. They come back for two.",
+      "repeat_group": "ball_calls.edge_two_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_two.neutral.002",
+      "category": "outside_edge_two",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 2,
+        "rec.total": 2,
+        "rec.boundary": 0
+      },
+      "text": "{w} finds the edge, but {b} gets a couple.",
+      "repeat_group": "ball_calls.edge_two_bowler",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_two.neutral.003",
+      "category": "outside_edge_two",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 2,
+        "rec.total": 2,
+        "rec.boundary": 0
+      },
+      "text": "Two more, off the outside edge.",
+      "repeat_group": "ball_calls.edge_two_book",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_two.neutral.004",
+      "category": "outside_edge_two",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 2,
+        "rec.total": 2,
+        "rec.boundary": 0
+      },
+      "text": "A nick, and they complete the second run.",
+      "repeat_group": "ball_calls.edge_two_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_two.neutral.005",
+      "category": "outside_edge_two",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 2,
+        "rec.total": 2,
+        "rec.boundary": 0
+      },
+      "text": "The edge is there; the wicket isn't. Two added.",
+      "repeat_group": "ball_calls.edge_two_bowler",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_two.neutral.006",
+      "category": "outside_edge_two",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 2,
+        "rec.total": 2,
+        "rec.boundary": 0
+      },
+      "text": "Not the middle of the bat. Still two in the book.",
+      "repeat_group": "ball_calls.edge_two_book",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_two.neutral.007",
+      "category": "outside_edge_two",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 2,
+        "rec.total": 2,
+        "rec.boundary": 0
+      },
+      "text": "Edged, and the pair make it two.",
+      "repeat_group": "ball_calls.edge_two_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_two.neutral.008",
+      "category": "outside_edge_two",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 2,
+        "rec.total": 2,
+        "rec.boundary": 0
+      },
+      "text": "{b} adds a couple from an outside edge.",
+      "repeat_group": "ball_calls.edge_two_book",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_four.neutral.001",
+      "category": "outside_edge_four",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4
+      },
+      "text": "Outside edge, and it's four.",
+      "repeat_group": "ball_calls.edge_four_result",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_four.neutral.002",
+      "category": "outside_edge_four",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4
+      },
+      "text": "{w} gets the edge. {b} gets the boundary.",
+      "repeat_group": "ball_calls.edge_four_bowler",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_four.neutral.003",
+      "category": "outside_edge_four",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4
+      },
+      "text": "Four in the book, however it came off the bat.",
+      "repeat_group": "ball_calls.edge_four_book",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_four.neutral.004",
+      "category": "outside_edge_four",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4
+      },
+      "text": "A nick, and away for four runs.",
+      "repeat_group": "ball_calls.edge_four_result",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_four.neutral.005",
+      "category": "outside_edge_four",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4
+      },
+      "text": "An edge to encourage the bowler, but four to the batter.",
+      "repeat_group": "ball_calls.edge_four_bowler",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_four.neutral.006",
+      "category": "outside_edge_four",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4
+      },
+      "text": "{b} adds four from the outside edge.",
+      "repeat_group": "ball_calls.edge_four_book",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_four.neutral.007",
+      "category": "outside_edge_four",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4
+      },
+      "text": "Off the edge and to the boundary. Four.",
+      "repeat_group": "ball_calls.edge_four_result",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.outside_edge_four.neutral.008",
+      "category": "outside_edge_four",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": {
+          "in": [
+            "thinEdge",
+            "thickEdge"
+          ]
+        },
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4
+      },
+      "text": "A boundary without finding the middle. {b} will take it.",
+      "repeat_group": "ball_calls.edge_four_book",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.inside_edge_dot.neutral.001",
+      "category": "inside_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "insideEdge"
+      },
+      "text": "Inside edge from {b}. No run.",
+      "repeat_group": "ball_calls.inside_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.inside_edge_dot.neutral.002",
+      "category": "inside_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "insideEdge"
+      },
+      "text": "Off the inside edge. Nothing added.",
+      "repeat_group": "ball_calls.inside_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.inside_edge_dot.neutral.003",
+      "category": "inside_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "insideEdge"
+      },
+      "text": "{b} catches the inner edge of the bat. No run.",
+      "repeat_group": "ball_calls.inside_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.inside_edge_dot.neutral.004",
+      "category": "inside_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "insideEdge"
+      },
+      "text": "An inside edge, but no dismissal or run.",
+      "repeat_group": "ball_calls.inside_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.inside_edge_dot.neutral.005",
+      "category": "inside_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "insideEdge"
+      },
+      "text": "Not the intended contact. Inside edge from {b}.",
+      "repeat_group": "ball_calls.inside_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.inside_edge_dot.neutral.006",
+      "category": "inside_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "insideEdge"
+      },
+      "text": "No run from that inside edge.",
+      "repeat_group": "ball_calls.inside_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.inside_edge_dot.neutral.007",
+      "category": "inside_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "insideEdge"
+      },
+      "text": "The inside of the bat does the work. Nothing added.",
+      "repeat_group": "ball_calls.inside_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.inside_edge_dot.neutral.008",
+      "category": "inside_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "insideEdge"
+      },
+      "text": "{b} stays in after an inside edge. A dot ball.",
+      "repeat_group": "ball_calls.inside_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.inside_edge_runs.neutral.001",
+      "category": "inside_edge_runs",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "insideEdge",
+        "rec.runsBat": {
+          "in": [
+            1,
+            2,
+            3
+          ]
+        },
+        "rec.boundary": 0
+      },
+      "text": "Inside edge, and {r} added.",
+      "repeat_group": "ball_calls.inside_runs_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.inside_edge_runs.neutral.002",
+      "category": "inside_edge_runs",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "insideEdge",
+        "rec.runsBat": {
+          "in": [
+            1,
+            2,
+            3
+          ]
+        },
+        "rec.boundary": 0
+      },
+      "text": "The inside edge contributes {r} to the total.",
+      "repeat_group": "ball_calls.inside_runs_book",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.inside_edge_runs.neutral.003",
+      "category": "inside_edge_runs",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "insideEdge",
+        "rec.runsBat": {
+          "in": [
+            1,
+            2,
+            3
+          ]
+        },
+        "rec.boundary": 0
+      },
+      "text": "{b} gets {r} from the inner edge of the bat.",
+      "repeat_group": "ball_calls.inside_runs_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.inside_edge_runs.neutral.004",
+      "category": "inside_edge_runs",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "insideEdge",
+        "rec.runsBat": {
+          "in": [
+            1,
+            2,
+            3
+          ]
+        },
+        "rec.boundary": 0
+      },
+      "text": "Off the inside edge. They add {r}.",
+      "repeat_group": "ball_calls.inside_runs_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.inside_edge_runs.neutral.005",
+      "category": "inside_edge_runs",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "insideEdge",
+        "rec.runsBat": {
+          "in": [
+            1,
+            2,
+            3
+          ]
+        },
+        "rec.boundary": 0
+      },
+      "text": "{r} in the book from an inside edge.",
+      "repeat_group": "ball_calls.inside_runs_book",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.inside_edge_runs.neutral.006",
+      "category": "inside_edge_runs",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "insideEdge",
+        "rec.runsBat": {
+          "in": [
+            1,
+            2,
+            3
+          ]
+        },
+        "rec.boundary": 0
+      },
+      "text": "Inside edge from {b}; the score moves up by {r}.",
+      "repeat_group": "ball_calls.inside_runs_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.inside_edge_runs.neutral.007",
+      "category": "inside_edge_runs",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "insideEdge",
+        "rec.runsBat": {
+          "in": [
+            1,
+            2,
+            3
+          ]
+        },
+        "rec.boundary": 0
+      },
+      "text": "They take {r} from that inside edge.",
+      "repeat_group": "ball_calls.inside_runs_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.inside_edge_runs.neutral.008",
+      "category": "inside_edge_runs",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "insideEdge",
+        "rec.runsBat": {
+          "in": [
+            1,
+            2,
+            3
+          ]
+        },
+        "rec.boundary": 0
+      },
+      "text": "The scorebook gives {b} another {r}. Inside edge.",
+      "repeat_group": "ball_calls.inside_runs_book",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.top_edge_dot.neutral.001",
+      "category": "top_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "topEdge"
+      },
+      "text": "Top edge from {b}. No run and no wicket.",
+      "repeat_group": "ball_calls.top_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.top_edge_dot.neutral.002",
+      "category": "top_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "topEdge"
+      },
+      "text": "Off the top edge. {b} survives without adding a run.",
+      "repeat_group": "ball_calls.top_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.top_edge_dot.neutral.003",
+      "category": "top_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "topEdge"
+      },
+      "text": "The top of the bat, rather than the middle. No run.",
+      "repeat_group": "ball_calls.top_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.top_edge_dot.neutral.004",
+      "category": "top_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "topEdge"
+      },
+      "text": "A top edge, but {b} is still in. Nothing added.",
+      "repeat_group": "ball_calls.top_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.top_edge_dot.neutral.005",
+      "category": "top_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "topEdge"
+      },
+      "text": "{b} gets a top edge. The score stays put.",
+      "repeat_group": "ball_calls.top_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.top_edge_dot.neutral.006",
+      "category": "top_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "topEdge"
+      },
+      "text": "No run from the top edge, and no dismissal.",
+      "repeat_group": "ball_calls.top_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.top_edge_dot.neutral.007",
+      "category": "top_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "topEdge"
+      },
+      "text": "That comes off the top edge. A dot ball.",
+      "repeat_group": "ball_calls.top_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.top_edge_dot.neutral.008",
+      "category": "top_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "topEdge"
+      },
+      "text": "{b} stays at the crease after a top edge. No run.",
+      "repeat_group": "ball_calls.top_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.gloved_dot.neutral.001",
+      "category": "gloved_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "gloved"
+      },
+      "text": "Off the glove. No run for {b}.",
+      "repeat_group": "ball_calls.glove_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.gloved_dot.neutral.002",
+      "category": "gloved_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "gloved"
+      },
+      "text": "A gloved contact, without a run or a wicket.",
+      "repeat_group": "ball_calls.glove_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.gloved_dot.neutral.003",
+      "category": "gloved_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "gloved"
+      },
+      "text": "Glove rather than bat. Nothing added.",
+      "repeat_group": "ball_calls.glove_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.gloved_dot.neutral.004",
+      "category": "gloved_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "gloved"
+      },
+      "text": "{b} survives the gloved ball. No run.",
+      "repeat_group": "ball_calls.glove_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.gloved_dot.neutral.005",
+      "category": "gloved_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "gloved"
+      },
+      "text": "That brushes the glove. A dot in the book.",
+      "repeat_group": "ball_calls.glove_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.gloved_dot.neutral.006",
+      "category": "gloved_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "gloved"
+      },
+      "text": "No run from the glove. {b} remains in.",
+      "repeat_group": "ball_calls.glove_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.gloved_dot.neutral.007",
+      "category": "gloved_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "gloved"
+      },
+      "text": "The glove makes contact. The score stays put.",
+      "repeat_group": "ball_calls.glove_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.gloved_dot.neutral.008",
+      "category": "gloved_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "gloved"
+      },
+      "text": "Gloved by {b}, but no dismissal. Nothing added.",
+      "repeat_group": "ball_calls.glove_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_general.neutral.001",
+      "category": "beaten_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "Played and missed. No run.",
+      "repeat_group": "ball_calls.miss_contact",
+      "weight": 1,
+      "priority": 30,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_general.neutral.002",
+      "category": "beaten_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "{w} gets the ball past the bat.",
+      "repeat_group": "ball_calls.miss_bowler",
+      "weight": 1,
+      "priority": 30,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_general.neutral.003",
+      "category": "beaten_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "{b} plays at it without making contact.",
+      "repeat_group": "ball_calls.miss_contact",
+      "weight": 1,
+      "priority": 30,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_general.neutral.004",
+      "category": "beaten_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "A shot attempted, but no touch and no run.",
+      "repeat_group": "ball_calls.miss_result",
+      "weight": 1,
+      "priority": 30,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_general.neutral.005",
+      "category": "beaten_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "{w} beats {b}. The score stays put.",
+      "repeat_group": "ball_calls.miss_bowler",
+      "weight": 1,
+      "priority": 30,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_general.neutral.006",
+      "category": "beaten_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "The bat is offered; the ball misses it.",
+      "repeat_group": "ball_calls.miss_contact",
+      "weight": 1,
+      "priority": 30,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_general.neutral.007",
+      "category": "beaten_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "Nothing on that from {b}. A dot ball.",
+      "repeat_group": "ball_calls.miss_result",
+      "weight": 1,
+      "priority": 30,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_general.neutral.008",
+      "category": "beaten_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        }
+      },
+      "text": "No contact. That ball belongs to {w}.",
+      "repeat_group": "ball_calls.miss_bowler",
+      "weight": 1,
+      "priority": 30,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_early.neutral.001",
+      "category": "beaten_early",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "early"
+      },
+      "text": "{b} is through the shot too soon. Missed.",
+      "repeat_group": "ball_calls.miss_early_timing",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_early.neutral.002",
+      "category": "beaten_early",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "early"
+      },
+      "text": "Early on it, and no contact. No run.",
+      "repeat_group": "ball_calls.miss_early_result",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_early.neutral.003",
+      "category": "beaten_early",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "early"
+      },
+      "text": "The bat has gone through before the ball gets there.",
+      "repeat_group": "ball_calls.miss_early_timing",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_early.neutral.004",
+      "category": "beaten_early",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "early"
+      },
+      "text": "{b} goes early. The ball passes untouched.",
+      "repeat_group": "ball_calls.miss_early_result",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_early.neutral.005",
+      "category": "beaten_early",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "early"
+      },
+      "text": "Too soon from {b}. The timing is out.",
+      "repeat_group": "ball_calls.miss_early_timing",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_early.neutral.006",
+      "category": "beaten_early",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "early"
+      },
+      "text": "An early swing, a miss, and a dot ball.",
+      "repeat_group": "ball_calls.miss_early_result",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_early.neutral.007",
+      "category": "beaten_early",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "early"
+      },
+      "text": "{b} has played the stroke ahead of the ball.",
+      "repeat_group": "ball_calls.miss_early_timing",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_early.neutral.008",
+      "category": "beaten_early",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "early"
+      },
+      "text": "The shot comes too early. Nothing added.",
+      "repeat_group": "ball_calls.miss_early_result",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_late.neutral.001",
+      "category": "beaten_late",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "late"
+      },
+      "text": "{b} is late on that one. No contact.",
+      "repeat_group": "ball_calls.miss_late_timing",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_late.neutral.002",
+      "category": "beaten_late",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "late"
+      },
+      "text": "The ball wins the race to the bat. Missed.",
+      "repeat_group": "ball_calls.miss_late_result",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_late.neutral.003",
+      "category": "beaten_late",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "late"
+      },
+      "text": "Too late from {b}. Nothing added.",
+      "repeat_group": "ball_calls.miss_late_timing",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_late.neutral.004",
+      "category": "beaten_late",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "late"
+      },
+      "text": "Late on the stroke, and beaten.",
+      "repeat_group": "ball_calls.miss_late_result",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_late.neutral.005",
+      "category": "beaten_late",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "late"
+      },
+      "text": "{b} can't get the shot there in time.",
+      "repeat_group": "ball_calls.miss_late_timing",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_late.neutral.006",
+      "category": "beaten_late",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "late"
+      },
+      "text": "The shot arrives after the ball. No run.",
+      "repeat_group": "ball_calls.miss_late_result",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_late.neutral.007",
+      "category": "beaten_late",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "late"
+      },
+      "text": "A late response from {b}; the ball is already past.",
+      "repeat_group": "ball_calls.miss_late_timing",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_late.neutral.008",
+      "category": "beaten_late",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "late"
+      },
+      "text": "Behind the ball with the timing. Played and missed.",
+      "repeat_group": "ball_calls.miss_late_result",
+      "weight": 1,
+      "priority": 50,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_spin.neutral.001",
+      "category": "beaten_spin",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.movement.spin": true,
+        "rec.missReason": "beaten"
+      },
+      "text": "The spinner beats {b}. No run.",
+      "repeat_group": "ball_calls.miss_spin_bowler",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_spin.neutral.002",
+      "category": "beaten_spin",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.movement.spin": true,
+        "rec.missReason": "beaten"
+      },
+      "text": "{b} plays at the spin without finding the ball.",
+      "repeat_group": "ball_calls.miss_spin_contact",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_spin.neutral.003",
+      "category": "beaten_spin",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.movement.spin": true,
+        "rec.missReason": "beaten"
+      },
+      "text": "A win for the spinner there. Past the bat.",
+      "repeat_group": "ball_calls.miss_spin_bowler",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_spin.neutral.004",
+      "category": "beaten_spin",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.movement.spin": true,
+        "rec.missReason": "beaten"
+      },
+      "text": "No contact against the spin. A dot ball.",
+      "repeat_group": "ball_calls.miss_spin_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_spin.neutral.005",
+      "category": "beaten_spin",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.movement.spin": true,
+        "rec.missReason": "beaten"
+      },
+      "text": "{b} offers a stroke, and the spinner gets it past.",
+      "repeat_group": "ball_calls.miss_spin_contact",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_spin.neutral.006",
+      "category": "beaten_spin",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.movement.spin": true,
+        "rec.missReason": "beaten"
+      },
+      "text": "{w} has beaten the bat with that one.",
+      "repeat_group": "ball_calls.miss_spin_bowler",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_spin.neutral.007",
+      "category": "beaten_spin",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.movement.spin": true,
+        "rec.missReason": "beaten"
+      },
+      "text": "Spin to {b}, a shot attempted, and no touch.",
+      "repeat_group": "ball_calls.miss_spin_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_spin.neutral.008",
+      "category": "beaten_spin",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.movement.spin": true,
+        "rec.missReason": "beaten"
+      },
+      "text": "{b} can't find the ball against the spinner. No run.",
+      "repeat_group": "ball_calls.miss_spin_contact",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_swing.neutral.001",
+      "category": "beaten_swing",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "beaten",
+        "rec.movement.spin": false,
+        "facts.swing_abs_m": {
+          "gte": 0.15
+        }
+      },
+      "text": "Some swing, and {w} beats the bat.",
+      "repeat_group": "ball_calls.miss_swing_bowler",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_swing.neutral.002",
+      "category": "beaten_swing",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "beaten",
+        "rec.movement.spin": false,
+        "facts.swing_abs_m": {
+          "gte": 0.15
+        }
+      },
+      "text": "The ball moves in the air. {b} can't make contact.",
+      "repeat_group": "ball_calls.miss_swing_contact",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_swing.neutral.003",
+      "category": "beaten_swing",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "beaten",
+        "rec.movement.spin": false,
+        "facts.swing_abs_m": {
+          "gte": 0.15
+        }
+      },
+      "text": "Swing for {w}, a miss from {b}.",
+      "repeat_group": "ball_calls.miss_swing_bowler",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_swing.neutral.004",
+      "category": "beaten_swing",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "beaten",
+        "rec.movement.spin": false,
+        "facts.swing_abs_m": {
+          "gte": 0.15
+        }
+      },
+      "text": "Movement in flight, and no touch. No run.",
+      "repeat_group": "ball_calls.miss_swing_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_swing.neutral.005",
+      "category": "beaten_swing",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "beaten",
+        "rec.movement.spin": false,
+        "facts.swing_abs_m": {
+          "gte": 0.15
+        }
+      },
+      "text": "{b} is beaten by a ball that swings.",
+      "repeat_group": "ball_calls.miss_swing_contact",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_swing.neutral.006",
+      "category": "beaten_swing",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "beaten",
+        "rec.movement.spin": false,
+        "facts.swing_abs_m": {
+          "gte": 0.15
+        }
+      },
+      "text": "{w} gets movement in the air and finds a way past the bat.",
+      "repeat_group": "ball_calls.miss_swing_bowler",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_swing.neutral.007",
+      "category": "beaten_swing",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "beaten",
+        "rec.movement.spin": false,
+        "facts.swing_abs_m": {
+          "gte": 0.15
+        }
+      },
+      "text": "A swinging delivery, played at and missed.",
+      "repeat_group": "ball_calls.miss_swing_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.beaten_swing.neutral.008",
+      "category": "beaten_swing",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.beatBat": true,
+        "rec.contact": "none",
+        "rec.shot": {
+          "not_in": [
+            "leave"
+          ]
+        },
+        "rec.missReason": "beaten",
+        "rec.movement.spin": false,
+        "facts.swing_abs_m": {
+          "gte": 0.15
+        }
+      },
+      "text": "The swing is there. The contact from {b} isn't.",
+      "repeat_group": "ball_calls.miss_swing_contact",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middle_four.neutral.001",
+      "category": "middle_four",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4
+      },
+      "text": "Middle of the bat, and four runs.",
+      "repeat_group": "ball_calls.four_contact",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middle_four.neutral.002",
+      "category": "middle_four",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4
+      },
+      "text": "{b} finds the boundary. Four more.",
+      "repeat_group": "ball_calls.four_result",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middle_four.neutral.003",
+      "category": "middle_four",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4
+      },
+      "text": "Four to the total from that stroke.",
+      "repeat_group": "ball_calls.four_score",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middle_four.neutral.004",
+      "category": "middle_four",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4
+      },
+      "text": "Clean contact from {b}, and it reaches the rope.",
+      "repeat_group": "ball_calls.four_contact",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middle_four.neutral.005",
+      "category": "middle_four",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4
+      },
+      "text": "A boundary for {b}. Four runs.",
+      "repeat_group": "ball_calls.four_result",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middle_four.neutral.006",
+      "category": "middle_four",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4
+      },
+      "text": "The book goes up by four.",
+      "repeat_group": "ball_calls.four_score",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middle_four.neutral.007",
+      "category": "middle_four",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4
+      },
+      "text": "{b} connects with the middle. Away for four.",
+      "repeat_group": "ball_calls.four_contact",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middle_four.neutral.008",
+      "category": "middle_four",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 4,
+        "rec.total": 4,
+        "rec.boundary": 4
+      },
+      "text": "To the boundary it goes. Four to {b}.",
+      "repeat_group": "ball_calls.four_result",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middle_six.neutral.001",
+      "category": "middle_six",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "Over the boundary on the full. Six runs.",
+      "repeat_group": "ball_calls.six_result",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middle_six.neutral.002",
+      "category": "middle_six",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "{b} finds the middle and clears the rope.",
+      "repeat_group": "ball_calls.six_contact",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middle_six.neutral.003",
+      "category": "middle_six",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "Six more to {b}.",
+      "repeat_group": "ball_calls.six_score",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middle_six.neutral.004",
+      "category": "middle_six",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "All the way for six.",
+      "repeat_group": "ball_calls.six_result",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middle_six.neutral.005",
+      "category": "middle_six",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "A clean strike, and it carries beyond the boundary.",
+      "repeat_group": "ball_calls.six_contact",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middle_six.neutral.006",
+      "category": "middle_six",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "Six added from that one shot. A big return for {b}.",
+      "repeat_group": "ball_calls.six_score",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middle_six.neutral.007",
+      "category": "middle_six",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "That clears the rope without bouncing. Six.",
+      "repeat_group": "ball_calls.six_result",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.middle_six.neutral.008",
+      "category": "middle_six",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.contact": "middle",
+        "rec.runsBat": 6,
+        "rec.total": 6,
+        "rec.boundary": 6
+      },
+      "text": "Middled by {b}, and away for six runs.",
+      "repeat_group": "ball_calls.six_contact",
+      "weight": 1,
+      "priority": 35,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.caught_general.neutral.001",
+      "category": "caught_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "caught"
+      },
+      "text": "Caught. {b} has to go.",
+      "repeat_group": "ball_calls.catch_result",
+      "weight": 1,
+      "priority": 70,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.caught_general.neutral.002",
+      "category": "caught_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "caught"
+      },
+      "text": "A catch taken, and a wicket for {w}.",
+      "repeat_group": "ball_calls.catch_bowler",
+      "weight": 1,
+      "priority": 70,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.caught_general.neutral.003",
+      "category": "caught_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "caught"
+      },
+      "text": "Held, and that's the end of {b}.",
+      "repeat_group": "ball_calls.catch_result",
+      "weight": 1,
+      "priority": 70,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.caught_general.neutral.004",
+      "category": "caught_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "caught"
+      },
+      "text": "{w} gets the wicket. The catch is held.",
+      "repeat_group": "ball_calls.catch_bowler",
+      "weight": 1,
+      "priority": 70,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.caught_general.neutral.005",
+      "category": "caught_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "caught"
+      },
+      "text": "Taken. {b}'s innings is over.",
+      "repeat_group": "ball_calls.catch_result",
+      "weight": 1,
+      "priority": 70,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.caught_general.neutral.006",
+      "category": "caught_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "caught"
+      },
+      "text": "The fielding side holds the chance. {b} is out.",
+      "repeat_group": "ball_calls.catch_bowler",
+      "weight": 1,
+      "priority": 70,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.caught_general.neutral.007",
+      "category": "caught_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "caught"
+      },
+      "text": "Caught, and {b}'s stay at the crease is over.",
+      "repeat_group": "ball_calls.catch_result",
+      "weight": 1,
+      "priority": 70,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.caught_general.neutral.008",
+      "category": "caught_general",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "caught"
+      },
+      "text": "A wicket through a catch. {w} gets the breakthrough.",
+      "repeat_group": "ball_calls.catch_bowler",
+      "weight": 1,
+      "priority": 70,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.caught_behind.neutral.001",
+      "category": "caught_behind",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "caught",
+        "rec.wicket.caughtBehind": true
+      },
+      "text": "Caught behind. The keeper takes it, and {b} is out.",
+      "repeat_group": "ball_calls.behind_result",
+      "weight": 1,
+      "priority": 80,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.caught_behind.neutral.002",
+      "category": "caught_behind",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "caught",
+        "rec.wicket.caughtBehind": true
+      },
+      "text": "Taken by the keeper. A wicket for {w}.",
+      "repeat_group": "ball_calls.behind_bowler",
+      "weight": 1,
+      "priority": 80,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.caught_behind.neutral.003",
+      "category": "caught_behind",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "caught",
+        "rec.wicket.caughtBehind": true
+      },
+      "text": "The keeper holds on. Caught behind.",
+      "repeat_group": "ball_calls.behind_result",
+      "weight": 1,
+      "priority": 80,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.caught_behind.neutral.004",
+      "category": "caught_behind",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "caught",
+        "rec.wicket.caughtBehind": true
+      },
+      "text": "{w} gets {b}, caught at the wicket.",
+      "repeat_group": "ball_calls.behind_bowler",
+      "weight": 1,
+      "priority": 80,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.caught_behind.neutral.005",
+      "category": "caught_behind",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "caught",
+        "rec.wicket.caughtBehind": true
+      },
+      "text": "A catch behind the stumps ends {b}'s innings.",
+      "repeat_group": "ball_calls.behind_result",
+      "weight": 1,
+      "priority": 80,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.caught_behind.neutral.006",
+      "category": "caught_behind",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "caught",
+        "rec.wicket.caughtBehind": true
+      },
+      "text": "The keeper completes the catch for {w}.",
+      "repeat_group": "ball_calls.behind_bowler",
+      "weight": 1,
+      "priority": 80,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.caught_behind.neutral.007",
+      "category": "caught_behind",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "caught",
+        "rec.wicket.caughtBehind": true
+      },
+      "text": "Caught by the wicketkeeper. {b} has to go.",
+      "repeat_group": "ball_calls.behind_result",
+      "weight": 1,
+      "priority": 80,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.caught_behind.neutral.008",
+      "category": "caught_behind",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "caught",
+        "rec.wicket.caughtBehind": true
+      },
+      "text": "Held behind the bat, and {w} has a wicket.",
+      "repeat_group": "ball_calls.behind_bowler",
+      "weight": 1,
+      "priority": 80,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.bowled.neutral.001",
+      "category": "bowled",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "bowled"
+      },
+      "text": "Bowled. {w} has hit the stumps.",
+      "repeat_group": "ball_calls.bowled_result",
+      "weight": 1,
+      "priority": 70,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.bowled.neutral.002",
+      "category": "bowled",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "bowled"
+      },
+      "text": "{b} is bowled. That ends the batter's innings.",
+      "repeat_group": "ball_calls.bowled_batter",
+      "weight": 1,
+      "priority": 70,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.bowled.neutral.003",
+      "category": "bowled",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "bowled"
+      },
+      "text": "The stumps are hit, and {b} is out.",
+      "repeat_group": "ball_calls.bowled_result",
+      "weight": 1,
+      "priority": 70,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.bowled.neutral.004",
+      "category": "bowled",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "bowled"
+      },
+      "text": "Bowled by {w}. A wicket without help from the field.",
+      "repeat_group": "ball_calls.bowled_bowler",
+      "weight": 1,
+      "priority": 70,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.bowled.neutral.005",
+      "category": "bowled",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "bowled"
+      },
+      "text": "That's bowled. {b} has to go.",
+      "repeat_group": "ball_calls.bowled_result",
+      "weight": 1,
+      "priority": 70,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.bowled.neutral.006",
+      "category": "bowled",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "bowled"
+      },
+      "text": "The ball reaches the stumps. {b}'s innings ends there.",
+      "repeat_group": "ball_calls.bowled_batter",
+      "weight": 1,
+      "priority": 70,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.bowled.neutral.007",
+      "category": "bowled",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "bowled"
+      },
+      "text": "{w} gets through to the wicket. Bowled.",
+      "repeat_group": "ball_calls.bowled_bowler",
+      "weight": 1,
+      "priority": 70,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.bowled.neutral.008",
+      "category": "bowled",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "bowled"
+      },
+      "text": "Stumps hit. A wicket for {w}.",
+      "repeat_group": "ball_calls.bowled_result",
+      "weight": 1,
+      "priority": 70,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.played_on.neutral.001",
+      "category": "played_on",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "bowled",
+        "rec.contact": {
+          "in": [
+            "insideEdge",
+            "bottomEdge"
+          ]
+        }
+      },
+      "text": "Off the bat and onto the stumps. {b} is bowled.",
+      "repeat_group": "ball_calls.played_on_route",
+      "weight": 1,
+      "priority": 80,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.played_on.neutral.002",
+      "category": "played_on",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "bowled",
+        "rec.contact": {
+          "in": [
+            "insideEdge",
+            "bottomEdge"
+          ]
+        }
+      },
+      "text": "Played on. {w} gets the wicket.",
+      "repeat_group": "ball_calls.played_on_result",
+      "weight": 1,
+      "priority": 80,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.played_on.neutral.003",
+      "category": "played_on",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "bowled",
+        "rec.contact": {
+          "in": [
+            "insideEdge",
+            "bottomEdge"
+          ]
+        }
+      },
+      "text": "The edge takes it back into the wicket. Bowled.",
+      "repeat_group": "ball_calls.played_on_route",
+      "weight": 1,
+      "priority": 80,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.played_on.neutral.004",
+      "category": "played_on",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "bowled",
+        "rec.contact": {
+          "in": [
+            "insideEdge",
+            "bottomEdge"
+          ]
+        }
+      },
+      "text": "{b} has dragged it on. The innings ends there.",
+      "repeat_group": "ball_calls.played_on_result",
+      "weight": 1,
+      "priority": 80,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.played_on.neutral.005",
+      "category": "played_on",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "bowled",
+        "rec.contact": {
+          "in": [
+            "insideEdge",
+            "bottomEdge"
+          ]
+        }
+      },
+      "text": "Bat first, then stumps. {b} has to go.",
+      "repeat_group": "ball_calls.played_on_route",
+      "weight": 1,
+      "priority": 80,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.played_on.neutral.006",
+      "category": "played_on",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "bowled",
+        "rec.contact": {
+          "in": [
+            "insideEdge",
+            "bottomEdge"
+          ]
+        }
+      },
+      "text": "An edge onto the wicket. Played on.",
+      "repeat_group": "ball_calls.played_on_result",
+      "weight": 1,
+      "priority": 80,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.played_on.neutral.007",
+      "category": "played_on",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "bowled",
+        "rec.contact": {
+          "in": [
+            "insideEdge",
+            "bottomEdge"
+          ]
+        }
+      },
+      "text": "It reaches the stumps via {b}'s bat. Bowled.",
+      "repeat_group": "ball_calls.played_on_route",
+      "weight": 1,
+      "priority": 80,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.played_on.neutral.008",
+      "category": "played_on",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket.how": "bowled",
+        "rec.contact": {
+          "in": [
+            "insideEdge",
+            "bottomEdge"
+          ]
+        }
+      },
+      "text": "Played on by {b}. A wicket for {w}.",
+      "repeat_group": "ball_calls.played_on_result",
+      "weight": 1,
+      "priority": 80,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.dropped.neutral.001",
+      "category": "dropped",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "Dropped. {b} gets another chance.",
+      "repeat_group": "ball_calls.drop_result",
+      "weight": 1,
+      "priority": 65,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.dropped.neutral.002",
+      "category": "dropped",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "A chance put down by {f}.",
+      "repeat_group": "ball_calls.drop_fielder",
+      "weight": 1,
+      "priority": 65,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.dropped.neutral.003",
+      "category": "dropped",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "{w} creates the chance, but the catch goes down.",
+      "repeat_group": "ball_calls.drop_bowler",
+      "weight": 1,
+      "priority": 65,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.dropped.neutral.004",
+      "category": "dropped",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "The catch isn't held. {b} survives.",
+      "repeat_group": "ball_calls.drop_result",
+      "weight": 1,
+      "priority": 65,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.dropped.neutral.005",
+      "category": "dropped",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "{f} can't complete the catch.",
+      "repeat_group": "ball_calls.drop_fielder",
+      "weight": 1,
+      "priority": 65,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.dropped.neutral.006",
+      "category": "dropped",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "A wicket was there for {w}. The chance is missed.",
+      "repeat_group": "ball_calls.drop_bowler",
+      "weight": 1,
+      "priority": 65,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.dropped.neutral.007",
+      "category": "dropped",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "Put down. {b}'s innings continues.",
+      "repeat_group": "ball_calls.drop_result",
+      "weight": 1,
+      "priority": 65,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.dropped.neutral.008",
+      "category": "dropped",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "A dropped catch from {f}. An opportunity lost.",
+      "repeat_group": "ball_calls.drop_fielder",
+      "weight": 1,
+      "priority": 65,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.wide.neutral.001",
+      "category": "wide",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "wd",
+        "rec.dropped": null
+      },
+      "text": "Called wide. It doesn't count as a legal ball.",
+      "repeat_group": "ball_calls.wide_signal",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.wide.neutral.002",
+      "category": "wide",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "wd",
+        "rec.dropped": null
+      },
+      "text": "A wide adds to the total without using a legal ball.",
+      "repeat_group": "ball_calls.wide_score",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.wide.neutral.003",
+      "category": "wide",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "wd",
+        "rec.dropped": null
+      },
+      "text": "Wide from {w}. That isn't a legal delivery.",
+      "repeat_group": "ball_calls.wide_signal",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.wide.neutral.004",
+      "category": "wide",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "wd",
+        "rec.dropped": null
+      },
+      "text": "Extras from that one. It's called wide.",
+      "repeat_group": "ball_calls.wide_score",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.wide.neutral.005",
+      "category": "wide",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "wd",
+        "rec.dropped": null
+      },
+      "text": "The wide is given against {w}.",
+      "repeat_group": "ball_calls.wide_signal",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.wide.neutral.006",
+      "category": "wide",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "wd",
+        "rec.dropped": null
+      },
+      "text": "The total gets help from a wide.",
+      "repeat_group": "ball_calls.wide_score",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.wide.neutral.007",
+      "category": "wide",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "wd",
+        "rec.dropped": null
+      },
+      "text": "Wide ball. No legal delivery used.",
+      "repeat_group": "ball_calls.wide_signal",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.wide.neutral.008",
+      "category": "wide",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "wd",
+        "rec.dropped": null
+      },
+      "text": "{w} concedes a wide. The extras column moves on.",
+      "repeat_group": "ball_calls.wide_score",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.no_ball.neutral.001",
+      "category": "no_ball",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "nb",
+        "rec.dropped": null
+      },
+      "text": "No-ball called against {w}.",
+      "repeat_group": "ball_calls.noball_signal",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.no_ball.neutral.002",
+      "category": "no_ball",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "nb",
+        "rec.dropped": null
+      },
+      "text": "A no-ball. It won't count as a legal delivery.",
+      "repeat_group": "ball_calls.noball_score",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.no_ball.neutral.003",
+      "category": "no_ball",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "nb",
+        "rec.dropped": null
+      },
+      "text": "That's a no-ball from {w}.",
+      "repeat_group": "ball_calls.noball_signal",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.no_ball.neutral.004",
+      "category": "no_ball",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "nb",
+        "rec.dropped": null
+      },
+      "text": "The no-ball adds an extra. It doesn't count in the over.",
+      "repeat_group": "ball_calls.noball_score",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.no_ball.neutral.005",
+      "category": "no_ball",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "nb",
+        "rec.dropped": null
+      },
+      "text": "No-ball. That's a penalty against {w}.",
+      "repeat_group": "ball_calls.noball_signal",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.no_ball.neutral.006",
+      "category": "no_ball",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "nb",
+        "rec.dropped": null
+      },
+      "text": "The call is no-ball. The total gets the penalty run.",
+      "repeat_group": "ball_calls.noball_score",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.no_ball.neutral.007",
+      "category": "no_ball",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "nb",
+        "rec.dropped": null
+      },
+      "text": "{w} has delivered a no-ball.",
+      "repeat_group": "ball_calls.noball_signal",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.no_ball.neutral.008",
+      "category": "no_ball",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "nb",
+        "rec.dropped": null
+      },
+      "text": "No-ball given. An addition in the extras column.",
+      "repeat_group": "ball_calls.noball_score",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.byes.neutral.001",
+      "category": "byes",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "b",
+        "rec.dropped": null
+      },
+      "text": "Byes added to the total.",
+      "repeat_group": "ball_calls.byes_score",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.byes.neutral.002",
+      "category": "byes",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "b",
+        "rec.dropped": null
+      },
+      "text": "Those go down as byes, not runs to {b}.",
+      "repeat_group": "ball_calls.byes_credit",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.byes.neutral.003",
+      "category": "byes",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "b",
+        "rec.dropped": null
+      },
+      "text": "The score moves on through byes.",
+      "repeat_group": "ball_calls.byes_score",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.byes.neutral.004",
+      "category": "byes",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "b",
+        "rec.dropped": null
+      },
+      "text": "Extras do the scoring. Byes.",
+      "repeat_group": "ball_calls.byes_credit",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.byes.neutral.005",
+      "category": "byes",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "b",
+        "rec.dropped": null
+      },
+      "text": "Byes from that delivery.",
+      "repeat_group": "ball_calls.byes_score",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.byes.neutral.006",
+      "category": "byes",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "b",
+        "rec.dropped": null
+      },
+      "text": "An addition in the byes column.",
+      "repeat_group": "ball_calls.byes_credit",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.byes.neutral.007",
+      "category": "byes",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "b",
+        "rec.dropped": null
+      },
+      "text": "The batting side gets byes there.",
+      "repeat_group": "ball_calls.byes_score",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.byes.neutral.008",
+      "category": "byes",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "b",
+        "rec.dropped": null
+      },
+      "text": "Byes to the team total. Nothing to {b}'s score.",
+      "repeat_group": "ball_calls.byes_credit",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leg_byes.neutral.001",
+      "category": "leg_byes",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "lb",
+        "rec.dropped": null
+      },
+      "text": "Leg byes added.",
+      "repeat_group": "ball_calls.legbyes_score",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leg_byes.neutral.002",
+      "category": "leg_byes",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "lb",
+        "rec.dropped": null
+      },
+      "text": "Those are leg byes. Nothing to {b}'s score.",
+      "repeat_group": "ball_calls.legbyes_credit",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leg_byes.neutral.003",
+      "category": "leg_byes",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "lb",
+        "rec.dropped": null
+      },
+      "text": "The total moves on through leg byes.",
+      "repeat_group": "ball_calls.legbyes_score",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leg_byes.neutral.004",
+      "category": "leg_byes",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "lb",
+        "rec.dropped": null
+      },
+      "text": "Off the body, and into the extras column.",
+      "repeat_group": "ball_calls.legbyes_credit",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leg_byes.neutral.005",
+      "category": "leg_byes",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "lb",
+        "rec.dropped": null
+      },
+      "text": "Leg byes from that ball.",
+      "repeat_group": "ball_calls.legbyes_score",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leg_byes.neutral.006",
+      "category": "leg_byes",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "lb",
+        "rec.dropped": null
+      },
+      "text": "An addition for the team, recorded as leg byes.",
+      "repeat_group": "ball_calls.legbyes_credit",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leg_byes.neutral.007",
+      "category": "leg_byes",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "lb",
+        "rec.dropped": null
+      },
+      "text": "The batting side gets leg byes there.",
+      "repeat_group": "ball_calls.legbyes_score",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.leg_byes.neutral.008",
+      "category": "leg_byes",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": "lb",
+        "rec.dropped": null
+      },
+      "text": "Leg byes to the total. The batter's score is unchanged.",
+      "repeat_group": "ball_calls.legbyes_credit",
+      "weight": 1,
+      "priority": 60,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.pad_no_run.neutral.001",
+      "category": "pad_no_run",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.contact": "none",
+        "rec.padVerdict": {
+          "truthy": true
+        }
+      },
+      "text": "Struck on the pad. No run and no dismissal.",
+      "repeat_group": "ball_calls.pad_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.pad_no_run.neutral.002",
+      "category": "pad_no_run",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.contact": "none",
+        "rec.padVerdict": {
+          "truthy": true
+        }
+      },
+      "text": "Pad rather than bat. Nothing added.",
+      "repeat_group": "ball_calls.pad_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.pad_no_run.neutral.003",
+      "category": "pad_no_run",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.contact": "none",
+        "rec.padVerdict": {
+          "truthy": true
+        }
+      },
+      "text": "The pad is hit. {b} remains in.",
+      "repeat_group": "ball_calls.pad_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.pad_no_run.neutral.004",
+      "category": "pad_no_run",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.contact": "none",
+        "rec.padVerdict": {
+          "truthy": true
+        }
+      },
+      "text": "Off the pad, with no run from it.",
+      "repeat_group": "ball_calls.pad_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.pad_no_run.neutral.005",
+      "category": "pad_no_run",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.contact": "none",
+        "rec.padVerdict": {
+          "truthy": true
+        }
+      },
+      "text": "{b} survives the ball on the pad. The score stays put.",
+      "repeat_group": "ball_calls.pad_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.pad_no_run.neutral.006",
+      "category": "pad_no_run",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.contact": "none",
+        "rec.padVerdict": {
+          "truthy": true
+        }
+      },
+      "text": "A pad contact, not a scoring stroke.",
+      "repeat_group": "ball_calls.pad_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.pad_no_run.neutral.007",
+      "category": "pad_no_run",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.contact": "none",
+        "rec.padVerdict": {
+          "truthy": true
+        }
+      },
+      "text": "No wicket after the pad is struck. No run.",
+      "repeat_group": "ball_calls.pad_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.pad_no_run.neutral.008",
+      "category": "pad_no_run",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.contact": "none",
+        "rec.padVerdict": {
+          "truthy": true
+        }
+      },
+      "text": "That meets the pad. Nothing added to the total.",
+      "repeat_group": "ball_calls.pad_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.bottom_edge_dot.neutral.001",
+      "category": "bottom_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "bottomEdge"
+      },
+      "text": "Bottom edge from {b}. No run.",
+      "repeat_group": "ball_calls.bottom_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.bottom_edge_dot.neutral.002",
+      "category": "bottom_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "bottomEdge"
+      },
+      "text": "Off the bottom of the bat. Nothing added.",
+      "repeat_group": "ball_calls.bottom_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.bottom_edge_dot.neutral.003",
+      "category": "bottom_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "bottomEdge"
+      },
+      "text": "The lower edge makes contact. A dot ball.",
+      "repeat_group": "ball_calls.bottom_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.bottom_edge_dot.neutral.004",
+      "category": "bottom_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "bottomEdge"
+      },
+      "text": "{b} survives a bottom edge without adding a run.",
+      "repeat_group": "ball_calls.bottom_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.bottom_edge_dot.neutral.005",
+      "category": "bottom_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "bottomEdge"
+      },
+      "text": "Not the face of the bat. Bottom edge there.",
+      "repeat_group": "ball_calls.bottom_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.bottom_edge_dot.neutral.006",
+      "category": "bottom_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "bottomEdge"
+      },
+      "text": "No run from the bottom edge.",
+      "repeat_group": "ball_calls.bottom_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.bottom_edge_dot.neutral.007",
+      "category": "bottom_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "bottomEdge"
+      },
+      "text": "{b} catches the bottom edge of the bat. Nothing doing.",
+      "repeat_group": "ball_calls.bottom_dot_contact",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    },
+    {
+      "id": "clab.v1.ball_calls.bottom_edge_dot.neutral.008",
+      "category": "bottom_edge_dot",
+      "speaker": "neutral",
+      "requires": {
+        "rec.wicket": null,
+        "rec.extra.type": null,
+        "rec.dropped": null,
+        "rec.total": 0,
+        "rec.padVerdict": "",
+        "rec.contact": "bottomEdge"
+      },
+      "text": "A bottom edge, but no wicket. The score stays put.",
+      "repeat_group": "ball_calls.bottom_dot_result",
+      "weight": 1,
+      "priority": 45,
+      "cooldown_balls": 24
+    }
+  ]
+}

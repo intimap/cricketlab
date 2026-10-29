@@ -1,0 +1,54 @@
+{
+  "source": "src/sim/batting.js: shotName() and attempted shot.type; inspected source snapshot, not a proposed new move set.",
+  "families": {
+    "defend": [
+      "forward defence",
+      "back-foot defence"
+    ],
+    "drive": [
+      "square drive",
+      "cover drive",
+      "off drive",
+      "straight drive",
+      "on drive",
+      "clip off the pads",
+      "leg glance"
+    ],
+    "cutpull": [
+      "late cut",
+      "cut",
+      "back-foot drive",
+      "leg glance",
+      "hook",
+      "pull"
+    ],
+    "loft": [
+      "square drive",
+      "lofted cover drive",
+      "lofted off drive",
+      "lofted straight drive",
+      "lofted on drive",
+      "slog over midwicket"
+    ],
+    "ramp": [
+      "ramp over the keeper",
+      "ramp over the slips",
+      "scoop over fine leg"
+    ],
+    "sweep": [
+      "paddle sweep",
+      "sweep"
+    ],
+    "reverseSweep": [
+      "reverse sweep"
+    ],
+    "leave": []
+  },
+  "notes": [
+    "A miss can have an empty shotName; use rec.shot for the attempted family.",
+    "An edge is a contact outcome, not a new shot type.",
+    "Some labels belong to multiple input families. Preserve both shot and shotName.",
+    "loft can currently produce square drive without the lofted prefix. Keep the source spelling.",
+    "This is a vocabulary catalogue. It does not claim this first pack contains every shot/outcome combination."
+  ]
+}

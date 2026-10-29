@@ -1,0 +1,102 @@
+{
+  "content_validation": {
+    "status": "passed",
+    "counts": {
+      "ball_calls": 328,
+      "commentator_lines": 96,
+      "match_context": 90
+    },
+    "total_templates": 514,
+    "categories": {
+      "ball_calls": 41,
+      "commentator_lines": 8,
+      "match_context": 10
+    },
+    "synthetic_fixtures": 61,
+    "witnessed_templates": 514,
+    "placeholder_render_checks": 2222,
+    "max_template_characters": 77,
+    "max_expanded_characters_in_long_name_fixtures": 80,
+    "checks": [
+      "Unique IDs and normalised wording",
+      "Schema-contract structure and ASCII text",
+      "Known field paths and operators",
+      "Positive and negative completed-ball fixtures",
+      "Every template has a positive witness",
+      "Zero and missing placeholders",
+      "Missing-versus-null and strict numeric matching",
+      "Specificity and repetition cooldown behaviour"
+    ],
+    "limits": [
+      "No game integration has been performed",
+      "Expanded character checks do not verify the browser layout"
+    ]
+  },
+  "repository_probe": {
+    "status": "passed",
+    "mode": "Standalone content selector exercised on real simulation records; not integrated UI",
+    "scenarios": [
+      {
+        "pitch": "green",
+        "seed": 17,
+        "balls": 181,
+        "runs": 123,
+        "wickets": 6,
+        "match_rng_state": 1162107312,
+        "fingerprint": "3d4220a67b46446d91eff59d1820c71e531fca38701e5f6319a79e44ccd3446c"
+      },
+      {
+        "pitch": "green",
+        "seed": 43,
+        "balls": 181,
+        "runs": 134,
+        "wickets": 7,
+        "match_rng_state": 274506880,
+        "fingerprint": "10074b9d735e80d90588b5ed02e88e8cf07b5a838169b2bdfa804a94b721e227"
+      },
+      {
+        "pitch": "dust",
+        "seed": 17,
+        "balls": 180,
+        "runs": 146,
+        "wickets": 3,
+        "match_rng_state": 2843061831,
+        "fingerprint": "9cd1a4efd80af300b1422bb2fc267914ad21c8791694ab41fcbea49fb9f7d96f"
+      },
+      {
+        "pitch": "dust",
+        "seed": 43,
+        "balls": 180,
+        "runs": 141,
+        "wickets": 2,
+        "match_rng_state": 2459414675,
+        "fingerprint": "bf03f01fa63bf6caa7e66ab80c0701ef7609ee8b8edeb788f4a595e737330eed"
+      },
+      {
+        "pitch": "cracked",
+        "seed": 17,
+        "balls": 180,
+        "runs": 189,
+        "wickets": 1,
+        "match_rng_state": 4050368274,
+        "fingerprint": "2fc7ee8ff54b07202b2f528c0c049fad2a78a4846a0f3f840c51c8482848be38"
+      },
+      {
+        "pitch": "cracked",
+        "seed": 43,
+        "balls": 181,
+        "runs": 245,
+        "wickets": 1,
+        "match_rng_state": 1410295826,
+        "fingerprint": "2ccd7b5202230d02258bf2aa459656bb1694428df18a64db70cbdc701c71a564"
+      }
+    ],
+    "completed_balls_checked": 1083,
+    "primary_pack_calls": 1058,
+    "existing_factual_fallbacks": 25,
+    "optional_calls": 123,
+    "primary_pack_coverage_percent": 97.7,
+    "simulation_unchanged_with_probe": true,
+    "note": "This comparison verifies the standalone probe does not alter the simulation. Repeat it after the actual integration."
+  }
+}

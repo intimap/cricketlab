@@ -23,6 +23,10 @@ section instead of exploring the tree. Keep it up to date when you add or move a
 - **Syntax:** `node --check <file>` on the files you touched.
 - **Browser play-test** (`python3 -m http.server 8000` + Playwright screenshots): only when I ask, or when
   the change is visual. It's slow and costly.
+  - **Play-test build:** after every change, run
+  `python3 tools/build-single.py /tmp/cricketlab.html --stamp` and publish it as the claude.ai artifact
+  "Cricket Lab (test)", updating the same artifact each time and keeping the `db` capability. Put the link and
+  the build stamp in your reply. Commit it as `WIP (for testing, not merged): <feature>` and don't merge until I say it plays right.
 
 ## Git workflow
 - Work on a branch, then merge to `main` with `--no-ff`. Merge message: `Merge <feature in plain words>`.

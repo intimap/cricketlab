@@ -793,7 +793,8 @@ export class BallInPlay {
       wicket: this.wicket,
       catchDropped: this.catchDropped,
       nearRunout: this.wicket ? null : this.nearMiss,
-      strikerEnd: striker.from,
+      // A boundary leaves the striker on strike, however far they'd run.
+      strikerEnd: this.boundary ? 0 : striker.from,
     };
   }
 

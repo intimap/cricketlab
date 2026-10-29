@@ -74,7 +74,7 @@ class Game {
       last = now;
       if (keys.pressed("KeyM")) toggleMute();
       this.scene.update(dt);
-      touch(this.scene.touchMode);
+      touch(this.scene.touchMode, this.scene.touchEpoch);
       this.scene.draw();
       present();
       endFrame();

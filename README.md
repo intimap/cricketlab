@@ -18,7 +18,8 @@ python3 -m http.server 8000
 npx serve .
 ```
 
-Then open http://localhost:8000. It plays with a keyboard, or with on-screen buttons on a phone or tablet.
+Then open http://localhost:8000. It plays with a keyboard, or with on-screen buttons on a phone or tablet. On a touch screen POWER is a
+tap rather than a hold: it lights up and stays on for that ball, then switches off.
 
 It opens on the menu with a 10-over match at Parklands Oval chosen, so Enter goes straight into it; the menu also
 has Nets, Classic Matches, a single spell and longer or shorter matches.

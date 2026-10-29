@@ -14,19 +14,19 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
   fillRect(0, HUD_Y + 1, WIDTH, HEIGHT - HUD_Y - 1, COLORS.green);
   fillRect(0, HUD_Y + 1, WIDTH, 1, "#2c6b45");
 
-  // The score, double size at the right-hand end, across the first two rows.
+  // The score, double size at the left edge, across the first two rows. The box fits the widest score,
+  // so the text beside it doesn't shift as the total grows.
   const y1 = HUD_Y + 4;
-  const score = `${inn.batTeam.abbr} ${inn.runs}/${inn.wkts}`;
-  const scoreW = textWidth(score, 2) + 12;
-  const scoreX = WIDTH - 2 - scoreW;
-  fillRect(scoreX, HUD_Y + 2, scoreW, 20, inn.batTeam.colour);
-  drawText(score, WIDTH - 8, HUD_Y + 5, { color: COLORS.white, scale: 2, align: "right" });
+  const scoreW = textWidth(`${inn.batTeam.abbr} 000/10`, 2) + 12;
+  fillRect(2, HUD_Y + 2, scoreW, 20, inn.batTeam.colour);
+  drawText(`${inn.batTeam.abbr} ${inn.runs}/${inn.wkts}`, 8, HUD_Y + 5, { color: COLORS.white, scale: 2 });
+  const left = scoreW + 8;
 
   // Row 1: overs, batters, partnership, this over.
-  drawText(`OV ${inn.oversText}`, 4, y1, { color: COLORS.gold });
+  drawText(`OV ${inn.oversText}`, left, y1, { color: COLORS.gold });
   const striker = inn.bat[inn.striker];
   const other = inn.bat[inn.nonStriker];
-  let x = 60;
+  let x = left + 56;
   drawText("•", x, y1, { color: COLORS.gold });
   x += 7;
   x += drawText(`${striker.p.short.toUpperCase()} ${striker.runs}(${striker.balls})`, x, y1, { color: COLORS.cream }) + 10;
@@ -37,7 +37,7 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
     drawText(`P'SHIP ${inn.partnership.runs}(${inn.partnership.balls})`, x, y1, { color: COLORS.dim });
   }
 
-  let right = scoreX - 4;
+  let right = 636;
   const balls = inn.overBalls.slice(-8);
   for (let i = balls.length - 1; i >= 0; i--) {
     const b = balls[i];
@@ -52,7 +52,7 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
   const y2 = HUD_Y + 15;
   const bowler = inn.bowl[inn.currentBowler];
   if (bowler) {
-    x = 4;
+    x = left;
     x +=
       drawText(`${bowler.p.short.toUpperCase()} ${inn.bowlerFigures(bowler)} (${inn.bowlerOvers(bowler)})`, x, y2, {
         color: COLORS.cream,

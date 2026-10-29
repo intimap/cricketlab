@@ -40,7 +40,17 @@ import {
 import { drawBooth, boothShowing } from "../render/booth.js";
 import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import { eyeMultiplier } from "../sim/eye.js";
-import { HUD_Y, staminaColor, drawScoreBar, drawMiniMap, drawBanners, drawScorecard, drawSpeechBubble } from "../render/hud.js";
+import {
+  HUD_Y,
+  SCORE_BOX,
+  staminaColor,
+  drawScoreBar,
+  drawScoreBox,
+  drawMiniMap,
+  drawBanners,
+  drawScorecard,
+  drawSpeechBubble,
+} from "../render/hud.js";
 
 const FOLLOW_THROUGH_TIME = 0.15;
 /** With no shot chosen, the striker starts lifting the bat out of the way this long before the ball arrives. */
@@ -81,6 +91,8 @@ export function drawMatch(scene) {
   // The call types itself out, and stays up while the box talks.
   const booth = boothShowing(scene.booth, scene.now);
   drawScoreBar(scene.inn, scene.commentary.slice(0, Math.floor(scene.commT * 70)), label);
+  // The score in the corner, except over the full scorecard and the pause menu.
+  if (scene.phase !== "pause" && scene.phase !== "inningsEnd") drawScoreBox(scene.inn);
   if (booth) drawBooth(scene.booth, scene.now);
   drawBanners(scene.banners, scene.now);
   drawPanels(scene);
@@ -205,7 +217,14 @@ function drawClose(scene) {
           { x: -0.3, z: 1.2 },
           { x: -1, z: 19 },
         ];
-    drawMiniMap(552, 6, fielders, runners, live && cur?.contactDone ? { x: live.ball.pos.x, z: live.ball.pos.z } : null, keeper);
+    drawMiniMap(
+      552,
+      8 + SCORE_BOX.h,
+      fielders,
+      runners,
+      live && cur?.contactDone ? { x: live.ball.pos.x, z: live.ball.pos.z } : null,
+      keeper,
+    );
   }
   const chirp = scene.chirp;
   if (chirp && scene.now >= chirp.t0 && scene.now - chirp.t0 < 2.2) drawSpeechBubble(chirp.text, 430, 150);

@@ -8,68 +8,86 @@ export const HUD_Y = 324;
 
 export const staminaColor = (s) => (s > 0.6 ? "#7cd67c" : s > 0.35 ? COLORS.gold : COLORS.red);
 
-/** Bottom bar: score, batters, this over, bowler and the commentary line (the pitch and ball are on the scorecard). */
+/** Bottom bar: batters and bowler, the partnership and this over, then the call of the last ball. */
 export function drawScoreBar(inn, commentary, deliveryLabel) {
   fillRect(0, HUD_Y, WIDTH, HEIGHT - HUD_Y, COLORS.gold2);
   fillRect(0, HUD_Y + 1, WIDTH, HEIGHT - HUD_Y - 1, COLORS.green);
   fillRect(0, HUD_Y + 1, WIDTH, 1, "#2c6b45");
+  const left = 4;
+  const right = WIDTH - 4;
 
-  // The score, double size at the left edge, across the first two rows. The box fits the widest score,
-  // so the text beside it doesn't shift as the total grows.
+  // Row 1, left: the batters, the striker marked.
   const y1 = HUD_Y + 4;
-  const scoreW = textWidth(`${inn.batTeam.abbr} 000/10`, 2) + 12;
-  fillRect(2, HUD_Y + 2, scoreW, 20, inn.batTeam.colour);
-  drawText(`${inn.batTeam.abbr} ${inn.runs}/${inn.wkts}`, 8, HUD_Y + 5, { color: COLORS.white, scale: 2 });
-  const left = scoreW + 8;
-
-  // Row 1: overs, batters, partnership, this over.
-  drawText(`OV ${inn.oversText}`, left, y1, { color: COLORS.gold });
   const striker = inn.bat[inn.striker];
   const other = inn.bat[inn.nonStriker];
-  let x = left + 56;
+  let x = left;
   drawText("•", x, y1, { color: COLORS.gold });
   x += 7;
   x += drawText(`${striker.p.short.toUpperCase()} ${striker.runs}(${striker.balls})`, x, y1, { color: COLORS.cream }) + 10;
-  x += drawText(`${other.p.short.toUpperCase()} ${other.runs}(${other.balls})`, x, y1, { color: COLORS.dim }) + 10;
-  if (inn.target !== null) {
-    drawText(`NEED ${inn.runsNeeded} OFF ${inn.ballsLeft}`, x, y1, { color: COLORS.gold });
-  } else {
-    drawText(`P'SHIP ${inn.partnership.runs}(${inn.partnership.balls})`, x, y1, { color: COLORS.dim });
-  }
+  drawText(`${other.p.short.toUpperCase()} ${other.runs}(${other.balls})`, x, y1, { color: COLORS.dim });
 
-  let right = 636;
-  const balls = inn.overBalls.slice(-8);
-  for (let i = balls.length - 1; i >= 0; i--) {
-    const b = balls[i];
-    const w = Math.max(9, textWidth(b) + 4);
-    right -= w + 1;
-    const color = b === "W" ? COLORS.red : b === "4" || b === "6" ? COLORS.gold2 : b === "." ? "#24563a" : "#2f6a48";
-    fillRect(right, y1 - 2, w, 10, color);
-    drawText(b, right + w / 2, y1 - 0.5, { align: "center", color: COLORS.white, shadow: null });
-  }
-
-  // Row 2: bowler, delivery, stamina, pressure.
-  const y2 = HUD_Y + 15;
+  // Row 1, right: the bowler, his figures, the delivery, his stamina and the pressure he's building (laid out from the right).
+  let r = right;
+  const pressureColor = inn.pressure > 0.6 ? COLORS.red : inn.pressure > 0.35 ? COLORS.gold : "#7ec8ff";
+  r -= 28;
+  drawBar(r, y1 + 1, 28, 5, inn.pressure, pressureColor);
+  r -= textWidth("PRS") + 3;
+  drawText("PRS", r, y1, { color: COLORS.dim });
   const bowler = inn.bowl[inn.currentBowler];
   if (bowler) {
-    x = left;
-    x +=
-      drawText(`${bowler.p.short.toUpperCase()} ${inn.bowlerFigures(bowler)} (${inn.bowlerOvers(bowler)})`, x, y2, {
-        color: COLORS.cream,
-      }) + 6;
-    if (deliveryLabel) x += drawText(deliveryLabel, x, y2, { color: COLORS.gold }) + 6;
-    drawText("STA", x, y2, { color: COLORS.dim });
-    x += 20;
-    drawBar(x, y2 + 1, 36, 5, bowler.stamina, staminaColor(bowler.stamina));
-    x += 42;
+    r -= 36 + 8;
+    drawBar(r, y1 + 1, 36, 5, bowler.stamina, staminaColor(bowler.stamina));
+    r -= textWidth("STA") + 3;
+    drawText("STA", r, y1, { color: COLORS.dim });
+    if (deliveryLabel) {
+      r -= textWidth(deliveryLabel) + 6;
+      drawText(deliveryLabel, r, y1, { color: COLORS.gold });
+    }
+    const figures = `${bowler.p.short.toUpperCase()} ${inn.bowlerFigures(bowler)} (${inn.bowlerOvers(bowler)})`;
+    drawText(figures, r - 6, y1, { color: COLORS.cream, align: "right" });
   }
-  // Pressure on the batting side.
-  drawText("PRS", x, y2, { color: COLORS.dim });
-  x += 20;
-  drawBar(x, y2 + 1, 28, 5, inn.pressure, inn.pressure > 0.6 ? COLORS.red : inn.pressure > 0.35 ? COLORS.gold : "#7ec8ff");
+
+  // Row 2, left: the partnership, and what's needed in a chase.
+  const y2 = HUD_Y + 15;
+  x = left + drawText(`P'SHIP ${inn.partnership.runs}(${inn.partnership.balls})`, left, y2, { color: COLORS.dim }) + 10;
+  if (inn.target !== null) drawText(`NEED ${inn.runsNeeded} OFF ${inn.ballsLeft}`, x, y2, { color: COLORS.gold });
+
+  // Row 2, right: this over, ball by ball in words ("DOT, DOT, 2, 4"), boundaries and wickets picked out.
+  const balls = inn.overBalls.slice(-8);
+  r = right;
+  for (let i = balls.length - 1; i >= 0; i--) {
+    const b = balls[i];
+    const word = (b === "." ? "DOT" : b) + (i < balls.length - 1 ? "," : "");
+    const color = b === "W" ? COLORS.red : b === "4" || b === "6" ? COLORS.gold : b === "." ? COLORS.dim : COLORS.cream;
+    r -= textWidth(word);
+    drawText(word, r, y2, { color });
+    r -= 6;
+  }
+  drawText("THIS OVER", r - (balls.length ? 4 : 0), y2, { color: COLORS.dim, align: "right" });
 
   // Row 3: commentary.
   drawText(commentary.length > 104 ? commentary.slice(0, 101) + ".." : commentary, 4, HUD_Y + 26, { color: COLORS.cream });
+}
+
+/** Width and height of the score box in the top right of the screen. */
+export const SCORE_BOX = { w: 132, h: 33 };
+
+/** The score, double size, with the overs under it, in a box in the top right corner. */
+export function drawScoreBox(inn) {
+  const x = WIDTH - 4 - SCORE_BOX.w;
+  const y = 4;
+  drawPanel(x, y, SCORE_BOX.w, SCORE_BOX.h, inn.batTeam.colour, COLORS.gold2);
+  drawText(`${inn.batTeam.abbr} ${inn.runs}/${inn.wkts}`, x + SCORE_BOX.w / 2, y + 5, {
+    color: COLORS.white,
+    scale: 2,
+    align: "center",
+    outline: "rgba(0,0,0,0.5)",
+  });
+  drawText(`OV ${inn.oversText}`, x + SCORE_BOX.w / 2, y + 22, {
+    color: COLORS.gold,
+    align: "center",
+    outline: "rgba(0,0,0,0.5)",
+  });
 }
 
 /** Top-down ground map: fielders, keeper, batters and the ball. */

@@ -44,19 +44,40 @@ const CONTACT = {
   gloved: "off the glove",
 };
 
+/** A seamer's pace as it's spoken of (km/h from), fastest first. */
+const PACE = [
+  [145, "express"],
+  [135, "fast"],
+  [125, "fast-medium"],
+  [110, "medium pace"],
+  [0, "slow-medium"],
+];
+/** A spinner's pace is in how it's bowled: tossed up, stock or fired in. */
+const SPIN_PACE = { low: "flighted", med: "", high: "flat" };
+
+function paceWord(rec, delivery, spinner) {
+  if (spinner) return SPIN_PACE[delivery.intent.effort] ?? "";
+  // The slower ball says it in its name.
+  if (rec.deliveryType === "slower") return "";
+  return PACE.find(([kmh]) => rec.movement.kmh >= kmh)[1];
+}
+
 const capitalise = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 const runs = (n) => (n === 0 ? "no run" : `${n} run${n === 1 ? "" : "s"}`);
 const plain = (name) => (name?.startsWith("the ") ? name.slice(4) : (name ?? ""));
 
 /**
- * "144 km/h outswinger, good length outside off". Short of room, the speed goes first (the speed gun
- * shows it), then the type.
+ * "Fast outswinger, good length outside off". Short of room, the pace word goes first, then the type.
  */
 function deliveryPart(rec, delivery, spinner, short) {
-  const type = short === 2 ? "" : (DELIVERY[rec.deliveryType] ?? "");
+  // A spinner's seam ball is the one that doesn't turn.
+  const named = spinner && rec.deliveryType === "seam" ? "straighter one" : (DELIVERY[rec.deliveryType] ?? "");
+  const type = short === 2 ? "" : named;
   const pitchZ = delivery.pitchedAt?.z ?? 0;
   const line = lineName(delivery.atCrease ? delivery.atCrease.x : delivery.intent.line);
-  const what = [short ? "" : `${Math.round(rec.movement.kmh)} km/h`, type].filter(Boolean).join(" ");
+  // On its own (the stock seam ball) "express" wants its noun.
+  const pace = short ? "" : paceWord(rec, delivery, spinner);
+  const what = [type || pace !== "express" ? pace : "express pace", type].filter(Boolean).join(" ");
   const where = `${lengthName(pitchZ, spinner)} ${line === "middle" ? "on middle" : line}`;
   return what ? `${what}, ${where}` : where;
 }

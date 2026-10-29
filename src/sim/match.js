@@ -7,6 +7,7 @@ import { isSpinner } from "./teams.js";
 import { bowlDelivery, movementOf } from "./delivery.js";
 import { resolveDelivery } from "./batting.js";
 import { plainCall } from "./call.js";
+import { PackVoice } from "./pack-voice.js";
 import { BallInPlay } from "./ball-in-play.js";
 import { pickBowler, pickOverPlan, pickFieldPreset, pickDeliveryPlan, pickShot, battingAggression } from "./ai.js";
 import { describeBall } from "./plans.js";
@@ -41,6 +42,8 @@ export class Match {
     this.pitch = new Pitch(PITCH_TYPES[pitchId]);
     // The commentary has its own dice (seeded from the match's), so what's said never changes what happens.
     this.comm = new Commentary(new Rng(rng.state ^ 0x5bd1e995));
+    /** The commentary pack's lines, and what's been said (presentation only: the scene brings its own dice). */
+    this.pack = new PackVoice();
     this.beginInnings(batTeam, bowlTeam, opts.target ?? null);
     if (opts.start) this.inn.startFrom(opts.start);
   }

@@ -17,7 +17,7 @@ import { pickBowler } from "../sim/ai.js";
 import { pickSledges, pickChirp } from "../sim/commentary.js";
 import { boothCall, boothChat, boothJoke } from "../sim/commentators.js";
 import { makeKit } from "../render/sprites.js";
-import { scheduleCalls, boothDuration } from "../render/booth.js";
+import { scheduleCalls, boothDuration, fitsBox } from "../render/booth.js";
 import { buildGround } from "../render/ground.js";
 import { GROUNDS, DEFAULT_GROUND } from "../render/grounds.js";
 import { LIGHTS } from "../render/light.js";
@@ -944,6 +944,7 @@ export class MatchScene {
   completeBall() {
     const cur = this.cur;
     const done = this.match.finish(cur.play);
+    this.match.pack.tick();
     cur.done = done;
     if (this.human === "bat") this.updateEye(cur.play);
     if (this.nets) {
@@ -957,7 +958,10 @@ export class MatchScene {
     // The score bar gets the plain call; the commentary box (below) adds the colour.
     this.commentary = done.rec.call ?? "";
     this.commT = 0;
-    this.booth = scheduleCalls(this.callFromBooth(done), this.now + 0.2);
+    const { calls, picks } = this.callFromBooth(done);
+    this.booth = scheduleCalls(calls, this.now + 0.2);
+    // Only once they're on air do the pack's lines count as said.
+    for (const pick of picks) this.match.pack.said(pick);
     const wicket = done.rec.wicket;
     if (wicket) {
       const how = {
@@ -1041,14 +1045,18 @@ export class MatchScene {
       fielder: rec.dropped || rec.wicket?.fielder,
     };
     // Presentation only, so it draws on Math.random and leaves the match's dice alone.
-    const rng = { pick: (list) => list[Math.floor(Math.random() * list.length)], chance: (p) => Math.random() < p };
-    const calls = boothCall(rec, rec.commentary ?? "", names, rng);
+    const rng = {
+      pick: (list) => list[Math.floor(Math.random() * list.length)],
+      chance: (p) => Math.random() < p,
+      random: Math.random,
+    };
+    const { calls, picks } = boothCall(rec, rec.call ?? "", names, rng, this.match.pack, fitsBox);
     // At the end of a quiet over the box gets talking (after a big moment, they've said enough).
     if (done.applied.overEnded && !done.applied.inningsOver && calls.length === 1)
       calls.push(...boothChat(this.match.comm, inn, rng));
     // In a long lull they'll fill the time between balls too.
     else if (calls.length === 1 && !done.applied.inningsOver) calls.push(...boothJoke(this.match.comm.joke(true)));
-    return calls;
+    return { calls, picks };
   }
 
   /** The nets coach's verdict on the ball just finished. */
@@ -1110,6 +1118,7 @@ export class MatchScene {
     this.simLines = [];
     for (let i = 0; !inn.isOver && inn.overNo < until && i++ < 2000; ) {
       const { rec, applied } = this.match.simBall();
+      this.match.pack.tick();
       if (rec.wicket || rec.boundary || applied.milestones.length || applied.overEnded) {
         const result = rec.wicket ? "OUT! " + rec.wicket.text : rec.boundary ? rec.boundary + "!" : rec.total;
         let line = `${rec.over}.${rec.ball} ${inn.bowl[rec.bowler].p.short} to ${inn.bat[rec.striker].p.short}: ${result}`;

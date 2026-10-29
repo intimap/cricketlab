@@ -1,0 +1,1232 @@
+{
+  "schema_version": "1.0.0",
+  "pack_id": "cricketlab-commentary-ordinary-v1",
+  "pack_version": "1.0.0",
+  "bank": "match_context",
+  "entries": [
+    {
+      "id": "clab.v1.match_context.offTheMark.bunnings.001",
+      "category": "offTheMark",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "offTheMark"
+      },
+      "text": "{b} is off the mark. A small matter settled.",
+      "repeat_group": "match_context.offmark_release",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.offTheMark.bunnings.002",
+      "category": "offTheMark",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "offTheMark"
+      },
+      "text": "A first contribution after the wait.",
+      "repeat_group": "match_context.offmark_wait",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.offTheMark.bunnings.003",
+      "category": "offTheMark",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "offTheMark"
+      },
+      "text": "The zero beside {b}'s name has gone.",
+      "repeat_group": "match_context.offmark_release",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.offTheMark.lorry.001",
+      "category": "offTheMark",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "offTheMark"
+      },
+      "text": "Off the mark! That will feel better for {b}!",
+      "repeat_group": "match_context.offmark_release",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.offTheMark.lorry.002",
+      "category": "offTheMark",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "offTheMark"
+      },
+      "text": "He's away! At last, something beside the name!",
+      "repeat_group": "match_context.offmark_wait",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.offTheMark.lorry.003",
+      "category": "offTheMark",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "offTheMark"
+      },
+      "text": "There's the first score for {b}! Up and running!",
+      "repeat_group": "match_context.offmark_release",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.offTheMark.grog.001",
+      "category": "offTheMark",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "offTheMark"
+      },
+      "text": "{b} has a score now. One less thing to think about.",
+      "repeat_group": "match_context.offmark_release",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.offTheMark.grog.002",
+      "category": "offTheMark",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "offTheMark"
+      },
+      "text": "That gets {b} started after a patient wait.",
+      "repeat_group": "match_context.offmark_wait",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.offTheMark.grog.003",
+      "category": "offTheMark",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "offTheMark"
+      },
+      "text": "Off the mark. Now build from there.",
+      "repeat_group": "match_context.offmark_release",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droughtEnds.bunnings.001",
+      "category": "droughtEnds",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "droughtEnds"
+      },
+      "text": "{n} scoreless balls before that. The account is active again.",
+      "repeat_group": "match_context.drought_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droughtEnds.bunnings.002",
+      "category": "droughtEnds",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "droughtEnds"
+      },
+      "text": "A scoring stroke at last for {b}.",
+      "repeat_group": "match_context.drought_release",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droughtEnds.bunnings.003",
+      "category": "droughtEnds",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "droughtEnds"
+      },
+      "text": "After {n} balls without scoring, {b} adds to the total.",
+      "repeat_group": "match_context.drought_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droughtEnds.lorry.001",
+      "category": "droughtEnds",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "droughtEnds"
+      },
+      "text": "{n} balls without a run, and now he's scored!",
+      "repeat_group": "match_context.drought_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droughtEnds.lorry.002",
+      "category": "droughtEnds",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "droughtEnds"
+      },
+      "text": "There's the release for {b}! The drought is over!",
+      "repeat_group": "match_context.drought_release",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droughtEnds.lorry.003",
+      "category": "droughtEnds",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "droughtEnds"
+      },
+      "text": "Finally! {b} has ended a wait of {n} balls!",
+      "repeat_group": "match_context.drought_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droughtEnds.grog.001",
+      "category": "droughtEnds",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "droughtEnds"
+      },
+      "text": "{n} scoreless deliveries. That score interrupts the squeeze.",
+      "repeat_group": "match_context.drought_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droughtEnds.grog.002",
+      "category": "droughtEnds",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "droughtEnds"
+      },
+      "text": "The bowler has to start building that pressure again.",
+      "repeat_group": "match_context.drought_release",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droughtEnds.grog.003",
+      "category": "droughtEnds",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "droughtEnds"
+      },
+      "text": "{b} has broken a sequence of {n} balls without scoring.",
+      "repeat_group": "match_context.drought_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.dotsBuilding.bunnings.001",
+      "category": "dotsBuilding",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "dotsBuilding"
+      },
+      "text": "{n} balls without a run. A quiet scoreboard.",
+      "repeat_group": "match_context.dots_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.dotsBuilding.bunnings.002",
+      "category": "dotsBuilding",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "dotsBuilding"
+      },
+      "text": "The total has been stationary for {n} balls.",
+      "repeat_group": "match_context.dots_pressure",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.dotsBuilding.bunnings.003",
+      "category": "dotsBuilding",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "dotsBuilding"
+      },
+      "text": "{n} scoreless deliveries now. Time is being occupied.",
+      "repeat_group": "match_context.dots_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.dotsBuilding.lorry.001",
+      "category": "dotsBuilding",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "dotsBuilding"
+      },
+      "text": "{n} balls! They can't find a run!",
+      "repeat_group": "match_context.dots_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.dotsBuilding.lorry.002",
+      "category": "dotsBuilding",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "dotsBuilding"
+      },
+      "text": "Nothing added for {n} deliveries! What a squeeze!",
+      "repeat_group": "match_context.dots_pressure",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.dotsBuilding.lorry.003",
+      "category": "dotsBuilding",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "dotsBuilding"
+      },
+      "text": "Count them! {n} balls without scoring!",
+      "repeat_group": "match_context.dots_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.dotsBuilding.grog.001",
+      "category": "dotsBuilding",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "dotsBuilding"
+      },
+      "text": "{n} balls without a run. Don't let that force a bad decision.",
+      "repeat_group": "match_context.dots_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.dotsBuilding.grog.002",
+      "category": "dotsBuilding",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "dotsBuilding"
+      },
+      "text": "The fielding side is building pressure through dots.",
+      "repeat_group": "match_context.dots_pressure",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.dotsBuilding.grog.003",
+      "category": "dotsBuilding",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "dotsBuilding"
+      },
+      "text": "A sequence of {n} scoreless balls. The next choice matters.",
+      "repeat_group": "match_context.dots_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.maiden.bunnings.001",
+      "category": "maiden",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "maiden"
+      },
+      "text": "A maiden for {w}. An economical piece of work.",
+      "repeat_group": "match_context.maiden_return",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.maiden.bunnings.002",
+      "category": "maiden",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "maiden"
+      },
+      "text": "Nothing charged to {w} from the over.",
+      "repeat_group": "match_context.maiden_value",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.maiden.bunnings.003",
+      "category": "maiden",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "maiden"
+      },
+      "text": "A maiden goes into {w}'s figures.",
+      "repeat_group": "match_context.maiden_return",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.maiden.lorry.001",
+      "category": "maiden",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "maiden"
+      },
+      "text": "A maiden! {w} hasn't conceded a run in that over!",
+      "repeat_group": "match_context.maiden_return",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.maiden.lorry.002",
+      "category": "maiden",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "maiden"
+      },
+      "text": "Nothing against the bowler! A maiden for {w}!",
+      "repeat_group": "match_context.maiden_value",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.maiden.lorry.003",
+      "category": "maiden",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "maiden"
+      },
+      "text": "Put an M in the book! A maiden!",
+      "repeat_group": "match_context.maiden_return",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.maiden.grog.001",
+      "category": "maiden",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "maiden"
+      },
+      "text": "A maiden. That's useful control from {w}.",
+      "repeat_group": "match_context.maiden_return",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.maiden.grog.002",
+      "category": "maiden",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "maiden"
+      },
+      "text": "Nothing on the bowler's account from that over.",
+      "repeat_group": "match_context.maiden_value",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.maiden.grog.003",
+      "category": "maiden",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "maiden"
+      },
+      "text": "A maiden for {w}. Give the batter another problem next over.",
+      "repeat_group": "match_context.maiden_return",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.standBroken.bunnings.001",
+      "category": "standBroken",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "standBroken"
+      },
+      "text": "That ends a partnership of {n}.",
+      "repeat_group": "match_context.stand_number",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.standBroken.bunnings.002",
+      "category": "standBroken",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "standBroken"
+      },
+      "text": "The stand is over. {n} runs together.",
+      "repeat_group": "match_context.stand_break",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.standBroken.bunnings.003",
+      "category": "standBroken",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "standBroken"
+      },
+      "text": "A {n}-run partnership goes into the scorebook.",
+      "repeat_group": "match_context.stand_number",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.standBroken.lorry.001",
+      "category": "standBroken",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "standBroken"
+      },
+      "text": "They've broken the stand! {n} runs together!",
+      "repeat_group": "match_context.stand_number",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.standBroken.lorry.002",
+      "category": "standBroken",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "standBroken"
+      },
+      "text": "The partnership is over! The fielding side has its opening!",
+      "repeat_group": "match_context.stand_break",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.standBroken.lorry.003",
+      "category": "standBroken",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "standBroken"
+      },
+      "text": "{n} added together, and now they've been separated!",
+      "repeat_group": "match_context.stand_number",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.standBroken.grog.001",
+      "category": "standBroken",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "standBroken"
+      },
+      "text": "A stand of {n} broken. That changes the contest.",
+      "repeat_group": "match_context.stand_number",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.standBroken.grog.002",
+      "category": "standBroken",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "standBroken"
+      },
+      "text": "The fielding side has ended a productive partnership.",
+      "repeat_group": "match_context.stand_break",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.standBroken.grog.003",
+      "category": "standBroken",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "standBroken"
+      },
+      "text": "{n} runs in that stand. The wicket brings a new problem for the batting side.",
+      "repeat_group": "match_context.stand_number",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.fifty.bunnings.001",
+      "category": "fifty",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "fifty"
+      },
+      "text": "Fifty for {b}. A useful landmark.",
+      "repeat_group": "match_context.fifty_mark",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.fifty.bunnings.002",
+      "category": "fifty",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "fifty"
+      },
+      "text": "A half-century reached. There is more available.",
+      "repeat_group": "match_context.fifty_next",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.fifty.bunnings.003",
+      "category": "fifty",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "fifty"
+      },
+      "text": "{b} has fifty. A score taking shape.",
+      "repeat_group": "match_context.fifty_mark",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.fifty.lorry.001",
+      "category": "fifty",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "fifty"
+      },
+      "text": "Fifty! A half-century for {b}!",
+      "repeat_group": "match_context.fifty_mark",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.fifty.lorry.002",
+      "category": "fifty",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "fifty"
+      },
+      "text": "There's the fifty! Keep going, {b}!",
+      "repeat_group": "match_context.fifty_next",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.fifty.lorry.003",
+      "category": "fifty",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "fifty"
+      },
+      "text": "The half-century is up! A moment to enjoy!",
+      "repeat_group": "match_context.fifty_mark",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.fifty.grog.001",
+      "category": "fifty",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "fifty"
+      },
+      "text": "Fifty for {b}. Now turn the start into something bigger.",
+      "repeat_group": "match_context.fifty_mark",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.fifty.grog.002",
+      "category": "fifty",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "fifty"
+      },
+      "text": "A half-century is a platform. Build on it.",
+      "repeat_group": "match_context.fifty_next",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.fifty.grog.003",
+      "category": "fifty",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "fifty"
+      },
+      "text": "{b} reaches fifty. The next phase starts here.",
+      "repeat_group": "match_context.fifty_mark",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.hundred.bunnings.001",
+      "category": "hundred",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "hundred"
+      },
+      "text": "A century for {b}. A fine entry in the scorebook.",
+      "repeat_group": "match_context.hundred_mark",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.hundred.bunnings.002",
+      "category": "hundred",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "hundred"
+      },
+      "text": "Three figures. That is an innings to remember.",
+      "repeat_group": "match_context.hundred_value",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.hundred.bunnings.003",
+      "category": "hundred",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "hundred"
+      },
+      "text": "{b} has a hundred. A proper achievement.",
+      "repeat_group": "match_context.hundred_mark",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.hundred.lorry.001",
+      "category": "hundred",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "hundred"
+      },
+      "text": "A hundred! {b} has reached three figures!",
+      "repeat_group": "match_context.hundred_mark",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.hundred.lorry.002",
+      "category": "hundred",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "hundred"
+      },
+      "text": "A century! That's the number a batter dreams about!",
+      "repeat_group": "match_context.hundred_value",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.hundred.lorry.003",
+      "category": "hundred",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "hundred"
+      },
+      "text": "There it is! One hundred for {b}!",
+      "repeat_group": "match_context.hundred_mark",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.hundred.grog.001",
+      "category": "hundred",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "hundred"
+      },
+      "text": "A hundred for {b}. An innings with real value.",
+      "repeat_group": "match_context.hundred_mark",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.hundred.grog.002",
+      "category": "hundred",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "hundred"
+      },
+      "text": "Three figures. Take the moment, then reset.",
+      "repeat_group": "match_context.hundred_value",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.hundred.grog.003",
+      "category": "hundred",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "hundred"
+      },
+      "text": "{b} reaches a century. The job needn't end at the landmark.",
+      "repeat_group": "match_context.hundred_mark",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.collapse.bunnings.001",
+      "category": "collapse",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "collapse"
+      },
+      "text": "{k} wickets for {n} runs. The innings has lost its footing.",
+      "repeat_group": "match_context.collapse_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.collapse.bunnings.002",
+      "category": "collapse",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "collapse"
+      },
+      "text": "A cluster of wickets. The batting side needs some order.",
+      "repeat_group": "match_context.collapse_warning",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.collapse.bunnings.003",
+      "category": "collapse",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "collapse"
+      },
+      "text": "{k} down for {n} in this passage. Difficult reading.",
+      "repeat_group": "match_context.collapse_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.collapse.lorry.001",
+      "category": "collapse",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "collapse"
+      },
+      "text": "{k} wickets for {n}! It's coming apart!",
+      "repeat_group": "match_context.collapse_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.collapse.lorry.002",
+      "category": "collapse",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "collapse"
+      },
+      "text": "Another wicket! The batting side can't stop the slide!",
+      "repeat_group": "match_context.collapse_warning",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.collapse.lorry.003",
+      "category": "collapse",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "collapse"
+      },
+      "text": "{k} for {n} in this spell of play! A collapse!",
+      "repeat_group": "match_context.collapse_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.collapse.grog.001",
+      "category": "collapse",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "collapse"
+      },
+      "text": "{k} wickets for {n}. Somebody has to interrupt that pattern.",
+      "repeat_group": "match_context.collapse_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.collapse.grog.002",
+      "category": "collapse",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "collapse"
+      },
+      "text": "A collapse needs a calm response, not a bigger swing.",
+      "repeat_group": "match_context.collapse_warning",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.collapse.grog.003",
+      "category": "collapse",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "collapse"
+      },
+      "text": "{k} for {n}. The batting side has to rebuild from here.",
+      "repeat_group": "match_context.collapse_count",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.winningRuns.bunnings.001",
+      "category": "winningRuns",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "winningRuns"
+      },
+      "text": "The target is reached. That settles the match.",
+      "repeat_group": "match_context.win_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.winningRuns.bunnings.002",
+      "category": "winningRuns",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "winningRuns"
+      },
+      "text": "The chase is complete. A result for the batting side.",
+      "repeat_group": "match_context.win_finish",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.winningRuns.bunnings.003",
+      "category": "winningRuns",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "winningRuns"
+      },
+      "text": "Enough on the board. The match is won.",
+      "repeat_group": "match_context.win_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.winningRuns.lorry.001",
+      "category": "winningRuns",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "winningRuns"
+      },
+      "text": "They've done it! The target is reached!",
+      "repeat_group": "match_context.win_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.winningRuns.lorry.002",
+      "category": "winningRuns",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "winningRuns"
+      },
+      "text": "That's the match! They've completed the chase!",
+      "repeat_group": "match_context.win_finish",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.winningRuns.lorry.003",
+      "category": "winningRuns",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "winningRuns"
+      },
+      "text": "Over the line! They've got the runs they needed!",
+      "repeat_group": "match_context.win_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.winningRuns.grog.001",
+      "category": "winningRuns",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "winningRuns"
+      },
+      "text": "The target is reached. The batting side has finished the job.",
+      "repeat_group": "match_context.win_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.winningRuns.grog.002",
+      "category": "winningRuns",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "winningRuns"
+      },
+      "text": "A completed chase. The equation is settled.",
+      "repeat_group": "match_context.win_finish",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.winningRuns.grog.003",
+      "category": "winningRuns",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "winningRuns"
+      },
+      "text": "The required runs are there. That wins the match.",
+      "repeat_group": "match_context.win_result",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droppedOn.bunnings.001",
+      "category": "droppedOn",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "droppedOn",
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "Dropped on {n}. A number worth retaining.",
+      "repeat_group": "match_context.drop_score",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droppedOn.bunnings.002",
+      "category": "droppedOn",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "droppedOn",
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "We should make a note of that chance.",
+      "repeat_group": "match_context.drop_memory",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droppedOn.bunnings.003",
+      "category": "droppedOn",
+      "speaker": "bunnings",
+      "requires": {
+        "rec.moment.kind": "droppedOn",
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "{b} gets a life on {n}.",
+      "repeat_group": "match_context.drop_score",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droppedOn.lorry.001",
+      "category": "droppedOn",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "droppedOn",
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "Dropped on {n}! A life for {b}!",
+      "repeat_group": "match_context.drop_score",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droppedOn.lorry.002",
+      "category": "droppedOn",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "droppedOn",
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "He's been given another go! Remember this moment!",
+      "repeat_group": "match_context.drop_memory",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droppedOn.lorry.003",
+      "category": "droppedOn",
+      "speaker": "lorry",
+      "requires": {
+        "rec.moment.kind": "droppedOn",
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "{b} survives on {n}! What an escape!",
+      "repeat_group": "match_context.drop_score",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droppedOn.grog.001",
+      "category": "droppedOn",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "droppedOn",
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "A chance for {b} on {n}. The fielding side may count the cost.",
+      "repeat_group": "match_context.drop_score",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droppedOn.grog.002",
+      "category": "droppedOn",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "droppedOn",
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "That opportunity is gone. The next one still has to be created.",
+      "repeat_group": "match_context.drop_memory",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    },
+    {
+      "id": "clab.v1.match_context.droppedOn.grog.003",
+      "category": "droppedOn",
+      "speaker": "grog",
+      "requires": {
+        "rec.moment.kind": "droppedOn",
+        "rec.wicket": null,
+        "rec.dropped": {
+          "truthy": true
+        },
+        "rec.extra.type": null,
+        "rec.freeHit": false
+      },
+      "text": "{b} has been dropped on {n}. Put that in the notebook.",
+      "repeat_group": "match_context.drop_score",
+      "weight": 1,
+      "priority": 40,
+      "cooldown_balls": 60
+    }
+  ]
+}

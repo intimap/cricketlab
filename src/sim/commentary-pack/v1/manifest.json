@@ -1,0 +1,39 @@
+{
+  "pack_id": "cricketlab-commentary-ordinary-v1",
+  "pack_version": "1.0.0",
+  "schema_version": "1.0.0",
+  "created_local_date": "2026-10-30",
+  "timezone": "Australia/Melbourne",
+  "repository": "https://github.com/intimap/cricketlab",
+  "source_branch": "main",
+  "source_commit": "d2f773a7761345e58fa58cd77e5b2c581c97573e",
+  "counts": {
+    "ball_calls": 328,
+    "commentator_lines": 96,
+    "match_context": 90
+  },
+  "total_templates": 514,
+  "scope": "Everyday ball calls with starter boundary, wicket and extras sets; optional personality and existing moment follow-ups.",
+  "integration_status": "Content package only. No game source edits, merge or deployment.",
+  "qa_status": {
+    "content_validation": "passed",
+    "repository_probe": "passed"
+  },
+  "checksums_sha256": {
+    "CLAUDE_INTEGRATION.md": "c65566ca20d90b8675849883ee0144a88a12c759821247083033b336a35276d2",
+    "QA_REPORT.json": "6a72f77f7fe87c029894d4ca01cbc389abc1f1db88cbf3af6d89fea09fd9100e",
+    "READABLE_COMMENTARY.md": "33855507cbb7be134000270ae068416307ef2079a9626c0736170a8ff4511d6c",
+    "README.md": "9d26fa5fbdfbb89bc891a9f6a456503ba65dfb54570cc3358136470587a89f42",
+    "SAMPLE_TRANSCRIPT.md": "19aa36d5a941eed749376bc06072293a0fe4be32d5010e83ecfaed6dbfd1ffcc",
+    "ball_calls.json": "32552585ac681a1ce4f6cb3de7ecacb4041a4cd307b70dd5e3bf3dd5009a7ed6",
+    "commentator_lines.json": "484bce2e1df2d837b53aa48000ae436ecb496aa7535642119c4726d4a8e1f8fe",
+    "examples.json": "07365fa36501d7087b7e5a56fe8070446d851ace3635c63efbe8510aed4c45ee",
+    "field_mapping.json": "fd1c66a0f41b170b631e276da475974fb3da650337d0b3160ea5c75136c4242a",
+    "match_context.json": "195e1085dee26a997589d0169b0033cb7983ff637411bb73cfa44a8bac10b196",
+    "schema.json": "8eb0022cbe7db1d26c9256ec9679a53147920e082b33fe6ad38165bfcda05018",
+    "shot_vocabulary.json": "2c34060e7dd7bc923551547ed55fc518d92079db800ace1fc09968fa07578dc8",
+    "tools/check_repo.mjs": "13ee9fb58a0c737fab748c92a57cf2331caa6192f23cfcc6da440a9f9f2ad630",
+    "tools/reference_matcher.mjs": "4f523eeaafc6d2bbc2fc7bf6b0e0a8bf7a617ac271b2b22b0fe7f2c1a5b84be9",
+    "tools/validate.mjs": "f4f76e1efdcb18bdadddab5c20a33c1d66d9058ea7107bb1119e4ed56bd7607f"
+  }
+}

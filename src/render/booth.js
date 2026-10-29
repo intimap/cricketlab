@@ -172,6 +172,9 @@ function drawCall(call, now) {
     });
 }
 
+/** Does this line fit the box without being cut off? */
+export const fitsBox = (text) => wrapText(text.toUpperCase(), LINE_CHARS).length <= 4;
+
 /** Lay a list of { who, text } calls end to end from time `t0`. */
 export function scheduleCalls(calls, t0) {
   let at = t0;

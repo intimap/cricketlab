@@ -1,0 +1,60 @@
+{
+  "repository": "https://github.com/intimap/cricketlab",
+  "source_commit": "d2f773a7761345e58fa58cd77e5b2c581c97573e",
+  "source_branch": "main",
+  "snapshot_date_local": "2026-10-30",
+  "runtime_context": "A completed ball record rec. All stats used here are captured in rec, not read back from a mutated innings.",
+  "paths": {
+    "rec.shot": "Attempted input family: drive, cutpull, loft, defend, leave, ramp, sweep or reverseSweep.",
+    "rec.shotName": "Realised shot label from batting.js; commonly empty on a miss. Not a separate input choice.",
+    "rec.contact": "middle, thinEdge, thickEdge, insideEdge, topEdge, bottomEdge, gloved, padPop or none.",
+    "rec.runsBat": "Runs credited to the batter on this ball.",
+    "rec.total": "All runs on this ball, including extras. {r} refers to this value.",
+    "rec.boundary": "Boundary award: 0, 4 or 6. Do not infer this from total alone.",
+    "rec.extra.type": "Explicit null for no extras, or wd, nb, b, lb. Missing is not null.",
+    "rec.dropped": "Explicit null, or the position/role label of a fielder who dropped a catch.",
+    "rec.wicket": "Explicit null, or the dismissal object.",
+    "rec.wicket.how": "bowled, caught, lbw, stumped or runout.",
+    "rec.wicket.caughtBehind": "Boolean for catches; may be absent on other dismissals.",
+    "rec.padVerdict": "Empty string if no pad contact. A nonempty tracking reason when hit on pad; not proof an appeal happened.",
+    "rec.quality": "Contact quality; this pack uses 0.55 as an editorial boundary for timing language, not a gameplay change.",
+    "rec.bounceNote": "low or high for unusual bounce; another value or missing means no low/high template.",
+    "rec.beatBat": "A played-and-missed event in the current model. It does not identify which side of the bat was beaten.",
+    "rec.missReason": "early, late, beaten, or another source reason. Timing-specific templates require early/late explicitly.",
+    "rec.seenBall.line": "Existing describeBall classification: stumps, off, wide or leg. wide here is a line, not an umpire wide call.",
+    "rec.movement.spin": "Boolean from movementOf: whether the delivery was bowled by a spinner.",
+    "rec.movement.swing": "Signed actual lateral air movement in metres, used only to derive an absolute value.",
+    "rec.freeHit": "Boolean before the ball. Dropped-chance templates require false, so they do not imply a catch dismissal on a free hit.",
+    "rec.moment.kind": "Existing MomentTracker classification; compute once per ball, not again during rendering.",
+    "facts.swing_abs_m": "Pure adapter value: Math.abs(rec.movement.swing), only when the source number is finite. Not a new simulation feature."
+  },
+  "placeholders": {
+    "b": "Existing short name of the dismissed batter if rec.wicket is present, otherwise rec.striker. Snapshot before switching scenes or innings.",
+    "w": "Existing short name of rec.bowler.",
+    "f": "rec.dropped or rec.wicket.fielder. These are usually position/role labels, not a player name. Do not invent a specific fielder.",
+    "r": "rec.total, including extras; fixed run phrases additionally guard runsBat, total and boundary.",
+    "s": "rec.shotName, only used by templates that explicitly require supported nonempty shot names.",
+    "n": "rec.moment.n with event-specific meaning; retain zero. Never assume it always means runs.",
+    "k": "rec.moment.k, mapped to a number word for collapse counts; retain zero and do not treat a missing value as zero."
+  },
+  "moment_n_meaning": {
+    "offTheMark": "Balls faced including this ball in the current detector. Pack lines do not quote this number.",
+    "droughtEnds": "Prior consecutive scoreless balls faced by this batter.",
+    "dotsBuilding": "Current consecutive scoreless balls for the team.",
+    "maiden": "Unused in this pack. Byes/leg byes may coexist with a bowler maiden.",
+    "standBroken": "Partnership total at the wicket, as supplied by MomentTracker.",
+    "fifty": "Balls faced in the current detector; the pack says fifty, not {n} runs.",
+    "hundred": "Balls faced in the current detector; the pack says a hundred, not {n} runs.",
+    "collapse": "Runs in the detector's recent wicket cluster; k is the wicket count.",
+    "winningRuns": "Unused; moment kind itself identifies the successful chase.",
+    "droppedOn": "Batter score when the catch was dropped, before this ball's scoring is applied."
+  },
+  "excluded_inferences": [
+    "No named second slip, gully or other precise passing point without a recorded trajectory and actual field placement.",
+    "No ball falling short of a catch merely because an edge produced zero runs.",
+    "No diving, one-handed, overhead or boundary-saving catch without a matching fielding event.",
+    "No direct-hit, mix-up, overstep, shot direction, easy run, keeper error, weather or crowd action inferred from a generic result.",
+    "No claim that a single changes who faces the next ball: the over may have ended.",
+    "No six dot balls inferred from a maiden, because byes and leg byes are not charged to the bowler."
+  ]
+}

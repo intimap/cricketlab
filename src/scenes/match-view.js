@@ -1,5 +1,5 @@
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect, drawLine, drawPanel, drawBar } from "../engine/screen.js";
-import { drawText, wrapText } from "../engine/text.js";
+import { drawText, textWidth, wrapText } from "../engine/text.js";
 import { clamp, easeIn, easeOut } from "../math.js";
 import { CREASE, PITCH_LENGTH, MID_PITCH } from "../sim/geometry.js";
 import { isSpinner } from "../sim/teams.js";
@@ -440,9 +440,28 @@ function drawTarget(scene) {
 
 // --- Wide view: the whole ground. ---
 
+/**
+ * The ground's scoreboard, showing the real score: the batting side, then the side they're chasing
+ * (or the overs, in the first innings).
+ */
+function drawGroundScoreboard(board, inn) {
+  fillRect(board.x, board.y, board.w, board.h, board.colour);
+  const mid = board.x + board.w / 2;
+  // A narrow gap after the team, so even "AUS 487/10" fits the face.
+  const line = (name, figures, y, color) => {
+    const left = Math.round(mid - (textWidth(name) + 3 + textWidth(figures)) / 2);
+    drawText(name, left, y, { color, shadow: null });
+    drawText(figures, left + textWidth(name) + 3, y, { color, shadow: null });
+  };
+  line(inn.batTeam.abbr, `${inn.runs}/${inn.wkts}`, board.y + 1, board.top);
+  if (inn.target !== null) line(inn.bowlTeam.abbr, String(inn.target - 1), board.y + 11, board.bottom);
+  else line("OV", inn.oversText, board.y + 11, board.bottom);
+}
+
 function drawWide(scene) {
   ctx.drawImage(scene.groundArt.wide, 0, 0, WIDTH, HEIGHT);
   const inn = scene.inn;
+  if (scene.ground.wide.scoreboard) drawGroundScoreboard(scene.ground.wide.scoreboard, inn);
   const cur = scene.cur;
   const live = cur?.play?.live;
   const cap = scene.kitBowl.cap;

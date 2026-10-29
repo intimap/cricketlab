@@ -170,6 +170,9 @@ export class MatchScene {
     return this.match.inn;
   }
 
+  /** Counts up each ball, so on-screen toggles (POWER) switch off for the next one. */
+  touchEpoch = 0;
+
   /** Which on-screen buttons a touch screen shows (engine/touch.js): the pause menu's, or batting or bowling. */
   get touchMode() {
     return this.phase === "pause" ? "menu" : this.human;
@@ -188,6 +191,7 @@ export class MatchScene {
 
   nextBall() {
     const inn = this.inn;
+    this.touchEpoch++;
     if (Math.floor(inn.pitch.wear * GROUND_WEAR_STEPS) !== this.groundWear) this.buildGround();
     if (inn.isOver) {
       this.endInnings();

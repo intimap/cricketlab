@@ -6,7 +6,10 @@ import { pressKey, releaseKey } from "./input.js";
  * touch screen. The buttons shown follow what the player is doing (the
  * scene's `touchMode`: "menu", "entry" (typing a name), "bat" or "bowl").
  *
- * Buttons: [label, key code, modes they show in (all if omitted), hold?]
+ * Buttons: [label, key code, modes they show in (all if omitted), style?]. A
+ * "toggle" button stays pressed until tapped again or the scene's
+ * `touchEpoch` moves on (a new ball), since holding it down with a thumb
+ * while playing a shot with the other is awkward.
  */
 const PAD = [
   ["▲", "ArrowUp", "up"],
@@ -42,7 +45,7 @@ const ACTIONS = {
     ["BACK FOOT", "KeyQ"],
     ["LOFT", "KeyW"],
     ["FWD DEF", "KeyA"],
-    ["POWER", "ShiftLeft", "hold"],
+    ["POWER", "ShiftLeft", "toggle"],
     ["BACK DEF", "KeyD"],
     ["GO", "Space", "big"],
   ],
@@ -86,7 +89,7 @@ const CSS = `
 @media (orientation: portrait) { .tc-rotate { display: flex; } }
 `;
 
-/** Build the buttons if this is a touch screen; returns update(mode), called each frame. */
+/** Build the buttons if this is a touch screen; returns update(mode, epoch), called each frame. */
 export function initTouch() {
   if (!matchMedia("(pointer: coarse)").matches) return () => {};
   document.documentElement.classList.add("touch-device");
@@ -104,21 +107,32 @@ export function initTouch() {
   for (const type of ["contextmenu", "gesturestart", "dblclick"]) document.addEventListener(type, (e) => e.preventDefault());
 
   const shown = [];
+  /** Release functions for the toggles that are on. */
+  const latched = new Set();
   const button = (parent, [label, code, extra], modes) => {
     const b = document.createElement("button");
     b.textContent = label;
     if (extra === "big") b.classList.add("big");
     if (parent.className === "tc-pad") b.style.gridArea = extra;
+    const release = () => {
+      b.classList.remove("on");
+      releaseKey(code);
+      latched.delete(release);
+    };
     const down = (e) => {
       e.preventDefault();
+      if (extra === "toggle" && latched.has(release)) {
+        release();
+        return;
+      }
       b.setPointerCapture?.(e.pointerId);
       b.classList.add("on");
       pressKey(code);
+      if (extra === "toggle") latched.add(release);
     };
     const up = (e) => {
       e.preventDefault();
-      b.classList.remove("on");
-      releaseKey(code);
+      if (extra !== "toggle") release();
     };
     b.addEventListener("pointerdown", down);
     b.addEventListener("pointerup", up);
@@ -161,7 +175,12 @@ export function initTouch() {
   window.dispatchEvent(new Event("resize"));
 
   let current = null;
-  return (mode) => {
+  let epoch;
+  return (mode, nextEpoch) => {
+    if (nextEpoch !== epoch) {
+      epoch = nextEpoch;
+      for (const release of [...latched]) release();
+    }
     if (mode === current) return;
     current = mode;
     for (const s of shown) s.el.style.display = !s.modes || s.modes.includes(mode) ? "" : "none";

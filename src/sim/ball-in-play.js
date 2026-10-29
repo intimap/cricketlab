@@ -106,6 +106,8 @@ export class BallInPlay {
       bounced: !res.touchedBat,
       held: -1,
       atEnd: null,
+      /** It got to `atEnd` by a throw (so it waits there), rather than in the hands of someone by the stumps. */
+      thrownIn: false,
       throwing: null,
     };
 
@@ -357,7 +359,7 @@ export class BallInPlay {
       const holder = this.fielders[b.held];
       const stumps = b.atEnd !== null ? ENDS[b.atEnd] : null;
       // A throw to an unmanned end waits by the stumps for the fielder to arrive.
-      if (stumps && Math.hypot(holder.pos.x - stumps.x, holder.pos.z - stumps.z) > 1.5)
+      if (stumps && b.thrownIn && Math.hypot(holder.pos.x - stumps.x, holder.pos.z - stumps.z) > 1.5)
         b.pos = { x: stumps.x + 0.3, y: 0.2, z: stumps.z };
       else b.pos = { x: holder.pos.x, y: 1, z: holder.pos.z };
     }
@@ -490,6 +492,7 @@ export class BallInPlay {
         const dist = Math.hypot(f.pos.x - ENDS[end].x, f.pos.z - ENDS[end].z);
         if (dist < 3 || (keeper && end === 0 && dist < 18 && !this.running)) {
           this.ball.atEnd = end;
+          this.ball.thrownIn = false;
           this.breakDelay = 0.28 + dist / 22;
           this.idleSince = this.t;
           return;
@@ -600,6 +603,7 @@ export class BallInPlay {
     }
 
     this.ball.atEnd = end;
+    this.ball.thrownIn = true;
     // Whoever is nearest the stumps takes the throw; if they aren't there yet they must run in.
     const spot = coverSpot(end);
     let receiver = null;

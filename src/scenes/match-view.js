@@ -78,9 +78,9 @@ export function drawMatch(scene) {
   const label = scene.inn.bowler
     ? `${DELIVERY_NAMES[scene.cur?.intent.type ?? scene.deliveryType]} ${scene.spinner ? SPIN_EFFORT_NAMES[effort] : effort.toUpperCase()}`
     : "";
-  // Commentary types itself out.
+  // The call types itself out, and stays up while the box talks.
   const booth = boothShowing(scene.booth, scene.now);
-  drawScoreBar(scene.inn, booth ? "" : scene.commentary.slice(0, Math.floor(scene.commT * 70)), label);
+  drawScoreBar(scene.inn, scene.commentary.slice(0, Math.floor(scene.commT * 70)), label);
   if (booth) drawBooth(scene.booth, scene.now);
   drawBanners(scene.banners, scene.now);
   drawPanels(scene);

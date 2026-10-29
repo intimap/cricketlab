@@ -8,7 +8,7 @@ export const HUD_Y = 324;
 
 export const staminaColor = (s) => (s > 0.6 ? "#7cd67c" : s > 0.35 ? COLORS.gold : COLORS.red);
 
-/** Bottom bar: score, batters, this over, bowler, the ball and the commentary line (the pitch is on the scorecard). */
+/** Bottom bar: score, batters, this over, bowler and the commentary line (the pitch and ball are on the scorecard). */
 export function drawScoreBar(inn, commentary, deliveryLabel) {
   fillRect(0, HUD_Y, WIDTH, HEIGHT - HUD_Y, COLORS.gold2);
   fillRect(0, HUD_Y + 1, WIDTH, HEIGHT - HUD_Y - 1, COLORS.green);
@@ -62,15 +62,6 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
   drawText("PRS", x, y2, { color: COLORS.dim });
   x += 20;
   drawBar(x, y2 + 1, 28, 5, inn.pressure, inn.pressure > 0.6 ? COLORS.red : inn.pressure > 0.35 ? COLORS.gold : "#7ec8ff");
-  x += 34;
-  x = Math.max(x, 290);
-  const ball = inn.ball;
-  x +=
-    drawText(`BALL ${ball.overs.toFixed(1)} OV ${ball.label}`, x, y2, { color: ball.reverse > 0.3 ? COLORS.gold : COLORS.dim }) +
-    6;
-  drawText("H", x, y2, { color: COLORS.dim });
-  drawBar(x + 7, y2 + 1, 18, 2, ball.hardness, COLORS.cream);
-  drawBar(x + 7, y2 + 4, 18, 2, ball.shine, "#ff8a7a");
 
   // Row 3: commentary.
   drawText(commentary.length > 104 ? commentary.slice(0, 101) + ".." : commentary, 4, HUD_Y + 26, { color: COLORS.cream });

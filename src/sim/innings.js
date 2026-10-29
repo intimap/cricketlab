@@ -191,7 +191,7 @@ export class Innings {
     const err = Math.abs(releaseError);
     const rhythm = err < 0.03 ? 0.8 : 1 + clamp(err / 0.1) * 1.2;
     const style = isSpinner(b.p.bowl) ? 0.45 : b.p.bowl.style === "fast" ? 1.25 : 1;
-    b.stamina = clamp(b.stamina - (0.00682 * style * EFFORT_STAMINA[effort] * rhythm) / (0.6 + 0.8 * b.p.bowl.stamina), 0.05, 1);
+    b.stamina = clamp(b.stamina - (0.00806 * style * EFFORT_STAMINA[effort] * rhythm) / (0.6 + 0.8 * b.p.bowl.stamina), 0.05, 1);
   }
 
   takeNewBall() {

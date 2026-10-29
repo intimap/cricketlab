@@ -6,6 +6,7 @@ import { MomentTracker } from "./moments.js";
 import { isSpinner } from "./teams.js";
 import { bowlDelivery, movementOf } from "./delivery.js";
 import { resolveDelivery } from "./batting.js";
+import { plainCall } from "./call.js";
 import { BallInPlay } from "./ball-in-play.js";
 import { pickBowler, pickOverPlan, pickFieldPreset, pickDeliveryPlan, pickShot, battingAggression } from "./ai.js";
 import { describeBall } from "./plans.js";
@@ -282,12 +283,16 @@ export class Match {
       exit: contact.exit ? { x: contact.exit.x, z: contact.exit.z } : null,
       bounceNote: delivery.bounceNote,
       beatBat,
+      missReason: contact.missReason,
+      /** Ball-tracking's verdict when it hit the pad: "hitting", "missing", "pitched outside leg"... */
+      padVerdict: res.padHit ? (res.lbw ? "hitting" : res.lbwNote.replace(", not out", "")) : "",
     };
     rec.nearRunout = out.nearRunout;
     rec.movement = movementOf(delivery);
     rec.moment = this.moments.read(rec, inn);
     inn.settleStrike(out.strikerEnd === 1);
     rec.commentary = this.comm.line(rec, inn);
+    rec.call = plainCall(rec, delivery, this.spinner);
     const applied = inn.apply(rec);
     if (applied.overEnded) this.needOver = true;
     return { rec, applied };

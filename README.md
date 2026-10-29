@@ -109,7 +109,8 @@ src/
     field.js          field presets and position names
     ai.js             computer bowler, field, delivery and shot choices
     innings.js        scorebook, cards, strike, bowler fatigue
-    commentary.js     ball-by-ball description, over summaries and sledges
+    call.js           the score bar's plain call: what was bowled, the shot, the result
+    commentary.js     the commentary box's ball-by-ball lines, over summaries and sledges
     moments.js        spots situations worth talking about (droughts, pressure, near run-outs...)
     commentators.js   the commentary box: who speaks after each ball
     booth-lines.js    each commentator's lines for every situation
@@ -164,5 +165,5 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   with its images inlined (needs esbuild).
 - **Balance checks:** `node tools/sim-report.mjs [innings] [pitch]` simulates AI-vs-AI innings and prints
   run rates, dismissals, plan figures and commentary moments.
-- **Commentary:** `sim/commentary.js` for the ball-by-ball description; `sim/moments.js` to spot a new
+- **Commentary:** `sim/call.js` for the plain call on the score bar; `sim/commentary.js` for the box's ball-by-ball lines; `sim/moments.js` to spot a new
   kind of situation, then give each commentator lines for it in `sim/booth-lines.js`.

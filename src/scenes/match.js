@@ -954,7 +954,8 @@ export class MatchScene {
       this.setPhase("after");
       return;
     }
-    this.commentary = done.rec.commentary ?? "";
+    // The score bar gets the plain call; the commentary box (below) adds the colour.
+    this.commentary = done.rec.call ?? "";
     this.commT = 0;
     this.booth = scheduleCalls(this.callFromBooth(done), this.now + 0.2);
     const wicket = done.rec.wicket;

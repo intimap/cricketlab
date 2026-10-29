@@ -140,7 +140,9 @@ function drawClose(scene) {
   });
 
   const ball = ballPosition(scene);
-  if (ball && closeDepth(ball.z) > -7.5) {
+  // Once past the striker's stumps the ball is out of this shot (near the camera it would freeze
+  // in the corner of the picture); the wide view picks it up.
+  if (ball && ball.z >= 0 && closeDepth(ball.z) > -7.5) {
     sprites.push({
       z: ball.z,
       draw: () => {

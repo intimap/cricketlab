@@ -43,6 +43,8 @@ import { eyeMultiplier } from "../sim/eye.js";
 import { HUD_Y, staminaColor, drawScoreBar, drawMiniMap, drawBanners, drawScorecard, drawSpeechBubble } from "../render/hud.js";
 
 const FOLLOW_THROUGH_TIME = 0.15;
+/** With no shot chosen, the striker starts lifting the bat out of the way this long before the ball arrives. */
+export const LEAVE_LIFT = 0.22;
 const WALK_OFF_TIME = 8;
 const SLEDGE_TIME = 2.4;
 const PANEL_TEXT = { align: "center", outline: "rgba(0,0,0,0.7)" };
@@ -341,9 +343,9 @@ function drawStriker(scene) {
       shotDoneAt = cur.defendAt + 0.3;
     } else if (cur.leaveAt !== null && t >= cur.leaveAt) {
       pose = lerpPose(ready, BATTER_POSES.leave, (t - cur.leaveAt) / 0.18);
-    } else if (scene.human === "bat" && cur.delivery && !cur.shot && t > arrive - 0.22) {
+    } else if (scene.human === "bat" && cur.delivery && !cur.shot && t > arrive - LEAVE_LIFT) {
       // No shot chosen yet: start lifting the bat out of the way.
-      pose = lerpPose(ready, BATTER_POSES.leave, (t - (arrive - 0.22)) / 0.18);
+      pose = lerpPose(ready, BATTER_POSES.leave, (t - (arrive - LEAVE_LIFT)) / 0.18);
     }
 
     const play = cur.play;

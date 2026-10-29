@@ -22,7 +22,7 @@ import { buildGround } from "../render/ground.js";
 import { GROUNDS, DEFAULT_GROUND } from "../render/grounds.js";
 import { LIGHTS } from "../render/light.js";
 import { projectWide, unprojectWide } from "../render/camera.js";
-import { drawMatch } from "./match-view.js";
+import { drawMatch, LEAVE_LIFT } from "./match-view.js";
 import { PauseMenu } from "./pause-menu.js";
 import { ScoreboardScene } from "./scoreboard.js";
 import { boardFor, resultEntry } from "../sim/leaderboard.js";
@@ -665,7 +665,8 @@ export class MatchScene {
 
   commitLeave() {
     const cur = this.cur;
-    cur.leaveAt = this.clock();
+    // The bat is already on its way up out of the way (see match-view.js): carry on, don't start the leave again.
+    cur.leaveAt = Math.min(this.clock(), this.arrival("drive") - LEAVE_LIFT);
     cur.shot = { type: "leave", charge: 0, timingError: 0 };
     cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);
   }

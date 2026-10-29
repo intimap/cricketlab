@@ -61,6 +61,14 @@ The score service checks what it's sent (known table names, a name the font can 
 each score with its own clock, but anyone who can reach the site can post a score, so treat the table as a game
 between friends rather than a record.
 
+## Batting: your eye
+
+The **EYE** meter (top left when you bat) fills as you get your eye in. Every well-timed shot fills it a little, and a perfectly
+middled one fills it more; a well-timed block helps a bit. An air swing or a miss empties it, while leaves, edges and
+mistimed shots leave it as it is. The fuller it is, the bigger the multiplier on every shot you play (up to x1.4): more bat
+speed, and a slightly bigger timing window and sweet spot. Each batter has his own eye, so a new batter starts from
+nothing. The numbers are at the top of `sim/eye.js`.
+
 ## Bowling: the battle
 
 Each computer batter has a hidden weakness (loose outside off, a compulsive hooker, hates the short ball, shaky against spin early on, or late on the full inswinger). Watch for plays and misses and listen to the commentary for hints.
@@ -94,6 +102,7 @@ src/
     conditions.js     pitch types, pitch wear, ball wear (swing, reverse, grip)
     delivery.js       bowling: release, swing, seam, spin, bounce, flight
     batting.js        the shot: timing, where the bat goes, edges, LBW, bowled
+    eye.js            the player's eye meter: built by well-timed shots, lost on a miss
     ball-in-play.js   after the shot: fielders, catches, throws, running, run-outs
     field.js          field presets and position names
     ai.js             computer bowler, field, delivery and shot choices

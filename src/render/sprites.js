@@ -214,31 +214,81 @@ export function drawBatter(x, y, scale, pose, kit, number = 0, front = false) {
   else drawBatterBody(x, y, scale, pose, kit, number, false);
 }
 
-function drawBatterBody(x, y, scale, pose, kit, number, front) {
-  const at = (p) => ({ x: x + p.x * scale, y: y + p.y * scale });
-  // A limb segment tapering from radius r0 to r1, lit from the left: a shade rim on the right.
-  const limb = (a, b, r0, r1, color, shade) => {
-    const n = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) * scale) + 1;
-    for (const [c, off, trim] of shade
-      ? [
-          [shade, 0, 0],
-          [color, -0.8, 0.9],
-        ]
-      : [[color, 0, 0]]) {
-      for (let i = 0; i <= n; i++) {
-        const t = i / n;
-        const p = at({ x: a.x + (b.x - a.x) * t + off, y: a.y + (b.y - a.y) * t });
-        fillCircle(p.x, p.y, Math.max(0.5, (r0 + (r1 - r0) * t - trim) * scale), c);
-      }
-    }
+// Optional rig extension. Legacy poses keep the original drawing path.
+function articulatedPose(pose, front) {
+  const depth = front ? -1 : 1;
+  const hipAngle = (pose.hipTurn * Math.PI) / 180;
+  const shoulderAngle = (pose.shoulderTurn * Math.PI) / 180;
+  const backFoot = { x: pose.backFootX, y: pose.backFootY - pose.backLift };
+  const frontFoot = { x: pose.frontFootX, y: pose.frontFootY - pose.frontLift };
+  const pelvis = { x: pose.pelvisX, y: pose.pelvisY };
+  const backHip = { x: pelvis.x - Math.cos(hipAngle) * 5.5, y: pelvis.y + Math.sin(hipAngle) * 2.4 * depth };
+  const frontHip = { x: pelvis.x + Math.cos(hipAngle) * 5.5, y: pelvis.y - Math.sin(hipAngle) * 2.4 * depth };
+  const kneeSide = (a, b) => (a.x > b.x ? a : b);
+  const backKnee = joint(backHip, backFoot, THIGH, SHIN, kneeSide);
+  const frontKnee = joint(frontHip, frontFoot, THIGH, SHIN, kneeSide);
+  const chest = { x: pose.chestX, y: pose.chestY };
+  const backShoulder = { x: chest.x - Math.cos(shoulderAngle) * 10, y: chest.y + Math.sin(shoulderAngle) * 4.5 * depth };
+  const frontShoulder = { x: chest.x + Math.cos(shoulderAngle) * 10, y: chest.y - Math.sin(shoulderAngle) * 4.5 * depth };
+  const head = { x: pose.headX, y: pose.headY };
+  const a = (pose.angle * Math.PI) / 180;
+  const towardCamera = Math.sin(a) * pose.plane * depth;
+  const dir = { x: Math.sin(a) * (1 - pose.plane), y: Math.cos(a) + towardCamera * BAT_DEPTH_RISE };
+  const topHand = { x: pose.px, y: pose.py };
+  const bottomHand = { x: topHand.x + dir.x * 4.5, y: topHand.y + dir.y * 4.5 };
+  const bend = (a, b) => a;
+  // A right-handed batter's left/top hand belongs to the front shoulder.
+  const backWrist = bottomHand;
+  const frontWrist = topHand;
+  const backElbow = joint(backShoulder, backWrist, UPPER_ARM, FOREARM, bend);
+  const frontElbow = joint(frontShoulder, frontWrist, UPPER_ARM, FOREARM, bend);
+  return {
+    frontLift: 0,
+    drop: 0,
+    lean: 0,
+    backFoot,
+    frontFoot,
+    pelvis,
+    backHip,
+    frontHip,
+    backKnee,
+    frontKnee,
+    chest,
+    backShoulder,
+    frontShoulder,
+    head,
+    topHand,
+    bottomHand,
+    backElbow,
+    frontElbow,
+    backWrist,
+    frontWrist,
+    dir,
+    near: Math.max(0, towardCamera),
   };
-  const poly = (points, color) => fillPolygon(points.map(at), color);
-  const line = (a, b, w, color) => {
-    const p = at(a);
-    const q = at(b);
-    drawLine(p.x, p.y, q.x, q.y, Math.max(1, Math.round(w * scale)), color);
-  };
+}
 
+/** Each solved point (and number) of rig `b`, moved `k` of the way back towards rig `a`. */
+function blendRigs(a, b, k) {
+  const out = {};
+  for (const [key, v] of Object.entries(b)) {
+    const u = a[key];
+    if (typeof v === "number" && typeof u === "number") out[key] = v + (u - v) * k;
+    else if (v && typeof v === "object" && u && typeof u === "object")
+      out[key] = { x: v.x + (u.x - v.x) * k, y: v.y + (u.y - v.y) * k };
+    else out[key] = v;
+  }
+  return out;
+}
+
+/**
+ * The skeleton for a pose. A pose with `from` (and `fromK`, 0..1) is drawn that far back towards the
+ * `from` pose, joint by joint, so a stroke on the new rig can ease in from an old pose (or back out
+ * to one) without a jump: lerpPose() only knows the old fields.
+ */
+export function solveBatterRig(pose, front = false) {
+  if (pose.from) return blendRigs(solveBatterRig(pose.from, front), solveBatterRig({ ...pose, from: null }, front), pose.fromK);
+  if (pose.rig === 1) return articulatedPose(pose, front);
   // --- Skeleton ---
   const frontLift = -7 * pose.step + 3 * pose.back;
   // Crouch: lowers the hips and everything above (down on one knee for a sweep).
@@ -278,9 +328,106 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   const backElbow = joint(backShoulder, topHand, UPPER_ARM, FOREARM, lower);
   const frontElbow = joint(frontShoulder, bottomHand, UPPER_ARM, FOREARM, lower);
 
+  return {
+    frontLift,
+    drop,
+    lean,
+    backFoot,
+    frontFoot,
+    pelvis,
+    backHip,
+    frontHip,
+    backKnee,
+    frontKnee,
+    chest,
+    backShoulder,
+    frontShoulder,
+    head,
+    topHand,
+    bottomHand,
+    backElbow,
+    frontElbow,
+    dir,
+    near,
+    backWrist: topHand,
+    frontWrist: bottomHand,
+  };
+}
+
+function drawBatterBody(x, y, scale, pose, kit, number, front) {
+  const at = (p) => ({ x: x + p.x * scale, y: y + p.y * scale });
+  // A limb segment tapering from radius r0 to r1, lit from the left: a shade rim on the right.
+  const limb = (a, b, r0, r1, color, shade) => {
+    const n = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) * scale) + 1;
+    for (const [c, off, trim] of shade
+      ? [
+          [shade, 0, 0],
+          [color, -0.8, 0.9],
+        ]
+      : [[color, 0, 0]]) {
+      for (let i = 0; i <= n; i++) {
+        const t = i / n;
+        const p = at({ x: a.x + (b.x - a.x) * t + off, y: a.y + (b.y - a.y) * t });
+        fillCircle(p.x, p.y, Math.max(0.5, (r0 + (r1 - r0) * t - trim) * scale), c);
+      }
+    }
+  };
+  const poly = (points, color) => fillPolygon(points.map(at), color);
+  const line = (a, b, w, color) => {
+    const p = at(a);
+    const q = at(b);
+    drawLine(p.x, p.y, q.x, q.y, Math.max(1, Math.round(w * scale)), color);
+  };
+
+  const {
+    frontLift,
+    drop,
+    lean,
+    backFoot,
+    frontFoot,
+    pelvis,
+    backHip,
+    frontHip,
+    backKnee,
+    frontKnee,
+    chest,
+    backShoulder,
+    frontShoulder,
+    head,
+    topHand,
+    bottomHand,
+    backElbow,
+    frontElbow,
+    backWrist,
+    frontWrist,
+    dir,
+    near,
+  } = solveBatterRig(pose, front);
+
   // --- Flesh and kit ---
+  // Arms: sleeves to mid upper arm, bare forearms.
+  const arm = (shoulder, elbow, hand) => {
+    const sleeve = { x: shoulder.x + (elbow.x - shoulder.x) * 0.65, y: shoulder.y + (elbow.y - shoulder.y) * 0.65 };
+    limb(shoulder, elbow, 4.5, 3.6, kit.skin, darken(kit.skin, 35));
+    limb(shoulder, sleeve, 5, 4.4, kit.shirt, kit.shade);
+    limb(elbow, hand, 3.4, 2.6, kit.skin, darken(kit.skin, 35));
+    if ((kit.extras ?? []).includes("sweatbands")) {
+      const w = at({ x: elbow.x + (hand.x - elbow.x) * 0.72, y: elbow.y + (hand.y - elbow.y) * 0.72 });
+      fillCircle(w.x, w.y, 3.2 * scale, kit.cap2);
+    }
+  };
+
   groundShadow(x + 1 * scale, y - 2 * scale, 15 * scale, 5 * scale, 0.28);
-  const leg = (hip, knee, foot, toe) => {
+  if (pose.rig === 1) {
+    for (const [fx, fy] of [
+      [pose.frontFootX, pose.frontFootY],
+      [pose.backFootX, pose.backFootY],
+    ]) {
+      const foot = at({ x: fx + 1, y: fy + 3 });
+      fillEllipse(foot.x, foot.y, 6 * scale, 1.6 * scale, "rgba(0,0,0,0.24)");
+    }
+  }
+  const leg = (hip, knee, foot, toe, heel = 0) => {
     limb(hip, knee, 6, 5, kit.pants, kit.shade);
     // Pad from just above the knee to the boot, with a knee roll and straps.
     const top = { x: knee.x + (hip.x - knee.x) * 0.22, y: knee.y + (hip.y - knee.y) * 0.22 };
@@ -295,17 +442,26 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     }
     poly(
       [
-        { x: foot.x - 5, y: foot.y - 2 },
+        { x: foot.x - 5, y: foot.y - 2 - heel },
         { x: foot.x + 4 + toe, y: foot.y - 2 },
         { x: foot.x + 5 + toe, y: foot.y + 2.5 },
-        { x: foot.x - 5, y: foot.y + 2.5 },
+        { x: foot.x - 5, y: foot.y + 2.5 - heel },
       ],
       BOOT,
     );
   };
   // The far (front) leg first, so the near one overlaps it; toes point to the off side.
-  leg(frontHip, frontKnee, frontFoot, 2);
-  leg(backHip, backKnee, backFoot, 2);
+  if (pose.rig === 1 && front) {
+    leg(backHip, backKnee, backFoot, 2, pose.backHeel);
+    leg(frontHip, frontKnee, frontFoot, 2, pose.frontHeel);
+  } else {
+    leg(frontHip, frontKnee, frontFoot, 2, pose.frontHeel ?? 0);
+    leg(backHip, backKnee, backFoot, 2, pose.backHeel ?? 0);
+  }
+  if (pose.rig === 1) {
+    if (front) arm(backShoulder, backElbow, backWrist);
+    else arm(frontShoulder, frontElbow, frontWrist);
+  }
 
   // Hips, side-on.
   poly(
@@ -377,19 +533,13 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     drawBatterHelmetBack(head, h, scale, kit, poly, line);
   }
 
-  // Arms: sleeves to mid upper arm, bare forearms.
-  const arm = (shoulder, elbow, hand) => {
-    const sleeve = { x: shoulder.x + (elbow.x - shoulder.x) * 0.65, y: shoulder.y + (elbow.y - shoulder.y) * 0.65 };
-    limb(shoulder, elbow, 4.5, 3.6, kit.skin, darken(kit.skin, 35));
-    limb(shoulder, sleeve, 5, 4.4, kit.shirt, kit.shade);
-    limb(elbow, hand, 3.4, 2.6, kit.skin, darken(kit.skin, 35));
-    if ((kit.extras ?? []).includes("sweatbands")) {
-      const w = at({ x: elbow.x + (hand.x - elbow.x) * 0.72, y: elbow.y + (hand.y - elbow.y) * 0.72 });
-      fillCircle(w.x, w.y, 3.2 * scale, kit.cap2);
-    }
-  };
-  arm(backShoulder, backElbow, topHand);
-  arm(frontShoulder, frontElbow, bottomHand);
+  if (pose.rig === 1) {
+    if (front) arm(frontShoulder, frontElbow, frontWrist);
+    else arm(backShoulder, backElbow, backWrist);
+  } else {
+    arm(backShoulder, backElbow, backWrist);
+    arm(frontShoulder, frontElbow, frontWrist);
+  }
 
   // Bat: handle then blade, the blade widening towards the toe as it comes nearer the camera.
   const shoulder = { x: topHand.x + dir.x * 9, y: topHand.y + dir.y * 9 };
@@ -407,9 +557,10 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
       ],
       color,
     );
-  const toeWidth = 3 * (1 + 0.45 * near);
-  blade(3, toeWidth, 0, BAT_EDGE);
-  blade(2, toeWidth - 1, 0.6, BAT_FACE);
+  const face = pose.rig === 1 ? Math.max(0.22, Math.abs(pose.batFace)) : 1;
+  const toeWidth = 3 * (1 + 0.45 * near) * face;
+  blade(3 * face, toeWidth, 0, BAT_EDGE);
+  blade(2 * face, Math.max(0.35, toeWidth - 1), 0.6, BAT_FACE);
   // Pointing back at us, the toe's end shows as a block of bare willow.
   if (near > 0.4) fillCircle(at(toe).x, at(toe).y, toeWidth * 0.8 * scale, BAT_EDGE);
   // Gloves.

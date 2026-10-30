@@ -1,7 +1,8 @@
 import { clamp } from "../math.js";
 
 /**
- * The player's "eye": 0..1, builds with every well-timed shot (more for one
+ * A batter's "eye" (every batter's, the computer's as well as the player's,
+ * by the same numbers): 0..1, builds with every well-timed shot (more for one
  * perfectly middled), dents on a miss or an edge, and is lost on an air
  * swing. The better you bat, the more you get your eye in, and every shot
  * gets the bonus. Off strike it fades a little with every ball his partner

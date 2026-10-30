@@ -4,6 +4,16 @@ import { simulateFlight, crossingAtZ } from "./delivery.js";
 import { reactionTime } from "./batting.js";
 import { describeBall, readAgainst, exploits, difficulty } from "./plans.js";
 
+/**
+ * How wayward the computer's shot timing is (1 = as it was): more mistimes, edges and the odd air
+ * swing, so its batters' eye (eye.js) doesn't stay full. Tuned against simulated innings.
+ */
+const AI_TIMING_SPREAD = 1.85;
+/**
+ * How hard the computer's batters swing (1 = as it was). Wayward timing alone brings the runs down but
+ * gives away far more edges and wickets; swinging softer as well keeps innings their old length.
+ */
+const AI_SHOT_POWER = 0.55;
 // How much pressure makes computer batters impatient (tuned against simulated innings).
 const PRESSURE_AGGRESSION = 0.15;
 const SLOG_FROM = 0.45;
@@ -337,8 +347,11 @@ export function pickShot(d, inn, rng) {
   else if (batter.p.weakness === "hook" && type === "cutpull" && height > 1.1) charge = Math.max(charge, rng.range(0.5, 0.8));
   // He's seen this one before: he's lined it up.
   if (familiar >= 3 && charge > 0) charge = Math.min(1, charge + 0.1);
+  charge *= AI_SHOT_POWER;
   const vsType = spinner ? skills.vsSpin : skills.vsPace;
-  const timingSd = (0.03 - 0.012 * skills.timing - 0.006 * state.settled) * (1.25 - 0.4 * vsType) * (1 + charge * 0.4) + 0.006;
+  const timingSd =
+    ((0.03 - 0.012 * skills.timing - 0.006 * state.settled) * (1.25 - 0.4 * vsType) * (1 + charge * 0.4) + 0.006) *
+    AI_TIMING_SPREAD;
   // A slower ball he hasn't picked: through the shot too early.
   const timingError = rng.normal(d.paceMisread ? -0.035 : 0, Math.max(0.006, timingSd) * Math.sqrt(hard));
   return {

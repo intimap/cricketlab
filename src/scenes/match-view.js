@@ -38,6 +38,7 @@ import {
   playerKit,
 } from "../render/sprites.js";
 import { drawBooth, boothShowing } from "../render/booth.js";
+import { BATTER_CLIPS, sampleGameBatterMotion, gamePreparationWindow } from "../render/batter-motion.js";
 import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import { eyeMultiplier } from "../sim/eye.js";
 import {
@@ -350,6 +351,62 @@ function finishPose(cur, type) {
 }
 
 /** The striker, animated through stance, backlift, swing, defence or leave, and reactions after. */
+/** How long a stroke on the new rig eases in from the old ready pose, and back out to the old stance after (s). */
+const RIG_BLEND_IN = 0.06;
+const RIG_BLEND_OUT = 0.2;
+/** A drive within this many degrees of straight is a straight drive. */
+const STRAIGHT_DRIVE = 12;
+/** Above this height (m) at the bat a pull is a hook, which stays on the old poses. */
+const HOOK_HEIGHT = 1.35;
+
+/**
+ * The stroke on the new batter rig (render/batter-motion.js) for the shot being played, if it has one:
+ * { name, contactAt, window }: the clip, when the bat meets the ball (scene clock) and how long before
+ * that the stroke starts. Chosen from the stroke attempted, never from where an edge went, and only once
+ * the shot is committed, so it gives nothing away. Everything else stays on the old poses.
+ */
+function rigStroke(scene, cur) {
+  if (!cur.delivery || !cur.shot) return null;
+  const type = cur.swingType;
+  if (type && cur.swingAt !== null) {
+    let name = null;
+    if (type === "drive" && Math.abs(driveBearing(cur.lineAtBat)) <= STRAIGHT_DRIVE) name = "straightDrive";
+    if (type === "cutpull") {
+      const at = crossingAtZ(cur.delivery.samples, CONTACT_Z_BACK);
+      if (at && backFootShot(at.x, at.y) === "pull" && at.y <= HOOK_HEIGHT) name = "pull";
+    }
+    if (!name) return null;
+    // The game's own timing: backlift then downswing (longer for a power shot), contact on the bat's clock.
+    const contactAt = cur.swingAt + SWING_TIME[type];
+    const window = contactAt - cur.backliftAt;
+    return window > BATTER_CLIPS[name].downswing ? { name, contactAt, window } : null;
+  }
+  if (cur.defendAt !== null && !playsBack("defend", cur.shot.foot, cur.delivery.pitchedAt?.z ?? 5)) {
+    // A block played early is held ready until the ball arrives.
+    const contactAt = Math.max(cur.defendAt + gamePreparationWindow("forwardDefence"), scene.arrival("defend", cur.shot.foot));
+    return { name: "forwardDefence", contactAt, window: contactAt - cur.defendAt };
+  }
+  return null;
+}
+
+/** The striker on the new rig for `stroke` at scene time t, eased in from the old ready pose and out to the old stance. */
+function rigPose(scene, cur, stroke, t, reach, fromBowler) {
+  const view = fromBowler ? "bowler" : "batter";
+  const start = stroke.contactAt - stroke.window;
+  const rel = t - stroke.contactAt;
+  const end = BATTER_CLIPS[stroke.name].end;
+  if (rel > end) {
+    const done = sampleGameBatterMotion(stroke.name, end, { view, windowBeforeContact: stroke.window });
+    return { ...BATTER_POSES.stance, from: done, fromK: Math.max(0, 1 - (rel - end) / RIG_BLEND_OUT) };
+  }
+  const motion = sampleGameBatterMotion(stroke.name, rel, { view, windowBeforeContact: stroke.window });
+  // Reaching towards the line of the ball, as the old strokes do: in through contact, then let go.
+  const reachNow = reach * (rel < 0 ? clamp((t - start) / stroke.window) : clamp(1 - rel / 0.2));
+  const pose = { ...motion, px: motion.px + reachNow };
+  const since = t - start;
+  return since < RIG_BLEND_IN ? { ...pose, from: readyPose(scene, cur, start), fromK: 1 - since / RIG_BLEND_IN } : pose;
+}
+
 function drawStriker(scene) {
   const cur = scene.cur;
   const inn = scene.inn;
@@ -399,10 +456,16 @@ function drawStriker(scene) {
       pose = lerpPose(ready, BATTER_POSES.leave, (t - (arrive - LEAVE_LIFT)) / 0.18);
     }
 
+    // The straight drive, forward defence and pull are drawn on the new rig.
+    const stroke = rigStroke(scene, cur);
+    const rig = !!stroke && t >= stroke.contactAt - stroke.window;
+    if (rig) pose = rigPose(scene, cur, stroke, t, reach, fromBowler);
+
     const play = cur.play;
     const res = play?.res;
-    // Reactions once the ball has gone past: flinch if hit on the pad, recoil if beaten.
-    if (res && cur.contactDone && !res.touchedBat) {
+    // Reactions once the ball has gone past: flinch if hit on the pad, recoil if beaten (old poses only;
+    // a rig stroke plays on through its follow-through).
+    if (res && cur.contactDone && !res.touchedBat && !rig) {
       if (res.padHit) pose = lerpPose(pose, BATTER_POSES.padFlinch, easeOut((t - res.start.t) / 0.12));
       else if (shotDoneAt !== null && t > shotDoneAt) pose = lerpPose(pose, BATTER_POSES.beaten, easeOut((t - shotDoneAt) / 0.2));
     }

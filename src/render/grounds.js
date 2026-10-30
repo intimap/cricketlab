@@ -88,6 +88,43 @@ function parklands(name, fence) {
 GROUNDS.parklands = parklands("PARKLANDS OVAL", "fence-picket");
 GROUNDS.parklandsBoards = parklands("PARKLANDS (BOARDS)", "fence-ads");
 
+/** The G: a floodlit Melbourne mega-stadium at night (tools/art/make_theg.py). Picking it sets the floodlit night light. */
+function theG() {
+  const oval = GROUNDS.oval;
+  return {
+    ...oval,
+    name: "THE MCG",
+    hidden: false,
+    light: "night",
+    grass: { light: "#4c9438", dark: "#38782a" },
+    close: {
+      ...oval.close,
+      groundFrom: 124,
+      scenery: [
+        { image: "theg/close/sky", y: 0, sky: true },
+        { image: "theg/close/skyline", y: 15 },
+        { image: "theg/close/stands", y: 49 },
+        { image: "theg/close/fence-ads", y: 112 },
+      ],
+      haze: { colour: "#4a7838", rows: 12, amount: 0.2 },
+    },
+    wide: {
+      ...oval.wide,
+      groundFrom: 107,
+      scenery: [
+        { image: "theg/wide/sky", y: 0, sky: true },
+        // Down to where the stands' rim starts, so no sky shows under the city.
+        { image: "theg/wide/skyline", y: 11 },
+        { image: "theg/wide/stands", y: 46 },
+        { image: "theg/wide/fence-ads", y: 93 },
+      ],
+      scoreboard: { x: 520, y: 55, w: 60, h: 22, colour: "#101620", top: "#ffd23a", bottom: "#f4f4ee" },
+    },
+  };
+}
+
+GROUNDS.theG = theG();
+
 /** The grounds the menu offers, the first being the default. */
 export const GROUND_CHOICES = Object.keys(GROUNDS).filter((id) => !GROUNDS[id].hidden);
 export const DEFAULT_GROUND = "parklands";

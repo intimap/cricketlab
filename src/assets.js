@@ -19,6 +19,14 @@ export const ASSET_URLS = {
   "wide/fence-ads": new URL("../assets/wide/fence-ads.png", import.meta.url),
   "wide/trees-left": new URL("../assets/wide/trees-left.png", import.meta.url),
   "wide/trees-right": new URL("../assets/wide/trees-right.png", import.meta.url),
+  "theg/close/sky": new URL("../assets/theg/close/sky.png", import.meta.url),
+  "theg/close/skyline": new URL("../assets/theg/close/skyline.png", import.meta.url),
+  "theg/close/stands": new URL("../assets/theg/close/stands.png", import.meta.url),
+  "theg/close/fence-ads": new URL("../assets/theg/close/fence-ads.png", import.meta.url),
+  "theg/wide/sky": new URL("../assets/theg/wide/sky.png", import.meta.url),
+  "theg/wide/skyline": new URL("../assets/theg/wide/skyline.png", import.meta.url),
+  "theg/wide/stands": new URL("../assets/theg/wide/stands.png", import.meta.url),
+  "theg/wide/fence-ads": new URL("../assets/theg/wide/fence-ads.png", import.meta.url),
 };
 
 /** Load them all: resolves to { id: HTMLImageElement }. */

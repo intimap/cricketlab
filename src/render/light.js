@@ -4,7 +4,7 @@
  *   - glow: a warm wash over the bottom of the sky, towards the horizon;
  *   - shade: the stands' and trees' shadow across the outfield, as a fraction of their height;
  *   - shadow: how far players' and the ball's shadows are drawn out (1 = round, overhead sun).
- * Midday is the plain look the art was made in.
+ * Midday is the plain look the art was made in; night is for floodlit grounds (The G's art is a night sky).
  */
 export const LIGHTS = {
   midday: { name: "MIDDAY", shadow: { stretch: 1 } },
@@ -22,4 +22,7 @@ export const LIGHTS = {
     shade: { colour: "#1a2f24", amount: 0.45, length: 0.45 },
     shadow: { stretch: 3.4 },
   },
+  // Under floodlights: a cool, bright white over everything, no sunset glow in the sky and no long
+  // shadow of the stands; players' shadows sit straight under them, as from towers all round.
+  night: { name: "NIGHT", tint: "#e8eeff", shadow: { stretch: 1 } },
 };

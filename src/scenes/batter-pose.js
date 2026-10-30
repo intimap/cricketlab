@@ -4,7 +4,9 @@ import { crossingAtZ } from "../sim/delivery.js";
 import { SWING_TIME, NORMAL_CHARGE, CONTACT_Z_BACK, playsBack, backFootShot, driveBearing } from "../sim/batting.js";
 import { projectFromStriker } from "../render/camera.js";
 import { BATTER_POSES, lerpPose, reachPose } from "../render/batter-rig.js";
-import { BATTER_CLIPS, sampleGameBatterMotion, gamePreparationWindow } from "../render/batter-motion.js";
+import { BATTER_CLIPS, sampleGameBatterMotion } from "../render/batter-motion-all.js";
+import { rigStroke } from "./batter-stroke.js";
+export { rigStroke } from "./batter-stroke.js";
 
 /**
  * The striker's pose at any moment of a ball: stance, trigger, backlift, swing, defence or leave, on the
@@ -50,41 +52,6 @@ export function finishPose(cur, type) {
 /** How long a stroke on the new rig eases in from the old ready pose, and back out to the old stance after (s). */
 const RIG_BLEND_IN = 0.06;
 const RIG_BLEND_OUT = 0.2;
-/** A drive within this many degrees of straight is a straight drive. */
-const STRAIGHT_DRIVE = 12;
-/** Above this height (m) at the bat a pull is a hook, which stays on the old poses. */
-const HOOK_HEIGHT = 1.35;
-
-/**
- * The stroke on the new batter rig (render/batter-motion.js) for the shot being played, if it has one:
- * { name, contactAt, window }: the clip, when the bat meets the ball (scene clock) and how long before
- * that the stroke starts. Chosen from the stroke attempted, never from where an edge went, and only once
- * the shot is committed, so it gives nothing away. Everything else stays on the old poses.
- */
-export function rigStroke(scene, cur) {
-  if (!cur.delivery || !cur.shot) return null;
-  const type = cur.swingType;
-  if (type && cur.swingAt !== null) {
-    let name = null;
-    if (type === "drive" && Math.abs(driveBearing(cur.lineAtBat)) <= STRAIGHT_DRIVE) name = "straightDrive";
-    if (type === "cutpull") {
-      const at = crossingAtZ(cur.delivery.samples, CONTACT_Z_BACK);
-      if (at && backFootShot(at.x, at.y) === "pull" && at.y <= HOOK_HEIGHT) name = "pull";
-    }
-    if (!name) return null;
-    // The game's own timing: backlift then downswing (longer for a power shot), contact on the bat's clock.
-    const contactAt = cur.swingAt + SWING_TIME[type];
-    const window = contactAt - cur.backliftAt;
-    return window > BATTER_CLIPS[name].downswing ? { name, contactAt, window } : null;
-  }
-  if (cur.defendAt !== null && !playsBack("defend", cur.shot.foot, cur.delivery.pitchedAt?.z ?? 5)) {
-    // A block played early is held ready until the ball arrives.
-    const contactAt = Math.max(cur.defendAt + gamePreparationWindow("forwardDefence"), scene.arrival("defend", cur.shot.foot));
-    return { name: "forwardDefence", contactAt, window: contactAt - cur.defendAt };
-  }
-  return null;
-}
-
 /** The striker on the new rig for `stroke` at scene time t, eased in from the old ready pose and out to the old stance. */
 function rigPose(scene, cur, stroke, t, reach, fromBowler) {
   const view = fromBowler ? "bowler" : "batter";
@@ -97,8 +64,8 @@ function rigPose(scene, cur, stroke, t, reach, fromBowler) {
   }
   const motion = sampleGameBatterMotion(stroke.name, rel, { view, windowBeforeContact: stroke.window });
   // Reaching towards the line of the ball, as the old strokes do: in through contact, then let go.
-  const reachNow = reach * (rel < 0 ? clamp((t - start) / stroke.window) : clamp(1 - rel / 0.2));
-  const pose = reachPose(motion, reachNow, stroke.name !== "pull");
+  const reachNow = (stroke.type === "leave" ? 0 : reach) * (rel < 0 ? clamp((t - start) / stroke.window) : clamp(1 - rel / 0.2));
+  const pose = reachPose(motion, reachNow, stroke.frontFoot);
   const since = t - start;
   return since < RIG_BLEND_IN ? { ...pose, from: readyPose(scene, cur, start), fromK: 1 - since / RIG_BLEND_IN } : pose;
 }
@@ -167,7 +134,7 @@ export function strikerStroke(scene, cur, t, fromBowler) {
     pose = lerpPose(ready, BATTER_POSES.leave, (t - (arrive - LEAVE_LIFT)) / 0.18);
   }
 
-  // The straight drive, forward defence and pull are drawn on the new rig.
+  // Named strokes use the current rig; the old poses remain available for fallback states.
   const stroke = rigStroke(scene, cur);
   const rig = !!stroke && t >= stroke.contactAt - stroke.window;
   if (rig) pose = rigPose(scene, cur, stroke, t, reach, fromBowler);

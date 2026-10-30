@@ -110,6 +110,27 @@ export function lerpPose(a, b, t) {
     back: a.back + (b.back - a.back) * k,
     drop: (a.drop ?? 0) + ((b.drop ?? 0) - (a.drop ?? 0)) * k,
     plane: (a.plane ?? BAT_PLANE) + ((b.plane ?? BAT_PLANE) - (a.plane ?? BAT_PLANE)) * k,
+    reach: (a.reach ?? 0) + ((b.reach ?? 0) - (a.reach ?? 0)) * k,
+    backHeel: (a.backHeel ?? 0) + ((b.backHeel ?? 0) - (a.backHeel ?? 0)) * k,
+  };
+}
+
+/**
+ * Pose `pose` with the hands carried `reach` pixels across towards the ball's line, the whole body
+ * going with them: hips a little, chest more, head most, so the hands only make up the rest. On a
+ * big front-foot reach the back heel comes up.
+ */
+export function reachPose(pose, reach, frontFoot) {
+  const heel = frontFoot ? 3 * Math.max(0, Math.min(1, (reach - 10) / 14)) : 0;
+  const backHeel = (pose.backHeel ?? 0) + heel;
+  if (pose.rig !== 1) return { ...pose, px: pose.px + reach, reach: (pose.reach ?? 0) + reach, backHeel };
+  return {
+    ...pose,
+    px: pose.px + reach,
+    pelvisX: pose.pelvisX + reach * 0.22,
+    chestX: pose.chestX + reach * 0.4,
+    headX: pose.headX + reach * 0.55,
+    backHeel,
   };
 }
 
@@ -146,18 +167,52 @@ function darken(hex, amount = 40) {
  * two mirror-image solutions.
  */
 function joint(from, to, l1, l2, prefer) {
+  const { mx, my, nx, ny, out } = bendOf(from, to, l1, l2);
+  return prefer({ x: mx + nx * out, y: my + ny * out }, { x: mx - nx * out, y: my - ny * out });
+}
+
+/**
+ * The pieces of a two-bone solve: the point on the line from `from` to `to` level with the middle
+ * joint, the unit normal to that line, and how far off it the joint sits. The limb never quite
+ * locks straight (96% of its length), so a joint at full stretch doesn't snap from side to side.
+ */
+function bendOf(from, to, l1, l2) {
   const dx = to.x - from.x;
   const dy = to.y - from.y;
   const dist = Math.hypot(dx, dy) || 0.01;
-  const d = Math.min(dist, l1 + l2 - 0.01);
+  // Nor fully folds: a hand passing right by its shoulder would fling the elbow about.
+  const d = Math.max(Math.abs(l1 - l2) + 4, Math.min(dist, (l1 + l2) * 0.96));
   const along = (l1 * l1 - l2 * l2 + d * d) / (2 * d);
   const out = Math.sqrt(Math.max(0, l1 * l1 - along * along));
   const ux = dx / dist;
   const uy = dy / dist;
-  const mx = from.x + ux * along;
-  const my = from.y + uy * along;
-  return prefer({ x: mx - uy * out, y: my + ux * out }, { x: mx + uy * out, y: my - ux * out });
+  return { mx: from.x + ux * along, my: from.y + uy * along, nx: -uy, ny: ux, out };
 }
+
+/**
+ * An elbow that points towards `pole` (a direction). Rather than jumping to the mirror-image
+ * solution when the arm swings past the pole, it slides through the straight arm, as a hinge
+ * turning towards or away from the camera would look: no popping across the body.
+ */
+function elbow(shoulder, hand, pole) {
+  const { mx, my, nx, ny, out } = bendOf(shoulder, hand, UPPER_ARM, FOREARM);
+  const side = Math.max(-1, Math.min(1, (nx * pole.x + ny * pole.y) * 2.5));
+  // With the hand tucked in by the shoulder the arm folds flat, the elbow out along the pole.
+  const k = Math.max(0, Math.min(1, (Math.hypot(hand.x - shoulder.x, hand.y - shoulder.y) - 6) / 10));
+  const fx = shoulder.x + pole.x * UPPER_ARM * 0.95;
+  const fy = shoulder.y + pole.y * UPPER_ARM * 0.95;
+  return { x: fx + (mx + nx * out * side - fx) * k, y: fy + (my + ny * out * side - fy) * k };
+}
+
+/** The lead elbow rides high and out towards the off side. */
+const LEAD_ELBOW = { x: 0.8, y: -0.6 };
+/** The back elbow tucks in towards the hips. */
+const tuckedElbow = (shoulder, pelvis) => {
+  const dx = pelvis.x - shoulder.x;
+  const dy = pelvis.y - shoulder.y;
+  const len = Math.hypot(dx, dy) || 1;
+  return { x: dx / len, y: dy / len };
+};
 
 /**
  * Stubble, moustache or beard on a face seen from the front. `h` is the head
@@ -236,12 +291,11 @@ function articulatedPose(pose, front) {
   const dir = { x: Math.sin(a) * (1 - pose.plane), y: Math.cos(a) + towardCamera * BAT_DEPTH_RISE };
   const topHand = { x: pose.px, y: pose.py };
   const bottomHand = { x: topHand.x + dir.x * 4.5, y: topHand.y + dir.y * 4.5 };
-  const bend = (a, b) => a;
   // A right-handed batter's left/top hand belongs to the front shoulder.
   const backWrist = bottomHand;
   const frontWrist = topHand;
-  const backElbow = joint(backShoulder, backWrist, UPPER_ARM, FOREARM, bend);
-  const frontElbow = joint(frontShoulder, frontWrist, UPPER_ARM, FOREARM, bend);
+  const backElbow = elbow(backShoulder, backWrist, tuckedElbow(backShoulder, pelvis));
+  const frontElbow = elbow(frontShoulder, frontWrist, LEAD_ELBOW);
   return {
     frontLift: 0,
     drop: 0,
@@ -299,19 +353,21 @@ export function solveBatterRig(pose, front = false) {
   const backFoot = { x: -3 - 2 * pose.back - (drop > 8 ? 5 : 0), y: -3 };
   const frontFoot = { x: 4 + 2 * pose.step, y: -9 + frontLift };
   // Striding forward carries the hips with it (up the screen, in this view).
-  const pelvis = { x: 1 + lean * 0.5, y: -47 + drop + frontLift * 0.5 + pose.back };
+  // Reaching for a wide one carries the hips, chest and head across too (see reachPose).
+  const reach = pose.reach ?? 0;
+  const pelvis = { x: 1 + lean * 0.5 + reach * 0.22, y: -47 + drop + frontLift * 0.5 + pose.back };
   const backHip = { x: pelvis.x - 2.5, y: pelvis.y };
   const frontHip = { x: pelvis.x + 3, y: pelvis.y - 2 };
   // Knees bend towards the off side, where he faces; down low for a sweep, the back knee goes to the turf.
   const offSide = (a, b) => (a.x > b.x ? a : b);
   const backKnee = joint(backHip, backFoot, THIGH, SHIN, (a, b) => (drop > 8 ? (a.y > b.y ? a : b) : offSide(a, b)));
   const frontKnee = joint(frontHip, frontFoot, THIGH, SHIN, offSide);
-  const chest = { x: pelvis.x + lean * 0.9, y: pelvis.y - 29 + Math.abs(lean) * 0.25 };
+  const chest = { x: pelvis.x + lean * 0.9 + reach * 0.18, y: pelvis.y - 29 + Math.abs(lean) * 0.25 };
   // Shoulders side-on: the right one near us, the left one pointing down the pitch.
   // Leaning into a drive dips the front shoulder.
   const backShoulder = { x: chest.x - 7, y: chest.y - lean * 0.3 };
   const frontShoulder = { x: chest.x + 7, y: chest.y - 2 + lean * 0.5 };
-  const head = { x: chest.x + lean * 0.4 + 1, y: chest.y - 12 };
+  const head = { x: chest.x + lean * 0.4 + 1 + reach * 0.15, y: chest.y - 12 };
 
   // Hands on the handle: top hand (left) above the bottom hand (right).
   // The bat in 3D: `near` is how far it points back towards the camera (0-1), which on screen
@@ -323,10 +379,8 @@ export function solveBatterRig(pose, front = false) {
   const near = Math.max(0, towardCamera);
   const topHand = { x: pose.px, y: pose.py + frontLift * 0.5 };
   const bottomHand = { x: topHand.x + dir.x * 4.5, y: topHand.y + dir.y * 4.5 };
-  // Elbows hang below the line from shoulder to hand.
-  const lower = (p, q) => (p.y > q.y ? p : q);
-  const backElbow = joint(backShoulder, topHand, UPPER_ARM, FOREARM, lower);
-  const frontElbow = joint(frontShoulder, bottomHand, UPPER_ARM, FOREARM, lower);
+  const backElbow = elbow(backShoulder, topHand, tuckedElbow(backShoulder, pelvis));
+  const frontElbow = elbow(frontShoulder, bottomHand, LEAD_ELBOW);
 
   return {
     frontLift,

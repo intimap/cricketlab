@@ -129,7 +129,11 @@ src/
     kit.js            kit colours, a player's looks (skin, hair, beard, height), mirroring, shadows
     batter-rig.js     the striker: key poses, skeleton (IK for knees and elbows), drawing him in kit
     figures.js        everyone else: bowler, keeper, fielders, umpires, runners, close up and tiny
-    batter-motion.js  the straight drive, forward defence and pull on the batter's newer rig (more strokes to follow)
+    batter-motion.js  the original straight drive, forward defence and pull
+    batter-motion-all.js  all 28 stroke clips and the expanded visual sampler
+    batter-shot-extensions.js  composes authored data from batter-shots/
+    batter-shots/     additional drive, back-foot, sweep/ramp and touch-shot pose families
+    batter-catalog.js  input-family and shot-label routes to the 28 clips
     hud.js            score bar, mini-map, banners, scorecard, speech bubbles
     booth.js          commentator portraits and the commentary popup
     grounds.js        grounds as data: stripe layout, colours, pitch looks, which paintings to use
@@ -141,6 +145,7 @@ src/
     match-decisions.js  LBW appeals, the umpire's decision and DRS reviews
     match-view.js     drawing for the match scene
     batter-pose.js    the striker's pose through a ball: stance, trigger, backlift, strokes, follow-throughs
+    batter-stroke.js  presentation-only selection and the existing attack/block/leave clocks
     pause-menu.js     the Esc menu: scorecard, instructions, sound
     scoreboard.js     the arcade high-score screen: name entry and the table
 netlify/
@@ -167,7 +172,8 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **Fielding and running:** `sim/ball-in-play.js`.
 - **What's shown on screen:** `scenes/match-view.js` and `render/`.
 - **Batter animation:** which pose or stroke when, in `scenes/batter-pose.js`; the poses, skeleton and drawing in
-  `render/batter-rig.js`; the newer rig's stroke clips in `render/batter-motion.js`.
+  `render/batter-rig.js`; the expanded sampler in `render/batter-motion-all.js` and poses in `render/batter-shots/`;
+  stroke selection and timing in `scenes/batter-stroke.js`, with routes in `render/batter-catalog.js`.
 - **Game modes and Classic Matches:** `sim/formats.js` (challenges are plain data). AI chase and
   limited-overs tempo constants are at the top of `sim/ai.js`.
 - **Ground art:** images live in `assets/` (layer art in `assets/close/`), listed by id in `src/assets.js`;

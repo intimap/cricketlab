@@ -1,7 +1,7 @@
 import { clamp } from "../math.js";
 import { isSpinner, bowlingSpeed } from "./teams.js";
 import { simulateFlight, crossingAtZ } from "./delivery.js";
-import { reactionTime } from "./batting.js";
+import { reactionTime, STANCE_X, FOOTWORK_MIN, FOOTWORK_MAX } from "./batting.js";
 import { describeBall, readAgainst, exploits, difficulty } from "./plans.js";
 
 /**
@@ -14,6 +14,8 @@ const AI_TIMING_SPREAD = 1.85;
  * gives away far more edges and wickets; swinging softer as well keeps innings their old length.
  */
 const AI_SHOT_POWER = 0.55;
+/** How far the computer's batters shuffle towards the line they've read (share of the way). */
+const AI_FOOTWORK = 0.5;
 // How much pressure makes computer batters impatient (tuned against simulated innings).
 const PRESSURE_AGGRESSION = 0.15;
 const SLOG_FROM = 0.45;
@@ -360,6 +362,8 @@ export function pickShot(d, inn, rng) {
     timingError,
     // Forward or back in defence, from his read of the length (so a misread can leave him on the wrong foot).
     foot: type === "defend" ? (pitchZ > 6.8 ? "back" : "front") : null,
+    // He shuffles part of the way across to the line he's read.
+    footwork: type === "leave" ? 0 : clamp((line - STANCE_X) * AI_FOOTWORK, FOOTWORK_MIN, FOOTWORK_MAX),
     difficulty: hard,
     battle: { seenBall, weak, familiar, surprise },
   };

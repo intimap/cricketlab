@@ -49,6 +49,12 @@ export function wrongFoot(type, footBack, pitchZ, footwork) {
   };
 }
 
+/**
+ * How far (m, off side of middle stump) a block can reach: about 30 cm outside off. A ball wider than
+ * this goes straight past a defensive shot without touching it.
+ */
+export const DEFENCE_OFF_REACH = 0.4;
+
 /** Shot power (0..1) of a normal, non-power player shot. */
 export const NORMAL_CHARGE = 0.35;
 
@@ -369,6 +375,7 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
   const back = shot.type === "cutpull" ? backFootShot(line, height) : null;
   const suit = shotSuitability(shot.type, height, pitchZ, line, spinner, shot.foot);
   const defending = shot.type === "defend";
+  if (defending && line > DEFENCE_OFF_REACH) return noContact("wide");
 
   // Timing window (seconds); timing is the error expressed in windows.
   const window = defending

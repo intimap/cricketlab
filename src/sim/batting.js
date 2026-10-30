@@ -56,8 +56,8 @@ export function wrongFoot(type, footBack, pitchZ, footwork) {
  * shot. A ball beyond his reach goes past the bat without touching it.
  */
 export const STANCE_X = -0.14;
-export const FOOTWORK_MIN = -0.2;
-export const FOOTWORK_MAX = 0.2;
+export const FOOTWORK_MIN = -0.1;
+export const FOOTWORK_MAX = 0.1;
 const REACH = { defend: 0.42, attack: 0.65 };
 
 /** Shot power (0..1) of a normal, non-power player shot. */

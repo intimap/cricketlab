@@ -10,7 +10,15 @@ import { PITCH_LENGTH } from "../sim/geometry.js";
 import { EFFORTS, crossingAtZ } from "../sim/delivery.js";
 import { planRunup, meterPos, releaseError, METER_FROM } from "../sim/runup.js";
 import { battingFeedback, bowlingFeedback } from "../sim/coach.js";
-import { CONTACT_Z_FRONT, CONTACT_Z_BACK, SWING_TIME, NORMAL_CHARGE, playsBack } from "../sim/batting.js";
+import {
+  CONTACT_Z_FRONT,
+  CONTACT_Z_BACK,
+  SWING_TIME,
+  NORMAL_CHARGE,
+  FOOTWORK_MIN,
+  FOOTWORK_MAX,
+  playsBack,
+} from "../sim/batting.js";
 import { eyeMultiplier } from "../sim/eye.js";
 import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from "../sim/field.js";
 import { pickBowler } from "../sim/ai.js";
@@ -41,6 +49,8 @@ const SHOT_KEYS = { KeyS: "drive", KeyQ: "cutpull", KeyW: "loft" };
 const DEFEND_KEYS = { KeyA: "front", KeyD: "back" };
 /** Seconds the player has to review a decision that went against them. */
 const REVIEW_WINDOW = 10;
+/** How fast the batter shuffles across his crease while Left or Right is held (m/s). */
+const FOOTWORK_SPEED = 1.6;
 /** How long the scene lingers after a wicket. */
 const WICKET_PAUSE = 6.5;
 const MAX_SLEDGES = 3;
@@ -305,16 +315,19 @@ export class MatchScene {
 
     switch (this.phase) {
       case "ready":
+        this.updateFootwork(dt);
         this.updateReady();
         break;
       case "setup":
         this.updateSetup();
         break;
       case "runup":
+        this.updateFootwork(dt);
         this.updateRunup(dt);
         this.updateBatInput();
         break;
       case "flight":
+        this.updateFootwork(dt);
         this.updateFlight(dt);
         if (this.human === "bowl" && keys.pressed("KeyH")) this.appeal();
         break;
@@ -626,6 +639,19 @@ export class MatchScene {
     return type;
   }
 
+  /**
+   * Left / Right shuffle the batter across his crease, the way you press on screen, until he plays a
+   * shot (then his feet are set). Not while Down is held: that's for the sweeps and the ramp.
+   */
+  updateFootwork(dt) {
+    if (this.human !== "bat" || !this.cur || this.cur.shot) return;
+    if (keys.down("ArrowDown")) return;
+    const way = (keys.down("ArrowRight") ? 1 : 0) - (keys.down("ArrowLeft") ? 1 : 0);
+    if (!way) return;
+    const step = way * this.screenTurn * FOOTWORK_SPEED * dt;
+    this.cur.footwork = clamp((this.cur.footwork ?? 0) + step, FOOTWORK_MIN, FOOTWORK_MAX);
+  }
+
   commitSwing(t, type, power) {
     const cur = this.cur;
     cur.swingType = type;
@@ -638,6 +664,7 @@ export class MatchScene {
       charge: power ? POWER_CHARGE : NORMAL_CHARGE,
       timingError,
       windowMult: PLAYER_TIMING_WINDOW,
+      footwork: cur.footwork ?? 0,
     };
     cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);
   }
@@ -652,6 +679,7 @@ export class MatchScene {
       charge: 0,
       timingError: Math.max(0, t + 0.12 - arrive),
       windowMult: PLAYER_TIMING_WINDOW,
+      footwork: cur.footwork ?? 0,
     };
     cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);
   }
@@ -660,7 +688,7 @@ export class MatchScene {
     const cur = this.cur;
     // The bat is already on its way up out of the way (see match-view.js): carry on, don't start the leave again.
     cur.leaveAt = Math.min(this.clock(), this.arrival("drive") - LEAVE_LIFT);
-    cur.shot = { type: "leave", charge: 0, timingError: 0 };
+    cur.shot = { type: "leave", charge: 0, timingError: 0, footwork: cur.footwork ?? 0 };
     cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);
   }
 

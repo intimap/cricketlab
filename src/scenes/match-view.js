@@ -412,6 +412,19 @@ function rigPose(scene, cur, stroke, t, reach, fromBowler) {
 const STRIKER_SCREEN_X = 300;
 
 /**
+ * How far (m) the striker has shuffled across his crease: as the player moves him, or (for the
+ * computer) easing over to where he's decided to go once the ball is bowled.
+ */
+function footworkOf(scene, cur, t) {
+  if (!cur) return 0;
+  if (scene.human === "bat") return cur.shot?.footwork ?? cur.footwork ?? 0;
+  return (cur.shot?.footwork ?? 0) * clamp(t / 0.3);
+}
+
+/** Screen pixels the striker has moved from his guard, from the batter's end. */
+const footworkPixels = (moved) => projectFromStriker(STRIKER_X + moved, 0, CREASE).x - projectFromStriker(STRIKER_X, 0, CREASE).x;
+
+/**
  * The striker's stroke at scene time t, before any reaction to how the ball came off: { pose, rig,
  * shotDoneAt } (rig: drawn on the new rig; shotDoneAt: when an old-pose shot has finished).
  */
@@ -419,8 +432,9 @@ function strikerStroke(scene, cur, t, fromBowler) {
   const ready = readyPose(scene, cur, t);
   let pose = ready;
   const arrive = cur.delivery ? scene.arrival(cur.swingType ?? cur.shot?.type ?? "drive", cur.shot?.foot) : 0.6;
-  // Reach towards the line of the ball.
-  const reach = clamp((projectFromStriker(cur.lineAtBat, 0, 1.9).x - (STRIKER_SCREEN_X + 12)) * 0.8, -8, 26);
+  // Reach towards the line of the ball, from wherever his feet are.
+  const stand = STRIKER_SCREEN_X + footworkPixels(footworkOf(scene, cur, t));
+  const reach = clamp((projectFromStriker(cur.lineAtBat, 0, 1.9).x - (stand + 12)) * 0.8, -8, 26);
   let shotDoneAt = null;
   if (cur.swingAt !== null && t >= cur.swingAt && cur.swingType) {
     const type = cur.swingType;
@@ -540,12 +554,17 @@ function alignToBall(scene, cur, pose, t, place) {
 }
 
 /** Where and how big the striker is drawn: from the batter's end, or down the far end facing us. */
-function strikerPlace(scene, kit, fromBowler) {
+function strikerPlace(scene, kit, fromBowler, moved = 0) {
   if (fromBowler) {
-    const p = projectClose(STRIKER_X, 0, CREASE);
+    const p = projectClose(STRIKER_X + moved, 0, CREASE);
     return { x: p.x, y: p.y + 1, scale: (closePixelsPerMetre(CREASE) * kit.height) / BATTER_HEIGHT_PX, front: true };
   }
-  return { x: STRIKER_SCREEN_X, y: closeGroundY(CREASE) + 2, scale: kit.height / STANDARD_HEIGHT, front: false };
+  return {
+    x: STRIKER_SCREEN_X + footworkPixels(moved),
+    y: closeGroundY(CREASE) + 2,
+    scale: kit.height / STANDARD_HEIGHT,
+    front: false,
+  };
 }
 
 function drawStriker(scene) {
@@ -555,7 +574,7 @@ function drawStriker(scene) {
   const t = cur ? scene.clock() : 0;
   // His own look; taller players are drawn bigger.
   const kit = playerKit(scene.kitBat, inn.bat[inn.striker].p);
-  const place = strikerPlace(scene, kit, fromBowler);
+  const place = strikerPlace(scene, kit, fromBowler, footworkOf(scene, cur, t));
   let pose = readyPose(scene, cur, t);
   if (cur) {
     const stroke = strikerStroke(scene, cur, t, fromBowler);

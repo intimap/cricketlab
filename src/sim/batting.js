@@ -50,10 +50,15 @@ export function wrongFoot(type, footBack, pitchZ, footwork) {
 }
 
 /**
- * How far (m, off side of middle stump) a block can reach: about 30 cm outside off. A ball wider than
- * this goes straight past a defensive shot without touching it.
+ * Footwork and reach. The batter takes guard at STANCE_X (m, just leg side of middle) and can shuffle
+ * across the crease before playing, between FOOTWORK_MIN (leg side) and FOOTWORK_MAX (off side). His
+ * arms and bat reach so far either side of where he stands: less for a block than for an attacking
+ * shot. A ball beyond his reach goes past the bat without touching it.
  */
-export const DEFENCE_OFF_REACH = 0.4;
+export const STANCE_X = -0.14;
+export const FOOTWORK_MIN = -0.45;
+export const FOOTWORK_MAX = 0.35;
+const REACH = { defend: 0.42, attack: 0.65 };
 
 /** Shot power (0..1) of a normal, non-power player shot. */
 export const NORMAL_CHARGE = 0.35;
@@ -243,7 +248,7 @@ function intoGap(bearing, field, reach) {
  * result plus the ball's starting state for the live play that follows.
  * `field`: the fielders' bearings, for a well-struck ball to find the gaps.
  *
- * shot: { type: drive|cutpull|loft|defend|leave (or ramp/sweep/reverseSweep), charge, timingError,
+ * shot: { type: drive|cutpull|loft|defend|leave (or ramp/sweep/reverseSweep), charge, timingError, footwork? (m),
  *         foot? ("front"/"back", for defence), windowMult?, eyeMult? (the batter's eye, see eye.js) }
  */
 export function resolveDelivery(d, shot, bat, state, ball, spinner, rng, field = []) {
@@ -280,8 +285,10 @@ export function resolveDelivery(d, shot, bat, state, ball, spinner, rng, field =
   // Pad: does the ball hit the front (or back) leg?
   const padZ = footBack ? 0.7 : 1.55;
   const atPad = crossingAtZ(d.samples, padZ);
-  let padMin = footBack ? -0.24 : -0.26;
-  let padMax = footBack ? 0.05 : 0.07;
+  // His pads go where his feet have gone.
+  const moved = shot.footwork ?? 0;
+  let padMin = (footBack ? -0.24 : -0.26) + moved;
+  let padMax = (footBack ? 0.05 : 0.07) + moved;
   if (contact.batX !== undefined) {
     padMin = Math.min(padMin, contact.batX - 0.3);
     padMax = Math.max(-0.05, Math.min(0.2, contact.batX - 0.03));
@@ -375,7 +382,9 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
   const back = shot.type === "cutpull" ? backFootShot(line, height) : null;
   const suit = shotSuitability(shot.type, height, pitchZ, line, spinner, shot.foot);
   const defending = shot.type === "defend";
-  if (defending && line > DEFENCE_OFF_REACH) return noContact("wide");
+  // Out of reach from where he's standing: a block lets it go by, an attacking shot swings and misses.
+  if (Math.abs(line - (STANCE_X + (shot.footwork ?? 0))) > (defending ? REACH.defend : REACH.attack))
+    return noContact(defending ? "wide" : "beaten");
 
   // Timing window (seconds); timing is the error expressed in windows.
   const window = defending

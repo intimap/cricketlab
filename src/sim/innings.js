@@ -51,7 +51,7 @@ export class Innings {
       how: "",
       batted: i < 2,
       dotStreak: 0,
-      /** The player's eye, 0..1 (see eye.js): how well he's seeing it. */
+      /** His eye, 0..1 (see eye.js): how well he's seeing it. */
       eye: 0,
       /** Recent deliveries faced, for the batter's memory (see plans.js). */
       seen: [],

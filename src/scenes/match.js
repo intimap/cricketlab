@@ -11,7 +11,7 @@ import { EFFORTS, crossingAtZ } from "../sim/delivery.js";
 import { planRunup, meterPos, releaseError, METER_FROM } from "../sim/runup.js";
 import { battingFeedback, bowlingFeedback } from "../sim/coach.js";
 import { CONTACT_Z_FRONT, CONTACT_Z_BACK, SWING_TIME, NORMAL_CHARGE, playsBack } from "../sim/batting.js";
-import { nextEye, offStrikeEye, eyeMultiplier } from "../sim/eye.js";
+import { eyeMultiplier } from "../sim/eye.js";
 import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from "../sim/field.js";
 import { pickBowler } from "../sim/ai.js";
 import { pickSledges, pickChirp } from "../sim/commentary.js";
@@ -626,11 +626,6 @@ export class MatchScene {
     return type;
   }
 
-  /** The striker's eye as a shot multiplier. */
-  get eyeMult() {
-    return eyeMultiplier(this.inn.bat[this.inn.striker].eye);
-  }
-
   commitSwing(t, type, power) {
     const cur = this.cur;
     cur.swingType = type;
@@ -643,7 +638,6 @@ export class MatchScene {
       charge: power ? POWER_CHARGE : NORMAL_CHARGE,
       timingError,
       windowMult: PLAYER_TIMING_WINDOW,
-      eyeMult: this.eyeMult,
     };
     cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);
   }
@@ -658,7 +652,6 @@ export class MatchScene {
       charge: 0,
       timingError: Math.max(0, t + 0.12 - arrive),
       windowMult: PLAYER_TIMING_WINDOW,
-      eyeMult: this.eyeMult,
     };
     cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);
   }
@@ -946,7 +939,7 @@ export class MatchScene {
     const done = this.match.finish(cur.play);
     this.match.pack.tick();
     cur.done = done;
-    if (this.human === "bat") this.updateEye(cur.play);
+    if (this.human === "bat") this.flashEye(done.rec.eye);
     if (this.nets) {
       this.feedback = this.coachFeedback(done.rec);
       this.netsTally.balls++;
@@ -1016,16 +1009,11 @@ export class MatchScene {
     this.setPhase("after");
   }
 
-  /** Build (or lose) the striker's eye from the shot just played; the non-striker's fades. */
-  updateEye(play) {
-    const partner = this.inn.bat[play.live.setup.nonStrikerIdx];
-    partner.eye = offStrikeEye(partner.eye);
-    const batter = this.inn.bat[play.striker];
-    const before = batter.eye;
-    batter.eye = nextEye(before, play.shot, play.res);
-    if (batter.eye >= 1 && before < 1) this.banner("EYE IN!", COLORS.gold, 1.4, 3, 40);
-    else if (batter.eye === 0 && before >= 0.25) this.flash("EYE LOST", COLORS.red);
-    else if (batter.eye > before) this.flash(`EYE x${eyeMultiplier(batter.eye).toFixed(2)}`, COLORS.gold);
+  /** Tell the player how his eye went on that ball (the match keeps every batter's: see eye.js). */
+  flashEye({ before, after }) {
+    if (after >= 1 && before < 1) this.banner("EYE IN!", COLORS.gold, 1.4, 3, 40);
+    else if (after === 0 && before >= 0.25) this.flash("EYE LOST", COLORS.red);
+    else if (after > before) this.flash(`EYE x${eyeMultiplier(after).toFixed(2)}`, COLORS.gold);
   }
 
   /** When the last scheduled commentary call comes off air. */

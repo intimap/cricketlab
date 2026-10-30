@@ -69,7 +69,9 @@ middled one fills it more; a well-timed block helps a bit. Being beaten (or bowl
 playing a shot) knocks 15% off what's left and an edge 5%, while an air swing empties it; leaves and mistimed shots leave
 it as it is. The fuller it is, the bigger the multiplier on every shot you play (up to x1.4): more bat
 speed, and a slightly bigger timing window and sweet spot. Each batter has his own eye, so a new batter starts from
-nothing, and off strike it fades slowly, by 0.05 over an over his partner faces. The numbers are at the top of `sim/eye.js`.
+nothing, and off strike it fades slowly, by 0.05 over an over his partner faces. The computer's batters have an eye too,
+built and lost by the same rules, so a set batter is harder to bowl to. The numbers, shared by both, are at the top of
+`sim/eye.js`.
 
 ## Bowling: the battle
 
@@ -104,7 +106,7 @@ src/
     conditions.js     pitch types, pitch wear, ball wear (swing, reverse, grip)
     delivery.js       bowling: release, swing, seam, spin, bounce, flight
     batting.js        the shot: timing, where the bat goes, edges, LBW, bowled
-    eye.js            the player's eye meter: built by well-timed shots, lost on a miss
+    eye.js            every batter's eye: built by well-timed shots, dented by misses and edges
     ball-in-play.js   after the shot: fielders, catches, throws, running, run-outs
     field.js          field presets and position names
     ai.js             computer bowler, field, delivery and shot choices

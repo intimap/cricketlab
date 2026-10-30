@@ -238,7 +238,7 @@ function intoGap(bearing, field, reach) {
  * `field`: the fielders' bearings, for a well-struck ball to find the gaps.
  *
  * shot: { type: drive|cutpull|loft|defend|leave (or ramp/sweep/reverseSweep), charge, timingError,
- *         foot? ("front"/"back", for defence), windowMult?, eyeMult? (the player's eye, see eye.js) }
+ *         foot? ("front"/"back", for defence), windowMult?, eyeMult? (the batter's eye, see eye.js) }
  */
 export function resolveDelivery(d, shot, bat, state, ball, spinner, rng, field = []) {
   const pitchZ = d.pitchedAt ? d.pitchedAt.z : 0;
@@ -341,7 +341,7 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
     : clamp(0.55 + 0.3 * bat.technique + 0.1 * state.settled + 0.05 * bat.vsPace, 0, 0.95);
   const aimX = late.x + (early.x - late.x) * (1 - adjust);
   const aimY = late.y + (early.y - late.y) * (1 - adjust);
-  // The player's eye: a bigger timing window and sweet spot, and more bat speed.
+  // The batter's eye: a bigger timing window and sweet spot, and more bat speed.
   const eye = shot.eyeMult ?? 1;
   const eyeEase = 1 + (eye - 1) / 2;
   const wrong = wrongFoot(shot.type, footBack, pitchZ, bat.footwork);

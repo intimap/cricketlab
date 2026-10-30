@@ -8,6 +8,7 @@ import { bowlDelivery, movementOf } from "./delivery.js";
 import { resolveDelivery } from "./batting.js";
 import { plainCall } from "./call.js";
 import { PackVoice } from "./pack-voice.js";
+import { nextEye, offStrikeEye, eyeMultiplier } from "./eye.js";
 import { BallInPlay } from "./ball-in-play.js";
 import { pickBowler, pickOverPlan, pickFieldPreset, pickDeliveryPlan, pickShot, battingAggression } from "./ai.js";
 import { describeBall } from "./plans.js";
@@ -141,6 +142,8 @@ export class Match {
     const nonStriker = inn.bat[inn.nonStriker];
     // Where the fielders are (plus the bowler, straight), for a well-hit ball to find the gaps.
     const field = [0, ...inn.placements.slice(0, 9).map((p) => bearingOf(p.pos.x, p.pos.z))];
+    // Every batter's eye, the computer's as well as the player's, helps the shot (see eye.js).
+    shot.eyeMult = eyeMultiplier(striker.eye);
     const res = resolveDelivery(delivery, shot, striker.p.bat, state, inn.ball, this.spinner, this.rng, field);
     const live = new BallInPlay({
       res,
@@ -293,6 +296,12 @@ export class Match {
     rec.nearRunout = out.nearRunout;
     rec.movement = movementOf(delivery);
     rec.moment = this.moments.read(rec, inn);
+    // The striker's eye builds or dents with his shot; his partner's fades at the other end.
+    const batter = inn.bat[play.striker];
+    const partner = inn.bat[play.live.setup.nonStrikerIdx];
+    partner.eye = offStrikeEye(partner.eye);
+    rec.eye = { before: batter.eye, after: nextEye(batter.eye, shot, res) };
+    batter.eye = rec.eye.after;
     inn.settleStrike(out.strikerEnd === 1);
     rec.commentary = this.comm.line(rec, inn);
     rec.call = plainCall(rec, delivery, this.spinner);

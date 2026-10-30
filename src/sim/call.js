@@ -92,6 +92,7 @@ function shotPart(rec, short) {
   const shot = capitalise(rec.shotName || SHOT[rec.shot] || "shot");
   if (rec.contact === "none") {
     if (rec.missReason === "early" || rec.missReason === "late") return `${shot}, ${rec.missReason} and missed${pad}`;
+    if (rec.missReason === "wide") return `${shot}, too wide to reach${pad}`;
     return pad || rec.wicket?.how === "bowled" ? `${shot}, missed${pad}` : `${shot}, beaten`;
   }
   // A block is just played; a catch says where it went by the fielder.

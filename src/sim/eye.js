@@ -35,7 +35,8 @@ export const offStrikeEye = (eye) => Math.max(0, eye - EYE_OFF_STRIKE_OVER / 6);
  * nowhere near, resets it.
  */
 export function nextEye(eye, shot, res) {
-  if (shot.type === "leave") return eye;
+  // A leave, or a block to a ball too wide to reach, is let go by: no harm done.
+  if (shot.type === "leave" || res.contact.missReason === "wide") return eye;
   const contact = res.contact;
   if (!res.touchedBat) return contact.missReason === "early" || contact.missReason === "late" ? 0 : eye * EYE_KEPT_MISS;
   if (contact.kind !== "middle") return eye * EYE_KEPT_EDGE;

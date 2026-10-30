@@ -88,14 +88,14 @@ function parklands(name, fence) {
 GROUNDS.parklands = parklands("PARKLANDS OVAL", "fence-picket");
 GROUNDS.parklandsBoards = parklands("PARKLANDS (BOARDS)", "fence-ads");
 
-/** The G: a floodlit Melbourne mega-stadium at night (tools/art/make_theg.py). Picking it sets the evening light. */
+/** The G: a floodlit Melbourne mega-stadium at night (tools/art/make_theg.py). Picking it sets the floodlit night light. */
 function theG() {
   const oval = GROUNDS.oval;
   return {
     ...oval,
     name: "THE MCG",
     hidden: false,
-    light: "evening",
+    light: "night",
     grass: { light: "#4c9438", dark: "#38782a" },
     close: {
       ...oval.close,

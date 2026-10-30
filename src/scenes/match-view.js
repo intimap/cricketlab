@@ -28,6 +28,7 @@ import {
 } from "../render/camera.js";
 import {
   BATTER_POSES,
+  solveBatterRig,
   lerpPose,
   drawBatter,
   drawFigure,
@@ -407,67 +408,167 @@ function rigPose(scene, cur, stroke, t, reach, fromBowler) {
   return since < RIG_BLEND_IN ? { ...pose, from: readyPose(scene, cur, start), fromK: 1 - since / RIG_BLEND_IN } : pose;
 }
 
+/** Where the striker is drawn from the batter's end (screen x). */
+const STRIKER_SCREEN_X = 300;
+
+/**
+ * The striker's stroke at scene time t, before any reaction to how the ball came off: { pose, rig,
+ * shotDoneAt } (rig: drawn on the new rig; shotDoneAt: when an old-pose shot has finished).
+ */
+function strikerStroke(scene, cur, t, fromBowler) {
+  const ready = readyPose(scene, cur, t);
+  let pose = ready;
+  const arrive = cur.delivery ? scene.arrival(cur.swingType ?? cur.shot?.type ?? "drive", cur.shot?.foot) : 0.6;
+  // Reach towards the line of the ball.
+  const reach = clamp((projectFromStriker(cur.lineAtBat, 0, 1.9).x - (STRIKER_SCREEN_X + 12)) * 0.8, -8, 26);
+  let shotDoneAt = null;
+  if (cur.swingAt !== null && t >= cur.swingAt && cur.swingType) {
+    const type = cur.swingType;
+    const top = lerpPose(BATTER_POSES.lift0, BATTER_POSES.lift1, cur.shot?.charge ?? 0.5);
+    const contact =
+      {
+        cutpull: BATTER_POSES.contactBack,
+        ramp: BATTER_POSES.rampContact,
+        sweep: BATTER_POSES.sweepContact,
+        reverseSweep: BATTER_POSES.reverseSweepContact,
+      }[type] ?? BATTER_POSES.contactFront;
+    const k = (t - cur.swingAt) / SWING_TIME[type];
+    if (k < 1) pose = lerpPose(top, contact, easeIn(k));
+    else pose = lerpPose(contact, finishPose(cur, type), easeOut((t - cur.swingAt - SWING_TIME[type]) / FOLLOW_THROUGH_TIME));
+    if (k > 0.3 && k < 1.6) pose = { ...pose, px: pose.px + reach * Math.min(1, k) * (1.6 - k) };
+    shotDoneAt = cur.swingAt + SWING_TIME[type] + FOLLOW_THROUGH_TIME;
+  } else if (cur.swingType && cur.swingAt !== null && t >= cur.backliftAt) {
+    const charge = cur.shot?.charge ?? NORMAL_CHARGE;
+    pose = lerpPose(
+      ready,
+      lerpPose(BATTER_POSES.lift0, BATTER_POSES.lift1, charge),
+      easeOut((t - cur.backliftAt) / Math.max(0.01, cur.swingAt - cur.backliftAt)),
+    );
+  } else if (cur.defendAt !== null && t >= cur.defendAt) {
+    const back = playsBack("defend", cur.shot?.foot, cur.delivery?.pitchedAt?.z ?? 5);
+    const block = back ? BATTER_POSES.defendBack : BATTER_POSES.defendFront;
+    pose = lerpPose(ready, block, easeOut((t - cur.defendAt) / 0.09));
+    pose = { ...pose, px: pose.px + reach * clamp((t - cur.defendAt) / 0.15) };
+    shotDoneAt = cur.defendAt + 0.3;
+  } else if (cur.leaveAt !== null && t >= cur.leaveAt) {
+    pose = lerpPose(ready, BATTER_POSES.leave, (t - cur.leaveAt) / 0.18);
+  } else if (scene.human === "bat" && cur.delivery && !cur.shot && t > arrive - LEAVE_LIFT) {
+    // No shot chosen yet: start lifting the bat out of the way.
+    pose = lerpPose(ready, BATTER_POSES.leave, (t - (arrive - LEAVE_LIFT)) / 0.18);
+  }
+
+  // The straight drive, forward defence and pull are drawn on the new rig.
+  const stroke = rigStroke(scene, cur);
+  const rig = !!stroke && t >= stroke.contactAt - stroke.window;
+  if (rig) pose = rigPose(scene, cur, stroke, t, reach, fromBowler);
+  return { pose, rig, shotDoneAt };
+}
+
+/**
+ * Bringing the blade onto the ball at contact: the hands move at most HAND_REACH (pose units) and the bat
+ * turns at most BAT_TURN (degrees) to take it the rest of the way, easing in over ALIGN_IN, holding for
+ * ALIGN_HOLD and letting go over ALIGN_OUT (s).
+ */
+const HAND_REACH = 14;
+const BAT_TURN = 70;
+const ALIGN_IN = 0.1;
+const ALIGN_HOLD = 0.05;
+const ALIGN_OUT = 0.15;
+const smoothstep = (k) => {
+  const c = clamp(k);
+  return c * c * (3 - 2 * c);
+};
+
+/**
+ * How to move the hands ({ x, y } in pose units) and turn the bat ({ a } degrees) so the blade meets the
+ * ball where it actually is on screen at contact. Worked out once per ball and view.
+ */
+function contactOffset(scene, cur, place) {
+  const res = cur.play.res;
+  const key = place.front ? "bowl" : "bat";
+  cur.batOffset ??= {};
+  if (cur.batOffset[key]) return cur.batOffset[key];
+  const { pose } = strikerStroke(scene, cur, res.start.t, place.front);
+  const ball = projectClose(res.start.pos.x, res.start.pos.y, res.start.pos.z);
+  const at = (q) => ({ x: place.x + (place.front ? -q.x : q.x) * place.scale, y: place.y + q.y * place.scale });
+  // Screen distance from the ball to the blade (shoulder to toe) for a pose.
+  const gap = (p) => {
+    const rig = solveBatterRig(p, place.front);
+    const a = at({ x: rig.topHand.x + rig.dir.x * 9, y: rig.topHand.y + rig.dir.y * 9 });
+    const b = at({ x: rig.topHand.x + rig.dir.x * 36, y: rig.topHand.y + rig.dir.y * 36 });
+    const vx = b.x - a.x;
+    const vy = b.y - a.y;
+    const k = clamp(((ball.x - a.x) * vx + (ball.y - a.y) * vy) / (vx * vx + vy * vy || 1));
+    return { dx: ball.x - (a.x + vx * k), dy: ball.y - (a.y + vy * k) };
+  };
+  // The hands first, as far as they'll go towards the ball...
+  const g = gap(pose);
+  let dx = (g.dx / place.scale) * (place.front ? -1 : 1);
+  let dy = g.dy / place.scale;
+  const len = Math.hypot(dx, dy);
+  if (len > HAND_REACH) {
+    dx *= HAND_REACH / len;
+    dy *= HAND_REACH / len;
+  }
+  // ...then whichever turn of the bat brings the blade closest (the smaller turn if it's a tie).
+  let best = { a: 0, d: Infinity };
+  for (let a = -BAT_TURN; a <= BAT_TURN; a += 5) {
+    const r = gap({ ...pose, px: pose.px + dx, py: pose.py + dy, angle: pose.angle + a });
+    const d = Math.hypot(r.dx, r.dy) + Math.abs(a) * 0.01;
+    if (d < best.d) best = { a, d };
+  }
+  return (cur.batOffset[key] = { x: dx, y: dy, a: best.a });
+}
+
+/**
+ * When the bat really does meet the ball (middle or edge), bring the blade onto it around contact.
+ * Misses are left alone: a miss stays a miss.
+ */
+function alignToBall(scene, cur, pose, t, place) {
+  const res = cur.play?.res;
+  if (!res?.touchedBat) return pose;
+  const tc = res.start.t;
+  const w =
+    t < tc
+      ? smoothstep((t - (tc - ALIGN_IN)) / ALIGN_IN)
+      : t < tc + ALIGN_HOLD
+        ? 1
+        : 1 - smoothstep((t - tc - ALIGN_HOLD) / ALIGN_OUT);
+  if (w <= 0) return pose;
+  const off = contactOffset(scene, cur, place);
+  return { ...pose, px: pose.px + off.x * w, py: pose.py + off.y * w, angle: pose.angle + off.a * w };
+}
+
+/** Where and how big the striker is drawn: from the batter's end, or down the far end facing us. */
+function strikerPlace(scene, kit, fromBowler) {
+  if (fromBowler) {
+    const p = projectClose(STRIKER_X, 0, CREASE);
+    return { x: p.x, y: p.y + 1, scale: (closePixelsPerMetre(CREASE) * kit.height) / BATTER_HEIGHT_PX, front: true };
+  }
+  return { x: STRIKER_SCREEN_X, y: closeGroundY(CREASE) + 2, scale: kit.height / STANDARD_HEIGHT, front: false };
+}
+
 function drawStriker(scene) {
   const cur = scene.cur;
   const inn = scene.inn;
-  const x = 300;
-  const y = closeGroundY(CREASE) + 2;
   const fromBowler = closeFromBowlerEnd();
   const t = cur ? scene.clock() : 0;
-  const ready = readyPose(scene, cur, t);
-  let pose = ready;
+  // His own look; taller players are drawn bigger.
+  const kit = playerKit(scene.kitBat, inn.bat[inn.striker].p);
+  const place = strikerPlace(scene, kit, fromBowler);
+  let pose = readyPose(scene, cur, t);
   if (cur) {
-    const arrive = cur.delivery ? scene.arrival(cur.swingType ?? cur.shot?.type ?? "drive", cur.shot?.foot) : 0.6;
-    // Reach towards the line of the ball.
-    const reach = clamp((projectFromStriker(cur.lineAtBat, 0, 1.9).x - (x + 12)) * 0.8, -8, 26);
-    let shotDoneAt = null;
-    if (cur.swingAt !== null && t >= cur.swingAt && cur.swingType) {
-      const type = cur.swingType;
-      const top = lerpPose(BATTER_POSES.lift0, BATTER_POSES.lift1, cur.shot?.charge ?? 0.5);
-      const contact =
-        {
-          cutpull: BATTER_POSES.contactBack,
-          ramp: BATTER_POSES.rampContact,
-          sweep: BATTER_POSES.sweepContact,
-          reverseSweep: BATTER_POSES.reverseSweepContact,
-        }[type] ?? BATTER_POSES.contactFront;
-      const k = (t - cur.swingAt) / SWING_TIME[type];
-      if (k < 1) pose = lerpPose(top, contact, easeIn(k));
-      else pose = lerpPose(contact, finishPose(cur, type), easeOut((t - cur.swingAt - SWING_TIME[type]) / FOLLOW_THROUGH_TIME));
-      if (k > 0.3 && k < 1.6) pose = { ...pose, px: pose.px + reach * Math.min(1, k) * (1.6 - k) };
-      shotDoneAt = cur.swingAt + SWING_TIME[type] + FOLLOW_THROUGH_TIME;
-    } else if (cur.swingType && cur.swingAt !== null && t >= cur.backliftAt) {
-      const charge = cur.shot?.charge ?? NORMAL_CHARGE;
-      pose = lerpPose(
-        ready,
-        lerpPose(BATTER_POSES.lift0, BATTER_POSES.lift1, charge),
-        easeOut((t - cur.backliftAt) / Math.max(0.01, cur.swingAt - cur.backliftAt)),
-      );
-    } else if (cur.defendAt !== null && t >= cur.defendAt) {
-      const back = playsBack("defend", cur.shot?.foot, cur.delivery?.pitchedAt?.z ?? 5);
-      const block = back ? BATTER_POSES.defendBack : BATTER_POSES.defendFront;
-      pose = lerpPose(ready, block, easeOut((t - cur.defendAt) / 0.09));
-      pose = { ...pose, px: pose.px + reach * clamp((t - cur.defendAt) / 0.15) };
-      shotDoneAt = cur.defendAt + 0.3;
-    } else if (cur.leaveAt !== null && t >= cur.leaveAt) {
-      pose = lerpPose(ready, BATTER_POSES.leave, (t - cur.leaveAt) / 0.18);
-    } else if (scene.human === "bat" && cur.delivery && !cur.shot && t > arrive - LEAVE_LIFT) {
-      // No shot chosen yet: start lifting the bat out of the way.
-      pose = lerpPose(ready, BATTER_POSES.leave, (t - (arrive - LEAVE_LIFT)) / 0.18);
-    }
-
-    // The straight drive, forward defence and pull are drawn on the new rig.
-    const stroke = rigStroke(scene, cur);
-    const rig = !!stroke && t >= stroke.contactAt - stroke.window;
-    if (rig) pose = rigPose(scene, cur, stroke, t, reach, fromBowler);
+    const stroke = strikerStroke(scene, cur, t, fromBowler);
+    pose = alignToBall(scene, cur, stroke.pose, t, place);
 
     const play = cur.play;
     const res = play?.res;
     // Reactions once the ball has gone past: flinch if hit on the pad, recoil if beaten (old poses only;
     // a rig stroke plays on through its follow-through).
-    if (res && cur.contactDone && !res.touchedBat && !rig) {
+    if (res && cur.contactDone && !res.touchedBat && !stroke.rig) {
       if (res.padHit) pose = lerpPose(pose, BATTER_POSES.padFlinch, easeOut((t - res.start.t) / 0.12));
-      else if (shotDoneAt !== null && t > shotDoneAt) pose = lerpPose(pose, BATTER_POSES.beaten, easeOut((t - shotDoneAt) / 0.2));
+      else if (stroke.shotDoneAt !== null && t > stroke.shotDoneAt)
+        pose = lerpPose(pose, BATTER_POSES.beaten, easeOut((t - stroke.shotDoneAt) / 0.2));
     }
     // Hidden once out (and walking off), or once he's left his crease (drawn as a runner then).
     if (
@@ -477,16 +578,7 @@ function drawStriker(scene) {
       return;
     }
   }
-  // His own look; taller players are drawn bigger.
-  const kit = playerKit(scene.kitBat, inn.bat[inn.striker].p);
-  const tall = kit.height / STANDARD_HEIGHT;
-  if (fromBowler) {
-    // Down the far end, facing us.
-    const p = projectClose(STRIKER_X, 0, CREASE);
-    drawBatter(p.x, p.y + 1, (closePixelsPerMetre(CREASE) * kit.height) / BATTER_HEIGHT_PX, pose, kit, 0, true);
-  } else {
-    drawBatter(x, y, tall, pose, kit, kit.number || inn.striker + 1);
-  }
+  drawBatter(place.x, place.y, place.scale, pose, kit, place.front ? 0 : kit.number || inn.striker + 1, place.front);
 }
 
 /** Blinking crosshair where the player is aiming to pitch the ball. */

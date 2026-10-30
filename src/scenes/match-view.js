@@ -28,6 +28,7 @@ import {
 } from "../render/camera.js";
 import {
   BATTER_POSES,
+  reachPose,
   solveBatterRig,
   lerpPose,
   drawBatter,
@@ -403,7 +404,7 @@ function rigPose(scene, cur, stroke, t, reach, fromBowler) {
   const motion = sampleGameBatterMotion(stroke.name, rel, { view, windowBeforeContact: stroke.window });
   // Reaching towards the line of the ball, as the old strokes do: in through contact, then let go.
   const reachNow = reach * (rel < 0 ? clamp((t - start) / stroke.window) : clamp(1 - rel / 0.2));
-  const pose = { ...motion, px: motion.px + reachNow };
+  const pose = reachPose(motion, reachNow, stroke.name !== "pull");
   const since = t - start;
   return since < RIG_BLEND_IN ? { ...pose, from: readyPose(scene, cur, start), fromK: 1 - since / RIG_BLEND_IN } : pose;
 }
@@ -449,7 +450,7 @@ function strikerStroke(scene, cur, t, fromBowler) {
     const k = (t - cur.swingAt) / SWING_TIME[type];
     if (k < 1) pose = lerpPose(top, contact, easeIn(k));
     else pose = lerpPose(contact, finishPose(cur, type), easeOut((t - cur.swingAt - SWING_TIME[type]) / FOLLOW_THROUGH_TIME));
-    if (k > 0.3 && k < 1.6) pose = { ...pose, px: pose.px + reach * Math.min(1, k) * (1.6 - k) };
+    if (k > 0.3 && k < 1.6) pose = reachPose(pose, reach * Math.min(1, k) * (1.6 - k), type !== "cutpull");
     shotDoneAt = cur.swingAt + SWING_TIME[type] + FOLLOW_THROUGH_TIME;
   } else if (cur.swingType && cur.swingAt !== null && t >= cur.backliftAt) {
     const charge = cur.shot?.charge ?? NORMAL_CHARGE;
@@ -462,7 +463,7 @@ function strikerStroke(scene, cur, t, fromBowler) {
     const back = playsBack("defend", cur.shot?.foot, cur.delivery?.pitchedAt?.z ?? 5);
     const block = back ? BATTER_POSES.defendBack : BATTER_POSES.defendFront;
     pose = lerpPose(ready, block, easeOut((t - cur.defendAt) / 0.09));
-    pose = { ...pose, px: pose.px + reach * clamp((t - cur.defendAt) / 0.15) };
+    pose = reachPose(pose, reach * clamp((t - cur.defendAt) / 0.15), !back);
     shotDoneAt = cur.defendAt + 0.3;
   } else if (cur.leaveAt !== null && t >= cur.leaveAt) {
     pose = lerpPose(ready, BATTER_POSES.leave, (t - cur.leaveAt) / 0.18);

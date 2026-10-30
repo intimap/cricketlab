@@ -49,7 +49,7 @@ const SHOT_KEYS = { KeyS: "drive", KeyQ: "cutpull", KeyW: "loft" };
 const DEFEND_KEYS = { KeyA: "front", KeyD: "back" };
 /** Seconds the player has to review a decision that went against them. */
 const REVIEW_WINDOW = 10;
-/** How fast the batter shuffles across his crease while Left or Right is held (m/s). */
+/** How fast the batter steps across his crease, and back to his guard (m/s). */
 const FOOTWORK_SPEED = 1.6;
 /** How long the scene lingers after a wicket. */
 const WICKET_PAUSE = 6.5;
@@ -640,16 +640,17 @@ export class MatchScene {
   }
 
   /**
-   * Left / Right shuffle the batter across his crease, the way you press on screen, until he plays a
-   * shot (then his feet are set). Not while Down is held: that's for the sweeps and the ramp.
+   * Hold Left or Right and the batter steps across his crease that way (the way you press on screen),
+   * as far as FOOTWORK_MIN/MAX; let go and he steps back to his guard. Once he plays a shot his feet are
+   * set. Down (for the sweeps and the ramp) brings him back to his guard too.
    */
   updateFootwork(dt) {
     if (this.human !== "bat" || !this.cur || this.cur.shot) return;
-    if (keys.down("ArrowDown")) return;
-    const way = (keys.down("ArrowRight") ? 1 : 0) - (keys.down("ArrowLeft") ? 1 : 0);
-    if (!way) return;
-    const step = way * this.screenTurn * FOOTWORK_SPEED * dt;
-    this.cur.footwork = clamp((this.cur.footwork ?? 0) + step, FOOTWORK_MIN, FOOTWORK_MAX);
+    const way = keys.down("ArrowDown") ? 0 : (keys.down("ArrowRight") ? 1 : 0) - (keys.down("ArrowLeft") ? 1 : 0);
+    const target = way * this.screenTurn > 0 ? FOOTWORK_MAX : way * this.screenTurn < 0 ? FOOTWORK_MIN : 0;
+    const now = this.cur.footwork ?? 0;
+    const step = FOOTWORK_SPEED * dt;
+    this.cur.footwork = Math.abs(target - now) <= step ? target : now + Math.sign(target - now) * step;
   }
 
   commitSwing(t, type, power) {

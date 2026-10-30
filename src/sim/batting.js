@@ -50,14 +50,14 @@ export function wrongFoot(type, footBack, pitchZ, footwork) {
 }
 
 /**
- * Footwork and reach. The batter takes guard at STANCE_X (m, just leg side of middle) and can shuffle
- * across the crease before playing, between FOOTWORK_MIN (leg side) and FOOTWORK_MAX (off side). His
+ * Footwork and reach. The batter takes guard at STANCE_X (m, just leg side of middle) and can step
+ * across the crease before playing, as far as FOOTWORK_MIN (leg side) or FOOTWORK_MAX (off side). His
  * arms and bat reach so far either side of where he stands: less for a block than for an attacking
  * shot. A ball beyond his reach goes past the bat without touching it.
  */
 export const STANCE_X = -0.14;
-export const FOOTWORK_MIN = -0.45;
-export const FOOTWORK_MAX = 0.35;
+export const FOOTWORK_MIN = -0.2;
+export const FOOTWORK_MAX = 0.2;
 const REACH = { defend: 0.42, attack: 0.65 };
 
 /** Shot power (0..1) of a normal, non-power player shot. */

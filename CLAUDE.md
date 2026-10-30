@@ -37,6 +37,30 @@ section instead of exploring the tree. Keep it up to date when you add or move a
 - Add `[skip netlify]` to the merge message when I don't want a deploy yet.
 - Update the README's controls table when keys change.
 
+# Cricket Lab - Architecture & Feature Guidelines
+
+## 1. Modularity & File Size Policy
+- **Max File Size:** Target 250–400 lines per file. Avoid growing existing files into monolithic hubs.
+- **No "God Files":** Never append new feature logic directly into `src/game/scenes/match.js`, `match-view.js`, or `sprites.js`.
+- **New Features Get New Modules:** When adding a new mechanic (e.g. weather system, wagon wheel, spin-bowling variations, field editor):
+  - Place core simulation/math in `src/game/sim/<feature>.js`.
+  - Place visuals/drawing in `src/game/render/<feature>.js`.
+  - Keep `src/game/scenes/` as light orchestration controllers.
+
+## 2. Layer Separation
+- **Simulation (`src/game/sim/`):** Pure mathematical logic, physical simulation, and match state. Never import or use Canvas rendering, DOM, or audio APIs here.
+- **Rendering (`src/game/render/`):** Pure drawing functions that receive coordinates/state and draw to canvas. No game rules, physics decisions, or state mutation.
+- **Scenes (`src/game/scenes/`):** Wire user input and simulation state to the rendering pipeline.
+
+## 3. Backward Compatibility & Facades
+- If you extract or reorganize functions from existing files (`sprites.js`, `camera.js`), always maintain re-exports in the original file so existing callers and test suites don't break.
+- Prefer pure functional transformations (e.g. `lerpPose`, `blendRigs`) over deeply nested classes.
+
+## 4. Animation & Biomechanics Rules
+- When animating limbs, always enforce anatomical constraints (e.g. elbow hinge vectors, max extension soft-limits) to prevent snapping or flipping.
+- Reach movements must follow the kinetic chain: head and spine lead the movement, transferring weight before the limbs extend.
+
+
 ## How I work
 - I give specific asks. Don't widen scope, refactor, or "improve" nearby code unless I ask.
 - If an ask is ambiguous or a big change, give a short plan first and wait for my answer.

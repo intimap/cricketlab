@@ -126,7 +126,11 @@ export class Menu {
       }
       if (key === "mode") cfg.mode = cycle(MODES, cfg.mode, dir);
       if (key === "pitch") cfg.pitch = cycle(PITCHES, cfg.pitch, dir);
-      if (key === "ground") cfg.ground = cycle(GROUND_IDS, cfg.ground, dir);
+      if (key === "ground") {
+        cfg.ground = cycle(GROUND_IDS, cfg.ground, dir);
+        // A night ground brings its own light with it (still changeable).
+        if (GROUNDS[cfg.ground].light) cfg.light = GROUNDS[cfg.ground].light;
+      }
       if (key === "light") cfg.light = cycle(LIGHT_IDS, cfg.light, dir);
       if (key === "overs") cfg.overs = cycle(OVERS_CHOICES[cfg.format], cfg.overs, dir);
       if (key === "classic") cfg.classic = cycle(CLASSIC_IDS, cfg.classic, dir);

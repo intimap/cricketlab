@@ -127,6 +127,7 @@ src/
     camera.js         projections for the close (either end) and wide views
     sprites.js        batter, figures, ball
     batter-motion.js  the straight drive, forward defence and pull on the batter's newer rig (more strokes to follow)
+    batter-parts.js   the striker as pixel-art pieces (helmet, shirt, arms, gloves, pads, boots, bat) on his skeleton
     hud.js            score bar, mini-map, banners, scorecard, speech bubbles
     booth.js          commentator portraits and the commentary popup
     grounds.js        grounds as data: stripe layout, colours, pitch looks, which paintings to use

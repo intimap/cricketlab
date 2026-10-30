@@ -1,5 +1,9 @@
 import { COLORS, ctx, fillRect, plot, drawLine, fillCircle, fillEllipse, fillPolygon } from "../engine/screen.js";
 import { drawText } from "../engine/text.js";
+import { drawBatterParts } from "./batter-parts.js";
+
+/** Draw the striker from pixel-art pieces (batter-parts.js) on his skeleton; false for the drawn shapes. */
+export const SPRITE_BATTER = true;
 
 const BAT_FACE = "#e6cc92";
 const BAT_EDGE = "#b8955a";
@@ -403,6 +407,21 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     dir,
     near,
   } = solveBatterRig(pose, front);
+
+  if (SPRITE_BATTER) {
+    groundShadow(x + 1 * scale, y - 2 * scale, 15 * scale, 5 * scale, 0.28);
+    if (pose.rig === 1) {
+      for (const [fx, fy] of [
+        [pose.frontFootX, pose.frontFootY],
+        [pose.backFootX, pose.backFootY],
+      ]) {
+        const foot = at({ x: fx + 1, y: fy + 3 });
+        fillEllipse(foot.x, foot.y, 6 * scale, 1.6 * scale, "rgba(0,0,0,0.24)");
+      }
+    }
+    drawBatterParts(x, y, scale, pose, kit, number, front, solveBatterRig(pose, front));
+    return;
+  }
 
   // --- Flesh and kit ---
   // Arms: sleeves to mid upper arm, bare forearms.

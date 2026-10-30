@@ -125,7 +125,8 @@ src/
     leaderboard.js    high-score entries from a result, and how they rank
   render/
     camera.js         projections for the close (either end) and wide views
-    sprites.js        batter, figures, ball
+    sprites.js        figures (fielders, bowler, umpires), ball, shared kit colours
+    batter-rig.js     the striker: key poses, skeleton (IK for knees and elbows), drawing him in kit
     batter-motion.js  the straight drive, forward defence and pull on the batter's newer rig (more strokes to follow)
     hud.js            score bar, mini-map, banners, scorecard, speech bubbles
     booth.js          commentator portraits and the commentary popup
@@ -135,6 +136,7 @@ src/
     menu.js           title screen
     match.js          the match: phases, player input, timing, events
     match-view.js     drawing for the match scene
+    batter-pose.js    the striker's pose through a ball: stance, trigger, backlift, strokes, follow-throughs
     pause-menu.js     the Esc menu: scorecard, instructions, sound
     scoreboard.js     the arcade high-score screen: name entry and the table
 netlify/
@@ -160,6 +162,8 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **AI tactics:** `sim/ai.js`.
 - **Fielding and running:** `sim/ball-in-play.js`.
 - **What's shown on screen:** `scenes/match-view.js` and `render/`.
+- **Batter animation:** which pose or stroke when, in `scenes/batter-pose.js`; the poses, skeleton and drawing in
+  `render/batter-rig.js`; the newer rig's stroke clips in `render/batter-motion.js`.
 - **Game modes and Classic Matches:** `sim/formats.js` (challenges are plain data). AI chase and
   limited-overs tempo constants are at the top of `sim/ai.js`.
 - **Ground art:** images live in `assets/` (layer art in `assets/close/`), listed by id in `src/assets.js`;

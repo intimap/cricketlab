@@ -57,6 +57,20 @@ export function initScreen(container) {
   return screen;
 }
 
+/**
+ * Run `draw` with every drawing call going to `target` (another 2D context) instead of the frame
+ * buffer: for building a sprite in a scratch buffer first.
+ */
+export function drawInto(target, draw) {
+  const frame = ctx;
+  ctx = target;
+  try {
+    draw();
+  } finally {
+    ctx = frame;
+  }
+}
+
 /** Copy the frame buffer to the visible canvas. */
 export function present() {
   screenCtx.imageSmoothingEnabled = false;

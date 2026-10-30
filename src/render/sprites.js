@@ -1,4 +1,4 @@
-import { COLORS, ctx, fillRect, plot, drawLine, fillCircle, fillEllipse, fillPolygon } from "../engine/screen.js";
+import { COLORS, ctx, drawInto, fillRect, plot, drawLine, fillCircle, fillEllipse, fillPolygon } from "../engine/screen.js";
 import { drawText } from "../engine/text.js";
 
 const BAT_FACE = "#e6cc92";
@@ -210,8 +210,106 @@ function drawBatterHelmetBack(head, h, scale, kit, poly, line) {
  * Seen from behind, unless `front` (from the bowler's end): then mirrored, face on.
  */
 export function drawBatter(x, y, scale, pose, kit, number = 0, front = false) {
+  if (!RETRO_BATTER.on) {
+    drawBatterAt(x, y, scale, pose, kit, number, front);
+    return;
+  }
+  // Drawn small into the scratch buffer, crunched, then blown back up with hard pixel edges.
+  const k = RETRO_BATTER.resolution;
+  const s = scale * k;
+  const box = batterBounds(pose, front);
+  const ox = Math.ceil(-box.x0 * s) + 1;
+  const oy = Math.ceil(-box.y0 * s) + 1;
+  const w = Math.ceil((box.x1 - box.x0) * s) + 3;
+  const h = Math.ceil((box.y1 - box.y0) * s) + 3;
+  const scratch = retroBuffer(w, h);
+  scratch.clearRect(0, 0, w, h);
+  drawInto(scratch, () => drawBatterAt(ox, oy, s, pose, kit, 0, front));
+  if (RETRO_BATTER.dither) {
+    const image = scratch.getImageData(0, 0, w, h);
+    bayerCrunch(image, RETRO_BATTER.levels);
+    scratch.putImageData(image, 0, 0);
+  }
+  ctx.drawImage(scratch.canvas, 0, 0, w, h, Math.round(x - ox / k), Math.round(y - oy / k), w / k, h / k);
+  // The number is text, which doesn't shrink with him: put it on afterwards at full size.
+  if (number && !front) drawShirtNumber(x, y, scale, solveBatterRig(pose, false).chest, kit, number);
+}
+
+function drawBatterAt(x, y, scale, pose, kit, number, front) {
   if (front) mirrored(x, () => drawBatterBody(x, y, scale, pose, kit, 0, true));
   else drawBatterBody(x, y, scale, pose, kit, number, false);
+}
+
+/**
+ * The striker's 16-bit look: drawn at `resolution` (half size) into a scratch buffer, his colours
+ * crunched to `levels` per channel with a 4x4 Bayer dither, then scaled back up without smoothing.
+ * `on: false` draws him straight into the frame as before; `dither: false` keeps the chunky pixels only.
+ */
+export const RETRO_BATTER = { on: true, resolution: 0.5, dither: true, levels: 32 };
+
+/** The 4x4 ordered-dither thresholds, 0..15. */
+const BAYER_4 = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+
+// One scratch buffer, kept and only ever grown, so a frame allocates no canvas.
+let retroCanvas = null;
+let retroCtx = null;
+function retroBuffer(w, h) {
+  if (!retroCanvas) {
+    retroCanvas = document.createElement("canvas");
+    retroCtx = retroCanvas.getContext("2d", { willReadFrequently: true });
+  }
+  if (retroCanvas.width < w || retroCanvas.height < h) {
+    retroCanvas.width = Math.max(w, retroCanvas.width);
+    retroCanvas.height = Math.max(h, retroCanvas.height);
+  }
+  retroCtx.imageSmoothingEnabled = false;
+  return retroCtx;
+}
+
+/** Snap each colour channel to `levels` steps with a 4x4 Bayer dither; alpha (his outline, the shadow) is kept. */
+function bayerCrunch(image, levels) {
+  const { data, width, height } = image;
+  const step = 255 / (levels - 1);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4;
+      if (data[i + 3] === 0) continue;
+      const nudge = ((BAYER_4[(y & 3) * 4 + (x & 3)] + 0.5) / 16 - 0.5) * step;
+      for (let c = i; c < i + 3; c++) data[c] = Math.min(255, Math.max(0, Math.round((data[c] + nudge) / step) * step));
+    }
+  }
+}
+
+/** The area (pose units round his feet) the batter and his shadow can cover, from his solved skeleton and bat. */
+function batterBounds(pose, front) {
+  const rig = solveBatterRig(pose, front);
+  let x0 = Infinity;
+  let x1 = -Infinity;
+  let y0 = Infinity;
+  let y1 = -Infinity;
+  const take = (p) => {
+    x0 = Math.min(x0, p.x);
+    x1 = Math.max(x1, p.x);
+    y0 = Math.min(y0, p.y);
+    y1 = Math.max(y1, p.y);
+  };
+  for (const v of Object.values(rig)) if (v && typeof v === "object" && Number.isFinite(v.x)) take(v);
+  take({ x: rig.topHand.x + rig.dir.x * 38, y: rig.topHand.y + rig.dir.y * 38 });
+  take({ x: 0, y: 0 });
+  // Room for limbs, helmet and the shadow, which a low sun draws out long.
+  const side = 14 + 18 * shadowStretch;
+  const box = { x0: x0 - side, x1: x1 + side, y0: y0 - 14, y1: y1 + 10 };
+  return front ? { x0: -box.x1, x1: -box.x0, y0: box.y0, y1: box.y1 } : box;
+}
+
+/** His shirt number, on his back (half turned away from us). */
+function drawShirtNumber(x, y, scale, chest, kit, number) {
+  drawText(String(number), x + (chest.x - 2.5) * scale, y + (chest.y + 5) * scale, {
+    align: "center",
+    color: kit.cap,
+    shadow: null,
+    scale: scale >= 1.5 ? 2 : 1,
+  });
 }
 
 // Optional rig extension. Legacy poses keep the original drawing path.
@@ -500,15 +598,7 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     kit.shade,
   );
   line({ x: chest.x - 2, y: chest.y + 2 }, { x: pelvis.x - 2 + lean * 0.2, y: pelvis.y - 8 }, 1, kit.shade);
-  if (number) {
-    // The number is on his back, which is half turned away from us.
-    drawText(String(number), at({ x: chest.x - 2.5, y: 0 }).x, at({ x: 0, y: chest.y + 5 }).y, {
-      align: "center",
-      color: kit.cap,
-      shadow: null,
-      scale: scale >= 1.5 ? 2 : 1,
-    });
-  }
+  if (number) drawShirtNumber(x, y, scale, chest, kit, number);
 
   // Neck and helmet, the peak turned towards the bowler.
   limb({ x: head.x - 0.5, y: head.y + 5 }, { x: chest.x, y: chest.y - 3 }, 3, 3.5, kit.skin);

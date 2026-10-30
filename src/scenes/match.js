@@ -10,15 +10,7 @@ import { PITCH_LENGTH } from "../sim/geometry.js";
 import { EFFORTS, crossingAtZ } from "../sim/delivery.js";
 import { planRunup, meterPos, releaseError, METER_FROM } from "../sim/runup.js";
 import { battingFeedback, bowlingFeedback } from "../sim/coach.js";
-import {
-  CONTACT_Z_FRONT,
-  CONTACT_Z_BACK,
-  SWING_TIME,
-  NORMAL_CHARGE,
-  FOOTWORK_MIN,
-  FOOTWORK_MAX,
-  playsBack,
-} from "../sim/batting.js";
+import { CONTACT_Z_FRONT, CONTACT_Z_BACK, SWING_TIME, playsBack } from "../sim/batting.js";
 import { eyeMultiplier } from "../sim/eye.js";
 import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from "../sim/field.js";
 import { pickBowler } from "../sim/ai.js";
@@ -31,27 +23,15 @@ import { GROUNDS, DEFAULT_GROUND } from "../render/grounds.js";
 import { LIGHTS } from "../render/light.js";
 import { projectWide, unprojectWide } from "../render/camera.js";
 import { drawMatch } from "./match-view.js";
-import { LEAVE_LIFT } from "./batter-pose.js";
+import * as decisions from "./match-decisions.js";
+import * as input from "./match-input.js";
+import { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "./match-input.js";
 import { PauseMenu } from "./pause-menu.js";
 import { ScoreboardScene } from "./scoreboard.js";
 import { boardFor, resultEntry } from "../sim/leaderboard.js";
 
-/** Backlift before the downswing, normal and power shots. */
-const BACKLIFT_TIME = 0.07;
-const POWER_BACKLIFT_TIME = 0.2;
-const POWER_CHARGE = 0.95;
-/** The player's timing window is wider than the AI's. */
-const PLAYER_TIMING_WINDOW = 1.35;
 /** Ball time runs slower while the player is waiting to play a shot. */
 const PLAYER_SLOWMO = 0.8;
-/** Front foot: S drive, W loft. Back foot: Q (cut, punch, pull, hook or glance, as the ball dictates). */
-const SHOT_KEYS = { KeyS: "drive", KeyQ: "cutpull", KeyW: "loft" };
-/** Defence: A forward, D back. */
-const DEFEND_KEYS = { KeyA: "front", KeyD: "back" };
-/** Seconds the player has to review a decision that went against them. */
-const REVIEW_WINDOW = 10;
-/** How fast the batter steps across his crease, and back to his guard (m/s). */
-const FOOTWORK_SPEED = 1.6;
 /** How long the scene lingers after a wicket. */
 const WICKET_PAUSE = 6.5;
 const MAX_SLEDGES = 3;
@@ -447,15 +427,7 @@ export class MatchScene {
   updateSetup() {
     if (this.betweenBalls()) return;
     const skills = this.inn.bowler.p.bowl;
-    const step = keys.down("ShiftLeft") || keys.down("ShiftRight") ? 0.25 : 1;
-    // Arrows move the crosshair the way you press on screen, whichever end the camera is at.
-    const turned = this.screenTurn;
-    if (keys.pressed("ArrowLeft")) this.target.line -= 0.05 * step * turned;
-    if (keys.pressed("ArrowRight")) this.target.line += 0.05 * step * turned;
-    if (keys.pressed("ArrowUp")) this.target.length += 0.5 * step * turned;
-    if (keys.pressed("ArrowDown")) this.target.length -= 0.5 * step * turned;
-    this.target.line = clamp(this.target.line, -0.9, 1.1);
-    this.target.length = clamp(this.target.length, 0.5, 12.5);
+    input.aimTarget(this);
     for (let i = 0; i < skills.repertoire.length; i++) {
       if (keys.pressed(`Digit${i + 1}`)) {
         this.deliveryType = skills.repertoire[i];
@@ -611,87 +583,29 @@ export class MatchScene {
     return cur.delivery ? cur.t : cur.tRun - cur.runupDur;
   }
 
+  // The player's batting controls: see match-input.js.
   updateBatInput() {
-    if (this.human !== "bat" || !this.cur) return;
-    const cur = this.cur;
-    if (cur.shot) return;
-    const t = this.clock();
-    if (!cur.delivery) return;
-    const power = keys.down("ShiftLeft") || keys.down("ShiftRight");
-    for (const [key, type] of Object.entries(SHOT_KEYS)) {
-      if (keys.pressed(key) && !cur.shot) this.commitSwing(t, this.shotVariant(type), power);
-    }
-    for (const [key, foot] of Object.entries(DEFEND_KEYS)) {
-      if (keys.pressed(key) && !cur.shot) this.commitDefend(t, foot);
-    }
-    if (cur.delivery && !cur.shot) {
-      const arrive = crossingAtZ(cur.delivery.samples, CONTACT_Z_FRONT)?.t ?? 0.6;
-      if (t > arrive + 0.05) this.commitLeave();
-    }
+    return input.updateBatInput(this);
   }
 
-  /** Down + W is a ramp; down + left/right + Q is a sweep / reverse sweep. */
   shotVariant(type) {
-    if (!keys.down("ArrowDown")) return type;
-    const left = keys.down("ArrowLeft");
-    const right = keys.down("ArrowRight");
-    if (type === "loft") return "ramp";
-    if (type === "cutpull" && left !== right) return left ? "sweep" : "reverseSweep";
-    return type;
+    return input.shotVariant(this, type);
   }
 
-  /**
-   * Hold Left or Right and the batter steps across his crease that way (the way you press on screen),
-   * as far as FOOTWORK_MIN/MAX; let go and he steps back to his guard. Once he plays a shot his feet are
-   * set. Down (for the sweeps and the ramp) brings him back to his guard too.
-   */
   updateFootwork(dt) {
-    if (this.human !== "bat" || !this.cur || this.cur.shot) return;
-    const way = keys.down("ArrowDown") ? 0 : (keys.down("ArrowRight") ? 1 : 0) - (keys.down("ArrowLeft") ? 1 : 0);
-    const target = way * this.screenTurn > 0 ? FOOTWORK_MAX : way * this.screenTurn < 0 ? FOOTWORK_MIN : 0;
-    const now = this.cur.footwork ?? 0;
-    const step = FOOTWORK_SPEED * dt;
-    this.cur.footwork = Math.abs(target - now) <= step ? target : now + Math.sign(target - now) * step;
+    return input.updateFootwork(this, dt);
   }
 
   commitSwing(t, type, power) {
-    const cur = this.cur;
-    cur.swingType = type;
-    cur.backliftAt = t;
-    cur.swingAt = t + (power ? POWER_BACKLIFT_TIME : BACKLIFT_TIME);
-    const timingError = cur.swingAt + SWING_TIME[type] - this.arrival(type);
-    if (power) this.flash("POWER!", COLORS.gold);
-    cur.shot = {
-      type,
-      charge: power ? POWER_CHARGE : NORMAL_CHARGE,
-      timingError,
-      windowMult: PLAYER_TIMING_WINDOW,
-      footwork: cur.footwork ?? 0,
-    };
-    cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);
+    return input.commitSwing(this, t, type, power);
   }
 
   commitDefend(t, foot) {
-    const cur = this.cur;
-    const arrive = this.arrival("defend", foot);
-    cur.defendAt = t;
-    cur.shot = {
-      type: "defend",
-      foot,
-      charge: 0,
-      timingError: Math.max(0, t + 0.12 - arrive),
-      windowMult: PLAYER_TIMING_WINDOW,
-      footwork: cur.footwork ?? 0,
-    };
-    cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);
+    return input.commitDefend(this, t, foot);
   }
 
   commitLeave() {
-    const cur = this.cur;
-    // The bat is already on its way up out of the way (see match-view.js): carry on, don't start the leave again.
-    cur.leaveAt = Math.min(this.clock(), this.arrival("drive") - LEAVE_LIFT);
-    cur.shot = { type: "leave", charge: 0, timingError: 0, footwork: cur.footwork ?? 0 };
-    cur.play = this.match.resolve(cur.intent, cur.delivery, cur.shot);
+    return input.commitLeave(this);
   }
 
   updateFlight(dt) {
@@ -880,88 +794,33 @@ export class MatchScene {
     this.completeBall();
   }
 
-  /** The player shouts. Appealing when there's nothing in it irritates the umpire. */
+  // Appeals, the umpire and reviews: see match-decisions.js.
   appeal() {
-    const cur = this.cur;
-    if (!cur?.play || !cur.contactDone || cur.appealed) return;
-    cur.appealed = true;
-    sfx.appeal();
-    this.banner("HOWZAT?", COLORS.cream, 0.9, 3, 60);
-    const res = cur.play.res;
-    if (!res.padHit || res.touchedBat) {
-      this.inn.irritation += 0.6;
-      this.flash("THE UMPIRE IS UNMOVED");
-    }
+    return decisions.appeal(this);
   }
 
   decideLbw() {
-    const cur = this.cur;
-    if (!cur.appealed) {
-      this.completeBall();
-      return;
-    }
-    const res = cur.play.res;
-    const out = this.match.umpireLbw(cur.play);
-    if (this.human === "bowl" && !res.lbw && res.lbwNote !== "umpire's call, not out") this.inn.irritation += 1;
-    cur.onField = out;
-    this.banner(out ? "THE FINGER GOES UP" : "NOT OUT", out ? COLORS.red : COLORS.cream, 1.6, 3, 60);
-    if (out) sfx.cheer(0.8);
-    else sfx.groan();
-    this.setPhase("decision");
+    return decisions.decideLbw(this);
   }
 
-  /** The side that lost the decision may review it: the player by pressing R, the computer if it smells a mistake. */
   updateDecision() {
-    const cur = this.cur;
-    const inn = this.inn;
-    const loser = cur.onField ? "bat" : "bowl";
-    const playerSide = this.human === "bowl" ? "bowl" : "bat";
-    if (loser === playerSide && inn.reviews[loser] > 0) {
-      // Play stops while the player decides; a moment's grace so a stray press doesn't accept it.
-      if (keys.pressed("KeyR")) this.startReview(loser);
-      else if (this.phaseT > REVIEW_WINDOW || (this.phaseT > 0.4 && (keys.pressed("Space") || keys.pressed("Enter"))))
-        this.endDecision();
-    } else if (loser === playerSide) {
-      if (this.phaseT > 2.8 || keys.pressed("Space")) this.endDecision();
-    } else if (this.phaseT > 1) {
-      const t = this.match.tracking(cur.play);
-      const wrong = cur.onField ? t.verdict === "notOut" : t.verdict === "out";
-      if (inn.reviews[loser] > 0 && this.match.rng.chance(wrong ? 0.65 : 0.1)) this.startReview(loser);
-      else this.endDecision();
-    }
+    return decisions.updateDecision(this);
   }
 
-  /** Seconds left to review, while the player can. */
   get reviewTimeLeft() {
-    return Math.max(0, REVIEW_WINDOW - this.phaseT);
+    return decisions.reviewTimeLeft(this);
   }
 
   startReview(side) {
-    const cur = this.cur;
-    cur.reviewBy = side;
-    cur.tracking = this.match.tracking(cur.play);
-    this.big("REVIEW", COLORS.gold, side === "bat" ? "THE BATTER REVIEWS" : "THE FIELDING SIDE REVIEWS", 1.2);
-    this.setPhase("review");
+    return decisions.startReview(this, side);
   }
 
   endReview() {
-    const cur = this.cur;
-    const t = cur.tracking;
-    let out = cur.onField;
-    if (t.verdict === "out") out = true;
-    else if (t.verdict === "notOut") out = false;
-    const won = cur.reviewBy === "bat" ? !out : out;
-    // Umpire's call: the on-field decision stands and the review is kept.
-    if (!won && t.verdict !== "umpiresCall") this.inn.reviews[cur.reviewBy]--;
-    const sub = out !== cur.onField ? "DECISION OVERTURNED" : t.verdict === "umpiresCall" ? "UMPIRE'S CALL" : "REVIEW LOST";
-    cur.onField = out;
-    this.big(out ? "OUT" : "NOT OUT", out ? COLORS.red : COLORS.cream, sub, 1.6);
-    this.endDecision();
+    return decisions.endReview(this);
   }
 
   endDecision() {
-    if (this.cur.onField) this.match.giveLbw(this.cur.play);
-    this.completeBall();
+    return decisions.endDecision(this);
   }
 
   completeBall() {

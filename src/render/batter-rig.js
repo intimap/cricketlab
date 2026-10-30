@@ -1,6 +1,6 @@
 import { drawLine, fillCircle, fillEllipse, fillPolygon } from "../engine/screen.js";
 import { drawText } from "../engine/text.js";
-import { BAT_FACE, BAT_EDGE, PAD, PAD_SHADE, BOOT, HAIR, mirrored, groundShadow, lighten, darken } from "./sprites.js";
+import { BAT_FACE, BAT_EDGE, PAD, PAD_SHADE, BOOT, HAIR, mirrored, groundShadow, lighten, darken } from "./kit.js";
 
 /**
  * The striker in the close view: his key poses, the skeleton solved from a pose (two-bone IK for knees

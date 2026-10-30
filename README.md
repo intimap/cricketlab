@@ -125,8 +125,10 @@ src/
     leaderboard.js    high-score entries from a result, and how they rank
   render/
     camera.js         projections for the close (either end) and wide views
-    sprites.js        figures (fielders, bowler, umpires), ball, shared kit colours
+    sprites.js        the ball and its shadow; re-exports kit.js, batter-rig.js and figures.js
+    kit.js            kit colours, a player's looks (skin, hair, beard, height), mirroring, shadows
     batter-rig.js     the striker: key poses, skeleton (IK for knees and elbows), drawing him in kit
+    figures.js        everyone else: bowler, keeper, fielders, umpires, runners, close up and tiny
     batter-motion.js  the straight drive, forward defence and pull on the batter's newer rig (more strokes to follow)
     hud.js            score bar, mini-map, banners, scorecard, speech bubbles
     booth.js          commentator portraits and the commentary popup
@@ -134,7 +136,9 @@ src/
     ground.js         the layer compositor: builds each view's background from a ground's data
   scenes/
     menu.js           title screen
-    match.js          the match: phases, player input, timing, events
+    match.js          the match: phases, timing, events
+    match-input.js    the player's controls: shots, defence, leaving, footwork, aiming the bowling
+    match-decisions.js  LBW appeals, the umpire's decision and DRS reviews
     match-view.js     drawing for the match scene
     batter-pose.js    the striker's pose through a ball: stance, trigger, backlift, strokes, follow-throughs
     pause-menu.js     the Esc menu: scorecard, instructions, sound

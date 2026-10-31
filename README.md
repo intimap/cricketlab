@@ -32,7 +32,7 @@ To publish it, turn on GitHub Pages (Settings → Pages → Deploy from branch �
 | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Menu          | Arrows to change, Enter to start                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | Batting       | Space to face up. Front foot: **S** drive, **W** loft, **A** forward defence. Back foot: **Q** attack (cut, punch, pull, hook or glance, as the ball dictates), **D** defence. No key = leave. Hold **←**/**→** before playing to step 10 cm across the crease (back to guard when let go), to reach a wide one (his pads move too). The ball's line sets the direction; play late to go finer, early to go squarer. Hold **↓** with **W** to ramp over the keeper, or **↓** + **←**/**→** with **Q** to sweep / reverse sweep. Hold **Shift** for a power shot (play it earlier). **↑** / **↓** to run or turn back |
-| Bowling       | Arrows set line and length (Shift = fine), number keys pick the delivery, **E** effort, **F** field preset, **V** drag fielders with the mouse, **N** new ball (after 80 overs). Space to run in, Space again to release at the delivery stride: early pitches it shorter, late fuller, very late is a no-ball                                                                                                                                                                                                                                                                                                       |
+| Bowling       | Arrows set line and length (Shift = fine), number keys pick the delivery, **E** effort, **T** over/around the wicket, **F** field preset, **V** drag fielders with the mouse, **N** new ball (after 80 overs). Space to run in, Space again to release at the delivery stride: early pitches it shorter, late fuller, very late is a no-ball                                                                                                                                                                                                                                                                                                       |
 | Celebrations | Space, Enter or tap the game to skip a boundary or wicket celebration |
 | Between balls | **O** sim an over, **P** sim 5 overs, **V** view the field                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | Appeals       | **H** to appeal for LBW when bowling (appealing for nothing irritates the umpire). **R** to review a decision that goes against you, or **Space** to accept it; play stops for up to 10 seconds while you decide (two unsuccessful reviews per innings). The umpire gets one in seven or so wrong                                                                                                                                                                                                                                                                                                                    |
@@ -82,9 +82,9 @@ built and lost by the same rules, so a set batter is harder to bowl to. The numb
 
 Each computer batter has a hidden weakness (loose outside off, a compulsive hooker, hates the short ball, shaky against spin early on, or late on the full inswinger). Watch for plays and misses and listen to the commentary for hints.
 
-- **Memory:** bowl the same ball over and over and he lines it up. Break a pattern (three going away, then one back in; three short, then a full one) and he's more likely to edge or miss. The setup panel shows the last three balls he's seen.
-- **Pressure:** dots and maidens build the pressure meter (PRS on the score bar); boundaries release it. Under pressure batters get impatient: slogs, charges and bad calls for runs.
-- **Release timing:** release in the gold zone of the meter for a perfect delivery. The zone shrinks as the bowler tires; too late is a no-ball, followed by a free hit.
+- **Memory:** bowl the same ball over and over and he lines it up. Break a pattern (three going away, then one back in; three short, then a full one) and he's more likely to edge or miss. Switch between over and around the wicket with **T** while aiming; the target stays fixed and the release angle changes.
+- **Pressure:** dots and maidens build the pressure meter (below EYE in their shared panel); boundaries release it. Under pressure batters get impatient: slogs, charges and bad calls for runs.
+- **Release timing:** the meter starts slowly and accelerates smoothly towards the gold zone. Release there for a perfect delivery. The zone shrinks as the bowler tires; too late is a no-ball, followed by a free hit.
 - **Variations:** quicks have bouncers (two an over, a third is a no-ball), yorkers (overpitch it and it's a full toss), slower balls and cutters; spinners have an arm ball, a googly (leg-spinners), and flight (**E** cycles flighted, stock and flat). On a worn pitch, especially the dust bowl, footmarks appear outside leg (and off) and turn sharply.
 - **Fields:** **F** also cycles traps: bouncer trap, leg slip, ring field.
 
@@ -110,6 +110,7 @@ src/
     rng.js            seedable random numbers
     teams.js          squads and player ratings
     conditions.js     pitch types, pitch wear, ball wear (swing, reverse, grip)
+    bowling-side.js   over/around release geometry and follow-through position
     delivery.js       bowling: release, swing, seam, spin, bounce, flight
     bat-impact.js     blade contact coordinates, toe/splice rebound and continuous edge deflection
     batting.js        the shot: timing, where the bat goes, edges, LBW, bowled
@@ -123,9 +124,17 @@ src/
     ai.js             computer bowler, field, delivery and shot choices
     innings.js        scorebook, cards, strike, bowler fatigue
     call.js           the score bar's plain call: what was bowled, the shot, the result
-    commentary.js     the commentary box's ball-by-ball lines, over summaries and sledges
+    commentary.js     simulation commentary records, over summaries and sledges
     moments.js        spots situations worth talking about (droughts, pressure, near run-outs...)
-    commentators.js   the commentary box: who speaks after each ball
+    commentators.js   commentary voices and compatible booth entry points
+    booth-editor.js   every-ball call plus an optional contextual second voice
+    booth-caller.js   factual outcome classification and fresh primary calls
+    booth-dot-lines.js  voice-specific calls for leaves, blocks and other dots
+    booth-scoring-lines.js  voice-specific runs, boundaries and extras calls
+    booth-wicket-lines.js  voice-specific dismissal calls
+    booth-context.js  read-only match situations and story priorities
+    booth-stories.js  personality-specific analysis, reactions and banter
+    booth-policy.js   final HPD duplication and booth line validation
     pack-voice.js     picks commentary-pack lines that are true of the ball, fresh each time
     commentary-pack/  the commentary pack (v1): its lines as JSON, with its own README, checks and integration notes
     booth-lines.js    each commentator's lines for every situation
@@ -146,7 +155,13 @@ src/
     batter-shots/     additional drive, back-foot, sweep/ramp and touch-shot pose families
     batter-catalog.js  input-family and shot-label routes to the 28 clips
     match-broadcast.js DRS tracking, verdict cards and celebrations
-    hud.js            score bar, mini-map, banners, scorecard, speech bubbles
+    bowling-setup.js  target-aiming panel and over/around selector
+    bowler-motion.js  run-up and follow-through on the chosen side
+    batter-meters.js  shared eye and pressure panel
+    hud.js            HUD entry points, mini-map, banners, scorecard, speech bubbles
+    score-bar.js      two-line batting/bowling strip with partnership and commentary
+    team-flag.js      pixel team flags framing the bottom score strip
+    over-balls.js     shaded delivery spheres with runs, wickets and extras
     ball-trail.js     the delivery's fading trail and the pitch-map landing reticle (close view)
     feedback.js       arcade feedback drawn: timing meter and callout, floating words, eased bars
     booth.js          commentator portraits and the commentary popup
@@ -156,6 +171,7 @@ src/
     menu.js           title screen
     match.js          the match: phases, timing, events
     match-audio.js    contact timbres and broadcast sound cues
+    bowling-side.js   per-bowler side selection and setup controls
     match-input.js    the player's controls: shots, defence, leaving, footwork, aiming the bowling
     match-decisions.js  LBW appeals, the umpire's decision and DRS reviews
     match-feedback.js what feedback to show and when: shot words, +/-EYE and PRESSURE, hit-stop, shake
@@ -198,17 +214,24 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **Ground art:** images live in `assets/` (layer art in `assets/close/`), listed by id in `src/assets.js`;
   grounds pick their layers in `src/render/grounds.js` (`hidden: true` keeps a ground off the menu; The Oval is
   hidden for now). `tools/art/make_scenery.py` regenerates the
-  Parklands close-view layers, and `tools/art/make_theg.py` all of The G's (the floodlit Melbourne stadium, in
+  Parklands close-view layers. `python3 tools/art/make_lords.py` regenerates Lord's six close/wide scenery layers
+  (requires Pillow). `python3 tools/art/make_scg.py` regenerates SCG’s six close/wide layers, with seating
+  tight to the advertising boards (also Pillow). `python3 tools/art/make_lakshmi.py` generates Lakshmi Bluff’s
+  eight Himalayan scenery layers; selecting this ground defaults the pitch to DUST BOWL. `tools/art/make_theg.py` makes all of The G's (the floodlit Melbourne stadium, in
   `assets/theg/`). A ground with `light` set picks that light on the menu when chosen.
 - **One-file builds:** `python3 tools/build-single.py out.html [--ref main] [--stamp]` bundles the game
   with its images inlined (needs esbuild).
 - **Balance checks:** `node tools/sim-report.mjs [innings] [pitch]` simulates AI-vs-AI innings and prints
   run rates, dismissals, plan figures and commentary moments.
-- **Commentary:** `sim/call.js` for the plain call on the score bar. The box's call of each ball, its moment lines and
-  the commentators' reactions come from the commentary pack (`sim/commentary-pack/v1/`, its JSON files; each line says
-  when it's true of a ball), picked by `sim/pack-voice.js` and voiced in `sim/commentators.js`. A new batch goes in as
-  a new pack version (see the pack's README). `sim/moments.js` spots situations; moments the pack doesn't cover use
-  each commentator's lines in `sim/booth-lines.js`.
+- **Commentary:** `sim/call.js` owns the factual HUD play description (HPD). The booth (BC) is selected
+  by `sim/booth-editor.js`: every ball gets a primary call from `sim/booth-caller.js`, using the established
+  328-line ball-call bank and 318 additional voice-specific lines in `sim/booth-*-lines.js`. A second voice
+  can add analysis from read-only situations in `sim/booth-context.js` and personality-specific stories in
+  `sim/booth-stories.js`. Wording and topic memory avoid recent repetition; when a primary pool is exhausted,
+  the least recently used safe line is allowed back. HPD text is never used as a fallback.
+  `sim/booth-policy.js` rejects duplicate HPD text both at selection and display. The original chat helpers remain available for existing tools.
+  Run `node tools/booth-caller.test.mjs` and `node tools/booth-editor.test.mjs` to check every-ball coverage,
+  factual eligibility, freshness, duplicate protection and unchanged match records.
 
 Bat contact resolves the ball against a simplified oriented blade: across its width and along its length
 from toe to handle. Toe and splice contacts lose rebound speed; thin and thick edges blend their direction
@@ -216,3 +239,10 @@ and pace continuously, including inside edges. Cuts, pulls and sweeps use a hori
 defence use an upright blade. This is a contact-plane approximation, independent of the drawn bat rig;
 post-strike spin and a full rigid-body collision are not modelled. Run
 `node tools/bat-impact.test.mjs` for contact geometry, edge continuity and seeded simulation checks.
+
+Over/around selection is remembered per bowler for the innings and can be changed with T, the SIDE touch
+button, or the SIDE row in the bowling panel. It locks when the run-up starts. The current action model
+is right-arm; changing sides moves the release, run-up and follow-through rather than mirroring the arm.
+The non-striker automatically stands on the opposite side of the run-up when the side is changed.
+The eye/pressure panel is hidden during bowling setup and returns for the run-up.
+Run `node tools/bowling-side.test.mjs` to check the side geometry, delivery angles and selection controls.

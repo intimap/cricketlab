@@ -1,11 +1,10 @@
-import { MOMENT_LINES } from "./booth-lines.js";
 import { CHAT_TOPICS, CHAT_REPLIES } from "./booth-chat.js";
-import { PACK_MOMENTS, packContext } from "./pack-voice.js";
+export { editBoothCall as boothCall } from "./booth-editor.js";
 
 /**
  * The commentary box: three voices who take turns at the microphone, an over
- * each. The man on duty calls every ball (mostly from the commentary pack,
- * see pack-voice.js); another may follow with the moment or a reaction.
+ * each. booth-editor.js combines a call on every ball with optional contextual analysis;
+ * the original voice data and chat helpers remain available to existing callers.
  * Placeholders: {b} batter, {w} bowler, {f} fielder, {duty} the first name of
  * whoever is on the microphone.
  */
@@ -81,16 +80,8 @@ export const COMMENTATORS = [
   },
 ];
 
-const LORRY = 1;
-const GROG = 2;
-/** How often Lorry barges in on a wicket in someone else's over. */
-const LORRY_JUMPS_IN = 0.3;
-/** Share of sixes Tony claims for his catchphrase, whoever is on. */
-const GROG_SIX_SHARE = 0.3;
-/** How often the box talks between overs. */
+/** How often the legacy between-over chat helper is used. */
 const CHAT_CHANCE = 0.7;
-
-const NUMBER_WORDS = ["NO", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN"];
 
 /** Lines used lately, so the box doesn't repeat itself. */
 const recent = [];
@@ -158,85 +149,4 @@ export function boothChat(comm, inn, rng) {
     { who: lead, text },
     { who: next, text: reply },
   ];
-}
-
-/** How often a commentator reacts after the call of an ordinary ball (the pack suggests about one in seven). */
-const REACTION_CHANCE = 0.15;
-
-/** Which of a commentator's own reaction lines suit this ball, if any. */
-function ownReaction(rec) {
-  if (rec.wicket) return "wicket";
-  // A drop on a no-ball or free hit wouldn't have been out, so no "dropped" lines then.
-  if (rec.dropped) return rec.freeHit || rec.extra.type === "nb" ? null : "dropped";
-  if (rec.boundary === 6) return "six";
-  if (rec.boundary === 4) return "four";
-  if (rec.beatBat) return "beaten";
-  // A ball where nothing happened gets a quiet aside.
-  if (rec.total === 0 && !rec.extra.type && !rec.padVerdict) return "quiet";
-  return null;
-}
-
-/**
- * Who speaks after a ball, and what they say: { calls, picks }. `calls` is a
- * list of { who, text } in speaking order: the man on duty calls the ball (a
- * commentary pack line, or `plain`, the score bar's call, when the pack has
- * nothing for it), and a second voice may follow with the moment or a
- * reaction. `picks` are the pack lines used, for PackVoice.said() once on air.
- * `names` fills placeholders; `fits` says whether a line fits the box.
- */
-export function boothCall(rec, plain, names, rng, pack, fits) {
-  const duty = rec.over % COMMENTATORS.length;
-  const random = () => rng.random();
-  const ctx = packContext(rec, { b: names.batter, w: names.bowler });
-  const fill = (text) =>
-    text
-      .replace(/\{b\}/g, names.batter)
-      .replace(/\{w\}/g, names.bowler)
-      .replace(/\{f\}/g, names.fielder || "THE FIELDER")
-      .replace(/\{n\}/g, String(rec.moment?.n ?? ""))
-      .replace(/\{k\}/g, NUMBER_WORDS[rec.moment?.k] ?? String(rec.moment?.k ?? ""))
-      .replace(/\{duty\}/g, COMMENTATORS[duty].first)
-      .toUpperCase();
-
-  const primary = pack.choose("ball_calls", ctx, { random, relax: true, fits });
-  const calls = [{ who: duty, text: (primary?.text ?? plain).toUpperCase() }];
-  const picks = primary ? [primary] : [];
-
-  // The second voice: one of the other two, either way round.
-  const others = rng.chance(0.5) ? [(duty + 1) % 3, (duty + 2) % 3] : [(duty + 2) % 3, (duty + 1) % 3];
-  const fromPack = (bank, voices) => {
-    for (const who of voices) {
-      const pick = pack.choose(bank, ctx, { speaker: COMMENTATORS[who].id, random, fits });
-      if (pick) return { who, pick };
-    }
-    return null;
-  };
-  const second = (() => {
-    const kind = rec.moment?.kind;
-    // The moment: the pack's line for it, or the box's own for the moments the pack doesn't cover.
-    if (kind && PACK_MOMENTS.has(kind)) {
-      const said = fromPack("match_context", [...others, duty]);
-      if (said) {
-        picks.push(said.pick);
-        return { who: said.who, text: said.pick.text.toUpperCase() };
-      }
-    } else if (kind && MOMENT_LINES[kind]) {
-      return { who: others[0], text: fill(pickFresh(MOMENT_LINES[kind][COMMENTATORS[others[0]].id], rng)) };
-    }
-    // Lorry can't help himself on a wicket, and Tony has a line for sixes.
-    if (rec.wicket && duty !== LORRY && rng.chance(LORRY_JUMPS_IN))
-      return { who: LORRY, text: fill(pickFresh(COMMENTATORS[LORRY].jumpIn, rng)) };
-    if (rec.boundary === 6 && rng.chance(GROG_SIX_SHARE)) return { who: GROG, text: COMMENTATORS[GROG].sixSpecial };
-    // Now and then, a reaction: the pack's, or failing that the commentator's own.
-    if (!rng.chance(REACTION_CHANCE)) return null;
-    const said = fromPack("commentator_lines", others);
-    if (said) {
-      picks.push(said.pick);
-      return { who: said.who, text: said.pick.text.toUpperCase() };
-    }
-    const own = ownReaction(rec);
-    return own ? { who: others[0], text: fill(pickFresh(COMMENTATORS[others[0]].lines[own], rng)) } : null;
-  })();
-  if (second) calls.push(second);
-  return { calls, picks };
 }

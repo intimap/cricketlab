@@ -1,3 +1,5 @@
+import { selectedWicketSide, activeWicketSide, updateBowlingSide } from "./bowling-side.js";
+import { bowlingGeometry } from "../sim/bowling-side.js";
 import { playContact, playBroadcast, updateReviewAudio } from "./match-audio.js";
 import { REVIEW_END, skipCelebration } from "./match-broadcast.js";
 import { COLORS } from "../engine/screen.js";
@@ -17,7 +19,7 @@ import { eyeMultiplier } from "../sim/eye.js";
 import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from "../sim/field.js";
 import { pickBowler } from "../sim/ai.js";
 import { pickSledges, pickChirp } from "../sim/commentary.js";
-import { boothCall, boothChat, boothJoke } from "../sim/commentators.js";
+import { boothCall } from "../sim/commentators.js";
 import { makeKit } from "../render/sprites.js";
 import { scheduleCalls, boothDuration, fitsBox } from "../render/booth.js";
 import { buildGround } from "../render/ground.js";
@@ -440,6 +442,7 @@ export class MatchScene {
     if (this.betweenBalls()) return;
     const skills = this.inn.bowler.p.bowl;
     input.aimTarget(this);
+    updateBowlingSide(this);
     for (let i = 0; i < skills.repertoire.length; i++) {
       if (keys.pressed(`Digit${i + 1}`)) {
         this.deliveryType = skills.repertoire[i];
@@ -459,7 +462,8 @@ export class MatchScene {
       this.big("NEW BALL", COLORS.red, undefined, 1.2);
     }
     if (keys.pressed("Space")) {
-      const intent = { type: this.deliveryType, line: this.target.line, length: this.target.length, effort: this.effort };
+      const intent = { type: this.deliveryType, line: this.target.line, length: this.target.length, effort: this.effort,
+        wicketSide: selectedWicketSide(this) };
       this.cur = this.newBall(intent, 0);
       this.setPhase("runup");
     }
@@ -940,13 +944,10 @@ export class MatchScene {
       chance: (p) => Math.random() < p,
       random: Math.random,
     };
-    const { calls, picks } = boothCall(rec, rec.call ?? "", names, rng, this.match.pack, fitsBox);
-    // At the end of a quiet over the box gets talking (after a big moment, they've said enough).
-    if (done.applied.overEnded && !done.applied.inningsOver && calls.length === 1)
-      calls.push(...boothChat(this.match.comm, inn, rng));
-    // In a long lull they'll fill the time between balls too.
-    else if (calls.length === 1 && !done.applied.inningsOver) calls.push(...boothJoke(this.match.comm.joke(true)));
-    return { calls, picks };
+    return boothCall(rec, rec.call ?? "", names, rng, this.match.pack, fitsBox, {
+      inn,
+      beforePressure: this.cur?.pressureBefore,
+    });
   }
 
   /** The nets coach's verdict on the ball just finished. */
@@ -974,7 +975,8 @@ export class MatchScene {
     for (const f of live.fielders) {
       if (f.state === "celebrate" && this.phaseT < 0.6) continue;
       f.state = "idle";
-      const home = f.role === "bowler" ? { x: 1.2, z: 24 } : f.home;
+      const home = f.role === "bowler"
+        ? { x: bowlingGeometry(this.spinner, activeWicketSide(this)).startX * 0.8, z: 24 } : f.home;
       const dx = home.x - f.pos.x;
       const dz = home.z - f.pos.z;
       const dist = Math.hypot(dx, dz);

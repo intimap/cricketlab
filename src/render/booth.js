@@ -1,3 +1,4 @@
+import { safeBoothCalls } from "../sim/booth-policy.js";
 import { COLORS, ctx, fillRect, fillEllipse, drawPanel } from "../engine/screen.js";
 import { drawText, wrapText } from "../engine/text.js";
 import { COMMENTATORS } from "../sim/commentators.js";
@@ -186,11 +187,11 @@ export function scheduleCalls(calls, t0) {
 }
 
 /** Draw whichever of the scheduled calls is on air. */
-export function drawBooth(calls, now) {
-  for (const call of calls) drawCall(call, now);
+export function drawBooth(calls, now, hpd = "") {
+  for (const call of safeBoothCalls(calls, hpd, fitsBox)) drawCall(call, now);
 }
 
-/** Whether any call is on screen (the HUD commentary row stays blank meanwhile). */
+/** Whether any scheduled call is on screen. */
 export function boothShowing(calls, now) {
   return !!calls && calls.some((c) => now >= c.t0 && now - c.t0 <= boothDuration(c.text));
 }

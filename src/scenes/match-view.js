@@ -1,3 +1,8 @@
+import { selectedWicketSide, activeWicketSide } from "./bowling-side.js";
+import { bowlingGeometry } from "../sim/bowling-side.js";
+import { bowlerPose } from "../render/bowler-motion.js";
+import { drawSetupPanel } from "../render/bowling-setup.js";
+import { drawBatterMeters, meterAnchors } from "../render/batter-meters.js";
 import { drawMatchBroadcast } from "../render/match-broadcast.js";
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect, drawLine, drawPanel, drawBar } from "../engine/screen.js";
 import { drawText, textWidth, wrapText } from "../engine/text.js";
@@ -8,8 +13,6 @@ import {
   DELIVERY_NAMES,
   SPIN_EFFORT_NAMES,
   sampleAtTime,
-  lengthName,
-  lineName,
   movementParts,
 } from "../sim/delivery.js";
 import { PRESET_LABELS, keeperSpot } from "../sim/field.js";
@@ -39,14 +42,12 @@ import {
 } from "../render/sprites.js";
 import { drawBooth, boothShowing } from "../render/booth.js";
 import { drawBallTrail, drawPitchReticle } from "../render/ball-trail.js";
-import { drawTimingMeter, drawFloat, drawEasedBar } from "../render/feedback.js";
+import { drawTimingMeter, drawFloat } from "../render/feedback.js";
 import { shakeOffset, floatAge, timingFade } from "./match-feedback.js";
 import { STRIKER_X, STRIKER_SCREEN_X, readyPose, strikerStroke, footworkOf, footworkPixels } from "./batter-pose.js";
-import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
-import { eyeMultiplier } from "../sim/eye.js";
+import { METER_TRACK_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import {
   HUD_Y,
-  PRESSURE_BAR,
   staminaColor,
   drawScoreBar,
   drawScoreBox,
@@ -66,8 +67,7 @@ const BATTER_HEIGHT_PX = 92;
 const STANDARD_HEIGHT = 1.82;
 /** Run progress (0..1) at which the striker has left his crease and is drawn as a runner. */
 const LEFT_CREASE = 0.02;
-/** The non-striker's spot across the pitch, and how far down he backs up once the ball is bowled. */
-const NON_STRIKER_X = -1.05;
+/** How far down the pitch the non-striker backs up once the ball is bowled. */
 const BACKED_UP_Z = 17.9;
 
 /** Is the wide view on screen (rather than the close one)? DRS and appeals always use the close view. */
@@ -107,15 +107,10 @@ export function drawMatch(scene) {
     : "";
   // The call types itself out, and stays up while the box talks.
   const booth = boothShowing(scene.booth, scene.now);
-  drawScoreBar(
-    scene.inn,
-    scene.commentary.slice(0, Math.floor(scene.commT * 70)),
-    label,
-    scene.juice.shown.pressure ?? undefined,
-  );
+  drawScoreBar(scene.inn, scene.commentary.slice(0, Math.floor(scene.commT * 70)), label);
   // The score in the corner, except over the full scorecard and the pause menu.
   if (scene.phase !== "pause" && scene.phase !== "inningsEnd") drawScoreBox(scene.inn);
-  if (booth) drawBooth(scene.booth, scene.now);
+  if (booth) drawBooth(scene.booth, scene.now, scene.commentary);
   drawBanners(scene.banners, scene.now);
   drawPanels(scene);
   drawFeedback(scene);
@@ -130,6 +125,7 @@ function drawClose(scene) {
   ctx.drawImage(scene.groundArt.close, 0, CLOSE_Y_OFFSET, WIDTH, HEIGHT);
   const cur = scene.cur;
   const inn = scene.inn;
+  const nonStrikerX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).nonStrikerX;
   const live = cur?.play?.live;
   drawRough(inn.pitch);
   const sprites = [];
@@ -150,7 +146,9 @@ function drawClose(scene) {
   sprites.push({
     z: 22.6,
     draw: () =>
-      figure(-0.62, 22.6, 1.78, { kit: { ...scene.kitBowl, cap: "#f4f4f0" }, pose: umpirePose, phase: 0, umpire: true }),
+      figure(bowlingGeometry(scene.spinner, activeWicketSide(scene)).umpireX, 22.6, 1.78, {
+        kit: { ...scene.kitBowl, cap: "#f4f4f0" }, pose: umpirePose, phase: 0, umpire: true,
+      }),
   });
   const bowlerKit = playerKit(scene.kitBowl, inn.bowler?.p);
   const runners = live && cur.contactDone ? live.runners : null;
@@ -160,7 +158,7 @@ function drawClose(scene) {
     for (const [i, r] of runners.entries()) {
       if (i === 0 && r.progress <= LEFT_CREASE) continue;
       const z = CREASE + r.progress * (BACKED_UP_Z - CREASE);
-      const x = i === 0 ? STRIKER_X + (NON_STRIKER_X - STRIKER_X) * clamp(r.progress / 0.15) : NON_STRIKER_X;
+      const x = i === 0 ? STRIKER_X + (nonStrikerX - STRIKER_X) * clamp(r.progress / 0.15) : nonStrikerX;
       const kit = playerKit(scene.kitBat, inn.bat[r.bat].p);
       const moving = r.target !== null && live.t >= r.startAt;
       sprites.push({
@@ -174,7 +172,7 @@ function drawClose(scene) {
     sprites.push({
       z: nonStrikerZ,
       draw: () =>
-        figure(NON_STRIKER_X, nonStrikerZ, nonStrikerKit.height, {
+        figure(nonStrikerX, nonStrikerZ, nonStrikerKit.height, {
           kit: nonStrikerKit,
           pose: scene.phase === "runup" ? "backup" : "stand",
           phase: scene.now * 1.4,
@@ -244,10 +242,11 @@ function drawClose(scene) {
       : inn.placements.map((p) => walkInSpot(p.pos, walkInShare(scene)));
     const keeper = live ? live.fielders[0].pos : keeperSpot(scene.spinner);
     const runners = live
-      ? live.runners.map((r) => live.runnerPos(r))
+      ? live.runners.map((r) => r.bat === live.setup.nonStrikerIdx && r.target === null && r.progress === 1
+        ? { x: nonStrikerX, z: nonStrikerDepth(scene) } : live.runnerPos(r))
       : [
           { x: -0.3, z: 1.2 },
-          { x: -1, z: 19 },
+          { x: nonStrikerX, z: 19 },
         ];
     drawMiniMap(
       MINI_MAP.left,
@@ -287,29 +286,7 @@ function nonStrikerDepth(scene) {
 
 /** Bowler position and pose through run-up, delivery and follow-through. */
 function bowlerState(scene) {
-  const cur = scene.cur;
-  const startZ = cur?.runupStartZ ?? (scene.spinner ? 25.5 : 33);
-  if (!cur || scene.phase === "setup" || scene.phase === "ready" || scene.phase === "chooseBowler") {
-    return { x: 1.5, z: startZ, pose: "stand", phase: 0 };
-  }
-  if (scene.phase === "runup") {
-    const k = clamp(cur.tRun / cur.runupDur);
-    const accel = 0.6 * k + 0.4 * k * k;
-    const z = startZ + (19.4 - startZ) * clamp(accel);
-    const x = 1.5 + (0.55 - 1.5) * k;
-    const left = cur.runupDur - cur.tRun;
-    const pose = left < 0.08 ? "release" : left < 0.38 ? "bound" : "run";
-    return { x, z, pose, phase: cur.tRun * (1.6 + 2.2 * k) };
-  }
-  const t = cur.t;
-  if (cur.done?.rec.wicket && scene.phase !== "flight") return { x: 0.9, z: 16.5, pose: "celebrate", phase: 0 };
-  if (t < 0.12) return { x: 0.55, z: 19, pose: "release", phase: 0 };
-  const k = clamp((t - 0.12) / 0.8);
-  const res = cur.play?.res;
-  if (res?.padHit && (res.lbw || res.lbwNote) && t > res.start.t && t < res.start.t + 1.6) {
-    return { x: 0.9, z: 17.4, pose: "appeal", phase: 0 };
-  }
-  return { x: 0.55 + 0.4 * k, z: 19 - 2.2 * k, pose: k < 1 ? "follow" : "walk", phase: t };
+  return bowlerPose(scene, activeWicketSide(scene));
 }
 
 /** Seconds between trail dots, and how many: the ball's last few positions in flight. */
@@ -550,6 +527,7 @@ function drawWide(scene) {
   const cur = scene.cur;
   const live = cur?.play?.live;
   const cap = scene.kitBowl.cap;
+  const nonStrikerX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).nonStrikerX;
   const sprites = [];
   const add = (x, y, z, draw) => {
     const p = projectWide(x, y, z);
@@ -557,7 +535,8 @@ function drawWide(scene) {
   };
 
   // Umpires.
-  add(-1.2, 0, PITCH_LENGTH + 2.4, (x, y, s) => drawTinyFigure(x, y, s, "idle", "#f4f4f0"));
+  add(activeWicketSide(scene) === "around" ? 1.2 : -1.2, 0, PITCH_LENGTH + 2.4,
+    (x, y, s) => drawTinyFigure(x, y, s, "idle", "#f4f4f0"));
   add(-26, 0, 1, (x, y, s) => drawTinyFigure(x, y, s, "idle", "#f4f4f0"));
 
   if (live && (scene.phase === "flight" || scene.phase === "after" || scene.phase === "return")) {
@@ -568,6 +547,8 @@ function drawWide(scene) {
     for (const r of live.runners) {
       const out = cur?.done?.rec.wicket?.batter === r.bat;
       let pos = live.runnerPos(r);
+      if (r.bat === live.setup.nonStrikerIdx && r.target === null && r.progress === 1)
+        pos = { x: nonStrikerX, z: nonStrikerDepth(scene) };
       if (out && scene.walkOff) {
         // Off towards the pavilion.
         const k = clamp((scene.now - scene.walkOff.t0) / WALK_OFF_TIME);
@@ -588,7 +569,8 @@ function drawWide(scene) {
   } else {
     const keeper = keeperSpot(scene.spinner);
     add(keeper.x, 0, keeper.z, (x, y, s) => drawTinyFigure(x, y, s, "keeper", cap));
-    add(1, 0, scene.spinner ? 23 : 30, (x, y, s) => drawTinyFigure(x, y, s, "idle", cap));
+    const bowler = bowlerState(scene);
+    add(bowler.x, 0, bowler.z, (x, y, s) => drawTinyFigure(x, y, s, bowler.pose, cap, bowler.phase));
     const walk = walkInShare(scene);
     inn.placements.forEach((place, i) => {
       const at = walkInSpot(place.pos, walk);
@@ -604,7 +586,7 @@ function drawWide(scene) {
       });
     });
     add(-0.6, 0, CREASE, (x, y, s) => drawTinyFigure(x, y, s, "batter", scene.kitBat.cap, 0, { bat: true }));
-    add(-1.1, 0, PITCH_LENGTH - CREASE, (x, y, s) => drawTinyFigure(x, y, s, "batter", scene.kitBat.cap, 0, { bat: true }));
+    add(nonStrikerX, 0, nonStrikerDepth(scene), (x, y, s) => drawTinyFigure(x, y, s, "batter", scene.kitBat.cap, 0, { bat: true }));
   }
 
   for (const bit of scene.particles) {
@@ -631,7 +613,7 @@ function drawSledges(scene, live) {
 
 function drawPanels(scene) {
   const inn = scene.inn;
-  if (scene.phase === "setup") drawSetupPanel(scene);
+  if (scene.phase === "setup") drawSetupPanel(scene, selectedWicketSide(scene));
 
   if (scene.phase === "ready" && scene.human === "bat") {
     if (Math.floor(scene.now * 2) % 2 === 0) {
@@ -720,7 +702,7 @@ function drawPanels(scene) {
 
   if (scene.feedback && (scene.phase === "after" || scene.phase === "return")) drawCoachCard(scene);
   if (!scene.nets && SPEED_GUN_PHASES.has(scene.phase)) drawSpeedGun(scene);
-  if (scene.human === "bat" && EYE_PHASES.has(scene.phase)) drawEyeMeter(scene);
+  if (METER_PHASES.has(scene.phase)) drawBatterPanel(scene);
   if (scene.phase === "pause") scene.pauseMenu.draw(inn, scene.closeEnd);
 
   if (scene.phase === "inningsEnd") {
@@ -753,22 +735,19 @@ function drawSpeedGun(scene) {
   shown.forEach((line, i) => drawText(line, x + w / 2, y + 21 + i * 9, { align: "center", color: COLORS.cream }));
 }
 
-const EYE_PHASES = new Set(["ready", "runup", "flight", "after", "return", "appeal", "decision", "review"]);
+const METER_PHASES = new Set(["ready", "runup", "flight", "after", "return", "appeal", "decision", "review"]);
 
-/** The striker's eye: a bar that fills with well-timed shots, and the multiplier it gives the next one. */
-function drawEyeMeter(scene) {
+/** The shared meter panel returns once the run-up has begun. */
+function drawBatterPanel(scene) {
   const eye = scene.inn.bat[scene.inn.striker].eye;
-  const full = eye >= 1;
-  const w = 108;
-  const h = 24;
-  const x = 4;
-  const y = 4;
-  drawPanel(x, y, w, h, "rgba(10,28,18,0.88)", full ? COLORS.gold : COLORS.gold2);
-  drawText("EYE", x + 6, y + 5, { color: COLORS.gold });
-  drawText(`x${eyeMultiplier(eye).toFixed(2)}`, x + w - 6, y + 5, { color: eye > 0 ? COLORS.gold : COLORS.dim, align: "right" });
-  const glow = full && Math.floor(scene.now * 4) % 2 === 0;
-  const shown = scene.juice.shown.eye ?? eye;
-  drawEasedBar(x + 6, y + 15, w - 12, 5, shown, eye, glow ? COLORS.white : shown > 0.6 ? COLORS.gold : "#7ec8ff");
+  drawBatterMeters({
+    eye,
+    pressure: scene.inn.pressure,
+    eyeShown: scene.juice.shown.eye ?? eye,
+    pressureShown: scene.juice.shown.pressure ?? scene.inn.pressure,
+    now: scene.now,
+    top: 4,
+  });
 }
 
 /** Nets: the coach's verdict on the last ball. */
@@ -801,7 +780,7 @@ const TIMING_METER = { x: 440, y: 268 };
  */
 function drawFeedback(scene) {
   const fb = scene.juice;
-  const anchors = { eye: { x: 58, y: 40 }, pressure: { x: PRESSURE_BAR.x + PRESSURE_BAR.w / 2 - 20, y: PRESSURE_BAR.y - 8 } };
+  const anchors = METER_PHASES.has(scene.phase) ? meterAnchors() : {};
   if (fb.floats.some((f) => f.anchor === "striker")) {
     if (showingWide(scene)) {
       const p = projectWide(STRIKER_X, 2, CREASE);
@@ -823,7 +802,7 @@ function drawFeedback(scene) {
 function drawReleaseMeter(scene) {
   const cur = scene.cur;
   const r = cur.runup;
-  const from = METER_FROM;
+  const from = METER_TRACK_FROM;
   const to = 1 + 0.3 / r.dur;
   const x0 = 200;
   const w = 240;
@@ -848,44 +827,4 @@ function drawReleaseMeter(scene) {
     fillRect(touch > 0 ? mid : mid + touch * 60, y + 10, Math.abs(touch) * 60, 3, COLORS.gold);
     drawText(scene.spinner ? "EXTRA SPIN" : "EXTRA SWING", mid, y + 15, { ...PANEL_TEXT, color: COLORS.gold });
   }
-}
-
-const MOVE_LABEL = { away: "AWAY", in: "IN", straight: "STRAIGHT" };
-const seenLabel = (b) => `${MOVE_LABEL[b.move]} ${b.length.toUpperCase()}`;
-
-/** Bowling controls: bowler, delivery type, effort, target and field. */
-function drawSetupPanel(scene) {
-  const inn = scene.inn;
-  const bowler = inn.bowler;
-  const skills = bowler.p.bowl;
-  const spinner = isSpinner(skills);
-  drawPanel(4, 4, 240, 140, "rgba(13,35,24,0.92)");
-  drawText(`${bowler.p.name.toUpperCase()}`, 10, 10, { color: COLORS.gold });
-  drawText(`${skills.style.toUpperCase()}  ${inn.bowlerOvers(bowler)} OV  ${inn.bowlerFigures(bowler)}`, 10, 20, {
-    color: COLORS.dim,
-  });
-  drawText("STAMINA", 10, 31, { color: COLORS.dim });
-  drawBar(58, 32, 70, 5, bowler.stamina, staminaColor(bowler.stamina));
-  // Deliveries, three to a line.
-  skills.repertoire.forEach((type, i) => {
-    const x = 10 + (i % 3) * 78;
-    const y = 43 + Math.floor(i / 3) * 10;
-    drawText(`${i + 1}.${DELIVERY_NAMES[type]}`, x, y, { color: type === scene.deliveryType ? COLORS.gold : COLORS.grey });
-  });
-  const effort = spinner ? `FLIGHT (E): ${SPIN_EFFORT_NAMES[scene.effort]}` : `EFFORT (E): ${scene.effort.toUpperCase()}`;
-  drawText(effort, 10, 65, { color: COLORS.cream });
-  drawText(`${lengthName(scene.target.length, spinner).toUpperCase()}, ${lineName(scene.target.line).toUpperCase()}`, 10, 76, {
-    color: COLORS.cream,
-  });
-  drawText(`FIELD (F): ${inn.customField ? "CUSTOM" : PRESET_LABELS[inn.preset]}   V = EDIT`, 10, 87, { color: COLORS.cream });
-  // What the batter has just seen: set him up, then change it.
-  const seen = inn.bat[inn.striker].seen.slice(-3);
-  if (seen.length) drawText(`HE'S SEEN: ${seen.map(seenLabel).join(", ")}`, 10, 98, { color: COLORS.dim });
-  let notes = [];
-  if (!spinner) notes.push(`BOUNCERS ${inn.overBouncers}/2`);
-  if (inn.freeHit) notes.push("FREE HIT");
-  drawText(notes.join("   "), 10, 109, { color: inn.freeHit ? COLORS.gold : COLORS.dim });
-  drawText("ARROWS AIM  SHIFT = FINE", 10, 120, { color: COLORS.dim });
-  drawText("SPACE = RUN IN   H = APPEAL", 10, 131, { color: COLORS.gold });
-  if (inn.newBallAvailable) drawText("N = TAKE THE NEW BALL", 252, 10, { color: COLORS.red, outline: COLORS.black });
 }

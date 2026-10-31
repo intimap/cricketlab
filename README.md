@@ -139,6 +139,7 @@ src/
     batter-shots/     additional drive, back-foot, sweep/ramp and touch-shot pose families
     batter-catalog.js  input-family and shot-label routes to the 28 clips
     hud.js            score bar, mini-map, banners, scorecard, speech bubbles
+    ball-trail.js     the delivery's fading trail and the pitch-map landing reticle (close view)
     booth.js          commentator portraits and the commentary popup
     grounds.js        grounds as data: stripe layout, colours, pitch looks, which paintings to use
     ground.js         the layer compositor: builds each view's background from a ground's data

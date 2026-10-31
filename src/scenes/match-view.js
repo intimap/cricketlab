@@ -38,6 +38,7 @@ import {
   playerKit,
 } from "../render/sprites.js";
 import { drawBooth, boothShowing } from "../render/booth.js";
+import { drawBallTrail, drawPitchReticle } from "../render/ball-trail.js";
 import { STRIKER_X, STRIKER_SCREEN_X, readyPose, strikerStroke, footworkOf, footworkPixels } from "./batter-pose.js";
 import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import { eyeMultiplier } from "../sim/eye.js";
@@ -193,6 +194,8 @@ function drawClose(scene) {
         const radius = Math.max(1.5, 0.036 * 880 * p.s * 1.25);
         if (p.y < HUD_Y + 6) {
           drawShadow(ground.x, ground.y, radius);
+          const trail = ballTrail(scene);
+          if (trail.length) drawBallTrail(trail, scene.spinner);
           drawBall(p.x, p.y, radius, inn.ball.shine);
         }
       },
@@ -208,6 +211,10 @@ function drawClose(scene) {
       },
     });
   }
+
+  // The pitch map's landing marker, on the ground under everyone.
+  const landing = landingMarker(scene);
+  if (landing) drawPitchReticle(landing.p, landing.k, landing.flash, landing.scale);
 
   // Far to near.
   sprites.sort((a, b) => closeDepth(b.z) - closeDepth(a.z));
@@ -286,6 +293,47 @@ function bowlerState(scene) {
     return { x: 0.9, z: 17.4, pose: "appeal", phase: 0 };
   }
   return { x: 0.55 + 0.4 * k, z: 19 - 2.2 * k, pose: k < 1 ? "follow" : "walk", phase: t };
+}
+
+/** Seconds between trail dots, and how many: the ball's last few positions in flight. */
+const TRAIL_STEP = 1 / 60;
+const TRAIL_DOTS = 5;
+
+/** The trail behind the delivery (screen points, newest first), until it reaches the bat or pads. */
+function ballTrail(scene) {
+  const cur = scene.cur;
+  if (!cur?.delivery || cur.contactDone || scene.phase !== "flight") return [];
+  const samples = cur.delivery.samples;
+  const points = [];
+  for (let i = 1; i <= TRAIL_DOTS; i++) {
+    const t = cur.t - i * TRAIL_STEP;
+    if (t <= 0) break;
+    const s = sampleAtTime(samples, Math.min(t, samples[samples.length - 1].t));
+    if (s.z < 0) continue;
+    const p = projectClose(s.x, s.y, s.z);
+    points.push({ x: p.x, y: p.y, r: Math.max(1.5, 0.036 * 880 * p.s * 1.25) });
+  }
+  return points;
+}
+
+/** How long (s) the landing marker flashes on the bounce. */
+const LANDING_FLASH = 0.2;
+
+/** Where the delivery will pitch, while it's in the air and just after it lands. */
+function landingMarker(scene) {
+  const cur = scene.cur;
+  const d = cur?.delivery;
+  if (!d?.pitchedAt || d.bounceIndex < 0 || scene.phase !== "flight") return null;
+  const bounceT = d.samples[d.bounceIndex].t;
+  const since = cur.t - bounceT;
+  if (since > LANDING_FLASH) return null;
+  const p = projectClose(d.pitchedAt.x, 0, d.pitchedAt.z);
+  return {
+    p,
+    k: clamp(cur.t / bounceT),
+    flash: since >= 0 ? 1 - since / LANDING_FLASH : 0,
+    scale: p.s / projectClose(0, 0, PITCH_LENGTH / 2).s,
+  };
 }
 
 function ballPosition(scene) {

@@ -279,6 +279,7 @@ export class Match {
       wicket,
       shot: shot.type,
       contact: contact.kind,
+      impact: contact.impact ? { ...contact.impact } : null,
       shotName: contact.shotName,
       deliveryType: play.intent.type,
       pitched: delivery.pitchedAt,

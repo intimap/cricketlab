@@ -1,3 +1,4 @@
+import { batImpact, edgeExit } from "./bat-impact.js";
 import { clamp, toRad, angleDiff } from "../math.js";
 import { CREASE, STUMPS_HALF_WIDTH, BALL_RADIUS } from "./geometry.js";
 import { simulateFlight, crossingAtZ, sampleAtTime, hitsStumps, isWide } from "./delivery.js";
@@ -399,24 +400,22 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
   const timing = shot.timingError / (window * (shot.windowMult ?? 1) * eyeEase);
   if (Math.abs(timing) > 2.4) return { ...noContact(timing < 0 ? "early" : "late"), timing };
 
-  const reach = defending ? 0.1 : 0.09;
-  const lat = Math.abs(latErr);
-  if (lat > reach + 0.004 || Math.abs(vErr) > 0.32) {
-    // The pad sits just inside wherever the bat went.
-    return { ...noContact("beaten"), batX };
-  }
-
   const sweetSpot = (defending ? 0.052 : 0.033) * (0.6 + 0.4 * suit) * eyeEase;
+  const impact = batImpact({ dx: latErr, dy: vErr, timing, type: shot.type, back, sweetWidth: sweetSpot });
+  if (impact.missed) return { ...noContact("beaten"), batX, impact };
+
   let kind;
-  if (lat <= sweetSpot && Math.abs(vErr) < 0.12) kind = "middle";
-  else if (Math.abs(vErr) >= 0.12) kind = vErr > 0 ? (height > 1.15 ? "gloved" : "topEdge") : "bottomEdge";
-  else if (lat <= 0.062) kind = latErr > 0 ? "thickEdge" : "insideEdge";
-  else kind = latErr > 0 ? "thinEdge" : "insideEdge";
+  if (impact.region === "handle") kind = "gloved";
+  else if (impact.along < 0) kind = "bottomEdge";
+  else if (impact.edge && impact.horizontal) kind = vErr > 0 ? "topEdge" : "bottomEdge";
+  else if (!impact.edge) kind = "middle";
+  else if (impact.across < 0) kind = "insideEdge";
+  else kind = Math.abs(impact.across) <= 0.062 ? "thickEdge" : "thinEdge";
   if (kind === "insideEdge" && rng.chance(0.4)) kind = "padPop";
 
   const mistimed = Math.abs(timing) > 1;
   const timingQuality = mistimed ? Math.max(0.12, 0.55 - 0.32 * (Math.abs(timing) - 1)) : 1 - 0.45 * timing * timing;
-  const contactQuality = kind === "middle" ? 1 - (0.35 * lat) / sweetSpot : 0.4;
+  const contactQuality = (kind === "middle" ? impact.faceQuality : 0.4) * impact.energy;
   const quality = clamp(contactQuality * timingQuality * (0.7 + 0.3 * suit));
   const ballSpeed = Math.abs(at.vz);
   const batSpeed = defending ? 0 : (8 + 26 * shot.charge * (0.55 + 0.45 * bat.power)) * eye;
@@ -460,20 +459,14 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
       break;
     }
     case "thinEdge":
-      speed = 0.62 * ballSpeed * (defending ? 0.55 : 1) + rng.normal(0, 1.5);
-      bearing = 166 + rng.normal(0, 8);
-      elevation = 6 + rng.normal(0, 4) - (defending ? 4 : 0);
-      break;
     case "thickEdge":
-      speed = 0.42 * ballSpeed + 0.35 * batSpeed;
-      bearing = 122 + rng.normal(0, 22);
-      elevation = 7 + rng.normal(0, 8) - (defending ? 6 : 0);
+    case "insideEdge": {
+      const edge = edgeExit(impact, ballSpeed, batSpeed, defending, kind === "insideEdge" ? -1 : 1);
+      speed = edge.speed;
+      bearing = edge.bearing + rng.normal(0, edge.spread);
+      elevation = edge.elevation + rng.normal(0, kind === "insideEdge" ? 5 : 4 + 4 * impact.thickness);
       break;
-    case "insideEdge":
-      speed = 0.35 * ballSpeed + 0.15 * batSpeed;
-      bearing = -158 + rng.normal(0, 18);
-      elevation = 2 + rng.normal(0, 5);
-      break;
+    }
     case "padPop":
       speed = rng.range(2.5, 5);
       bearing = rng.normal(-95, 50);
@@ -498,11 +491,15 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
       elevation = -rng.range(15, 40);
   }
 
+  // Toe and splice hits return less energy, including otherwise clean face hits.
+  if (kind !== "gloved" && kind !== "padPop") speed *= impact.energy;
+  speed = Math.max(0, speed);
   const el = toRad(elevation);
   const br = toRad(bearing);
   const flat = speed * Math.cos(el);
   return {
     kind,
+    impact,
     quality,
     timed: !mistimed,
     /** The timing error in windows (negative early), for the player's timing meter. */

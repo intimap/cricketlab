@@ -106,6 +106,7 @@ src/
     teams.js          squads and player ratings
     conditions.js     pitch types, pitch wear, ball wear (swing, reverse, grip)
     delivery.js       bowling: release, swing, seam, spin, bounce, flight
+    bat-impact.js     blade contact coordinates, toe/splice rebound and continuous edge deflection
     batting.js        the shot: timing, where the bat goes, edges, LBW, bowled
     eye.js            every batter's eye: built by well-timed shots, dented by misses and edges
     ball-in-play.js   after the shot: the ball, catches, throws, running, run-outs
@@ -201,3 +202,10 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   when it's true of a ball), picked by `sim/pack-voice.js` and voiced in `sim/commentators.js`. A new batch goes in as
   a new pack version (see the pack's README). `sim/moments.js` spots situations; moments the pack doesn't cover use
   each commentator's lines in `sim/booth-lines.js`.
+
+Bat contact resolves the ball against a simplified oriented blade: across its width and along its length
+from toe to handle. Toe and splice contacts lose rebound speed; thin and thick edges blend their direction
+and pace continuously, including inside edges. Cuts, pulls and sweeps use a horizontal blade; drives and
+defence use an upright blade. This is a contact-plane approximation, independent of the drawn bat rig;
+post-strike spin and a full rigid-body collision are not modelled. Run
+`node tools/bat-impact.test.mjs` for contact geometry, edge continuity and seeded simulation checks.

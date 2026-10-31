@@ -8,6 +8,7 @@ export function bowlingGeometry(spinner, side = "over") {
     bodyX: around ? releaseX + (0.55 - overHand) : 0.55,
     startX: around ? -1.5 : 1.5,
     umpireX: around ? 0.62 : -0.62,
+    nonStrikerX: around ? 1.05 : -1.05,
   };
 }
 

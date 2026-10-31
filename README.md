@@ -240,5 +240,6 @@ post-strike spin and a full rigid-body collision are not modelled. Run
 Over/around selection is remembered per bowler for the innings and can be changed with T, the SIDE touch
 button, or the SIDE row in the bowling panel. It locks when the run-up starts. The current action model
 is right-arm; changing sides moves the release, run-up and follow-through rather than mirroring the arm.
+The non-striker automatically stands on the opposite side of the run-up when the side is changed.
 The eye/pressure panel is hidden during bowling setup and returns for the run-up.
 Run `node tools/bowling-side.test.mjs` to check the side geometry, delivery angles and selection controls.

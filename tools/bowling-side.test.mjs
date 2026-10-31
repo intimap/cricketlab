@@ -78,6 +78,7 @@ test("the run-up, release pose and follow-through stay on the selected side", ()
     scene.phase = "flight";scene.cur.t = 0;
     assert.equal(bowlerPose(scene, side).x, lane.bodyX);
     assert.ok(lane.umpireX * lane.startX < 0, "Umpire obstructs run-up");
+    assert.ok(lane.nonStrikerX * lane.startX < 0, "Non-striker obstructs run-up");
   }
 });
 

@@ -67,8 +67,7 @@ const BATTER_HEIGHT_PX = 92;
 const STANDARD_HEIGHT = 1.82;
 /** Run progress (0..1) at which the striker has left his crease and is drawn as a runner. */
 const LEFT_CREASE = 0.02;
-/** The non-striker's spot across the pitch, and how far down he backs up once the ball is bowled. */
-const NON_STRIKER_X = -1.05;
+/** How far down the pitch the non-striker backs up once the ball is bowled. */
 const BACKED_UP_Z = 17.9;
 
 /** Is the wide view on screen (rather than the close one)? DRS and appeals always use the close view. */
@@ -126,6 +125,7 @@ function drawClose(scene) {
   ctx.drawImage(scene.groundArt.close, 0, CLOSE_Y_OFFSET, WIDTH, HEIGHT);
   const cur = scene.cur;
   const inn = scene.inn;
+  const nonStrikerX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).nonStrikerX;
   const live = cur?.play?.live;
   drawRough(inn.pitch);
   const sprites = [];
@@ -158,7 +158,7 @@ function drawClose(scene) {
     for (const [i, r] of runners.entries()) {
       if (i === 0 && r.progress <= LEFT_CREASE) continue;
       const z = CREASE + r.progress * (BACKED_UP_Z - CREASE);
-      const x = i === 0 ? STRIKER_X + (NON_STRIKER_X - STRIKER_X) * clamp(r.progress / 0.15) : NON_STRIKER_X;
+      const x = i === 0 ? STRIKER_X + (nonStrikerX - STRIKER_X) * clamp(r.progress / 0.15) : nonStrikerX;
       const kit = playerKit(scene.kitBat, inn.bat[r.bat].p);
       const moving = r.target !== null && live.t >= r.startAt;
       sprites.push({
@@ -172,7 +172,7 @@ function drawClose(scene) {
     sprites.push({
       z: nonStrikerZ,
       draw: () =>
-        figure(NON_STRIKER_X, nonStrikerZ, nonStrikerKit.height, {
+        figure(nonStrikerX, nonStrikerZ, nonStrikerKit.height, {
           kit: nonStrikerKit,
           pose: scene.phase === "runup" ? "backup" : "stand",
           phase: scene.now * 1.4,
@@ -242,10 +242,11 @@ function drawClose(scene) {
       : inn.placements.map((p) => walkInSpot(p.pos, walkInShare(scene)));
     const keeper = live ? live.fielders[0].pos : keeperSpot(scene.spinner);
     const runners = live
-      ? live.runners.map((r) => live.runnerPos(r))
+      ? live.runners.map((r) => r.bat === live.setup.nonStrikerIdx && r.target === null && r.progress === 1
+        ? { x: nonStrikerX, z: nonStrikerDepth(scene) } : live.runnerPos(r))
       : [
           { x: -0.3, z: 1.2 },
-          { x: -1, z: 19 },
+          { x: nonStrikerX, z: 19 },
         ];
     drawMiniMap(
       MINI_MAP.left,
@@ -526,6 +527,7 @@ function drawWide(scene) {
   const cur = scene.cur;
   const live = cur?.play?.live;
   const cap = scene.kitBowl.cap;
+  const nonStrikerX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).nonStrikerX;
   const sprites = [];
   const add = (x, y, z, draw) => {
     const p = projectWide(x, y, z);
@@ -545,6 +547,8 @@ function drawWide(scene) {
     for (const r of live.runners) {
       const out = cur?.done?.rec.wicket?.batter === r.bat;
       let pos = live.runnerPos(r);
+      if (r.bat === live.setup.nonStrikerIdx && r.target === null && r.progress === 1)
+        pos = { x: nonStrikerX, z: nonStrikerDepth(scene) };
       if (out && scene.walkOff) {
         // Off towards the pavilion.
         const k = clamp((scene.now - scene.walkOff.t0) / WALK_OFF_TIME);
@@ -582,7 +586,7 @@ function drawWide(scene) {
       });
     });
     add(-0.6, 0, CREASE, (x, y, s) => drawTinyFigure(x, y, s, "batter", scene.kitBat.cap, 0, { bat: true }));
-    add(-1.1, 0, PITCH_LENGTH - CREASE, (x, y, s) => drawTinyFigure(x, y, s, "batter", scene.kitBat.cap, 0, { bat: true }));
+    add(nonStrikerX, 0, nonStrikerDepth(scene), (x, y, s) => drawTinyFigure(x, y, s, "batter", scene.kitBat.cap, 0, { bat: true }));
   }
 
   for (const bit of scene.particles) {

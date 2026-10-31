@@ -1,3 +1,4 @@
+import { addBatterFootwork } from "./batter-footwork.js";
 import { BACKLIFT_TIME } from "../sim/shot-timing.js";
 import { accentBackswing } from "./batter-backswing.js";
 import { withBatterDepth } from "./batter-skeleton.js";
@@ -317,7 +318,8 @@ export function sampleBatterMotion(name, secondsFromContact, { view = "batter" }
   for (const key of Object.keys(a)) pose[key] = a[key] + (b[key] - a[key]) * k;
   // Camera changes belong to the projection, never to the canonical XYZ pose.
   if (view !== "batter" && view !== "bowler") throw new Error(`Unknown camera view: ${view}`);
-  return accentBackswing(pose, { ...c, kind: name === "forwardDefence" ? "defence" : "attack" }, t);
+  const clip = { ...c, kind: name === "forwardDefence" ? "defence" : "attack" };
+  return addBatterFootwork(accentBackswing(pose, clip, t), clip, t, name);
 }
 
 export function batterPhase(name, t) {

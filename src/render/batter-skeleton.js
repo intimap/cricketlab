@@ -6,6 +6,8 @@ export const UNITS_PER_METRE = 94 / 1.8;
 export const BATTER_BONES = { thigh: 22, shin: 23, upperArm: 19, forearm: 18, spine: 28, neck: 12 };
 const RAD = Math.PI / 180;
 export const RIG_DEPTH_RISE = 0.25;
+export const BOOT_TOE = 7;
+export const HEEL_ANKLE_RISE = 0.35;
 
 /** Convert the older compact poses into the same authored targets as the shot clips. */
 function targets(p) {
@@ -67,6 +69,8 @@ function goalsFor(pose) {
     hipTurn: p.hipTurn * RAD, shoulderTurn: p.shoulderTurn * RAD,
     face: p.batFace ?? 1, angle, azimuth,
     lean: p.lean ?? 0, drop: p.drop ?? 0,
+    frontToeYaw: (p.frontToeYaw ?? 0) * RAD, backToeYaw: (p.backToeYaw ?? 0) * RAD,
+    frontHeel: p.frontHeel ?? 0, backHeel: p.backHeel ?? 0,
   };
 }
 
@@ -165,6 +169,9 @@ export function solveBatterSkeleton(pose) {
     batToe: add3(topHand, mul3(batDir, 36)),
     batDir, face: g.face, angle: g.angle, azimuth: g.azimuth,
     lean: g.lean, drop: g.drop,
+    hipTurn: g.hipTurn, shoulderTurn: g.shoulderTurn,
+    frontToeYaw: g.frontToeYaw, backToeYaw: g.backToeYaw,
+    frontHeel: g.frontHeel, backHeel: g.backHeel,
   };
 }
 

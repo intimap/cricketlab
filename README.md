@@ -156,6 +156,8 @@ src/
     bat-mesh.js       the rigid 3D willow blade carried by the solved hands
     bat.js            draw the projected blade faces in depth order on the pixel grid
     figures.js        everyone else: bowler, keeper, fielders, umpires, runners, close up and tiny
+    batter-footwork.js  shot-specific steps, planted-toe pivots, hip-led follow-through and recovery
+    batter-surfaces.js  rotating cloth panels and 3D boots, drawn on the pixel grid
     batter-backswing.js  higher hand lift and shoulder coil before attack contact
     batter-motion.js  the original straight drive, forward defence and pull
     batter-motion-all.js  all 28 stroke clips and the expanded visual sampler
@@ -220,7 +222,9 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   `render/batter-projection.js` projects the same joints from either end; `batterJointToWorld` converts a joint
   to match-world metres for visual tools. Clips can author `frontFootZ`, `backFootZ`, `pelvisZ`, `chestZ`, `headZ`
   and `handZ`; existing clips receive inferred depth keyframes. The rigid blade mesh is in `render/bat-mesh.js`,
-  with pixel drawing in `render/bat.js`. These joints are visual and do not replace simulation contact physics;
+  with pixel drawing in `render/bat.js`. `render/batter-footwork.js` adds shot-specific strides, toe pivots
+  and hip-led follow-through; `render/batter-surfaces.js` makes cloth and boots follow those turns.
+  These joints are visual and do not replace simulation contact physics;
   the expanded sampler in `render/batter-motion-all.js` and poses in `render/batter-shots/`;
   stroke selection and timing in `scenes/batter-stroke.js`, with routes in `render/batter-catalog.js`.
 - **Game modes and Classic Matches:** `sim/formats.js` (challenges are plain data). AI chase and

@@ -38,12 +38,13 @@ test("normal and power input must precede contact by the new full load and downs
   near(POWER_BACKLIFT_TIME, 0.26);
 });
 
-test("the raised load returns to the authored contact pose and leaves follow-throughs intact", () => {
+test("the raised load returns to the authored bat-contact target", () => {
   for (const [name, clip] of Object.entries(BATTER_CLIPS)) {
     const atContact = clip.frames.find((frame) => frame.time === 0);
     if (clip.kind !== "attack") continue;
     const pose = sampleBatterMotion(name, 0);
-    poseNear(pose, withBatterDepth(atContact.pose));
+    const authored = withBatterDepth(atContact.pose);
+    for (const key of ["px", "py", "angle", "plane", "handZ", "batFace"]) near(pose[key], authored[key]);
     const start = withBatterDepth(clip.frames[0].pose);
     assert.strictEqual(accentBackswing(start, clip, clip.start), start);
     assert.strictEqual(accentBackswing(pose, clip, 0.1), pose);

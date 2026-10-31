@@ -249,9 +249,12 @@ export function drawSpeechBubble(text, x, y) {
 export function drawBroadcastBanner(title, color, sub, pop = 1, skippable = false) {
   const scale = Math.min(4, Math.max(1, Math.floor(584 / Math.max(1, textWidth(title, 1)))));
   const y = 102 + Math.round((1 - pop) * 12);
-  drawPanel(16, y - 12, WIDTH - 32, skippable ? 104 : 82, "rgba(6,18,12,0.96)", color);
-  fillRect(20, y - 8, WIDTH - 40, 3, color);
-  drawText(title, WIDTH / 2, y + 5, { scale, align: "center", color, outline: COLORS.black });
+  // Score celebrations use the same green, brass and cream as the score HUD.
+  const trim = skippable ? COLORS.gold : color;
+  const ink = skippable ? COLORS.cream : color;
+  drawPanel(16, y - 12, WIDTH - 32, skippable ? 104 : 82, COLORS.green, skippable ? COLORS.gold2 : color);
+  fillRect(20, y - 8, WIDTH - 40, 3, trim);
+  drawText(title, WIDTH / 2, y + 5, { scale, align: "center", color: ink, outline: COLORS.black });
   drawText(sub, WIDTH / 2, y + 43, { align: "center", color: COLORS.cream });
   if (skippable) drawText("SPACE / ENTER / TAP TO SKIP", WIDTH / 2, y + 72, { align: "center", color: COLORS.dim });
 }

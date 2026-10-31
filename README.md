@@ -186,6 +186,7 @@ src/
     match-decisions.js  LBW appeals, the umpire's decision and DRS reviews
     match-feedback.js what feedback to show and when: shot words, +/-EYE and PRESSURE, hit-stop, shake
     match-view.js     drawing for the match scene
+    strike-presentation.js  full-pace launch after contact and the close-to-wide broadcast cut
     match-broadcast.js review timing and celebration skip input
     batter-pose.js    the striker's pose through a ball: stance, trigger, backlift, strokes, follow-throughs
     batter-stroke.js  presentation-only selection and the existing attack/block/leave clocks

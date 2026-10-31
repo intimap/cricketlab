@@ -1,3 +1,4 @@
+import { updateStrikePresentation } from "./strike-presentation.js";
 import { selectedWicketSide, activeWicketSide, updateBowlingSide } from "./bowling-side.js";
 import { bowlingGeometry } from "../sim/bowling-side.js";
 import { playContact, playBroadcast, updateReviewAudio } from "./match-audio.js";
@@ -627,12 +628,7 @@ export class MatchScene {
   updateFlight(dt) {
     const cur = this.cur;
     if (!cur.delivery) return;
-    if (cur.strikeAt !== null) {
-      // Slow motion just after a clean strike, then cut to the wide view.
-      const since = this.now - cur.strikeAt;
-      this.timeScale = since < 0.75 ? 0.3 : 1;
-      if (since >= 0.75 && this.cam === "auto" && this.view === "close") this.view = "wide";
-    }
+    updateStrikePresentation(this);
     const slowmo = this.human === "bat" && !cur.contactDone ? PLAYER_SLOWMO : 1;
     cur.t += dt * this.timeScale * slowmo * timeFactor(this.juice, this.now);
     this.updateBatInput();

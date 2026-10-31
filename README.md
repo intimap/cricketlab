@@ -147,7 +147,9 @@ src/
     batter-catalog.js  input-family and shot-label routes to the 28 clips
     match-broadcast.js DRS tracking, verdict cards and celebrations
     batter-meters.js  shared eye and pressure panel
-    hud.js            score bar, mini-map, banners, scorecard, speech bubbles
+    hud.js            HUD entry points, mini-map, banners, scorecard, speech bubbles
+    score-bar.js      two-line batting/bowling strip with partnership and commentary
+    team-flag.js      pixel team flags framing the bottom score strip
     ball-trail.js     the delivery's fading trail and the pitch-map landing reticle (close view)
     feedback.js       arcade feedback drawn: timing meter and callout, floating words, eased bars
     booth.js          commentator portraits and the commentary popup

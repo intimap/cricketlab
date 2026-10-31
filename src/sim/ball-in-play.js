@@ -55,7 +55,7 @@ function stepBall(b, dt, outfield) {
  * into sounds and banners.
  *
  * setup: { res, strikerIdx, nonStrikerIdx, striker, nonStriker, fielders,
- *          keeper, bowler, spinner, outfield, noBall, freeHit, wide, aiRunning,
+ *          keeper, bowler, bowlerHome?, spinner, outfield, noBall, freeHit, wide, aiRunning,
  *          aiAggression, pressure, deferLbw, rng }
  * deferLbw: don't give LBWs here; the scene handles the appeal (and DRS).
  */
@@ -131,7 +131,7 @@ export class BallInPlay {
       });
     };
     addFielder(setup.keeper, "keeper", "wicketkeeper", keeperSpot(setup.spinner));
-    addFielder(setup.bowler, "bowler", "bowler", { x: 0.9, z: 16.8 });
+    addFielder(setup.bowler, "bowler", "bowler", setup.bowlerHome ?? { x: 0.9, z: 16.8 });
     for (const f of setup.fielders) addFielder(f.player, "field", f.place.name, f.place.pos);
 
     // progress runs from 0 (striker's end) to 1 (bowler's end).

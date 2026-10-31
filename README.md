@@ -32,7 +32,7 @@ To publish it, turn on GitHub Pages (Settings → Pages → Deploy from branch �
 | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Menu          | Arrows to change, Enter to start                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | Batting       | Space to face up. Front foot: **S** drive, **W** loft, **A** forward defence. Back foot: **Q** attack (cut, punch, pull, hook or glance, as the ball dictates), **D** defence. No key = leave. Hold **←**/**→** before playing to step 10 cm across the crease (back to guard when let go), to reach a wide one (his pads move too). The ball's line sets the direction; play late to go finer, early to go squarer. Hold **↓** with **W** to ramp over the keeper, or **↓** + **←**/**→** with **Q** to sweep / reverse sweep. Hold **Shift** for a power shot (play it earlier). **↑** / **↓** to run or turn back |
-| Bowling       | Arrows set line and length (Shift = fine), number keys pick the delivery, **E** effort, **F** field preset, **V** drag fielders with the mouse, **N** new ball (after 80 overs). Space to run in, Space again to release at the delivery stride: early pitches it shorter, late fuller, very late is a no-ball                                                                                                                                                                                                                                                                                                       |
+| Bowling       | Arrows set line and length (Shift = fine), number keys pick the delivery, **E** effort, **T** over/around the wicket, **F** field preset, **V** drag fielders with the mouse, **N** new ball (after 80 overs). Space to run in, Space again to release at the delivery stride: early pitches it shorter, late fuller, very late is a no-ball                                                                                                                                                                                                                                                                                                       |
 | Celebrations | Space, Enter or tap the game to skip a boundary or wicket celebration |
 | Between balls | **O** sim an over, **P** sim 5 overs, **V** view the field                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | Appeals       | **H** to appeal for LBW when bowling (appealing for nothing irritates the umpire). **R** to review a decision that goes against you, or **Space** to accept it; play stops for up to 10 seconds while you decide (two unsuccessful reviews per innings). The umpire gets one in seven or so wrong                                                                                                                                                                                                                                                                                                                    |
@@ -82,7 +82,7 @@ built and lost by the same rules, so a set batter is harder to bowl to. The numb
 
 Each computer batter has a hidden weakness (loose outside off, a compulsive hooker, hates the short ball, shaky against spin early on, or late on the full inswinger). Watch for plays and misses and listen to the commentary for hints.
 
-- **Memory:** bowl the same ball over and over and he lines it up. Break a pattern (three going away, then one back in; three short, then a full one) and he's more likely to edge or miss. The setup panel shows the last three balls he's seen.
+- **Memory:** bowl the same ball over and over and he lines it up. Break a pattern (three going away, then one back in; three short, then a full one) and he's more likely to edge or miss. Switch between over and around the wicket with **T** while aiming; the target stays fixed and the release angle changes.
 - **Pressure:** dots and maidens build the pressure meter (below EYE in their shared panel); boundaries release it. Under pressure batters get impatient: slogs, charges and bad calls for runs.
 - **Release timing:** release in the gold zone of the meter for a perfect delivery. The zone shrinks as the bowler tires; too late is a no-ball, followed by a free hit.
 - **Variations:** quicks have bouncers (two an over, a third is a no-ball), yorkers (overpitch it and it's a full toss), slower balls and cutters; spinners have an arm ball, a googly (leg-spinners), and flight (**E** cycles flighted, stock and flat). On a worn pitch, especially the dust bowl, footmarks appear outside leg (and off) and turn sharply.
@@ -110,6 +110,7 @@ src/
     rng.js            seedable random numbers
     teams.js          squads and player ratings
     conditions.js     pitch types, pitch wear, ball wear (swing, reverse, grip)
+    bowling-side.js   over/around release geometry and follow-through position
     delivery.js       bowling: release, swing, seam, spin, bounce, flight
     bat-impact.js     blade contact coordinates, toe/splice rebound and continuous edge deflection
     batting.js        the shot: timing, where the bat goes, edges, LBW, bowled
@@ -154,6 +155,8 @@ src/
     batter-shots/     additional drive, back-foot, sweep/ramp and touch-shot pose families
     batter-catalog.js  input-family and shot-label routes to the 28 clips
     match-broadcast.js DRS tracking, verdict cards and celebrations
+    bowling-setup.js  target-aiming panel and over/around selector
+    bowler-motion.js  run-up and follow-through on the chosen side
     batter-meters.js  shared eye and pressure panel
     hud.js            HUD entry points, mini-map, banners, scorecard, speech bubbles
     score-bar.js      two-line batting/bowling strip with partnership and commentary
@@ -168,6 +171,7 @@ src/
     menu.js           title screen
     match.js          the match: phases, timing, events
     match-audio.js    contact timbres and broadcast sound cues
+    bowling-side.js   per-bowler side selection and setup controls
     match-input.js    the player's controls: shots, defence, leaving, footwork, aiming the bowling
     match-decisions.js  LBW appeals, the umpire's decision and DRS reviews
     match-feedback.js what feedback to show and when: shot words, +/-EYE and PRESSURE, hit-stop, shake
@@ -232,3 +236,9 @@ and pace continuously, including inside edges. Cuts, pulls and sweeps use a hori
 defence use an upright blade. This is a contact-plane approximation, independent of the drawn bat rig;
 post-strike spin and a full rigid-body collision are not modelled. Run
 `node tools/bat-impact.test.mjs` for contact geometry, edge continuity and seeded simulation checks.
+
+Over/around selection is remembered per bowler for the innings and can be changed with T, the SIDE touch
+button, or the SIDE row in the bowling panel. It locks when the run-up starts. The current action model
+is right-arm; changing sides moves the release, run-up and follow-through rather than mirroring the arm.
+The eye/pressure panel is hidden during bowling setup and returns for the run-up.
+Run `node tools/bowling-side.test.mjs` to check the side geometry, delivery angles and selection controls.

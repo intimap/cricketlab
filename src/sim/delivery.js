@@ -1,3 +1,4 @@
+import { bowlingGeometry } from "./bowling-side.js";
 import { clamp } from "../math.js";
 import { GRAVITY, CREASE, STUMPS_HALF_WIDTH, STUMPS_HEIGHT, BALL_RADIUS } from "./geometry.js";
 import { isSpinner, bowlingSpeed } from "./teams.js";
@@ -49,7 +50,7 @@ const DT = 1 / 240;
  * lands (accuracy, fatigue and release timing all spray it), swing, seam,
  * spin and bounce, then simulate its flight.
  *
- * intent: { type, line, length, effort }. line is x at the stumps, length is
+ * intent: { type, line, length, effort, wicketSide? ("over" or "around") }. line is x at the stumps, length is
  * the intended pitching distance from the striker's stumps.
  * releaseError: seconds early (<0) or late (>0) at the delivery stride.
  */
@@ -141,7 +142,7 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
   const paceKept = clamp((spinner ? 0.86 : 0.875) * pitch.pace, 0.6, 0.97);
 
   // Solve the release velocity that lands the ball at (line, length).
-  const hand = { x: spinner ? 0.28 : 0.36, y: spinner ? 1.95 : 2.18, z: 18.7 };
+  const hand = { x: bowlingGeometry(spinner, intent.wicketSide).releaseX, y: spinner ? 1.95 : 2.18, z: 18.7 };
   const flightTime = (hand.z - length) / speed;
   const vy = (0.5 * GRAVITY * flightTime * flightTime - hand.y) / flightTime;
   const vx = (line - hand.x - 0.5 * swingAcc * 0.85 * flightTime * flightTime) / flightTime;

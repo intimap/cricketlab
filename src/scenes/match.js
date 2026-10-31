@@ -1,3 +1,5 @@
+import { selectedWicketSide, activeWicketSide, updateBowlingSide } from "./bowling-side.js";
+import { bowlingGeometry } from "../sim/bowling-side.js";
 import { playContact, playBroadcast, updateReviewAudio } from "./match-audio.js";
 import { REVIEW_END, skipCelebration } from "./match-broadcast.js";
 import { COLORS } from "../engine/screen.js";
@@ -440,6 +442,7 @@ export class MatchScene {
     if (this.betweenBalls()) return;
     const skills = this.inn.bowler.p.bowl;
     input.aimTarget(this);
+    updateBowlingSide(this);
     for (let i = 0; i < skills.repertoire.length; i++) {
       if (keys.pressed(`Digit${i + 1}`)) {
         this.deliveryType = skills.repertoire[i];
@@ -459,7 +462,8 @@ export class MatchScene {
       this.big("NEW BALL", COLORS.red, undefined, 1.2);
     }
     if (keys.pressed("Space")) {
-      const intent = { type: this.deliveryType, line: this.target.line, length: this.target.length, effort: this.effort };
+      const intent = { type: this.deliveryType, line: this.target.line, length: this.target.length, effort: this.effort,
+        wicketSide: selectedWicketSide(this) };
       this.cur = this.newBall(intent, 0);
       this.setPhase("runup");
     }
@@ -971,7 +975,8 @@ export class MatchScene {
     for (const f of live.fielders) {
       if (f.state === "celebrate" && this.phaseT < 0.6) continue;
       f.state = "idle";
-      const home = f.role === "bowler" ? { x: 1.2, z: 24 } : f.home;
+      const home = f.role === "bowler"
+        ? { x: bowlingGeometry(this.spinner, activeWicketSide(this)).startX * 0.8, z: 24 } : f.home;
       const dx = home.x - f.pos.x;
       const dz = home.z - f.pos.z;
       const dist = Math.hypot(dx, dz);

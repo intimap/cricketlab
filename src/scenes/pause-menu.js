@@ -34,6 +34,7 @@ const PAGES = [
       ["1 - 6", "CHOOSE THE DELIVERY"],
       ["ARROWS", "SET LINE AND LENGTH"],
       ["E", "EFFORT (SPINNERS: FLIGHT)"],
+      ["T", "OVER / AROUND THE WICKET (BEFORE RUN-UP)"],
       ["F", "FIELD PRESET"],
       ["V", "DRAG FIELDERS WITH THE MOUSE"],
       ["SPACE", "RUN IN"],

@@ -1,3 +1,4 @@
+import { bowlerFieldingHome } from "./bowling-side.js";
 import { PITCH_TYPES, Pitch } from "./conditions.js";
 import { Innings } from "./innings.js";
 import { Commentary } from "./commentary.js";
@@ -154,6 +155,7 @@ export class Match {
       fielders: this.fieldersFor(),
       keeper: inn.keeper,
       bowler: inn.bowler.p,
+      bowlerHome: bowlerFieldingHome(this.spinner, intent.wicketSide),
       spinner: this.spinner,
       outfield: inn.pitch.type.outfield,
       noBall: delivery.noBall,

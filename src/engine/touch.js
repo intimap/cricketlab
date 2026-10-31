@@ -56,6 +56,7 @@ const ACTIONS = {
     ["4", "Digit4", "small"],
     ["5", "Digit5", "small"],
     ["EFFORT", "KeyE"],
+    ["SIDE", "KeyT"],
     ["FIELD SET", "KeyF"],
     ["APPEAL", "KeyH"],
     ["OK", "Enter"],

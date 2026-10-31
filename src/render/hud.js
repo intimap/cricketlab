@@ -1,6 +1,7 @@
 import { WIDTH, HEIGHT, COLORS, fillRect, fillCircle, fillEllipse, strokeEllipse, drawPanel, drawBar } from "../engine/screen.js";
 import { drawText, textWidth, wrapText } from "../engine/text.js";
 import { clamp } from "../math.js";
+import { drawEasedBar } from "./feedback.js";
 import { MID_PITCH, BOUNDARY, distFromCentre } from "../sim/geometry.js";
 
 /** Top of the score bar along the bottom of the screen. */
@@ -9,7 +10,11 @@ export const HUD_Y = 324;
 export const staminaColor = (s) => (s > 0.6 ? "#7cd67c" : s > 0.35 ? COLORS.gold : COLORS.red);
 
 /** Bottom bar: batters and bowler, the partnership and this over, then the call of the last ball. */
-export function drawScoreBar(inn, commentary, deliveryLabel) {
+/** Where the score bar's pressure (PRS) bar sits, for words floating off it. */
+export const PRESSURE_BAR = { x: WIDTH - 4 - 28, y: HUD_Y + 5, w: 28 };
+
+/** pressureShown: the pressure bar's eased value (it flashes white as it rises to inn.pressure). */
+export function drawScoreBar(inn, commentary, deliveryLabel, pressureShown = inn.pressure) {
   fillRect(0, HUD_Y, WIDTH, HEIGHT - HUD_Y, COLORS.gold2);
   fillRect(0, HUD_Y + 1, WIDTH, HEIGHT - HUD_Y - 1, COLORS.green);
   fillRect(0, HUD_Y + 1, WIDTH, 1, "#2c6b45");
@@ -30,7 +35,7 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
   let r = right;
   const pressureColor = inn.pressure > 0.6 ? COLORS.red : inn.pressure > 0.35 ? COLORS.gold : "#7ec8ff";
   r -= 28;
-  drawBar(r, y1 + 1, 28, 5, inn.pressure, pressureColor);
+  drawEasedBar(r, y1 + 1, 28, 5, pressureShown, inn.pressure, pressureColor);
   r -= textWidth("PRS") + 3;
   drawText("PRS", r, y1, { color: COLORS.dim });
   const bowler = inn.bowl[inn.currentBowler];

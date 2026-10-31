@@ -38,11 +38,15 @@ import {
   playerKit,
 } from "../render/sprites.js";
 import { drawBooth, boothShowing } from "../render/booth.js";
+import { drawBallTrail, drawPitchReticle } from "../render/ball-trail.js";
+import { drawTimingMeter, drawFloat, drawEasedBar } from "../render/feedback.js";
+import { shakeOffset, floatAge, timingFade } from "./match-feedback.js";
 import { STRIKER_X, STRIKER_SCREEN_X, readyPose, strikerStroke, footworkOf, footworkPixels } from "./batter-pose.js";
 import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import { eyeMultiplier } from "../sim/eye.js";
 import {
   HUD_Y,
+  PRESSURE_BAR,
   staminaColor,
   drawScoreBar,
   drawScoreBox,
@@ -80,8 +84,15 @@ const miniMapShown = (scene) => !showingWide(scene) && scene.phase !== "setup" &
 
 export function drawMatch(scene) {
   setShadowStretch(scene.light.shadow.stretch);
+  // A sweet strike or broken stumps shakes the picture (not the scoreboard) by a pixel.
+  const shake = shakeOffset(scene.juice, scene.now);
+  if (shake) {
+    ctx.save();
+    ctx.translate(shake.x, shake.y);
+  }
   if (showingWide(scene)) drawWide(scene);
   else drawClose(scene);
+  if (shake) ctx.restore();
   // The time of day's colour, over everything on the field (not the scoreboard and panels drawn after).
   if (scene.light.tint) {
     ctx.save();
@@ -96,12 +107,18 @@ export function drawMatch(scene) {
     : "";
   // The call types itself out, and stays up while the box talks.
   const booth = boothShowing(scene.booth, scene.now);
-  drawScoreBar(scene.inn, scene.commentary.slice(0, Math.floor(scene.commT * 70)), label);
+  drawScoreBar(
+    scene.inn,
+    scene.commentary.slice(0, Math.floor(scene.commT * 70)),
+    label,
+    scene.juice.shown.pressure ?? undefined,
+  );
   // The score in the corner, except over the full scorecard and the pause menu.
   if (scene.phase !== "pause" && scene.phase !== "inningsEnd") drawScoreBox(scene.inn);
   if (booth) drawBooth(scene.booth, scene.now);
   drawBanners(scene.banners, scene.now);
   drawPanels(scene);
+  drawFeedback(scene);
 }
 
 // --- Close view: the broadcast angle down the pitch. ---
@@ -193,6 +210,8 @@ function drawClose(scene) {
         const radius = Math.max(1.5, 0.036 * 880 * p.s * 1.25);
         if (p.y < HUD_Y + 6) {
           drawShadow(ground.x, ground.y, radius);
+          const trail = ballTrail(scene);
+          if (trail.length) drawBallTrail(trail, scene.spinner);
           drawBall(p.x, p.y, radius, inn.ball.shine);
         }
       },
@@ -208,6 +227,10 @@ function drawClose(scene) {
       },
     });
   }
+
+  // The pitch map's landing marker, on the ground under everyone.
+  const landing = landingMarker(scene);
+  if (landing) drawPitchReticle(landing.p, landing.k, landing.flash, landing.scale);
 
   // Far to near.
   sprites.sort((a, b) => closeDepth(b.z) - closeDepth(a.z));
@@ -286,6 +309,47 @@ function bowlerState(scene) {
     return { x: 0.9, z: 17.4, pose: "appeal", phase: 0 };
   }
   return { x: 0.55 + 0.4 * k, z: 19 - 2.2 * k, pose: k < 1 ? "follow" : "walk", phase: t };
+}
+
+/** Seconds between trail dots, and how many: the ball's last few positions in flight. */
+const TRAIL_STEP = 1 / 60;
+const TRAIL_DOTS = 5;
+
+/** The trail behind the delivery (screen points, newest first), until it reaches the bat or pads. */
+function ballTrail(scene) {
+  const cur = scene.cur;
+  if (!cur?.delivery || cur.contactDone || scene.phase !== "flight") return [];
+  const samples = cur.delivery.samples;
+  const points = [];
+  for (let i = 1; i <= TRAIL_DOTS; i++) {
+    const t = cur.t - i * TRAIL_STEP;
+    if (t <= 0) break;
+    const s = sampleAtTime(samples, Math.min(t, samples[samples.length - 1].t));
+    if (s.z < 0) continue;
+    const p = projectClose(s.x, s.y, s.z);
+    points.push({ x: p.x, y: p.y, r: Math.max(1.5, 0.036 * 880 * p.s * 1.25) });
+  }
+  return points;
+}
+
+/** How long (s) the landing marker flashes on the bounce. */
+const LANDING_FLASH = 0.2;
+
+/** Where the delivery will pitch, while it's in the air and just after it lands. */
+function landingMarker(scene) {
+  const cur = scene.cur;
+  const d = cur?.delivery;
+  if (!d?.pitchedAt || d.bounceIndex < 0 || scene.phase !== "flight") return null;
+  const bounceT = d.samples[d.bounceIndex].t;
+  const since = cur.t - bounceT;
+  if (since > LANDING_FLASH) return null;
+  const p = projectClose(d.pitchedAt.x, 0, d.pitchedAt.z);
+  return {
+    p,
+    k: clamp(cur.t / bounceT),
+    flash: since >= 0 ? 1 - since / LANDING_FLASH : 0,
+    scale: p.s / projectClose(0, 0, PITCH_LENGTH / 2).s,
+  };
 }
 
 function ballPosition(scene) {
@@ -708,7 +772,8 @@ function drawEyeMeter(scene) {
   drawText("EYE", x + 6, y + 5, { color: COLORS.gold });
   drawText(`x${eyeMultiplier(eye).toFixed(2)}`, x + w - 6, y + 5, { color: eye > 0 ? COLORS.gold : COLORS.dim, align: "right" });
   const glow = full && Math.floor(scene.now * 4) % 2 === 0;
-  drawBar(x + 6, y + 15, w - 12, 5, eye, glow ? COLORS.white : eye > 0.6 ? COLORS.gold : "#7ec8ff");
+  const shown = scene.juice.shown.eye ?? eye;
+  drawEasedBar(x + 6, y + 15, w - 12, 5, shown, eye, glow ? COLORS.white : shown > 0.6 ? COLORS.gold : "#7ec8ff");
 }
 
 /** Nets: the coach's verdict on the last ball. */
@@ -732,6 +797,34 @@ function drawCoachCard(scene) {
 }
 
 /** Bar showing the run-up against the release window, and where the last release landed. */
+const RELEASE_GOLD = "#ffe066";
+const TIMING_METER = { x: 440, y: 268 };
+
+/**
+ * The arcade feedback (scenes/match-feedback.js): words floating off the striker and the HUD's eye and
+ * pressure bars, and the player's timing meter beside the striker.
+ */
+function drawFeedback(scene) {
+  const fb = scene.juice;
+  const anchors = { eye: { x: 58, y: 40 }, pressure: { x: PRESSURE_BAR.x + PRESSURE_BAR.w / 2 - 20, y: PRESSURE_BAR.y - 8 } };
+  if (fb.floats.some((f) => f.anchor === "striker")) {
+    if (showingWide(scene)) {
+      const p = projectWide(STRIKER_X, 2, CREASE);
+      anchors.striker = { x: p.x, y: p.y - 6 };
+    } else {
+      const kit = playerKit(scene.kitBat, scene.inn.bat[scene.inn.striker].p);
+      const place = strikerPlace(scene, kit, closeFromBowlerEnd(), footworkOf(scene, scene.cur, scene.cur ? scene.clock() : 0));
+      anchors.striker = { x: place.x, y: place.y - 112 * place.scale };
+    }
+  }
+  for (const f of fb.floats) {
+    const at = anchors[f.anchor];
+    if (at) drawFloat(f.text, at.x, at.y, f.color, floatAge(f, scene.now));
+  }
+  // On the open grass to the off side of the striker, clear of the stumps and the panels.
+  if (fb.timing) drawTimingMeter(TIMING_METER.x, TIMING_METER.y, fb.timing.timing, timingFade(fb, scene.now));
+}
+
 function drawReleaseMeter(scene) {
   const cur = scene.cur;
   const r = cur.runup;
@@ -745,8 +838,12 @@ function drawReleaseMeter(scene) {
   fillRect(x0, y, w, 6, "#203a2a");
   // Too late: no-ball territory.
   fillRect(toX(noBallPos(r)), y, toX(to) - toX(noBallPos(r)), 6, COLORS.red);
+  // The gold zone, bright with a crisp dark edge either side so it reads against the bar.
   const half = r.zone / r.dur;
-  fillRect(toX(1 - half), y, Math.max(2, toX(1 + half) - toX(1 - half)), 6, COLORS.gold);
+  const zoneL = Math.round(toX(1 - half));
+  const zoneW = Math.max(3, Math.round(toX(1 + half)) - zoneL);
+  fillRect(zoneL - 1, y - 1, zoneW + 2, 8, COLORS.black);
+  fillRect(zoneL, y, zoneW, 6, RELEASE_GOLD);
   const at = cur.delivery ? cur.releaseMark : meterPos(r, cur.tRun);
   fillRect(clamp(toX(at), x0, x0 + w) - 1, y - 3, 3, 12, COLORS.white);
   // Aftertouch, shown the way it was pushed on screen.

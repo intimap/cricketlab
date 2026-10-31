@@ -24,6 +24,7 @@ import { LIGHTS } from "../render/light.js";
 import { projectWide, unprojectWide } from "../render/camera.js";
 import { drawMatch } from "./match-view.js";
 import * as decisions from "./match-decisions.js";
+import { createFeedback, stepFeedback, timeFactor, onContact, onBallDone, hitStop } from "./match-feedback.js";
 import * as input from "./match-input.js";
 import { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "./match-input.js";
 import { PauseMenu } from "./pause-menu.js";
@@ -161,6 +162,9 @@ export class MatchScene {
     return this.match.inn;
   }
 
+  /** Timing meter, floating words, hit-stop and eased bars (match-feedback.js). */
+  juice = createFeedback();
+
   /** Counts up each ball, so on-screen toggles (POWER) switch off for the next one. */
   touchEpoch = 0;
 
@@ -245,6 +249,8 @@ export class MatchScene {
       /** Index of the next live-ball event to handle. */
       lastEv: 0,
       lineAtBat: 0,
+      /** The pressure as the ball was bowled, for the feedback's +/-PRESSURE tag. */
+      pressureBefore: this.inn.pressure,
     };
   }
 
@@ -271,6 +277,8 @@ export class MatchScene {
 
   update(dt) {
     this.now += dt;
+    const striker = this.inn.bat[this.inn.striker];
+    stepFeedback(this.juice, this.now, dt, this.human === "bat" && striker ? striker.eye : null, this.inn.pressure);
     this.phaseT += dt;
     this.commT += dt;
 
@@ -618,7 +626,7 @@ export class MatchScene {
       if (since >= 0.75 && this.cam === "auto" && this.view === "close") this.view = "wide";
     }
     const slowmo = this.human === "bat" && !cur.contactDone ? PLAYER_SLOWMO : 1;
-    cur.t += dt * this.timeScale * slowmo;
+    cur.t += dt * this.timeScale * slowmo * timeFactor(this.juice, this.now);
     this.updateBatInput();
     const d = cur.delivery;
     if (!cur.bounceDone && d.bounceIndex >= 0 && cur.t >= d.samples[d.bounceIndex].t) {
@@ -631,6 +639,7 @@ export class MatchScene {
 
     if (!cur.contactDone && cur.t >= res.start.t) {
       cur.contactDone = true;
+      onContact(this.juice, this.now, res, play.shot, this.human === "bat");
       const kind = res.contact.kind;
       if (res.touchedBat) {
         if (kind === "middle") sfx.bat(res.contact.quality);
@@ -760,6 +769,7 @@ export class MatchScene {
 
   /** Send bails and splinters flying from the stumps at depth z. */
   knockStumps(z, wide = false) {
+    hitStop(this.juice, this.now);
     for (let i = 0; i < 6; i++) {
       this.particles.push({
         x: (Math.random() - 0.5) * 0.2,
@@ -828,6 +838,10 @@ export class MatchScene {
     const done = this.match.finish(cur.play);
     this.match.pack.tick();
     cur.done = done;
+    onBallDone(this.juice, this.now, this.human === "bat" ? done.rec.eye : null, {
+      before: cur.pressureBefore,
+      after: this.inn.pressure,
+    });
     if (this.human === "bat") this.flashEye(done.rec.eye);
     if (this.nets) {
       this.feedback = this.coachFeedback(done.rec);

@@ -397,7 +397,7 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
       (shot.type === "ramp" || (isSweep(shot.type) && !spinner) ? 0.7 : 1) *
       (1 - WRONG_FOOT_WINDOW * misfooted);
   const timing = shot.timingError / (window * (shot.windowMult ?? 1) * eyeEase);
-  if (Math.abs(timing) > 2.4) return noContact(timing < 0 ? "early" : "late");
+  if (Math.abs(timing) > 2.4) return { ...noContact(timing < 0 ? "early" : "late"), timing };
 
   const reach = defending ? 0.1 : 0.09;
   const lat = Math.abs(latErr);
@@ -505,6 +505,8 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
     kind,
     quality,
     timed: !mistimed,
+    /** The timing error in windows (negative early), for the player's timing meter. */
+    timing,
     missReason: "",
     shotName: shotName(shot.type, bearing, height, footBack, back),
     at,

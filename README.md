@@ -148,6 +148,7 @@ src/
     sprites.js        the ball and its shadow; re-exports kit.js, batter-rig.js and figures.js
     kit.js            kit colours, a player's looks (skin, hair, beard, height), mirroring, shadows
     batter-rig.js     the striker: key poses, skeleton (IK for knees and elbows), drawing him in kit
+    bat.js            willow blade face, solid edge and toe, projected from the striker's rig
     figures.js        everyone else: bowler, keeper, fielders, umpires, runners, close up and tiny
     batter-motion.js  the original straight drive, forward defence and pull
     batter-motion-all.js  all 28 stroke clips and the expanded visual sampler
@@ -207,7 +208,8 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   `sim/fielder-motion.js`, `fielder-ai.js`, `fielder-catch.js` and `fielder-throw.js`.
 - **What's shown on screen:** `scenes/match-view.js` and `render/`.
 - **Batter animation:** which pose or stroke when, in `scenes/batter-pose.js`; the poses, skeleton and drawing in
-  `render/batter-rig.js`; the expanded sampler in `render/batter-motion-all.js` and poses in `render/batter-shots/`;
+  `render/batter-rig.js`; the blade's face, thickness and toe in `render/bat.js`;
+  the expanded sampler in `render/batter-motion-all.js` and poses in `render/batter-shots/`;
   stroke selection and timing in `scenes/batter-stroke.js`, with routes in `render/batter-catalog.js`.
 - **Game modes and Classic Matches:** `sim/formats.js` (challenges are plain data). AI chase and
   limited-overs tempo constants are at the top of `sim/ai.js`.

@@ -1,13 +1,12 @@
 import { drawLine, fillCircle, fillEllipse, fillPolygon } from "../engine/screen.js";
 import { drawText } from "../engine/text.js";
-import { BAT_FACE, BAT_EDGE, PAD, PAD_SHADE, BOOT, HAIR, mirrored, groundShadow, lighten, darken } from "./kit.js";
+import { PAD, PAD_SHADE, BOOT, HAIR, mirrored, groundShadow, lighten, darken } from "./kit.js";
+import { drawBat } from "./bat.js";
 
 /**
  * The striker in the close view: his key poses, the skeleton solved from a pose (two-bone IK for knees
  * and elbows, on the old poses or the newer rig in batter-motion.js) and the drawing of him in kit.
  */
-
-const GRIP = "#2b2b33";
 
 /**
  * Key poses for the close-up striker. px/py: hands, angle: bat angle in
@@ -518,28 +517,7 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     arm(frontShoulder, frontElbow, frontWrist);
   }
 
-  // Bat: handle then blade, the blade widening towards the toe as it comes nearer the camera.
-  const shoulder = { x: topHand.x + dir.x * 9, y: topHand.y + dir.y * 9 };
-  const toe = { x: topHand.x + dir.x * 36, y: topHand.y + dir.y * 36 };
-  line({ x: topHand.x - dir.x * 2, y: topHand.y - dir.y * 2 }, shoulder, 2, GRIP);
-  const len = Math.hypot(toe.x - shoulder.x, toe.y - shoulder.y) || 1;
-  const side = { x: -(toe.y - shoulder.y) / len, y: (toe.x - shoulder.x) / len };
-  const blade = (w0, w1, dx, color) =>
-    poly(
-      [
-        { x: shoulder.x + dx + side.x * w0, y: shoulder.y + side.y * w0 },
-        { x: toe.x + dx + side.x * w1, y: toe.y + side.y * w1 },
-        { x: toe.x + dx - side.x * w1, y: toe.y - side.y * w1 },
-        { x: shoulder.x + dx - side.x * w0, y: shoulder.y - side.y * w0 },
-      ],
-      color,
-    );
-  const face = pose.rig === 1 ? Math.max(0.22, Math.abs(pose.batFace)) : 1;
-  const toeWidth = 3 * (1 + 0.45 * near) * face;
-  blade(3 * face, toeWidth, 0, BAT_EDGE);
-  blade(2 * face, Math.max(0.35, toeWidth - 1), 0.6, BAT_FACE);
-  // Pointing back at us, the toe's end shows as a block of bare willow.
-  if (near > 0.4) fillCircle(at(toe).x, at(toe).y, toeWidth * 0.8 * scale, BAT_EDGE);
+  drawBat({ topHand, dir, near, face: pose.rig === 1 ? (pose.batFace ?? 1) : 1 }, poly, line);
   // Gloves.
   for (const g of [topHand, bottomHand]) {
     const p = at(g);

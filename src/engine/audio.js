@@ -22,7 +22,14 @@ export function unlockAudio() {
   }
   master = ac.createGain();
   master.gain.value = muted ? 0 : 0.6;
-  master.connect(ac.destination);
+  const limiter = ac.createDynamicsCompressor();
+  limiter.threshold.value = -6;
+  limiter.knee.value = 0;
+  limiter.ratio.value = 20;
+  limiter.attack.value = 0.003;
+  limiter.release.value = 0.12;
+  master.connect(limiter);
+  limiter.connect(ac.destination);
 
   // Two seconds of brown-ish noise, shared by the crowd loop and every burst.
   noise = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);

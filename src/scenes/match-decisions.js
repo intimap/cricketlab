@@ -1,3 +1,4 @@
+import { ON_FIELD_TIME } from "./match-broadcast.js";
 import { COLORS } from "../engine/screen.js";
 import { keys } from "../engine/input.js";
 import { sfx } from "../engine/audio.js";
@@ -34,7 +35,7 @@ export function decideLbw(scene) {
   const out = scene.match.umpireLbw(cur.play);
   if (scene.human === "bowl" && !res.lbw && res.lbwNote !== "umpire's call, not out") scene.inn.irritation += 1;
   cur.onField = out;
-  scene.banner(out ? "THE FINGER GOES UP" : "NOT OUT", out ? COLORS.red : COLORS.cream, 1.6, 3, 60);
+  // The broadcast overlay presents the on-field decision.
   if (out) sfx.cheer(0.8);
   else sfx.groan();
   scene.setPhase("decision");
@@ -46,10 +47,11 @@ export function updateDecision(scene) {
   const inn = scene.inn;
   const loser = cur.onField ? "bat" : "bowl";
   const playerSide = scene.human === "bowl" ? "bowl" : "bat";
+  if (scene.phaseT < ON_FIELD_TIME) return;
   if (loser === playerSide && inn.reviews[loser] > 0) {
     // Play stops while the player decides; a moment's grace so a stray press doesn't accept it.
     if (keys.pressed("KeyR")) scene.startReview(loser);
-    else if (scene.phaseT > REVIEW_WINDOW || (scene.phaseT > 0.4 && (keys.pressed("Space") || keys.pressed("Enter"))))
+    else if (scene.phaseT > REVIEW_WINDOW + ON_FIELD_TIME || (scene.phaseT > 0.4 && (keys.pressed("Space") || keys.pressed("Enter"))))
       scene.endDecision();
   } else if (loser === playerSide) {
     if (scene.phaseT > 2.8 || keys.pressed("Space")) scene.endDecision();
@@ -63,14 +65,14 @@ export function updateDecision(scene) {
 
 /** Seconds left to review, while the player can. */
 export function reviewTimeLeft(scene) {
-  return Math.max(0, REVIEW_WINDOW - scene.phaseT);
+  return Math.max(0, REVIEW_WINDOW + ON_FIELD_TIME - scene.phaseT);
 }
 
 export function startReview(scene, side) {
   const cur = scene.cur;
   cur.reviewBy = side;
   cur.tracking = scene.match.tracking(cur.play);
-  scene.big("REVIEW", COLORS.gold, side === "bat" ? "THE BATTER REVIEWS" : "THE FIELDING SIDE REVIEWS", 1.2);
+  // Tracking and verdict are drawn in sequence, without overlapping banners.
   scene.setPhase("review");
 }
 
@@ -83,9 +85,7 @@ export function endReview(scene) {
   const won = cur.reviewBy === "bat" ? !out : out;
   // Umpire's call: the on-field decision stands and the review is kept.
   if (!won && t.verdict !== "umpiresCall") scene.inn.reviews[cur.reviewBy]--;
-  const sub = out !== cur.onField ? "DECISION OVERTURNED" : t.verdict === "umpiresCall" ? "UMPIRE'S CALL" : "REVIEW LOST";
   cur.onField = out;
-  scene.big(out ? "OUT" : "NOT OUT", out ? COLORS.red : COLORS.cream, sub, 1.6);
   scene.endDecision();
 }
 

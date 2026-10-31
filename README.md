@@ -33,6 +33,7 @@ To publish it, turn on GitHub Pages (Settings → Pages → Deploy from branch �
 | Menu          | Arrows to change, Enter to start                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | Batting       | Space to face up. Front foot: **S** drive, **W** loft, **A** forward defence. Back foot: **Q** attack (cut, punch, pull, hook or glance, as the ball dictates), **D** defence. No key = leave. Hold **←**/**→** before playing to step 10 cm across the crease (back to guard when let go), to reach a wide one (his pads move too). The ball's line sets the direction; play late to go finer, early to go squarer. Hold **↓** with **W** to ramp over the keeper, or **↓** + **←**/**→** with **Q** to sweep / reverse sweep. Hold **Shift** for a power shot (play it earlier). **↑** / **↓** to run or turn back |
 | Bowling       | Arrows set line and length (Shift = fine), number keys pick the delivery, **E** effort, **F** field preset, **V** drag fielders with the mouse, **N** new ball (after 80 overs). Space to run in, Space again to release at the delivery stride: early pitches it shorter, late fuller, very late is a no-ball                                                                                                                                                                                                                                                                                                       |
+| Celebrations | Space, Enter or tap the game to skip a boundary or wicket celebration |
 | Between balls | **O** sim an over, **P** sim 5 overs, **V** view the field                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | Appeals       | **H** to appeal for LBW when bowling (appealing for nothing irritates the umpire). **R** to review a decision that goes against you, or **Space** to accept it; play stops for up to 10 seconds while you decide (two unsuccessful reviews per innings). The umpire gets one in seven or so wrong                                                                                                                                                                                                                                                                                                                    |
 | Anytime       | **C** camera, **M** sound, **Esc** pause and scorecard                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -105,6 +106,7 @@ src/
     teams.js          squads and player ratings
     conditions.js     pitch types, pitch wear, ball wear (swing, reverse, grip)
     delivery.js       bowling: release, swing, seam, spin, bounce, flight
+    bat-impact.js     blade contact coordinates, toe/splice rebound and continuous edge deflection
     batting.js        the shot: timing, where the bat goes, edges, LBW, bowled
     eye.js            every batter's eye: built by well-timed shots, dented by misses and edges
     ball-in-play.js   after the shot: the ball, catches, throws, running, run-outs
@@ -138,6 +140,7 @@ src/
     batter-shot-extensions.js  composes authored data from batter-shots/
     batter-shots/     additional drive, back-foot, sweep/ramp and touch-shot pose families
     batter-catalog.js  input-family and shot-label routes to the 28 clips
+    match-broadcast.js DRS tracking, verdict cards and celebrations
     hud.js            score bar, mini-map, banners, scorecard, speech bubbles
     ball-trail.js     the delivery's fading trail and the pitch-map landing reticle (close view)
     feedback.js       arcade feedback drawn: timing meter and callout, floating words, eased bars
@@ -151,6 +154,7 @@ src/
     match-decisions.js  LBW appeals, the umpire's decision and DRS reviews
     match-feedback.js what feedback to show and when: shot words, +/-EYE and PRESSURE, hit-stop, shake
     match-view.js     drawing for the match scene
+    match-broadcast.js review timing and celebration skip input
     batter-pose.js    the striker's pose through a ball: stance, trigger, backlift, strokes, follow-throughs
     batter-stroke.js  presentation-only selection and the existing attack/block/leave clocks
     pause-menu.js     the Esc menu: scorecard, instructions, sound
@@ -198,3 +202,10 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   when it's true of a ball), picked by `sim/pack-voice.js` and voiced in `sim/commentators.js`. A new batch goes in as
   a new pack version (see the pack's README). `sim/moments.js` spots situations; moments the pack doesn't cover use
   each commentator's lines in `sim/booth-lines.js`.
+
+Bat contact resolves the ball against a simplified oriented blade: across its width and along its length
+from toe to handle. Toe and splice contacts lose rebound speed; thin and thick edges blend their direction
+and pace continuously, including inside edges. Cuts, pulls and sweeps use a horizontal blade; drives and
+defence use an upright blade. This is a contact-plane approximation, independent of the drawn bat rig;
+post-strike spin and a full rigid-body collision are not modelled. Run
+`node tools/bat-impact.test.mjs` for contact geometry, edge continuity and seeded simulation checks.

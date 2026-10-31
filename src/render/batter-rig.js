@@ -4,98 +4,13 @@ import { PAD, PAD_SHADE, BOOT, HAIR, mirrored, groundShadow, lighten, darken } f
 import { drawBat } from "./bat.js";
 
 /**
- * The striker in the close view: his key poses, the skeleton solved from a pose (two-bone IK for knees
- * and elbows, on the old poses or the newer rig in batter-motion.js) and the drawing of him in kit.
+ * The striker in the close view: his key poses, the projected 3D skeleton solved from a pose and the drawing of him in kit.
  */
 
-/**
- * Key poses for the close-up striker. px/py: hands, angle: bat angle in
- * degrees (0 = straight down; positive lifts it back, negative carries it through),
- * plane: how much of that swing runs along the pitch - towards or away from the
- * camera behind him - rather than across the screen (BAT_PLANE unless given:
- * a straight bat; cross-bat shots swing nearer the screen's plane),
- * step: front foot forward, lean: body lean, back: weight on the back foot.
- */
-export const BATTER_POSES = {
-  stance: { px: 11, py: -44, angle: 14, step: 0, lean: 0, back: 0 },
-  lift0: { px: 12, py: -54, angle: 100, step: 0, lean: 0, back: 0 },
-  lift1: { px: 11, py: -64, angle: 150, step: 0, lean: -1, back: 0 },
-  /** Small back-and-across movement as the bowler delivers. */
-  trigger: { px: 12, py: -46, angle: 22, step: 0, lean: 1, back: 0.6 },
-  contactFront: { px: 12, py: -40, angle: 0, step: 1.4, lean: 5, back: 0 },
-  contactBack: { px: 12, py: -46, angle: 10, step: 0, lean: 1, back: 1 },
-  // Follow-throughs, by where the shot went.
-  coverDriveEnd: { px: 6, py: -76, angle: -158, step: 1.4, lean: 6, back: 0 },
-  straightDriveEnd: { px: -1, py: -84, angle: -176, step: 1.4, lean: 3, back: 0 },
-  onDriveEnd: { px: -8, py: -72, angle: -128, step: 1.3, lean: 0, back: 0 },
-  clipEnd: { px: 2, py: -50, angle: -55, step: 1, lean: -1, back: 0, plane: 0.4 },
-  loftEnd: { px: -4, py: -86, angle: -178, step: 1.5, lean: 2, back: 0 },
-  slogEnd: { px: -12, py: -80, angle: -112, step: 1.2, lean: -3, back: 0, plane: 0.3 },
-  cutEnd: { px: 18, py: -56, angle: 95, step: 0, lean: 3, back: 1, plane: 0 },
-  lateCutEnd: { px: 18, py: -44, angle: 78, step: 0, lean: 4, back: 1, plane: 0.2 },
-  pullEnd: { px: -6, py: -62, angle: -105, step: 0, lean: -3, back: 1, plane: 0 },
-  hookEnd: { px: -10, py: -82, angle: -82, step: 0, lean: -5, back: 1, plane: 0.1 },
-  defendFront: { px: 13, py: -42, angle: -4, step: 1.3, lean: 6, back: 0 },
-  defendBack: { px: 12, py: -48, angle: 2, step: 0, lean: 2, back: 1 },
-  leave: { px: 3, py: -88, angle: 172, step: 0.3, lean: -2, back: 0 },
-  // Ramp: bat face up over the shoulder. Sweeps: down on one knee.
-  rampContact: { px: 10, py: -64, angle: 165, step: 0.6, lean: 2, back: 0.3, drop: 6, plane: 0.5 },
-  rampEnd: { px: 6, py: -84, angle: 178, step: 0.6, lean: 0, back: 0.3, drop: 6, plane: 0.5 },
-  sweepContact: { px: 2, py: -24, angle: -75, step: 1.6, lean: 7, back: 0, drop: 14, plane: 0 },
-  sweepEnd: { px: -12, py: -48, angle: -140, step: 1.6, lean: 4, back: 0, drop: 14, plane: 0 },
-  reverseSweepContact: { px: 20, py: -26, angle: 75, step: 1.6, lean: 6, back: 0, drop: 14, plane: 0 },
-  reverseSweepEnd: { px: 30, py: -48, angle: 140, step: 1.6, lean: 5, back: 0, drop: 14, plane: 0 },
-  // Reactions.
-  beaten: { px: 9, py: -54, angle: 40, step: 0.6, lean: -3, back: 0.3 },
-  padFlinch: { px: 6, py: -60, angle: 60, step: 0.4, lean: -4, back: 0.6 },
-};
-
-export function lerpPose(a, b, t) {
-  const k = Math.max(0, Math.min(1, t));
-  const turn = b.angle - a.angle;
-  return {
-    px: a.px + (b.px - a.px) * k,
-    py: a.py + (b.py - a.py) * k,
-    angle: a.angle + turn * k,
-    step: a.step + (b.step - a.step) * k,
-    lean: a.lean + (b.lean - a.lean) * k,
-    back: a.back + (b.back - a.back) * k,
-    drop: (a.drop ?? 0) + ((b.drop ?? 0) - (a.drop ?? 0)) * k,
-    plane: (a.plane ?? BAT_PLANE) + ((b.plane ?? BAT_PLANE) - (a.plane ?? BAT_PLANE)) * k,
-    reach: (a.reach ?? 0) + ((b.reach ?? 0) - (a.reach ?? 0)) * k,
-    backHeel: (a.backHeel ?? 0) + ((b.backHeel ?? 0) - (a.backHeel ?? 0)) * k,
-  };
-}
-
-/**
- * Pose `pose` with the hands carried `reach` pixels across towards the ball's line, the whole body
- * going with them: hips a little, chest more, head most, so the hands only make up the rest. On a
- * big front-foot reach the back heel comes up.
- */
-export function reachPose(pose, reach, frontFoot) {
-  const heel = frontFoot ? 3 * Math.max(0, Math.min(1, (reach - 10) / 14)) : 0;
-  const backHeel = (pose.backHeel ?? 0) + heel;
-  if (pose.rig !== 1) return { ...pose, px: pose.px + reach, reach: (pose.reach ?? 0) + reach, backHeel };
-  return {
-    ...pose,
-    px: pose.px + reach,
-    pelvisX: pose.pelvisX + reach * 0.22,
-    chestX: pose.chestX + reach * 0.4,
-    headX: pose.headX + reach * 0.55,
-    backHeel,
-  };
-}
-
-/** A straight bat swings almost entirely along the pitch: lifted back towards the keeper, through towards the bowler. */
-const BAT_PLANE = 0.85;
-/** How far up the screen a bat end moves per unit it goes down the pitch (the camera looks slightly down). */
-const BAT_DEPTH_RISE = 0.25;
-
-// Bone lengths for the striker's skeleton, in close-view pixels at scale 1.
-const THIGH = 22;
-const SHIN = 23;
-const UPPER_ARM = 19;
-const FOREARM = 18;
+export { BATTER_POSES, lerpPose, reachPose } from "./batter-poses.js";
+export { solveBatterSkeleton, batterJointToWorld } from "./batter-skeleton.js";
+export { solveBatterRig } from "./batter-projection.js";
+import { solveBatterRig } from "./batter-projection.js";
 
 /**
  * Two-bone inverse kinematics: where the middle joint (knee or elbow) sits so
@@ -124,31 +39,6 @@ function bendOf(from, to, l1, l2) {
   const uy = dy / dist;
   return { mx: from.x + ux * along, my: from.y + uy * along, nx: -uy, ny: ux, out };
 }
-
-/**
- * An elbow that points towards `pole` (a direction). Rather than jumping to the mirror-image
- * solution when the arm swings past the pole, it slides through the straight arm, as a hinge
- * turning towards or away from the camera would look: no popping across the body.
- */
-function elbow(shoulder, hand, pole) {
-  const { mx, my, nx, ny, out } = bendOf(shoulder, hand, UPPER_ARM, FOREARM);
-  const side = Math.max(-1, Math.min(1, (nx * pole.x + ny * pole.y) * 2.5));
-  // With the hand tucked in by the shoulder the arm folds flat, the elbow out along the pole.
-  const k = Math.max(0, Math.min(1, (Math.hypot(hand.x - shoulder.x, hand.y - shoulder.y) - 6) / 10));
-  const fx = shoulder.x + pole.x * UPPER_ARM * 0.95;
-  const fy = shoulder.y + pole.y * UPPER_ARM * 0.95;
-  return { x: fx + (mx + nx * out * side - fx) * k, y: fy + (my + ny * out * side - fy) * k };
-}
-
-/** The lead elbow rides high and out towards the off side. */
-const LEAD_ELBOW = { x: 0.8, y: -0.6 };
-/** The back elbow tucks in towards the hips. */
-const tuckedElbow = (shoulder, pelvis) => {
-  const dx = pelvis.x - shoulder.x;
-  const dy = pelvis.y - shoulder.y;
-  const len = Math.hypot(dx, dy) || 1;
-  return { x: dx / len, y: dy / len };
-};
 
 /** The back of the striker's helmet, its peak turned towards the bowler. */
 function drawBatterHelmetBack(head, h, scale, kit, poly, line) {
@@ -191,145 +81,6 @@ export function drawBatter(x, y, scale, pose, kit, number = 0, front = false) {
   else drawBatterBody(x, y, scale, pose, kit, number, false);
 }
 
-// Optional rig extension. Legacy poses keep the original drawing path.
-function articulatedPose(pose, front) {
-  const depth = front ? -1 : 1;
-  const hipAngle = (pose.hipTurn * Math.PI) / 180;
-  const shoulderAngle = (pose.shoulderTurn * Math.PI) / 180;
-  const backFoot = { x: pose.backFootX, y: pose.backFootY - pose.backLift };
-  const frontFoot = { x: pose.frontFootX, y: pose.frontFootY - pose.frontLift };
-  const pelvis = { x: pose.pelvisX, y: pose.pelvisY };
-  const backHip = { x: pelvis.x - Math.cos(hipAngle) * 5.5, y: pelvis.y + Math.sin(hipAngle) * 2.4 * depth };
-  const frontHip = { x: pelvis.x + Math.cos(hipAngle) * 5.5, y: pelvis.y - Math.sin(hipAngle) * 2.4 * depth };
-  const kneeSide = (a, b) => (a.x > b.x ? a : b);
-  const backKnee = joint(backHip, backFoot, THIGH, SHIN, kneeSide);
-  const frontKnee = joint(frontHip, frontFoot, THIGH, SHIN, kneeSide);
-  const chest = { x: pose.chestX, y: pose.chestY };
-  const backShoulder = { x: chest.x - Math.cos(shoulderAngle) * 10, y: chest.y + Math.sin(shoulderAngle) * 4.5 * depth };
-  const frontShoulder = { x: chest.x + Math.cos(shoulderAngle) * 10, y: chest.y - Math.sin(shoulderAngle) * 4.5 * depth };
-  const head = { x: pose.headX, y: pose.headY };
-  const a = (pose.angle * Math.PI) / 180;
-  const towardCamera = Math.sin(a) * pose.plane * depth;
-  const dir = { x: Math.sin(a) * (1 - pose.plane), y: Math.cos(a) + towardCamera * BAT_DEPTH_RISE };
-  const topHand = { x: pose.px, y: pose.py };
-  const bottomHand = { x: topHand.x + dir.x * 4.5, y: topHand.y + dir.y * 4.5 };
-  // A right-handed batter's left/top hand belongs to the front shoulder.
-  const backWrist = bottomHand;
-  const frontWrist = topHand;
-  const backElbow = elbow(backShoulder, backWrist, tuckedElbow(backShoulder, pelvis));
-  const frontElbow = elbow(frontShoulder, frontWrist, LEAD_ELBOW);
-  return {
-    frontLift: 0,
-    drop: 0,
-    lean: 0,
-    backFoot,
-    frontFoot,
-    pelvis,
-    backHip,
-    frontHip,
-    backKnee,
-    frontKnee,
-    chest,
-    backShoulder,
-    frontShoulder,
-    head,
-    topHand,
-    bottomHand,
-    backElbow,
-    frontElbow,
-    backWrist,
-    frontWrist,
-    dir,
-    near: Math.max(0, towardCamera),
-  };
-}
-
-/** Each solved point (and number) of rig `b`, moved `k` of the way back towards rig `a`. */
-function blendRigs(a, b, k) {
-  const out = {};
-  for (const [key, v] of Object.entries(b)) {
-    const u = a[key];
-    if (typeof v === "number" && typeof u === "number") out[key] = v + (u - v) * k;
-    else if (v && typeof v === "object" && u && typeof u === "object")
-      out[key] = { x: v.x + (u.x - v.x) * k, y: v.y + (u.y - v.y) * k };
-    else out[key] = v;
-  }
-  return out;
-}
-
-/**
- * The skeleton for a pose. A pose with `from` (and `fromK`, 0..1) is drawn that far back towards the
- * `from` pose, joint by joint, so a stroke on the new rig can ease in from an old pose (or back out
- * to one) without a jump: lerpPose() only knows the old fields.
- */
-export function solveBatterRig(pose, front = false) {
-  if (pose.from) return blendRigs(solveBatterRig(pose.from, front), solveBatterRig({ ...pose, from: null }, front), pose.fromK);
-  if (pose.rig === 1) return articulatedPose(pose, front);
-  // --- Skeleton ---
-  const frontLift = -7 * pose.step + 3 * pose.back;
-  // Crouch: lowers the hips and everything above (down on one knee for a sweep).
-  const drop = pose.drop ?? 0;
-  const lean = pose.lean;
-  // Side-on, as seen from behind: the back (right) foot is nearest the camera,
-  // the front (left) foot further down the pitch, so higher up the screen.
-  const backFoot = { x: -3 - 2 * pose.back - (drop > 8 ? 5 : 0), y: -3 };
-  const frontFoot = { x: 4 + 2 * pose.step, y: -9 + frontLift };
-  // Striding forward carries the hips with it (up the screen, in this view).
-  // Reaching for a wide one carries the hips, chest and head across too (see reachPose).
-  const reach = pose.reach ?? 0;
-  const pelvis = { x: 1 + lean * 0.5 + reach * 0.22, y: -47 + drop + frontLift * 0.5 + pose.back };
-  const backHip = { x: pelvis.x - 2.5, y: pelvis.y };
-  const frontHip = { x: pelvis.x + 3, y: pelvis.y - 2 };
-  // Knees bend towards the off side, where he faces; down low for a sweep, the back knee goes to the turf.
-  const offSide = (a, b) => (a.x > b.x ? a : b);
-  const backKnee = joint(backHip, backFoot, THIGH, SHIN, (a, b) => (drop > 8 ? (a.y > b.y ? a : b) : offSide(a, b)));
-  const frontKnee = joint(frontHip, frontFoot, THIGH, SHIN, offSide);
-  const chest = { x: pelvis.x + lean * 0.9 + reach * 0.18, y: pelvis.y - 29 + Math.abs(lean) * 0.25 };
-  // Shoulders side-on: the right one near us, the left one pointing down the pitch.
-  // Leaning into a drive dips the front shoulder.
-  const backShoulder = { x: chest.x - 7, y: chest.y - lean * 0.3 };
-  const frontShoulder = { x: chest.x + 7, y: chest.y - 2 + lean * 0.5 };
-  const head = { x: chest.x + lean * 0.4 + 1 + reach * 0.15, y: chest.y - 12 };
-
-  // Hands on the handle: top hand (left) above the bottom hand (right).
-  // The bat in 3D: `near` is how far it points back towards the camera (0-1), which on screen
-  // shortens it and draws its toe a little lower and bigger. From the bowler's end, back is away from us.
-  const a = (pose.angle * Math.PI) / 180;
-  const plane = pose.plane ?? BAT_PLANE;
-  const towardCamera = Math.sin(a) * plane * (front ? -1 : 1);
-  const dir = { x: Math.sin(a) * (1 - plane), y: Math.cos(a) + towardCamera * BAT_DEPTH_RISE };
-  const near = Math.max(0, towardCamera);
-  const topHand = { x: pose.px, y: pose.py + frontLift * 0.5 };
-  const bottomHand = { x: topHand.x + dir.x * 4.5, y: topHand.y + dir.y * 4.5 };
-  const backElbow = elbow(backShoulder, topHand, tuckedElbow(backShoulder, pelvis));
-  const frontElbow = elbow(frontShoulder, bottomHand, LEAD_ELBOW);
-
-  return {
-    frontLift,
-    drop,
-    lean,
-    backFoot,
-    frontFoot,
-    pelvis,
-    backHip,
-    frontHip,
-    backKnee,
-    frontKnee,
-    chest,
-    backShoulder,
-    frontShoulder,
-    head,
-    topHand,
-    bottomHand,
-    backElbow,
-    frontElbow,
-    dir,
-    near,
-    backWrist: topHand,
-    frontWrist: bottomHand,
-  };
-}
-
 function drawBatterBody(x, y, scale, pose, kit, number, front) {
   const at = (p) => ({ x: x + p.x * scale, y: y + p.y * scale });
   // A limb segment tapering from radius r0 to r1, lit from the left: a shade rim on the right.
@@ -356,8 +107,6 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   };
 
   const {
-    frontLift,
-    drop,
     lean,
     backFoot,
     frontFoot,
@@ -376,8 +125,11 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     frontElbow,
     backWrist,
     frontWrist,
-    dir,
-    near,
+    bat,
+    frontLegNear,
+    frontArmNear,
+    frontFootShadow,
+    backFootShadow,
   } = solveBatterRig(pose, front);
 
   // --- Flesh and kit ---
@@ -394,14 +146,9 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   };
 
   groundShadow(x + 1 * scale, y - 2 * scale, 15 * scale, 5 * scale, 0.28);
-  if (pose.rig === 1) {
-    for (const [fx, fy] of [
-      [pose.frontFootX, pose.frontFootY],
-      [pose.backFootX, pose.backFootY],
-    ]) {
-      const foot = at({ x: fx + 1, y: fy + 3 });
-      fillEllipse(foot.x, foot.y, 6 * scale, 1.6 * scale, "rgba(0,0,0,0.24)");
-    }
+  for (const shadow of [frontFootShadow, backFootShadow]) {
+    const foot = at(shadow);
+    fillEllipse(foot.x, foot.y, 6 * scale, 1.6 * scale, "rgba(0,0,0,0.24)");
   }
   const leg = (hip, knee, foot, toe, heel = 0) => {
     limb(hip, knee, 6, 5, kit.pants, kit.shade);
@@ -426,18 +173,16 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
       BOOT,
     );
   };
-  // The far (front) leg first, so the near one overlaps it; toes point to the off side.
-  if (pose.rig === 1 && front) {
-    leg(backHip, backKnee, backFoot, 2, pose.backHeel);
-    leg(frontHip, frontKnee, frontFoot, 2, pose.frontHeel);
+  // Depth determines which leg overlaps the other, whichever camera is selected.
+  if (frontLegNear) {
+    leg(backHip, backKnee, backFoot, 2, pose.backHeel ?? 0);
+    leg(frontHip, frontKnee, frontFoot, 2, pose.frontHeel ?? 0);
   } else {
     leg(frontHip, frontKnee, frontFoot, 2, pose.frontHeel ?? 0);
     leg(backHip, backKnee, backFoot, 2, pose.backHeel ?? 0);
   }
-  if (pose.rig === 1) {
-    if (front) arm(backShoulder, backElbow, backWrist);
-    else arm(frontShoulder, frontElbow, frontWrist);
-  }
+  if (frontArmNear) arm(backShoulder, backElbow, backWrist);
+  else arm(frontShoulder, frontElbow, frontWrist);
 
   // Hips, side-on.
   poly(
@@ -509,15 +254,10 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     drawBatterHelmetBack(head, h, scale, kit, poly, line);
   }
 
-  if (pose.rig === 1) {
-    if (front) arm(frontShoulder, frontElbow, frontWrist);
-    else arm(backShoulder, backElbow, backWrist);
-  } else {
-    arm(backShoulder, backElbow, backWrist);
-    arm(frontShoulder, frontElbow, frontWrist);
-  }
+  if (frontArmNear) arm(frontShoulder, frontElbow, frontWrist);
+  else arm(backShoulder, backElbow, backWrist);
 
-  drawBat({ topHand, dir, near, face: pose.rig === 1 ? (pose.batFace ?? 1) : 1 }, poly, line);
+  drawBat({ bat }, poly, line);
   // Gloves.
   for (const g of [topHand, bottomHand]) {
     const p = at(g);

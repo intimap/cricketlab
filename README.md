@@ -147,8 +147,13 @@ src/
     camera.js         projections for the close (either end) and wide views
     sprites.js        the ball and its shadow; re-exports kit.js, batter-rig.js and figures.js
     kit.js            kit colours, a player's looks (skin, hair, beard, height), mirroring, shadows
-    batter-rig.js     the striker: key poses, skeleton (IK for knees and elbows), drawing him in kit
-    bat.js            willow blade face, solid edge and toe, projected from the striker's rig
+    batter-rig.js     pixel-art striker drawing; re-exports poses and the projected rig for older callers
+    batter-poses.js   legacy stances, pose blending and whole-body reach
+    batter-skeleton.js  canonical XYZ joints, fixed-length 3D IK, planted feet and rigid hand grip
+    batter-projection.js  either close-camera view of the same skeleton, limb depth order and bat faces
+    rig-3d.js         vector math and two-bone hinge solves for visual rigs
+    bat-mesh.js       the rigid 3D willow blade carried by the solved hands
+    bat.js            draw the projected blade faces in depth order on the pixel grid
     figures.js        everyone else: bowler, keeper, fielders, umpires, runners, close up and tiny
     batter-motion.js  the original straight drive, forward defence and pull
     batter-motion-all.js  all 28 stroke clips and the expanded visual sampler
@@ -208,7 +213,12 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   `sim/fielder-motion.js`, `fielder-ai.js`, `fielder-catch.js` and `fielder-throw.js`.
 - **What's shown on screen:** `scenes/match-view.js` and `render/`.
 - **Batter animation:** which pose or stroke when, in `scenes/batter-pose.js`; the poses, skeleton and drawing in
-  `render/batter-rig.js`; the blade's face, thickness and toe in `render/bat.js`;
+  `render/batter-poses.js`, `render/batter-skeleton.js` and `render/batter-rig.js`;
+  the skeleton has X across the pitch, Y up and Z towards the bowler, in local rig units (94 units per 1.8 m).
+  `render/batter-projection.js` projects the same joints from either end; `batterJointToWorld` converts a joint
+  to match-world metres for visual tools. Clips can author `frontFootZ`, `backFootZ`, `pelvisZ`, `chestZ`, `headZ`
+  and `handZ`; existing clips receive inferred depth keyframes. The rigid blade mesh is in `render/bat-mesh.js`,
+  with pixel drawing in `render/bat.js`. These joints are visual and do not replace simulation contact physics;
   the expanded sampler in `render/batter-motion-all.js` and poses in `render/batter-shots/`;
   stroke selection and timing in `scenes/batter-stroke.js`, with routes in `render/batter-catalog.js`.
 - **Game modes and Classic Matches:** `sim/formats.js` (challenges are plain data). AI chase and

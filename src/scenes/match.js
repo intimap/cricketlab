@@ -1,3 +1,4 @@
+import { REVIEW_END, skipCelebration } from "./match-broadcast.js";
 import { COLORS } from "../engine/screen.js";
 import { keys, mouse } from "../engine/input.js";
 import { sfx } from "../engine/audio.js";
@@ -329,10 +330,11 @@ export class MatchScene {
         this.updateDecision();
         break;
       case "review":
-        if (this.phaseT > 3.4 || (this.phaseT > 1.2 && keys.pressed("Space"))) this.endReview();
+        if (this.phaseT > REVIEW_END) this.endReview();
         break;
       case "after": {
         this.updateFlight(dt);
+        if (skipCelebration(this)) break;
         const wicket = !!this.cur?.done?.rec.wicket;
         if (this.nets) {
           // Take your time over the coach's verdict.
@@ -340,7 +342,7 @@ export class MatchScene {
           break;
         }
         if (wicket && this.cam === "auto" && this.phaseT > 1) this.view = "wide";
-        if (this.phaseT > this.afterDuration() || (wicket && this.phaseT > 2.5 && keys.pressed("Space"))) this.setPhase("return");
+        if (this.phaseT > this.afterDuration()) this.setPhase("return");
         break;
       }
       case "return":
@@ -716,11 +718,11 @@ export class MatchScene {
       const ev = events[cur.lastEv];
       switch (ev.type) {
         case "four":
-          this.big("FOUR!", COLORS.gold);
+          // The scored-ball overlay includes the batter once the score is applied.
           sfx.cheer(0.7);
           break;
         case "six":
-          this.big("SIX!", COLORS.gold);
+          // One crowd cue per live event; drawing never schedules audio.
           sfx.cheer(1);
           break;
         case "catch":
@@ -860,15 +862,8 @@ export class MatchScene {
     for (const pick of picks) this.match.pack.said(pick);
     const wicket = done.rec.wicket;
     if (wicket) {
-      const how = {
-        bowled: "BOWLED",
-        lbw: "LBW",
-        caught: wicket.caughtBehind ? "CAUGHT BEHIND" : "CAUGHT",
-        runout: "RUN OUT",
-        stumped: "STUMPED",
-      }[wicket.how];
       const batter = this.inn.bat[wicket.batter].p;
-      this.big("OUT!", COLORS.red, `${how}  -  ${batter.short.toUpperCase()} ${this.inn.bat[wicket.batter].runs}`, 2.6);
+      // The broadcast renderer reads the completed dismissal and score.
 
       const live = cur.play.live;
       for (const f of live.fielders) {

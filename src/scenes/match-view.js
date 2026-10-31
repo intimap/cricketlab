@@ -1,3 +1,4 @@
+import { drawMatchBroadcast } from "../render/match-broadcast.js";
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect, drawLine, drawPanel, drawBar } from "../engine/screen.js";
 import { drawText, textWidth, wrapText } from "../engine/text.js";
 import { clamp, easeOut } from "../math.js";
@@ -7,7 +8,6 @@ import {
   DELIVERY_NAMES,
   SPIN_EFFORT_NAMES,
   sampleAtTime,
-  hitsStumps,
   lengthName,
   lineName,
   movementParts,
@@ -119,6 +119,7 @@ export function drawMatch(scene) {
   drawBanners(scene.banners, scene.now);
   drawPanels(scene);
   drawFeedback(scene);
+  drawMatchBroadcast(scene);
 }
 
 // --- Close view: the broadcast angle down the pitch. ---
@@ -668,12 +669,6 @@ function drawPanels(scene) {
     drawText("H: APPEAL!", WIDTH / 2, 6, { ...PANEL_TEXT, color: COLORS.gold, scale: 2 });
   }
   if (scene.phase === "appeal" && blink) drawText("H: APPEAL!", WIDTH / 2, 6, { ...PANEL_TEXT, color: COLORS.gold, scale: 2 });
-  if (scene.phase === "decision") {
-    const loser = cur.onField ? "bat" : "bowl";
-    const playerSide = scene.human === "bowl" ? "bowl" : "bat";
-    if (loser === playerSide && inn.reviews[loser] > 0) drawReviewChoice(scene, inn.reviews[loser]);
-  }
-  if (scene.phase === "review") drawReview(scene);
 
   if (scene.phase === "chooseBowler") {
     drawPanel(150, 60, 340, 40 + inn.bowl.length * 22);
@@ -853,59 +848,6 @@ function drawReleaseMeter(scene) {
     fillRect(touch > 0 ? mid : mid + touch * 60, y + 10, Math.abs(touch) * 60, 3, COLORS.gold);
     drawText(scene.spinner ? "EXTRA SPIN" : "EXTRA SWING", mid, y + 15, { ...PANEL_TEXT, color: COLORS.gold });
   }
-}
-
-/** The decision went against the player: review it or accept it, against the clock. */
-function drawReviewChoice(scene, left) {
-  const w = 300;
-  const x = WIDTH / 2 - w / 2;
-  const y = 4;
-  const secs = scene.reviewTimeLeft;
-  drawPanel(x, y, w, 44, "rgba(10,28,18,0.92)", COLORS.gold);
-  drawText(scene.cur.onField ? "GIVEN OUT LBW" : "NOT OUT", WIDTH / 2, y + 6, { align: "center", color: COLORS.cream });
-  drawText(`R: REVIEW (${left} LEFT)    SPACE: ACCEPT`, WIDTH / 2, y + 18, { align: "center", color: COLORS.gold });
-  drawText(String(Math.ceil(secs)), x + w - 8, y + 6, { align: "right", color: secs < 3 ? COLORS.red : COLORS.dim });
-  drawBar(x + 8, y + 32, w - 16, 4, secs / 10, secs < 3 ? COLORS.red : COLORS.gold);
-}
-
-/** DRS ball-tracking: replay the ball's path to the stumps, then the three verdicts. */
-function drawReview(scene) {
-  const cur = scene.cur;
-  const res = cur.play.res;
-  const d = cur.delivery;
-  const k = clamp(scene.phaseT / 1.6);
-  const end = d.samples.findIndex((s) => s.z < 0);
-  const last = Math.floor((end < 0 ? d.samples.length : end) * k);
-  const impact = res.start.pos;
-  for (let i = 0; i < last; i += 3) {
-    const s = d.samples[i];
-    const p = projectClose(s.x, s.y, s.z);
-    // Real path up to the pad, projected path after it.
-    fillRect(p.x - 1, p.y - 1, 3, 3, s.z > impact.z ? "#7ec8ff" : "#ff8a7a");
-  }
-  if (d.pitchedAt && k > 0.5) {
-    const p = projectClose(d.pitchedAt.x, 0, d.pitchedAt.z);
-    fillRect(p.x - 4, p.y - 1, 9, 3, COLORS.white);
-  }
-  const lines = [
-    ["PITCHING", res.lbwNote === "pitched outside leg" ? "OUTSIDE LEG" : "IN LINE"],
-    ["IMPACT", res.lbwNote === "outside the line" ? "OUTSIDE OFF" : "IN LINE"],
-    [
-      "WICKETS",
-      cur.tracking.reason.startsWith("WICKETS: ") ? cur.tracking.reason.slice(9) : hitsStumps(d.samples) ? "HITTING" : "MISSING",
-    ],
-  ];
-  drawPanel(400, 60, 220, 60, "rgba(13,35,24,0.92)");
-  drawText("BALL TRACKING", 510, 66, { align: "center", color: COLORS.gold });
-  lines.forEach(([label, value], i) => {
-    if (scene.phaseT < 1 + i * 0.6) return;
-    const bad = value.startsWith("OUTSIDE") || value === "MISSING" || value === "GOING OVER";
-    drawText(label, 410, 80 + i * 11, { color: COLORS.dim });
-    drawText(value, 610, 80 + i * 11, {
-      align: "right",
-      color: bad ? COLORS.cream : value === "UMPIRE'S CALL" ? COLORS.gold : COLORS.red,
-    });
-  });
 }
 
 const MOVE_LABEL = { away: "AWAY", in: "IN", straight: "STRAIGHT" };

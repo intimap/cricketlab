@@ -244,3 +244,14 @@ export function drawSpeechBubble(text, x, y) {
   fillRect(tx + 1, ty + 3, 1, 1, ink);
   lines.forEach((line, i) => drawText(line, left + 4, top + 3 + i * 9, { color: "#151515", shadow: null }));
 }
+
+/** Broadcast card fitted to the pixel frame, with a short arcade pop. */
+export function drawBroadcastBanner(title, color, sub, pop = 1, skippable = false) {
+  const scale = Math.min(4, Math.max(1, Math.floor(584 / Math.max(1, textWidth(title, 1)))));
+  const y = 102 + Math.round((1 - pop) * 12);
+  drawPanel(16, y - 12, WIDTH - 32, skippable ? 104 : 82, "rgba(6,18,12,0.96)", color);
+  fillRect(20, y - 8, WIDTH - 40, 3, color);
+  drawText(title, WIDTH / 2, y + 5, { scale, align: "center", color, outline: COLORS.black });
+  drawText(sub, WIDTH / 2, y + 43, { align: "center", color: COLORS.cream });
+  if (skippable) drawText("SPACE / ENTER / TAP TO SKIP", WIDTH / 2, y + 72, { align: "center", color: COLORS.dim });
+}

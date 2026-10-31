@@ -1,3 +1,4 @@
+import { playContact, playBroadcast, updateReviewAudio } from "./match-audio.js";
 import { REVIEW_END, skipCelebration } from "./match-broadcast.js";
 import { COLORS } from "../engine/screen.js";
 import { keys, mouse } from "../engine/input.js";
@@ -330,6 +331,7 @@ export class MatchScene {
         this.updateDecision();
         break;
       case "review":
+        updateReviewAudio(this);
         if (this.phaseT > REVIEW_END) this.endReview();
         break;
       case "after": {
@@ -644,8 +646,7 @@ export class MatchScene {
       onContact(this.juice, this.now, res, play.shot, this.human === "bat");
       const kind = res.contact.kind;
       if (res.touchedBat) {
-        if (kind === "middle") sfx.bat(res.contact.quality);
-        else sfx.edge();
+        playContact(res.contact);
         if (kind === "middle" && play.shot.type !== "defend" && res.contact.quality > 0.25) {
           cur.strikeAt = this.now;
           this.banner("STRIKE!", COLORS.gold, 0.9, 4, 70);
@@ -719,10 +720,12 @@ export class MatchScene {
       switch (ev.type) {
         case "four":
           // The scored-ball overlay includes the batter once the score is applied.
+          playBroadcast("four");
           sfx.cheer(0.7);
           break;
         case "six":
           // One crowd cue per live event; drawing never schedules audio.
+          playBroadcast("six");
           sfx.cheer(1);
           break;
         case "catch":
@@ -862,6 +865,7 @@ export class MatchScene {
     for (const pick of picks) this.match.pack.said(pick);
     const wicket = done.rec.wicket;
     if (wicket) {
+      playBroadcast("wicket");
       const batter = this.inn.bat[wicket.batter].p;
       // The broadcast renderer reads the completed dismissal and score.
 

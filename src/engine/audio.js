@@ -2,17 +2,29 @@
 // tones, over a looping crowd murmur whose level swells on big moments.
 
 import { load, save } from "./storage.js";
+import { makeSynth, holdGain } from "./audio-synth.js";
 
 let ac = null;
 let master;
 let crowd;
 let noise;
+let effects;
+let cues;
+let effectsBus;
+let cuesBus;
+let crowdBus;
+let crowdEffects;
+const levels = { effects: 0.8, crowd: 0.65, cues: 0.5 };
+const savedLevels = load("audioLevels", {});
+for (const name of Object.keys(levels)) {
+  if (Number.isFinite(savedLevels?.[name])) levels[name] = Math.max(0, Math.min(1, savedLevels[name]));
+}
 let muted = load("muted", false);
 
 /** Create (or resume) the audio context. Must run from a user gesture. */
 export function unlockAudio() {
   if (ac) {
-    if (ac.state === "suspended") ac.resume();
+    if (ac.state === "suspended") ac.resume().catch(() => {});
     return;
   }
   try {
@@ -41,19 +53,39 @@ export function unlockAudio() {
     data[i] = brown * 3.5 * 0.5 + white * 0.15;
   }
 
-  const loop = ac.createBufferSource();
-  loop.buffer = noise;
-  loop.loop = true;
-  const filter = ac.createBiquadFilter();
-  filter.type = "bandpass";
-  filter.frequency.value = 700;
-  filter.Q.value = 0.6;
+  effectsBus = ac.createGain();
+  effectsBus.gain.value = levels.effects;
+  effectsBus.connect(master);
+  cuesBus = ac.createGain();
+  cuesBus.gain.value = levels.cues;
+  cuesBus.connect(master);
+  effects = makeSynth(ac, noise, effectsBus);
+  cues = makeSynth(ac, noise, cuesBus);
+
+  crowdBus = ac.createGain();
+  crowdBus.gain.value = levels.crowd;
+  crowdBus.connect(master);
+  crowdEffects = makeSynth(ac, noise, crowdBus);
+  // Two differently filtered stands, with independent loop positions and stereo space.
   crowd = ac.createGain();
   crowd.gain.value = 0.05;
-  loop.connect(filter);
-  filter.connect(crowd);
-  crowd.connect(master);
-  loop.start();
+  crowd.connect(crowdBus);
+  for (const [frequency, pan, rate] of [[550, -0.45, 0.87], [1150, 0.45, 1.03]]) {
+    const loop = ac.createBufferSource();
+    loop.buffer = noise;
+    loop.loop = true;
+    loop.playbackRate.value = rate;
+    const filter = ac.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = frequency;
+    filter.Q.value = 0.7;
+    const panner = ac.createStereoPanner();
+    panner.pan.value = pan;
+    loop.connect(filter);
+    filter.connect(panner);
+    panner.connect(crowd);
+    loop.start(0, Math.random());
+  }
 }
 
 export const isMuted = () => muted;
@@ -61,48 +93,48 @@ export const isMuted = () => muted;
 export function toggleMute() {
   muted = !muted;
   save("muted", muted);
-  if (master) master.gain.value = muted ? 0 : 0.6;
+  if (master) {
+    holdGain(master.gain, ac.currentTime);
+    master.gain.linearRampToValueAtTime(muted ? 0 : 0.6, ac.currentTime + 0.03);
+  }
 }
 
-function noiseBurst(duration, freq, q, volume, delay = 0) {
+export const getAudioLevels = () => ({ ...levels });
+
+/** Independent mix levels, retained alongside the existing mute setting. */
+export function setAudioLevels(next) {
+  for (const name of ["effects", "crowd", "cues"]) {
+    if (Number.isFinite(next[name])) levels[name] = Math.max(0, Math.min(1, next[name]));
+  }
+  save("audioLevels", levels);
   if (!ac) return;
-  const t = ac.currentTime + delay;
-  const src = ac.createBufferSource();
-  src.buffer = noise;
-  const filter = ac.createBiquadFilter();
-  filter.type = "bandpass";
-  filter.frequency.value = freq;
-  filter.Q.value = q;
-  const gain = ac.createGain();
-  gain.gain.setValueAtTime(volume, t);
-  gain.gain.exponentialRampToValueAtTime(1e-4, t + duration);
-  src.connect(filter);
-  filter.connect(gain);
-  gain.connect(master);
-  src.start(t, Math.random());
-  src.stop(t + duration + 0.05);
+  for (const [name, bus] of [["effects", effectsBus], ["crowd", crowdBus], ["cues", cuesBus]]) {
+    holdGain(bus.gain, ac.currentTime);
+    bus.gain.linearRampToValueAtTime(levels[name], ac.currentTime + 0.03);
+  }
 }
 
-function tone(freq, duration, volume, type = "sine", delay = 0, slide = 0) {
-  if (!ac) return;
-  const t = ac.currentTime + delay;
-  const osc = ac.createOscillator();
-  osc.type = type;
-  osc.frequency.setValueAtTime(freq, t);
-  if (slide) osc.frequency.exponentialRampToValueAtTime(Math.max(30, freq + slide), t + duration);
-  const gain = ac.createGain();
-  gain.gain.setValueAtTime(volume, t);
-  gain.gain.exponentialRampToValueAtTime(1e-4, t + duration);
-  osc.connect(gain);
-  gain.connect(master);
-  osc.start(t);
-  osc.stop(t + duration + 0.05);
+/** A generic layered sound; cricket-specific profiles live in the scene layer. */
+export function playSound({ tones = [], bursts = [], bus = "effects" }) {
+  if (!ac || muted || ac.state === "suspended") return;
+  const synth = bus === "cues" ? cues : effects;
+  for (const layer of tones) synth.tone(...layer);
+  for (const layer of bursts) synth.burst(...layer);
+}
+
+function noiseBurst(...args) {
+  if (ac && !muted && ac.state !== "suspended") effects.burst(...args);
+}
+
+function tone(...args) {
+  if (ac && !muted && ac.state !== "suspended") effects.tone(...args);
 }
 
 export const sfx = {
   bat(quality) {
-    tone(700 + quality * 500, 0.07, 0.35 + quality * 0.3, "triangle", 0, -300);
-    noiseBurst(0.06, 2400, 1.5, 0.5 + quality * 0.4);
+    tone(520 + quality * 260, 0.09, 0.3 + quality * 0.18, "triangle", 0, -180);
+    tone(1250, 0.045, 0.12 * quality, "sine", 0.002, -260);
+    noiseBurst(0.045, 2200, 1.2, 0.4 + quality * 0.2);
   },
   edge() {
     tone(1500, 0.04, 0.2, "square", 0, -600);
@@ -131,21 +163,21 @@ export const sfx = {
   },
   /** Crowd roar, `level` 0..1. */
   cheer(level) {
-    if (!ac) return;
+    if (!ac || muted || ac.state === "suspended") return;
+    level = Math.max(0, Math.min(1, level));
     const t = ac.currentTime;
-    crowd.gain.cancelScheduledValues(t);
-    crowd.gain.setValueAtTime(crowd.gain.value, t);
+    holdGain(crowd.gain, t);
     crowd.gain.linearRampToValueAtTime(0.05 + 0.35 * level, t + 0.25);
     crowd.gain.linearRampToValueAtTime(0.05 + 0.2 * level, t + 1.4);
     crowd.gain.linearRampToValueAtTime(0.05, t + 3.5);
     for (let i = 0; i < 10 * level; i++) {
-      noiseBurst(0.05, 2000 + Math.random() * 2000, 4, 0.12 * level, 0.3 + Math.random() * 2);
+      crowdEffects.burst(0.065, 1800 + Math.random() * 1600, 2, 0.10 * level, 0.3 + Math.random() * 2);
     }
   },
   groan() {
-    if (!ac) return;
+    if (!ac || muted || ac.state === "suspended") return;
     const t = ac.currentTime;
-    crowd.gain.setValueAtTime(crowd.gain.value, t);
+    holdGain(crowd.gain, t);
     crowd.gain.linearRampToValueAtTime(0.18, t + 0.15);
     crowd.gain.linearRampToValueAtTime(0.05, t + 1.2);
   },

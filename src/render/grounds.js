@@ -31,14 +31,15 @@ export const GROUNDS = {
     },
     wide: {
       scenery: "ground-wide",
+      perimeter: "wide/parklands-perimeter",
       grass: { light: "#5d9c3f", dark: "#4a8c3d" },
       // Stripes across the wide view: screen rows where light and dark swap.
-      stripes: { edgesY: [132, 146, 161, 176, 193, 210, 228, 245, 263, 281, 301, 315, 329], firstLight: true },
-      innerCircle: { cx: 318, cy: 205, rx: 147, ry: 66, colour: "#35723d" },
+      stripes: { edgesY: [125, 137, 149, 161, 174, 187, 201, 215, 230, 245, 260, 274, 288], firstLight: true },
+      innerCircle: { cx: 318, cy: 190, rx: 133, ry: 56, colour: "#35723d" },
       rope: { colour: "#f4f1c6", shade: "#cbcda9" },
       // The strip as painted from up here (px): half its width at the far and near ends,
       // the worn rim round it, and how tall the stumps stand.
-      pitch: { halfFar: 18, halfNear: 21, rim: 6, stumps: 9 },
+      pitch: { halfFar: 16, halfNear: 19, rim: 5, stumps: 8 },
     },
   },
 };
@@ -72,15 +73,11 @@ function parklands(name, fence) {
         { image: "wide/stands", y: 51 },
         { image: `wide/${fence}`, y: 93 },
       ],
-      // Grass is drawn from here down, outside the rope too.
+      // Base turf starts here; the generated perimeter covers the area beyond the rope.
       groundFrom: 107,
       // The painted scoreboard's face below its clock (screen px), written over with the real score.
       scoreboard: { x: 526, y: 64, w: 57, h: 21, colour: "#1c2b25", top: "#ffd23a", bottom: "#f4f4ee" },
-      // Trees in the near corners, over the edge of the field.
-      foreground: [
-        { image: "wide/trees-left", x: 0, y: 255 },
-        { image: "wide/trees-right", x: 360, y: 255 },
-      ],
+      perimeter: fence === "fence-ads" ? "wide/parklands-boards-perimeter" : "wide/parklands-perimeter",
     },
   };
 }
@@ -110,6 +107,7 @@ function theG() {
     },
     wide: {
       ...oval.wide,
+      perimeter: "wide/mcg-perimeter",
       groundFrom: 107,
       scenery: [
         { image: "theg/wide/sky", y: 0, sky: true },
@@ -149,6 +147,7 @@ GROUNDS.lords = {
   },
   wide: {
     ...GROUNDS.oval.wide,
+    perimeter: "wide/lords-perimeter",
     grass: { light: "#488c2c", dark: "#357321" },
     groundFrom: 107,
     scenery: [
@@ -186,6 +185,7 @@ GROUNDS.scg = {
   },
   wide: {
     ...GROUNDS.oval.wide,
+    perimeter: "wide/scg-perimeter",
     grass: { light: "#529c2e", dark: "#3a8428" },
     groundFrom: 107,
     scenery: [
@@ -222,6 +222,7 @@ GROUNDS.lakshmi = {
   },
   wide: {
     ...GROUNDS.oval.wide,
+    perimeter: "wide/lakshmi-perimeter",
     grass: { light: "#728c3e", dark: "#59702e" },
     scenery: [
       { image: "wide/lakshmi-sky", y: 0, sky: true },
@@ -232,7 +233,7 @@ GROUNDS.lakshmi = {
     ],
     groundFrom: 107,
     rope: { colour: "#e0d9b4", shade: "#b8af8a" },
-    innerCircle: { cx: 318, cy: 205, rx: 147, ry: 66, colour: "#4d6328" },
+    innerCircle: { cx: 318, cy: 190, rx: 133, ry: 56, colour: "#4d6328" },
     scoreboard: { x: 522, y: 66, w: 56, h: 20, colour: "#24211d", top: "#ffd23a", bottom: "#f4f4ee" },
   },
 };

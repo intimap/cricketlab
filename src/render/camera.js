@@ -69,12 +69,12 @@ export function closePixelsPerMetre(z) {
 // Piecewise linear: the pitch gets more room than the outfield.
 
 const WIDE_CX = 319;
-const WIDE_CY = 200;
-const WIDE_HALF_PITCH = 46;
-const WIDE_NEAR_Y = 330;
+const WIDE_CY = 190;
+const WIDE_HALF_PITCH = 39;
+const WIDE_NEAR_Y = 300;
 const WIDE_FAR_Y = 110;
-const WIDE_HALF_W = 299;
-const WIDE_PITCH_PX = 20;
+const WIDE_HALF_W = 270;
+const WIDE_PITCH_PX = 18;
 
 /** Screen y for a distance `d` along the pitch from the centre (positive = towards the camera). */
 function wideY(d) {
@@ -113,10 +113,11 @@ function rawUnprojectWide(sx, sy) {
   return { x, z: MID_PITCH - d };
 }
 
-// The boundary rope as painted in the wide background: an ellipse, slightly
-// deeper on the near side. The linear mapping above puts the 66 m boundary on
-// a rounded rectangle instead, so it is bent to fit this.
-export const ROPE = { cx: 318.5, cy: 215, rx: 297.5, ryFar: 108, ryNear: 113 };
+// The boundary ellipse leaves room for stands at the sides and below it,
+// with its near edge above the score bar. make_perimeters.py reads these numbers.
+// The linear mapping above puts the 66 m boundary on a rounded rectangle,
+// so it is bent to fit this ellipse.
+export const ROPE = { cx: 318.5, cy: 195, rx: 268.5, ryFar: 88, ryNear: 95 };
 
 /** t > 0 where the ray from the ground centre along (vx, vy) meets the painted rope. */
 function ropeHit(vx, vy) {

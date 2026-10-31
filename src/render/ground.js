@@ -368,7 +368,7 @@ export function buildWide(ground, images, pitch, seed = 1, sun = LIGHTS.midday) 
   const ringColour = rgb(ring.colour);
   const white = rgb(ground.crease);
 
-  // Without a painting underneath (groundFrom set), the grass outside the rope is drawn too, a shade darker.
+  // Fill a base below the far scenery; the generated rim will cover everything outside the rope.
   const outside = view.groundFrom !== undefined;
   const top = outside ? view.groundFrom : Math.floor(ROPE.cy - ROPE.ryFar);
   const bottom = outside ? H - 1 : Math.ceil(ROPE.cy + ROPE.ryNear);
@@ -450,8 +450,9 @@ export function buildWide(ground, images, pitch, seed = 1, sun = LIGHTS.midday) 
     }
   }
   const canvas = px.done();
-  // Anything standing in front of the field (trees in the corners).
+  // The generated rim is transparent inside the rope, preserving all playable turf.
   const g = canvas.getContext("2d");
+  if (view.perimeter) g.drawImage(images[view.perimeter], 0, 0);
   for (const layer of view.foreground ?? []) g.drawImage(images[layer.image], layer.x ?? 0, layer.y ?? 0);
   return canvas;
 }

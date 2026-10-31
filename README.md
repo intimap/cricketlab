@@ -150,6 +150,7 @@ src/
     hud.js            HUD entry points, mini-map, banners, scorecard, speech bubbles
     score-bar.js      two-line batting/bowling strip with partnership and commentary
     team-flag.js      pixel team flags framing the bottom score strip
+    over-balls.js     shaded delivery spheres with runs, wickets and extras
     ball-trail.js     the delivery's fading trail and the pitch-map landing reticle (close view)
     feedback.js       arcade feedback drawn: timing meter and callout, floating words, eased bars
     booth.js          commentator portraits and the commentary popup

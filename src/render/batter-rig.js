@@ -1,6 +1,7 @@
 import { drawLine, fillCircle, fillEllipse, fillPolygon } from "../engine/screen.js";
 import { drawText } from "../engine/text.js";
-import { PAD, PAD_SHADE, BOOT, HAIR, mirrored, groundShadow, lighten, darken } from "./kit.js";
+import { PAD, PAD_SHADE, HAIR, mirrored, groundShadow, lighten, darken } from "./kit.js";
+import { drawCloth, drawBoot } from "./batter-surfaces.js";
 import { drawBat } from "./bat.js";
 
 /**
@@ -107,7 +108,6 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   };
 
   const {
-    lean,
     backFoot,
     frontFoot,
     pelvis,
@@ -126,6 +126,7 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     backWrist,
     frontWrist,
     bat,
+    body,
     frontLegNear,
     frontArmNear,
     frontFootShadow,
@@ -150,7 +151,7 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     const foot = at(shadow);
     fillEllipse(foot.x, foot.y, 6 * scale, 1.6 * scale, "rgba(0,0,0,0.24)");
   }
-  const leg = (hip, knee, foot, toe, heel = 0) => {
+  const leg = (hip, knee, foot, boot) => {
     limb(hip, knee, 6, 5, kit.pants, kit.shade);
     // Pad from just above the knee to the boot, with a knee roll and straps.
     const top = { x: knee.x + (hip.x - knee.x) * 0.22, y: knee.y + (hip.y - knee.y) * 0.22 };
@@ -163,71 +164,26 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
       const c = { x: top.x + (foot.x - top.x) * t, y: top.y + (foot.y - top.y) * t };
       line({ x: c.x + nx * 0.5, y: c.y + ny * 0.5 }, { x: c.x + nx * 4, y: c.y + ny * 4 }, 1, PAD_SHADE);
     }
-    poly(
-      [
-        { x: foot.x - 5, y: foot.y - 2 - heel },
-        { x: foot.x + 4 + toe, y: foot.y - 2 },
-        { x: foot.x + 5 + toe, y: foot.y + 2.5 },
-        { x: foot.x - 5, y: foot.y + 2.5 - heel },
-      ],
-      BOOT,
-    );
+    drawBoot(boot, poly);
   };
   // Depth determines which leg overlaps the other, whichever camera is selected.
   if (frontLegNear) {
-    leg(backHip, backKnee, backFoot, 2, pose.backHeel ?? 0);
-    leg(frontHip, frontKnee, frontFoot, 2, pose.frontHeel ?? 0);
+    leg(backHip, backKnee, backFoot, body.backBoot);
+    leg(frontHip, frontKnee, frontFoot, body.frontBoot);
   } else {
-    leg(frontHip, frontKnee, frontFoot, 2, pose.frontHeel ?? 0);
-    leg(backHip, backKnee, backFoot, 2, pose.backHeel ?? 0);
+    leg(frontHip, frontKnee, frontFoot, body.frontBoot);
+    leg(backHip, backKnee, backFoot, body.backBoot);
   }
   if (frontArmNear) arm(backShoulder, backElbow, backWrist);
   else arm(frontShoulder, frontElbow, frontWrist);
 
-  // Hips, side-on.
-  poly(
-    [
-      { x: pelvis.x - 7, y: pelvis.y - 7 },
-      { x: pelvis.x + 7, y: pelvis.y - 8 },
-      { x: frontHip.x + 4, y: frontHip.y + 3 },
-      { x: backHip.x - 4, y: backHip.y + 4 },
-    ],
-    kit.pants,
-  );
-
-  // Torso side-on: chest to the off side, tapering to the waist.
-  const waistL = { x: pelvis.x - 6, y: pelvis.y - 6 };
-  const waistR = { x: pelvis.x + 6.5, y: pelvis.y - 6 };
-  const torso = [
-    { x: backShoulder.x - 1, y: backShoulder.y - 1 },
-    { x: chest.x - 4, y: chest.y - 4 },
-    { x: chest.x + 4, y: chest.y - 4 },
-    { x: frontShoulder.x + 1, y: frontShoulder.y - 1 },
-    { x: frontShoulder.x - 1, y: frontShoulder.y + 9 },
-    waistR,
-    waistL,
-    { x: backShoulder.x + 1, y: backShoulder.y + 9 },
-  ];
-  poly(torso, kit.shirt);
-  // Shadow down the right flank and under the shoulder blades.
-  poly(
-    [
-      { x: frontShoulder.x - 3, y: frontShoulder.y + 1 },
-      { x: frontShoulder.x + 1, y: frontShoulder.y - 1 },
-      { x: frontShoulder.x - 1, y: frontShoulder.y + 9 },
-      waistR,
-      { x: waistR.x - 3, y: waistR.y },
-    ],
-    kit.shade,
-  );
-  line({ x: chest.x - 2, y: chest.y + 2 }, { x: pelvis.x - 2 + lean * 0.2, y: pelvis.y - 8 }, 1, kit.shade);
+  drawCloth(body.hips, kit.pants, kit.shade, poly);
+  drawCloth(body.shirt, kit.shirt, kit.shade, poly);
+  line(body.seam[0], body.seam[1], 1, kit.shade);
   if (number) {
-    // The number is on his back, which is half turned away from us.
-    drawText(String(number), at({ x: chest.x - 2.5, y: 0 }).x, at({ x: 0, y: chest.y + 5 }).y, {
-      align: "center",
-      color: kit.cap,
-      shadow: null,
-      scale: scale >= 1.5 ? 2 : 1,
+    const label = at(body.number);
+    drawText(String(number), label.x, label.y, {
+      align: "center", color: kit.cap, shadow: null, scale: scale >= 1.5 ? 2 : 1,
     });
   }
 

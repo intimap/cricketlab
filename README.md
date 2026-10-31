@@ -31,7 +31,7 @@ To publish it, turn on GitHub Pages (Settings → Pages → Deploy from branch �
 |               |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Menu          | Arrows to change, Enter to start                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| Batting       | Space to face up. Front foot: **S** drive, **W** loft, **A** forward defence. Back foot: **Q** attack (cut, punch, pull, hook or glance, as the ball dictates), **D** defence. No key = leave. Hold **←**/**→** before playing to step 10 cm across the crease (back to guard when let go), to reach a wide one (his pads move too). The ball's line sets the direction; play late to go finer, early to go squarer. Hold **↓** with **W** to ramp over the keeper, or **↓** + **←**/**→** with **Q** to sweep / reverse sweep. Hold **Shift** for a power shot (play it earlier). **↑** / **↓** to run or turn back |
+| Batting       | Space to face up. Front foot: **S** drive, **W** loft, **A** forward defence. Back foot: **Q** attack (cut, punch, pull, hook or glance, as the ball dictates), **D** defence. No key = leave. Hold **←**/**→** before playing to step 10 cm across the crease (back to guard when let go), to reach a wide one (his pads move too). The ball's line sets the direction; play late to go finer, early to go squarer. Hold **↓** with **W** to ramp over the keeper, or **↓** + **←**/**→** with **Q** to sweep / reverse sweep. Trigger attacks early to lift and load the bat (140 ms preparation, then the downswing). Hold **Shift** for a power shot (260 ms preparation; trigger earlier). **↑** / **↓** to run or turn back |
 | Bowling       | Arrows set line and length (Shift = fine), number keys pick the delivery, **E** effort, **T** over/around the wicket, **F** field preset, **V** drag fielders with the mouse, **N** new ball (after 80 overs). Space to run in, Space again to release at the delivery stride: early pitches it shorter, late fuller, very late is a no-ball                                                                                                                                                                                                                                                                                                       |
 | Celebrations | Space, Enter or tap the game to skip a boundary or wicket celebration |
 | Between balls | **O** sim an over, **P** sim 5 overs, **V** view the field                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
@@ -113,6 +113,7 @@ src/
     bowling-side.js   over/around release geometry and follow-through position
     delivery.js       bowling: release, swing, seam, spin, bounce, flight
     bat-impact.js     blade contact coordinates, toe/splice rebound and continuous edge deflection
+    shot-timing.js    shared normal/power backlift durations for input and animation
     batting.js        the shot: timing, where the bat goes, edges, LBW, bowled
     eye.js            every batter's eye: built by well-timed shots, dented by misses and edges
     ball-in-play.js   after the shot: the ball, catches, throws, running, run-outs
@@ -155,6 +156,9 @@ src/
     bat-mesh.js       the rigid 3D willow blade carried by the solved hands
     bat.js            draw the projected blade faces in depth order on the pixel grid
     figures.js        everyone else: bowler, keeper, fielders, umpires, runners, close up and tiny
+    batter-footwork.js  shot-specific steps, planted-toe pivots, hip-led follow-through and recovery
+    batter-surfaces.js  rotating cloth panels and 3D boots, drawn on the pixel grid
+    batter-backswing.js  higher hand lift and shoulder coil before attack contact
     batter-motion.js  the original straight drive, forward defence and pull
     batter-motion-all.js  all 28 stroke clips and the expanded visual sampler
     batter-shot-extensions.js  composes authored data from batter-shots/
@@ -218,7 +222,9 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   `render/batter-projection.js` projects the same joints from either end; `batterJointToWorld` converts a joint
   to match-world metres for visual tools. Clips can author `frontFootZ`, `backFootZ`, `pelvisZ`, `chestZ`, `headZ`
   and `handZ`; existing clips receive inferred depth keyframes. The rigid blade mesh is in `render/bat-mesh.js`,
-  with pixel drawing in `render/bat.js`. These joints are visual and do not replace simulation contact physics;
+  with pixel drawing in `render/bat.js`. `render/batter-footwork.js` adds shot-specific strides, toe pivots
+  and hip-led follow-through; `render/batter-surfaces.js` makes cloth and boots follow those turns.
+  These joints are visual and do not replace simulation contact physics;
   the expanded sampler in `render/batter-motion-all.js` and poses in `render/batter-shots/`;
   stroke selection and timing in `scenes/batter-stroke.js`, with routes in `render/batter-catalog.js`.
 - **Game modes and Classic Matches:** `sim/formats.js` (challenges are plain data). AI chase and

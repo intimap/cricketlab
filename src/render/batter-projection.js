@@ -1,4 +1,5 @@
 import { solveBatterSkeleton, RIG_DEPTH_RISE } from "./batter-skeleton.js";
+import { batterSurfaces } from "./batter-surfaces.js";
 import { batMesh } from "./bat-mesh.js";
 import { sub3 } from "./rig-3d.js";
 
@@ -20,7 +21,7 @@ export function solveBatterRig(pose, front = false) {
     result[key] = value && typeof value === "object" ? project(value) : value;
   }
   const mesh = batMesh(skeleton);
-  const cameraDepth = (point) => point.z * (front ? -1 : 1);
+  const cameraDepth = (point) => point.z * (front ? -1 : 1) - point.y * RIG_DEPTH_RISE;
   result.bat = {
     faces: mesh.faces.map(({ kind, points }) => ({
       kind,
@@ -29,7 +30,18 @@ export function solveBatterRig(pose, front = false) {
     })).sort((a, b) => b.depth - a.depth),
     grip: mesh.grip.map(project),
     grain: mesh.grain.map(project),
-    grainVisible: mesh.normal.z * (front ? -1 : 1) < -0.08,
+    grainVisible: cameraDepth(mesh.normal) < -0.08,
+  };
+  const surfaces = batterSurfaces(skeleton, front);
+  const panels = (list) => list.map(({ kind, points }) => ({
+    kind,
+    depth: points.reduce((sum, point) => sum + cameraDepth(point), 0) / points.length,
+    points: points.map(project),
+  })).sort((a, b) => b.depth - a.depth);
+  result.body = {
+    shirt: panels(surfaces.shirt), hips: panels(surfaces.hips),
+    frontBoot: panels(surfaces.frontBoot), backBoot: panels(surfaces.backBoot),
+    seam: surfaces.seam.map(project), number: project(surfaces.number),
   };
   const delta = sub3(skeleton.batToe, skeleton.topHand);
   result.dir = { x: delta.x / 36, y: (-delta.y - delta.z * RIG_DEPTH_RISE * (front ? -1 : 1)) / 36 };

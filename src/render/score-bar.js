@@ -39,7 +39,7 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
   const other = inn.bat[inn.nonStriker];
   const strikerScore = `${striker.runs}(${striker.balls})`;
   const otherScore = `${other.runs}(${other.balls})`;
-  const partnership = `P'SHIP ${inn.partnership.runs}(${inn.partnership.balls})`;
+  const partnership = `${inn.partnership.runs}(${inn.partnership.balls})`;
   const chase = inn.target !== null ? `NEED ${inn.runsNeeded} OFF ${inn.ballsLeft}` : "";
   const figures = bowler ? `${inn.bowlerFigures(bowler)} (${inn.bowlerOvers(bowler)})` : "";
   const staminaWidth = textWidth("STA") + 3 + 28;
@@ -80,5 +80,5 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
   drawOverBalls(overBallLayout(inn.overBalls), RIGHT, y2);
   if (chase) drawText(chase, LEFT, y2, { color: COLORS.gold });
 
-  drawText(fit(commentary, WIDTH - 8), 4, HUD_Y + 31, { color: COLORS.cream });
+  drawText(fit(commentary, WIDTH - 8), WIDTH / 2, HUD_Y + 31, { align: "center", color: COLORS.cream });
 }

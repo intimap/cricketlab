@@ -9,7 +9,7 @@ const MAX_VISIBLE = 8;
 export function overBallLayout(symbols) {
   const played = symbols.map(symbol => String(symbol).toUpperCase());
   const legal = played.filter(symbol => symbol !== "WD" && symbol !== "NB").length;
-  const entries = played.slice(-MAX_VISIBLE).map(symbol => symbol === "." ? "0" : symbol);
+  const entries = played.slice(-MAX_VISIBLE).map(symbol => symbol === "0" ? "." : symbol);
   const remaining = Math.min(Math.max(0, 6 - legal), MAX_VISIBLE - entries.length);
   for (let i = 0; i < remaining; i++) entries.push("");
   const hidden = Math.max(0, played.length - MAX_VISIBLE);
@@ -35,7 +35,8 @@ export function drawOverBalls(layout, right, y) {
     fillCircle(center, cy, 6, label ? body : COLORS.green);
     if (label) {
       fillRect(center - 4, cy - 4, 2, 1, boundary ? COLORS.cream : COLORS.dim);
-      drawText(label, center, y, { align: "center", color: boundary ? COLORS.green : COLORS.cream, shadow: null });
+      if (label === ".") fillCircle(center, cy, 1.5, COLORS.cream);
+      else drawText(label, center, y, { align: "center", color: boundary ? COLORS.green : COLORS.cream, shadow: null });
     }
     x += STEP;
   }

@@ -3,7 +3,7 @@ export { editBoothCall as boothCall } from "./booth-editor.js";
 
 /**
  * The commentary box: three voices who take turns at the microphone, an over
- * each. booth-editor.js now selects contextual stories and occasional replies;
+ * each. booth-editor.js combines a call on every ball with optional contextual analysis;
  * the original voice data and chat helpers remain available to existing callers.
  * Placeholders: {b} batter, {w} bowler, {f} fielder, {duty} the first name of
  * whoever is on the microphone.

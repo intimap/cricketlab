@@ -126,7 +126,11 @@ src/
     commentary.js     simulation commentary records, over summaries and sledges
     moments.js        spots situations worth talking about (droughts, pressure, near run-outs...)
     commentators.js   commentary voices and compatible booth entry points
-    booth-editor.js   context-first booth selection, topic and line memory
+    booth-editor.js   every-ball call plus an optional contextual second voice
+    booth-caller.js   factual outcome classification and fresh primary calls
+    booth-dot-lines.js  voice-specific calls for leaves, blocks and other dots
+    booth-scoring-lines.js  voice-specific runs, boundaries and extras calls
+    booth-wicket-lines.js  voice-specific dismissal calls
     booth-context.js  read-only match situations and story priorities
     booth-stories.js  personality-specific analysis, reactions and banter
     booth-policy.js   final HPD duplication and booth line validation
@@ -213,12 +217,14 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **Balance checks:** `node tools/sim-report.mjs [innings] [pitch]` simulates AI-vs-AI innings and prints
   run rates, dismissals, plan figures and commentary moments.
 - **Commentary:** `sim/call.js` owns the factual HUD play description (HPD). The booth (BC) is selected
-  by `sim/booth-editor.js` from read-only situations in `sim/booth-context.js` and personality-specific
-  stories in `sim/booth-stories.js`. It discusses consequences, tactics and match context, with topic and
-  wording cooldowns and occasional replies. Routine balls can pass in silence; factual ball calls and HPD
-  fallback text are never used by this editor. `sim/booth-policy.js` rejects duplicate HPD text both at
-  selection and display. The older commentary pack and chat helpers remain available for existing tools.
-  Run `node tools/booth-editor.test.mjs` to check the booth policy, factual eligibility and unchanged match records.
+  by `sim/booth-editor.js`: every ball gets a primary call from `sim/booth-caller.js`, using the established
+  328-line ball-call bank and 318 additional voice-specific lines in `sim/booth-*-lines.js`. A second voice
+  can add analysis from read-only situations in `sim/booth-context.js` and personality-specific stories in
+  `sim/booth-stories.js`. Wording and topic memory avoid recent repetition; when a primary pool is exhausted,
+  the least recently used safe line is allowed back. HPD text is never used as a fallback.
+  `sim/booth-policy.js` rejects duplicate HPD text both at selection and display. The original chat helpers remain available for existing tools.
+  Run `node tools/booth-caller.test.mjs` and `node tools/booth-editor.test.mjs` to check every-ball coverage,
+  factual eligibility, freshness, duplicate protection and unchanged match records.
 
 Bat contact resolves the ball against a simplified oriented blade: across its width and along its length
 from toe to handle. Toe and splice contacts lose rebound speed; thin and thick edges blend their direction

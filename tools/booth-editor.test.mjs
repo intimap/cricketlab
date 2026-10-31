@@ -19,7 +19,7 @@ const innings = (extra = {}) => ({ legal: 1, striker: 0, target: null, runsNeede
   bat: [{ p: { short: "HEARN" }, runs: 0, balls: 1, eye: 0, out: false }],
   bowl: [{ p: { short: "WOAKESLEY" }, stamina: 1, balls: 1 }], ...extra });
 const edit = (editor, rec, inn, hpd = "GOOD LENGTH, DEFENDED, NO RUN") =>
-  editor.edit(rec, hpd, names, rng, fitsBox, { inn });
+  editor.context(rec, hpd, names, rng, fitsBox, { inn });
 
 test("the final gate rejects exact, normalised and embedded copies after substitution", () => {
   assert.ok(repeatsHpd("Hearn's drive: four!", "HEARN’S DRIVE - FOUR."));
@@ -31,10 +31,10 @@ test("the final gate rejects exact, normalised and embedded copies after substit
   assert.equal(safeBoothCalls([calls[1]], "THAT SHOULD SETTLE HIM!").length, 0);
 });
 
-test("no factual pack or HPD fallback is used on an ordinary ball", () => {
-  const pack = { choose() { throw Error("Factual call bank must not be consulted"); } };
-  const result = boothCall(ball(), "NO RUN", names, rng, pack, fitsBox, { inn: innings() });
-  assert.deepEqual(result.calls, []);
+test("an ordinary ball always gets a primary call without copying the HPD", () => {
+  const result = boothCall(ball({ shot: "defend" }), "NO RUN", names, rng, {}, fitsBox, { inn: innings() });
+  assert.equal(result.calls[0].topic, "ballCall");
+  assert.ok(!repeatsHpd(result.calls[0].text, "NO RUN"));
 });
 
 test("a full line that duplicates HPD is replaced by another safe contextual voice", () => {
@@ -112,7 +112,7 @@ test("banter is eligible only after a real lull and never over a big event", () 
   assert.ok(!boothContext(ball(), innings(), { ...memory, quiet: 11 }).some(o => o.topic === "lull"));
 });
 
-test("silence is allowed when no line fits; invalid and duplicate replies are filtered too", () => {
+test("unrenderable lines, invalid speakers and duplicate replies are filtered", () => {
   const result = new BoothEditor().edit(ball({ moment: { kind: "hundred" } }), "HUNDRED", names, rng, () => false);
   assert.deepEqual(result.calls, []);
   assert.equal(safeBoothCalls([{ who: 0, text: "{b}" }, { who: -1, text: "HELLO" }], "").length, 0);
@@ -138,6 +138,7 @@ test("booth editing leaves HPD, match state and all simulation records unchanged
       assert.equal(match.rng.state, state);
       assert.equal(JSON.stringify(rec), snapshot);
       assert.deepEqual(rec, reference);
+      assert.ok(result.calls.some(call => call.topic === "ballCall"), "Uncalled ball");
       for (const call of result.calls) {
         assert.ok(fitsBox(call.text));
         assert.ok(!repeatsHpd(call.text, rec.call));

@@ -7,6 +7,8 @@ from pathlib import Path
 import math
 import re
 from PIL import Image, ImageDraw, ImageChops
+from make_lords import pavilion as lords_pavilion, media_pod
+from make_scg import pavilion as scg_pavilion
 
 ROOT = Path(__file__).resolve().parents[2]
 W, H = 640, 360
@@ -125,13 +127,46 @@ def pine(d, x, y, height):
                    (x + width, y - 3 + offset // 2)], fill="#183b29" if offset % 8 else "#254a30")
 
 
-def make(venue):
+def far_rim_top(x):
+    """The outer far terrace curves above the rope, covering the old straight fence."""
+    far_rope = ROPE["cy"] - ROPE["ryFar"]
+    across = (x - ROPE["cx"]) / (ROPE["rx"] + 94)
+    return round(far_rope - 34 * math.sqrt(max(0, 1 - across * across)))
+
+
+def landmarks(image, name):
+    """Keep distinctive buildings in front of the bowl, at their existing coordinates."""
+    if name == "lords":
+        image.alpha_composite(lords_pavilion(220, 44), (86, 51))
+        media_pod(image, 452, 51, 98, 24, 95)
+    elif name == "scg":
+        image.alpha_composite(scg_pavilion(170, True).resize((113, 44), Image.Resampling.NEAREST), (65, 42))
+        image.alpha_composite(scg_pavilion(137).resize((93, 39), Image.Resampling.NEAREST), (179, 47))
+    # These small, rectangular structures already contain the correctly placed
+    # score faces. Copy their frames too, so live text stays anchored to the art.
+    boards = {
+        "parklands": ("assets/wide/stands.png", (525, 4, 585, 46), (525, 55)),
+        "parklands-boards": ("assets/wide/stands.png", (525, 4, 585, 46), (525, 55)),
+        "mcg": ("assets/theg/wide/stands.png", (518, 5, 582, 33), (518, 51)),
+        "lords": ("assets/wide/lords-stands.png", (559, 12, 629, 42), (559, 63)),
+        "lakshmi": ("assets/wide/lakshmi-foothills.png", (518, 44, 582, 70), (518, 62)),
+    }
+    if name in boards:
+        path, box, at = boards[name]
+        with Image.open(ROOT / path) as source:
+            image.alpha_composite(source.convert("RGBA").crop(box), at)
+
+
+def make(venue, name):
     image = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     mask = Image.new("L", (W, H), 0)
     pixels, alpha = image.load(), mask.load()
-    top = round(ROPE["cy"] - ROPE["ryFar"])
+    tops = [far_rim_top(x) for x in range(W)]
+    top = min(tops)
     for y in range(top, H):
         for x in range(W):
+            if y < tops[x]:
+                continue
             radius, depth, angle = location(x, y)
             if radius <= 1:
                 continue
@@ -142,6 +177,8 @@ def make(venue):
                 colour = highland_bank(depth, around, x, y)
             else:
                 colour = seating(depth, around, venue)
+            if y == tops[x]:
+                colour = rgb("#596348" if venue["kind"] == "stone" else venue["slab"])
             pixels[x, y] = colour + (255,)
             alpha[x, y] = 255
     # The existing parkland tree art now sits outside the oval instead of obscuring turf.
@@ -158,12 +195,13 @@ def make(venue):
             pine(d, x, y, 23 + x % 7)
         trees.putalpha(ImageChops.multiply(trees.getchannel("A"), mask))
         image.alpha_composite(trees)
+    landmarks(image, name)
     return image
 
 
 def main():
     for name, venue in VENUES.items():
-        image = make(venue)
+        image = make(venue, name)
         path = ROOT / "assets/wide" / f"{name}-perimeter.png"
         path.parent.mkdir(parents=True, exist_ok=True)
         image.save(path, optimize=True)

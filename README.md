@@ -239,8 +239,10 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   eight Himalayan scenery layers; selecting this ground defaults the pitch to DUST BOWL. `tools/art/make_theg.py` makes all of The G's (the floodlit Melbourne stadium, in
   `assets/theg/`). `python3 tools/art/make_perimeters.py` generates all six wrapping wide-view rims,
   reading the boundary ellipse from `src/render/camera.js`. Each ground selects a `wide.perimeter` asset;
-  these layers leave the playing area transparent and keep the full boundary above the HUD. The camera
-  uses the same ellipse for fielders, ball positions and inverse field-placement coordinates; the world
+  these layers leave the playing area transparent and keep the full boundary above the HUD. The rim
+  curves around the far side too, with the original pavilion, Media Centre and scoreboard artwork
+  preserved at its existing coordinates. The generator reuses the Lord's and SCG pavilion helpers.
+  The camera uses the same ellipse for fielders, ball positions and inverse field-placement coordinates; the world
   boundary stays 66 m. A ground with `light` set picks that light on the menu when chosen.
 - **One-file builds:** `python3 tools/build-single.py out.html [--ref main] [--stamp]` bundles the game
   with its images inlined (needs esbuild).

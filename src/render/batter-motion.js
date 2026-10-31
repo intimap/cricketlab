@@ -1,3 +1,5 @@
+import { BACKLIFT_TIME } from "../sim/shot-timing.js";
+import { accentBackswing } from "./batter-backswing.js";
 import { withBatterDepth } from "./batter-skeleton.js";
 
 // Visual study only. Time is seconds relative to the existing visual contact event.
@@ -315,7 +317,7 @@ export function sampleBatterMotion(name, secondsFromContact, { view = "batter" }
   for (const key of Object.keys(a)) pose[key] = a[key] + (b[key] - a[key]) * k;
   // Camera changes belong to the projection, never to the canonical XYZ pose.
   if (view !== "batter" && view !== "bowler") throw new Error(`Unknown camera view: ${view}`);
-  return pose;
+  return accentBackswing(pose, { ...c, kind: name === "forwardDefence" ? "defence" : "attack" }, t);
 }
 
 export function batterPhase(name, t) {
@@ -327,10 +329,10 @@ export function batterPhase(name, t) {
 }
 
 export function gamePreparationWindow(name) {
-  return name === "forwardDefence" ? 0.12 : BATTER_CLIPS[name].downswing + 0.07;
+  return name === "forwardDefence" ? 0.12 : BATTER_CLIPS[name].downswing + BACKLIFT_TIME;
 }
 
-// Compress the study's preparation into the existing player's available window.
+// Fit the authored load into the committed shot's preparation window.
 // Downswings and contact remain at their original times. Defence has no swing to protect.
 export function gameMotionTime(name, t, windowBeforeContact = gamePreparationWindow(name)) {
   const clip = BATTER_CLIPS[name];

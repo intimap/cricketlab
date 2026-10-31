@@ -1,3 +1,4 @@
+import { drawBatterMeters, meterAnchors } from "../render/batter-meters.js";
 import { drawMatchBroadcast } from "../render/match-broadcast.js";
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect, drawLine, drawPanel, drawBar } from "../engine/screen.js";
 import { drawText, textWidth, wrapText } from "../engine/text.js";
@@ -39,14 +40,12 @@ import {
 } from "../render/sprites.js";
 import { drawBooth, boothShowing } from "../render/booth.js";
 import { drawBallTrail, drawPitchReticle } from "../render/ball-trail.js";
-import { drawTimingMeter, drawFloat, drawEasedBar } from "../render/feedback.js";
+import { drawTimingMeter, drawFloat } from "../render/feedback.js";
 import { shakeOffset, floatAge, timingFade } from "./match-feedback.js";
 import { STRIKER_X, STRIKER_SCREEN_X, readyPose, strikerStroke, footworkOf, footworkPixels } from "./batter-pose.js";
 import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
-import { eyeMultiplier } from "../sim/eye.js";
 import {
   HUD_Y,
-  PRESSURE_BAR,
   staminaColor,
   drawScoreBar,
   drawScoreBox,
@@ -107,12 +106,7 @@ export function drawMatch(scene) {
     : "";
   // The call types itself out, and stays up while the box talks.
   const booth = boothShowing(scene.booth, scene.now);
-  drawScoreBar(
-    scene.inn,
-    scene.commentary.slice(0, Math.floor(scene.commT * 70)),
-    label,
-    scene.juice.shown.pressure ?? undefined,
-  );
+  drawScoreBar(scene.inn, scene.commentary.slice(0, Math.floor(scene.commT * 70)), label);
   // The score in the corner, except over the full scorecard and the pause menu.
   if (scene.phase !== "pause" && scene.phase !== "inningsEnd") drawScoreBox(scene.inn);
   if (booth) drawBooth(scene.booth, scene.now);
@@ -720,7 +714,7 @@ function drawPanels(scene) {
 
   if (scene.feedback && (scene.phase === "after" || scene.phase === "return")) drawCoachCard(scene);
   if (!scene.nets && SPEED_GUN_PHASES.has(scene.phase)) drawSpeedGun(scene);
-  if (scene.human === "bat" && EYE_PHASES.has(scene.phase)) drawEyeMeter(scene);
+  if (METER_PHASES.has(scene.phase)) drawBatterPanel(scene);
   if (scene.phase === "pause") scene.pauseMenu.draw(inn, scene.closeEnd);
 
   if (scene.phase === "inningsEnd") {
@@ -753,22 +747,19 @@ function drawSpeedGun(scene) {
   shown.forEach((line, i) => drawText(line, x + w / 2, y + 21 + i * 9, { align: "center", color: COLORS.cream }));
 }
 
-const EYE_PHASES = new Set(["ready", "runup", "flight", "after", "return", "appeal", "decision", "review"]);
+const METER_PHASES = new Set(["setup", "ready", "runup", "flight", "after", "return", "appeal", "decision", "review"]);
 
-/** The striker's eye: a bar that fills with well-timed shots, and the multiplier it gives the next one. */
-function drawEyeMeter(scene) {
+/** Keep both meters below the bowling setup controls while aiming a delivery. */
+function drawBatterPanel(scene) {
   const eye = scene.inn.bat[scene.inn.striker].eye;
-  const full = eye >= 1;
-  const w = 108;
-  const h = 24;
-  const x = 4;
-  const y = 4;
-  drawPanel(x, y, w, h, "rgba(10,28,18,0.88)", full ? COLORS.gold : COLORS.gold2);
-  drawText("EYE", x + 6, y + 5, { color: COLORS.gold });
-  drawText(`x${eyeMultiplier(eye).toFixed(2)}`, x + w - 6, y + 5, { color: eye > 0 ? COLORS.gold : COLORS.dim, align: "right" });
-  const glow = full && Math.floor(scene.now * 4) % 2 === 0;
-  const shown = scene.juice.shown.eye ?? eye;
-  drawEasedBar(x + 6, y + 15, w - 12, 5, shown, eye, glow ? COLORS.white : shown > 0.6 ? COLORS.gold : "#7ec8ff");
+  drawBatterMeters({
+    eye,
+    pressure: scene.inn.pressure,
+    eyeShown: scene.juice.shown.eye ?? eye,
+    pressureShown: scene.juice.shown.pressure ?? scene.inn.pressure,
+    now: scene.now,
+    top: scene.phase === "setup" ? 148 : 4,
+  });
 }
 
 /** Nets: the coach's verdict on the last ball. */
@@ -801,7 +792,7 @@ const TIMING_METER = { x: 440, y: 268 };
  */
 function drawFeedback(scene) {
   const fb = scene.juice;
-  const anchors = { eye: { x: 58, y: 40 }, pressure: { x: PRESSURE_BAR.x + PRESSURE_BAR.w / 2 - 20, y: PRESSURE_BAR.y - 8 } };
+  const anchors = METER_PHASES.has(scene.phase) ? meterAnchors(scene.phase === "setup" ? 148 : 4) : {};
   if (fb.floats.some((f) => f.anchor === "striker")) {
     if (showingWide(scene)) {
       const p = projectWide(STRIKER_X, 2, CREASE);

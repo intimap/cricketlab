@@ -83,7 +83,7 @@ built and lost by the same rules, so a set batter is harder to bowl to. The numb
 Each computer batter has a hidden weakness (loose outside off, a compulsive hooker, hates the short ball, shaky against spin early on, or late on the full inswinger). Watch for plays and misses and listen to the commentary for hints.
 
 - **Memory:** bowl the same ball over and over and he lines it up. Break a pattern (three going away, then one back in; three short, then a full one) and he's more likely to edge or miss. The setup panel shows the last three balls he's seen.
-- **Pressure:** dots and maidens build the pressure meter (PRS on the score bar); boundaries release it. Under pressure batters get impatient: slogs, charges and bad calls for runs.
+- **Pressure:** dots and maidens build the pressure meter (below EYE in their shared panel); boundaries release it. Under pressure batters get impatient: slogs, charges and bad calls for runs.
 - **Release timing:** release in the gold zone of the meter for a perfect delivery. The zone shrinks as the bowler tires; too late is a no-ball, followed by a free hit.
 - **Variations:** quicks have bouncers (two an over, a third is a no-ball), yorkers (overpitch it and it's a full toss), slower balls and cutters; spinners have an arm ball, a googly (leg-spinners), and flight (**E** cycles flighted, stock and flat). On a worn pitch, especially the dust bowl, footmarks appear outside leg (and off) and turn sharply.
 - **Fields:** **F** also cycles traps: bouncer trap, leg slip, ring field.
@@ -146,6 +146,7 @@ src/
     batter-shots/     additional drive, back-foot, sweep/ramp and touch-shot pose families
     batter-catalog.js  input-family and shot-label routes to the 28 clips
     match-broadcast.js DRS tracking, verdict cards and celebrations
+    batter-meters.js  shared eye and pressure panel
     hud.js            score bar, mini-map, banners, scorecard, speech bubbles
     ball-trail.js     the delivery's fading trail and the pitch-map landing reticle (close view)
     feedback.js       arcade feedback drawn: timing meter and callout, floating words, eased bars

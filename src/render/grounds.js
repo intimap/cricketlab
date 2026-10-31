@@ -162,6 +162,41 @@ GROUNDS.lords = {
   },
 };
 
+/** Sydney: green-roofed Victorian pavilions backed by steep stands tight to the ads. */
+GROUNDS.scg = {
+  ...GROUNDS.oval,
+  name: "SYDNEY (SCG)",
+  hidden: false,
+  light: "midday",
+  grass: { light: "#529c2e", dark: "#3a8428" },
+  surround: { colour: "#7a9c2c", fleck: "#96a232", edge: "#486a20", width: 0.28 },
+  crease: "#f0efdd",
+  stumps: { wood: "#9e6e2a", shade: "#604018", bail: "#cc985a" },
+  close: {
+    ...GROUNDS.oval.close,
+    groundFrom: 124,
+    scenery: [
+      { image: "close/scg-sky", y: 0, sky: true },
+      { clouds: "close/clouds", count: 3, top: 12, bottom: 42 },
+      { image: "close/scg-stands", y: 32 },
+      { image: "close/scg-fence", y: 112 },
+    ],
+    stripes: { edges: [0, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 27.5, 30], firstLight: true },
+    haze: { colour: "#72b040", rows: 12, amount: 0.20 },
+  },
+  wide: {
+    ...GROUNDS.oval.wide,
+    grass: { light: "#529c2e", dark: "#3a8428" },
+    groundFrom: 107,
+    scenery: [
+      { image: "wide/scg-sky", y: 0, sky: true },
+      { clouds: "close/clouds", count: 2, top: 0, bottom: 18 },
+      { image: "wide/scg-stands", y: 40 },
+      { image: "wide/scg-fence", y: 93 },
+    ],
+  },
+};
+
 /** The grounds the menu offers, the first being the default. */
 export const GROUND_CHOICES = Object.keys(GROUNDS).filter((id) => !GROUNDS[id].hidden);
 export const DEFAULT_GROUND = "parklands";

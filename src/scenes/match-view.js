@@ -109,7 +109,7 @@ export function drawMatch(scene) {
   drawScoreBar(scene.inn, scene.commentary.slice(0, Math.floor(scene.commT * 70)), label);
   // The score in the corner, except over the full scorecard and the pause menu.
   if (scene.phase !== "pause" && scene.phase !== "inningsEnd") drawScoreBox(scene.inn);
-  if (booth) drawBooth(scene.booth, scene.now);
+  if (booth) drawBooth(scene.booth, scene.now, scene.commentary);
   drawBanners(scene.banners, scene.now);
   drawPanels(scene);
   drawFeedback(scene);

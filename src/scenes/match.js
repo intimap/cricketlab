@@ -17,7 +17,7 @@ import { eyeMultiplier } from "../sim/eye.js";
 import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from "../sim/field.js";
 import { pickBowler } from "../sim/ai.js";
 import { pickSledges, pickChirp } from "../sim/commentary.js";
-import { boothCall, boothChat, boothJoke } from "../sim/commentators.js";
+import { boothCall } from "../sim/commentators.js";
 import { makeKit } from "../render/sprites.js";
 import { scheduleCalls, boothDuration, fitsBox } from "../render/booth.js";
 import { buildGround } from "../render/ground.js";
@@ -940,13 +940,10 @@ export class MatchScene {
       chance: (p) => Math.random() < p,
       random: Math.random,
     };
-    const { calls, picks } = boothCall(rec, rec.call ?? "", names, rng, this.match.pack, fitsBox);
-    // At the end of a quiet over the box gets talking (after a big moment, they've said enough).
-    if (done.applied.overEnded && !done.applied.inningsOver && calls.length === 1)
-      calls.push(...boothChat(this.match.comm, inn, rng));
-    // In a long lull they'll fill the time between balls too.
-    else if (calls.length === 1 && !done.applied.inningsOver) calls.push(...boothJoke(this.match.comm.joke(true)));
-    return { calls, picks };
+    return boothCall(rec, rec.call ?? "", names, rng, this.match.pack, fitsBox, {
+      inn,
+      beforePressure: this.cur?.pressureBefore,
+    });
   }
 
   /** The nets coach's verdict on the ball just finished. */

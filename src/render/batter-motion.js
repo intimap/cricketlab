@@ -1,3 +1,5 @@
+import { withBatterDepth } from "./batter-skeleton.js";
+
 // Visual study only. Time is seconds relative to the existing visual contact event.
 // No cricket decisions, collision tests or result-affecting random numbers belong here.
 const BASE = {
@@ -307,19 +309,12 @@ export function sampleBatterMotion(name, secondsFromContact, { view = "batter" }
     }
   }
   const k = ease(left.ease, Math.max(0, Math.min(1, (t - left.time) / Math.max(0.0001, right.time - left.time))));
+  const a = withBatterDepth(left.pose);
+  const b = withBatterDepth(right.pose);
   const pose = {};
-  for (const key of Object.keys(BASE)) pose[key] = left.pose[key] + (right.pose[key] - left.pose[key]) * k;
-  // The far-camera study reverses depth around the stance plane, not just screen x.
-  // The renderer additionally reverses limb layering and helmet presentation.
-  if (view === "bowler") {
-    pose.frontFootY = -10 - 0.5 * pose.frontFootY;
-    pose.backFootY = -10 - 0.5 * pose.backFootY;
-    const carry = pose.pelvisY - BASE.pelvisY;
-    pose.pelvisY -= 2 * carry;
-    pose.chestY -= 2 * carry;
-    pose.headY -= 2 * carry;
-    pose.py -= 2 * carry + pose.bowlerGripLift;
-  } else if (view !== "batter") throw new Error(`Unknown camera view: ${view}`);
+  for (const key of Object.keys(a)) pose[key] = a[key] + (b[key] - a[key]) * k;
+  // Camera changes belong to the projection, never to the canonical XYZ pose.
+  if (view !== "batter" && view !== "bowler") throw new Error(`Unknown camera view: ${view}`);
   return pose;
 }
 

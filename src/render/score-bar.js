@@ -33,44 +33,52 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
   drawTeamFlag(inn.batTeam, 4, y1);
   drawTeamFlag(inn.bowlTeam, WIDTH - 4 - FLAG_SIZE.w, y1);
 
-  // Batting and partnership on the left; bowler and figures anchored to the right.
+  // Keep all bowling details together on the upper right, without losing batting scores.
   const bowler = inn.bowl[inn.currentBowler];
-  const figures = bowler ? `${inn.bowlerFigures(bowler)} (${inn.bowlerOvers(bowler)})` : "";
-  const bowlerWidth = bowler
-    ? Math.min(textWidth(`${bowler.p.short.toUpperCase()} ${figures}`), Math.floor((RIGHT - LEFT) * 0.37)) : 0;
-  const battingRight = bowler ? RIGHT - bowlerWidth - GAP : RIGHT;
-  const partnership = `P'SHIP ${inn.partnership.runs}(${inn.partnership.balls})`;
-  const chase = inn.target !== null ? `NEED ${inn.runsNeeded} OFF ${inn.ballsLeft}` : "";
-  const playerWidth = Math.floor((battingRight - LEFT - textWidth(partnership) - 2 * GAP - 7) / 2);
   const striker = inn.bat[inn.striker];
   const other = inn.bat[inn.nonStriker];
+  const strikerScore = `${striker.runs}(${striker.balls})`;
+  const otherScore = `${other.runs}(${other.balls})`;
+  const partnership = `P'SHIP ${inn.partnership.runs}(${inn.partnership.balls})`;
+  const chase = inn.target !== null ? `NEED ${inn.runsNeeded} OFF ${inn.ballsLeft}` : "";
+  const figures = bowler ? `${inn.bowlerFigures(bowler)} (${inn.bowlerOvers(bowler)})` : "";
+  const staminaWidth = textWidth("STA") + 3 + 28;
+  const fullBowlerWidth = bowler ? textWidth(`${bowler.p.short.toUpperCase()} ${figures}`) : 0;
+  const battingMinimum = 7 + 2 * GAP + textWidth(partnership) + textWidth(strikerScore) + textWidth(otherScore) +
+    12 + Math.min(29, textWidth(striker.p.short)) + Math.min(29, textWidth(other.p.short));
+  const preferredBowling = fullBowlerWidth + staminaWidth + GAP + (deliveryLabel ? textWidth(deliveryLabel) + GAP : 0);
+  const bowlingWidth = bowler ? Math.min(preferredBowling, RIGHT - LEFT - battingMinimum - GAP) : 0;
+  const bowlingContent = bowlingWidth - staminaWidth - GAP - (deliveryLabel ? GAP : 0);
+  const minimumBowler = bowler ? Math.min(29, textWidth(bowler.p.short)) + 6 + textWidth(figures) : 0;
+  const bowlerWidth = deliveryLabel
+    ? Math.min(fullBowlerWidth, Math.max(minimumBowler, Math.floor(bowlingContent * 0.65))) : bowlingContent;
+  const battingRight = bowler ? RIGHT - bowlingWidth - GAP : RIGHT;
+  const playerSpace = battingRight - LEFT - textWidth(partnership) - 2 * GAP - 7;
+  const strikerWidth = Math.floor((playerSpace + textWidth(strikerScore) - textWidth(otherScore)) / 2);
+  const otherWidth = playerSpace - strikerWidth;
   drawText("•", LEFT, y1, { color: COLORS.gold });
   let x = LEFT + 7;
-  x += drawText(playerLabel(striker.p, `${striker.runs}(${striker.balls})`, playerWidth), x, y1,
+  x += drawText(playerLabel(striker.p, strikerScore, strikerWidth), x, y1,
     { color: COLORS.cream }) + GAP;
-  x += drawText(playerLabel(other.p, `${other.runs}(${other.balls})`, playerWidth), x, y1,
+  x += drawText(playerLabel(other.p, otherScore, otherWidth), x, y1,
     { color: COLORS.dim }) + GAP;
   drawText(partnership, x, y1, { color: COLORS.gold });
   if (bowler) {
-    drawText(playerLabel(bowler.p, figures, bowlerWidth), RIGHT, y1, { align: "right", color: COLORS.cream });
-  }
-
-  // The lower line reserves room for the chase and the over's individual deliveries.
-  const over = overBallLayout(inn.overBalls);
-  const overX = RIGHT - over.width;
-  drawOverBalls(over, RIGHT, y2);
-  if (chase) drawText(chase, LEFT, y2, { color: COLORS.gold });
-  if (bowler) {
-    const staminaWidth = textWidth("STA") + 3 + 28;
-    const staminaX = overX - GAP - staminaWidth;
-    const deliveryLeft = LEFT + (chase ? textWidth(chase) + GAP : 0);
+    const staminaX = RIGHT - staminaWidth;
+    const bowlerRight = staminaX - GAP;
+    const deliveryRight = bowlerRight - bowlerWidth - GAP;
     if (deliveryLabel) {
-      drawText(fit(deliveryLabel, staminaX - GAP - deliveryLeft), staminaX - GAP, y2,
+      drawText(fit(deliveryLabel, bowlingContent - bowlerWidth), deliveryRight, y1,
         { align: "right", color: COLORS.gold });
     }
-    drawText("STA", staminaX, y2, { color: COLORS.dim });
-    drawBar(staminaX + textWidth("STA") + 3, y2 + 1, 28, 5, bowler.stamina, staminaColor(bowler.stamina));
+    drawText(playerLabel(bowler.p, figures, bowlerWidth), bowlerRight, y1, { align: "right", color: COLORS.cream });
+    drawText("STA", staminaX, y1, { color: COLORS.dim });
+    drawBar(staminaX + textWidth("STA") + 3, y1 + 1, 28, 5, bowler.stamina, staminaColor(bowler.stamina));
   }
+
+  // The lower line is reserved for the chase and the over's individual deliveries.
+  drawOverBalls(overBallLayout(inn.overBalls), RIGHT, y2);
+  if (chase) drawText(chase, LEFT, y2, { color: COLORS.gold });
 
   drawText(fit(commentary, WIDTH - 8), 4, HUD_Y + 31, { color: COLORS.cream });
 }

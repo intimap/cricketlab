@@ -14,7 +14,7 @@ export function overBallLayout(symbols) {
   for (let i = 0; i < remaining; i++) entries.push("");
   const hidden = Math.max(0, played.length - MAX_VISIBLE);
   const prefix = hidden ? `+${hidden}` : "";
-  const width = textWidth("THIS OVER") + 6 + (prefix ? textWidth(prefix) + 5 : 0) +
+  const width = (prefix ? textWidth(prefix) + 5 : 0) +
     Math.max(0, entries.length * STEP - (STEP - DIAMETER));
   return { entries, prefix, width };
 }
@@ -22,7 +22,6 @@ export function overBallLayout(symbols) {
 /** Shaded pixel spheres keep two-letter extras legible without emoji or image assets. */
 export function drawOverBalls(layout, right, y) {
   let x = right - layout.width;
-  x += drawText("THIS OVER", x, y, { color: COLORS.dim }) + 6;
   if (layout.prefix) x += drawText(layout.prefix, x, y, { color: COLORS.dim }) + 5;
   for (const label of layout.entries) {
     const wicket = label === "W";

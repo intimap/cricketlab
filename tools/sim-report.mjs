@@ -31,6 +31,7 @@ for (let seed = 1; seed <= innings; seed++) {
     if (rec.boundary === 6) t.sixes++;
     if (rec.extra.type === "nb") t.nb++;
     if (rec.extra.type === "wd") t.wd++;
+    if (rec.dropped) t.drops = (t.drops ?? 0) + 1;
     if (rec.wicket) {
       t.wkts++;
       how[rec.wicket.how] = (how[rec.wicket.how] ?? 0) + 1;
@@ -53,6 +54,10 @@ console.log(`${innings} innings  (${pitchIds.join(", ")})`);
 console.log(
   `runs/over ${f((6 * t.runs) / t.legal)}   balls/wicket ${f(t.legal / Math.max(1, t.wkts), 1)}   ` +
     `median score ${t.scores[Math.floor(innings / 2)]}   dot% ${f((100 * t.dots) / t.legal, 1)}`,
+);
+const caught = how.caught ?? 0;
+console.log(
+  `catches taken ${f((100 * caught) / Math.max(1, caught + (t.drops ?? 0)), 1)}% (${caught} caught, ${t.drops ?? 0} dropped)`,
 );
 console.log(`per innings: fours ${per(t.fours)}  sixes ${per(t.sixes)}  no-balls ${per(t.nb)}  wides ${per(t.wd)}`);
 console.log(

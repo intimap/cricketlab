@@ -13,6 +13,7 @@ import {
   movementParts,
 } from "../sim/delivery.js";
 import { PRESET_LABELS, keeperSpot } from "../sim/field.js";
+import { walkInSpot } from "../sim/fielder-motion.js";
 import {
   CLOSE_Y_OFFSET,
   closeGroundY,
@@ -30,6 +31,7 @@ import {
   drawBatter,
   drawFigure,
   drawTinyFigure,
+  fielderPose,
   drawBall,
   drawShadow,
   setShadowStretch,
@@ -213,7 +215,9 @@ function drawClose(scene) {
   for (const s of sprites) s.draw();
 
   if (miniMapShown(scene)) {
-    const fielders = live ? live.fielders.filter((f) => f.role === "field").map((f) => f.pos) : inn.placements.map((p) => p.pos);
+    const fielders = live
+      ? live.fielders.filter((f) => f.role === "field").map((f) => f.pos)
+      : inn.placements.map((p) => walkInSpot(p.pos, walkInShare(scene)));
     const keeper = live ? live.fielders[0].pos : keeperSpot(scene.spinner);
     const runners = live
       ? live.runners.map((r) => live.runnerPos(r))
@@ -467,6 +471,13 @@ function drawGroundScoreboard(board, inn) {
   else line("OV", inn.oversText, board.y + 11, board.bottom);
 }
 
+/** How far through their walk-in the ring is (0..1): during the run-up, and at the ball once bowled. */
+function walkInShare(scene) {
+  const cur = scene.cur;
+  if (scene.phase === "runup" && cur) return clamp(cur.tRun / cur.runupDur);
+  return scene.phase === "flight" ? 1 : 0;
+}
+
 function drawWide(scene) {
   ctx.drawImage(scene.groundArt.wide, 0, 0, WIDTH, HEIGHT);
   const inn = scene.inn;
@@ -486,20 +497,7 @@ function drawWide(scene) {
 
   if (live && (scene.phase === "flight" || scene.phase === "after" || scene.phase === "return")) {
     for (const f of live.fielders) {
-      const pose =
-        f.state === "dive"
-          ? "dive"
-          : f.state === "down"
-            ? "down"
-            : f.state === "celebrate"
-              ? "celebrate"
-              : f.state === "throw" && live.t - f.stateAt < 0.4
-                ? "throw"
-                : f.curSpeed > 0.5 || (f.state === "idle" && scene.phase === "return")
-                  ? "run"
-                  : f.role === "keeper"
-                    ? "keeper"
-                    : "idle";
+      const pose = fielderPose(f, live.t, scene.phase);
       add(f.pos.x, 0, f.pos.z, (x, y, s) => drawTinyFigure(x, y, s, pose, cap, scene.now * 3 + f.idx));
     }
     for (const r of live.runners) {
@@ -526,9 +524,11 @@ function drawWide(scene) {
     const keeper = keeperSpot(scene.spinner);
     add(keeper.x, 0, keeper.z, (x, y, s) => drawTinyFigure(x, y, s, "keeper", cap));
     add(1, 0, scene.spinner ? 23 : 30, (x, y, s) => drawTinyFigure(x, y, s, "idle", cap));
+    const walk = walkInShare(scene);
     inn.placements.forEach((place, i) => {
-      add(place.pos.x, 0, place.pos.z, (x, y, s) => {
-        drawTinyFigure(x, y, s, "idle", cap);
+      const at = walkInSpot(place.pos, walk);
+      add(at.x, 0, at.z, (x, y, s) => {
+        drawTinyFigure(x, y, s, walk <= 0 ? "idle" : walk < 1 ? "run" : "keeper", cap, scene.now * 1.5 + i);
         if (scene.phase === "fieldEdit") {
           drawText(place.name.toUpperCase(), x, y + 3, {
             align: "center",

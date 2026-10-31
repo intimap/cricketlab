@@ -45,7 +45,7 @@ import { drawBallTrail, drawPitchReticle } from "../render/ball-trail.js";
 import { drawTimingMeter, drawFloat } from "../render/feedback.js";
 import { shakeOffset, floatAge, timingFade } from "./match-feedback.js";
 import { STRIKER_X, STRIKER_SCREEN_X, readyPose, strikerStroke, footworkOf, footworkPixels } from "./batter-pose.js";
-import { METER_FROM, meterPos, noBallPos } from "../sim/runup.js";
+import { METER_TRACK_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import {
   HUD_Y,
   staminaColor,
@@ -802,7 +802,7 @@ function drawFeedback(scene) {
 function drawReleaseMeter(scene) {
   const cur = scene.cur;
   const r = cur.runup;
-  const from = METER_FROM;
+  const from = METER_TRACK_FROM;
   const to = 1 + 0.3 / r.dur;
   const x0 = 200;
   const w = 240;

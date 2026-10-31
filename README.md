@@ -216,7 +216,8 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   hidden for now). `tools/art/make_scenery.py` regenerates the
   Parklands close-view layers. `python3 tools/art/make_lords.py` regenerates Lord's six close/wide scenery layers
   (requires Pillow). `python3 tools/art/make_scg.py` regenerates SCG’s six close/wide layers, with seating
-  tight to the advertising boards (also Pillow). `tools/art/make_theg.py` makes all of The G's (the floodlit Melbourne stadium, in
+  tight to the advertising boards (also Pillow). `python3 tools/art/make_lakshmi.py` generates Lakshmi Bluff’s
+  eight Himalayan scenery layers; selecting this ground defaults the pitch to DUST BOWL. `tools/art/make_theg.py` makes all of The G's (the floodlit Melbourne stadium, in
   `assets/theg/`). A ground with `light` set picks that light on the menu when chosen.
 - **One-file builds:** `python3 tools/build-single.py out.html [--ref main] [--stamp]` bundles the game
   with its images inlined (needs esbuild).

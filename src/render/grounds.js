@@ -197,6 +197,46 @@ GROUNDS.scg = {
   },
 };
 
+/** A Himalayan terrace ground with an abrasive, turning pitch by default. */
+GROUNDS.lakshmi = {
+  ...GROUNDS.oval,
+  hidden: false,
+  light: "midday",
+  name: "LAKSHMI BLUFF",
+  defaultPitch: "dust", // Spinner's paradise dustbowl
+  grass: { light: "#789242", dark: "#5f7532" }, // High-altitude alpine grass
+  surround: { colour: "#a88e58", fleck: "#bf9e62", edge: "#5a6828", width: 0.32 }, // Dusty pitch surround
+  crease: "#e2ddcc",
+  stumps: { wood: "#7d5424", shade: "#4a3215", bail: "#a87842" },
+  close: {
+    ...GROUNDS.oval.close,
+    groundFrom: 124,
+    scenery: [
+      { image: "close/lakshmi-sky", y: 0, sky: true },
+      { clouds: "close/clouds", count: 4, top: 10, bottom: 45 },
+      { image: "close/lakshmi-mountains", y: 15 },
+      { image: "close/lakshmi-foothills", y: 44 },
+      { image: "close/lakshmi-boundary", y: 94 },
+    ],
+    haze: { colour: "#a8c5e6", rows: 12, amount: 0.25 },
+  },
+  wide: {
+    ...GROUNDS.oval.wide,
+    grass: { light: "#728c3e", dark: "#59702e" },
+    scenery: [
+      { image: "wide/lakshmi-sky", y: 0, sky: true },
+      { clouds: "close/clouds", count: 3, top: 0, bottom: 20 },
+      { image: "wide/lakshmi-mountains", y: 4 },
+      { image: "wide/lakshmi-foothills", y: 18 },
+      { image: "wide/lakshmi-boundary", y: 88 },
+    ],
+    groundFrom: 107,
+    rope: { colour: "#e0d9b4", shade: "#b8af8a" },
+    innerCircle: { cx: 318, cy: 205, rx: 147, ry: 66, colour: "#4d6328" },
+    scoreboard: { x: 522, y: 66, w: 56, h: 20, colour: "#24211d", top: "#ffd23a", bottom: "#f4f4ee" },
+  },
+};
+
 /** The grounds the menu offers, the first being the default. */
 export const GROUND_CHOICES = Object.keys(GROUNDS).filter((id) => !GROUNDS[id].hidden);
 export const DEFAULT_GROUND = "parklands";

@@ -128,6 +128,8 @@ export class Menu {
       if (key === "pitch") cfg.pitch = cycle(PITCHES, cfg.pitch, dir);
       if (key === "ground") {
         cfg.ground = cycle(GROUND_IDS, cfg.ground, dir);
+        // Venue defaults apply on selection; players can still choose another pitch.
+        if (GROUNDS[cfg.ground].defaultPitch) cfg.pitch = GROUNDS[cfg.ground].defaultPitch;
         // A night ground brings its own light with it (still changeable).
         if (GROUNDS[cfg.ground].light) cfg.light = GROUNDS[cfg.ground].light;
       }

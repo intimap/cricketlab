@@ -125,6 +125,43 @@ function theG() {
 
 GROUNDS.theG = theG();
 
+/** Lord's: Victorian brickwork and the white Media Centre over an English summer outfield. */
+GROUNDS.lords = {
+  ...GROUNDS.oval,
+  name: "LORD'S",
+  hidden: false,
+  light: "midday",
+  grass: { light: "#488c2c", dark: "#357321" },
+  surround: { colour: "#6d9c2a", fleck: "#8a9a34", edge: "#41601a", width: 0.26 },
+  crease: "#f2f1e6",
+  stumps: { wood: "#b2853c", shade: "#6e4a1a", bail: "#d4a558" },
+  close: {
+    ...GROUNDS.oval.close,
+    groundFrom: 124,
+    scenery: [
+      { image: "close/lords-sky", y: 0, sky: true },
+      { clouds: "close/clouds", count: 4, top: 20, bottom: 55 },
+      { image: "close/lords-stands", y: 58 },
+      { image: "close/lords-fence", y: 112 },
+    ],
+    stripes: { edges: [0, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 27.5, 30], firstLight: true },
+    haze: { colour: "#6fa84a", rows: 14, amount: 0.30 },
+  },
+  wide: {
+    ...GROUNDS.oval.wide,
+    grass: { light: "#488c2c", dark: "#357321" },
+    groundFrom: 107,
+    scenery: [
+      { image: "wide/lords-sky", y: 0, sky: true },
+      { clouds: "close/clouds", count: 3, top: 0, bottom: 22 },
+      { image: "wide/lords-stands", y: 51 },
+      { image: "wide/lords-fence", y: 93 },
+    ],
+    scoreboard: { x: 565, y: 67, w: 57, h: 21, colour: "#162a1e", top: "#f8f6e2", bottom: "#ded8c4" },
+    rope: { colour: "#f8f6e2", shade: "#d2d0b0" },
+  },
+};
+
 /** The grounds the menu offers, the first being the default. */
 export const GROUND_CHOICES = Object.keys(GROUNDS).filter((id) => !GROUNDS[id].hidden);
 export const DEFAULT_GROUND = "parklands";

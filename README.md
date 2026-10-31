@@ -38,6 +38,10 @@ To publish it, turn on GitHub Pages (Settings → Pages → Deploy from branch �
 | Appeals       | **H** to appeal for LBW when bowling (appealing for nothing irritates the umpire). **R** to review a decision that goes against you, or **Space** to accept it; play stops for up to 10 seconds while you decide (two unsuccessful reviews per innings). The umpire gets one in seven or so wrong                                                                                                                                                                                                                                                                                                                    |
 | Anytime       | **C** camera, **M** sound, **Esc** pause and scorecard                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 
+Sound uses the built-in Web Audio engine: layered bat contact sounds, a stereo crowd and short broadcast
+cues. Esc → AUDIO MIX adjusts effects, crowd and broadcast volumes independently; arrows or tapping a bar
+change its level, and settings are kept on this device. M still mutes everything.
+
 ## High scores
 
 Every finished match and Classic Match ends on an arcade high-score screen: the result (won or lost by so many
@@ -97,7 +101,8 @@ src/
     text.js           5x7 bitmap font
     input.js          keyboard and mouse state, polled per frame
     touch.js          on-screen buttons for phones, pressing the same keys
-    audio.js          synthesised sound effects and crowd
+    audio.js          synthesised sound effects, stereo crowd and audio mix
+    audio-synth.js    generic enveloped oscillator and noise voices
     storage.js        small settings kept in this browser
     scores.js         high-score tables: the artifact's shared database, or this browser
   sim/                the cricket model, no drawing in here
@@ -150,6 +155,7 @@ src/
   scenes/
     menu.js           title screen
     match.js          the match: phases, timing, events
+    match-audio.js    contact timbres and broadcast sound cues
     match-input.js    the player's controls: shots, defence, leaving, footwork, aiming the bowling
     match-decisions.js  LBW appeals, the umpire's decision and DRS reviews
     match-feedback.js what feedback to show and when: shot words, +/-EYE and PRESSURE, hit-stop, shake
@@ -157,6 +163,7 @@ src/
     match-broadcast.js review timing and celebration skip input
     batter-pose.js    the striker's pose through a ball: stance, trigger, backlift, strokes, follow-throughs
     batter-stroke.js  presentation-only selection and the existing attack/block/leave clocks
+    audio-mix.js      pause-menu controls for effects, crowd and broadcast volumes
     pause-menu.js     the Esc menu: scorecard, instructions, sound
     scoreboard.js     the arcade high-score screen: name entry and the table
 netlify/

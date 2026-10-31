@@ -1,3 +1,4 @@
+import { playBroadcast } from "./match-audio.js";
 import { ON_FIELD_TIME } from "./match-broadcast.js";
 import { COLORS } from "../engine/screen.js";
 import { keys } from "../engine/input.js";
@@ -71,6 +72,8 @@ export function reviewTimeLeft(scene) {
 export function startReview(scene, side) {
   const cur = scene.cur;
   cur.reviewBy = side;
+  cur.reviewAudioStage = 0;
+  playBroadcast("review");
   cur.tracking = scene.match.tracking(cur.play);
   // Tracking and verdict are drawn in sequence, without overlapping banners.
   scene.setPhase("review");

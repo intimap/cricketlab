@@ -1,10 +1,11 @@
+import { updateAudioMix, drawAudioMix } from "./audio-mix.js";
 import { COLORS, WIDTH, fillRect, drawPanel } from "../engine/screen.js";
 import { drawText } from "../engine/text.js";
 import { keys, mouse } from "../engine/input.js";
 import { toggleMute, isMuted } from "../engine/audio.js";
 import { drawScorecard } from "../render/hud.js";
 
-const ITEMS = ["RESUME", "SCORECARD", "INSTRUCTIONS", "VIEW", "SOUND", "QUIT TO MENU"];
+const ITEMS = ["RESUME", "SCORECARD", "INSTRUCTIONS", "VIEW", "SOUND", "AUDIO MIX", "QUIT TO MENU"];
 const MENU_X = 220;
 const MENU_W = 200;
 const MENU_TOP = 92;
@@ -66,7 +67,7 @@ const inside = (x, y, w, h) => mouse.x >= x && mouse.x < x + w && mouse.y >= y &
 /** The Esc menu: resume, scorecard, instructions, sound, quit. */
 export class PauseMenu {
   sel = 0;
-  /** "menu", "card" or "help". */
+  /** "menu", "card", "help" or "mix". */
   screen = "menu";
   page = 0;
 
@@ -80,6 +81,10 @@ export class PauseMenu {
 
   /** Handle input; returns "resume", "view" (swap the close camera's end), "quit" or null. */
   update() {
+    if (this.screen === "mix") {
+      updateAudioMix(this);
+      return null;
+    }
     if (this.screen !== "menu") {
       if (this.screen === "help") {
         if (keys.pressed("ArrowLeft")) this.page = (this.page + PAGES.length - 1) % PAGES.length;
@@ -118,6 +123,9 @@ export class PauseMenu {
         return null;
       case "VIEW":
         return "view";
+      case "AUDIO MIX":
+        this.screen = "mix";
+        return null;
       case "SOUND":
         toggleMute();
         return null;
@@ -128,6 +136,10 @@ export class PauseMenu {
 
   /** `closeEnd`: which end the close camera is at ("bat" or "bowl"), for the VIEW label. */
   draw(inn, closeEnd) {
+    if (this.screen === "mix") {
+      drawAudioMix(this);
+      return;
+    }
     if (this.screen === "card") {
       drawScorecard(inn, 20, 18, 600, 290, "SCORECARD");
       drawText("ESC / CLICK = BACK", WIDTH / 2, 296, { align: "center", color: COLORS.gold });

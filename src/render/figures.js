@@ -443,3 +443,19 @@ export function drawTinyFigure(x, y, scale, pose, cap, phase = 0, opts = {}) {
     plot(x + 3 * k, y - 2 * k, BAT_FACE);
   }
 }
+
+/**
+ * The small figure's pose for a fielder's state (sim/fielder-motion.js): crouched
+ * ready or set, on the ground after a dive and getting up, the crow-hop run into a throw.
+ */
+export function fielderPose(f, t, phase) {
+  const since = t - f.stateAt;
+  if (f.state === "dive") return "dive";
+  if (f.state === "down" || (f.state === "getUp" && since < 0.2)) return "down";
+  if (f.state === "celebrate") return "celebrate";
+  if (f.state === "crowHop") return "run";
+  if (f.state === "throw" && since < 0.4) return "throw";
+  if (f.curSpeed > 0.5 || (f.state === "idle" && phase === "return")) return "run";
+  if (f.role === "keeper" || f.state === "ready" || f.state === "set") return "keeper";
+  return "idle";
+}

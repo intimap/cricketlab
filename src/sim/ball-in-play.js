@@ -1,23 +1,15 @@
 import { clamp } from "../math.js";
-import { BOUNDARY, ENDS, GRAVITY, RUN_LENGTH, PITCH_LENGTH, CREASE, distFromCentre } from "./geometry.js";
+import { BOUNDARY, ENDS, GRAVITY, RUN_LENGTH, CREASE, distFromCentre } from "./geometry.js";
 import { keeperSpot } from "./field.js";
+import { stepFielder, setState, walkInSpot } from "./fielder-motion.js";
+import { assignFieldingRoles, coverSpot } from "./fielder-ai.js";
+import { catchChance } from "./fielder-catch.js";
+import { planThrow, gatherDelay } from "./fielder-throw.js";
 
 /** How badly computer batters misjudge a run (seconds, standard deviation, for an average runner). */
 const RUN_MISJUDGE = 0.36;
 /** Seconds to spare inside which surviving a run-out counts as a near miss. */
 const NEAR_MISS = 0.35;
-
-/** Fielder acceleration (m/s^2). */
-const FIELDER_ACCEL = 5.5;
-
-/** Distance covered in time t from a standing start, accelerating to topSpeed. */
-function runDistance(t, topSpeed) {
-  const tTop = topSpeed / FIELDER_ACCEL;
-  return t < tTop ? 0.5 * FIELDER_ACCEL * t * t : 0.5 * topSpeed * tTop + topSpeed * (t - tTop);
-}
-
-/** Where the keeper (end 0) or bowler (end 1) stands to take a throw at the stumps. */
-const coverSpot = (end) => ({ x: ENDS[end].x + 0.4, z: ENDS[end].z + (end === 0 ? -0.6 : 0.6) });
 
 /** Advance a free ball (in the air or along the ground) by dt. */
 function stepBall(b, dt, outfield) {
@@ -111,22 +103,33 @@ export class BallInPlay {
       throwing: null,
     };
 
-    const addFielder = (player, role, spot, home) =>
+    const addFielder = (player, role, spot, home) => {
+      // The ring walked in with the bowler and is crouched ready as the ball arrives.
+      const pos = role === "field" ? walkInSpot(home) : { ...home };
+      const walked = pos.x !== home.x || pos.z !== home.z;
       this.fielders.push({
         idx: this.fielders.length,
         player,
         role,
         spot,
         home: { ...home },
-        pos: { ...home },
+        pos,
         target: null,
-        state: "idle",
+        state: walked ? "ready" : "idle",
         busyUntil: 0,
         speed: 6 + 2 * player.field.speed,
         react: role === "keeper" ? 0.05 : role === "bowler" ? 0.55 : 0.16 + 0.16 * (1 - player.field.reflexes),
         stateAt: 0,
         curSpeed: 0,
+        heading: null,
+        /** chase, cutoff or cover (see fielder-ai.js), and since when; the pace they go at; when the ball is due. */
+        job: null,
+        jobAt: 0,
+        pace: 1,
+        arriveBy: null,
+        setAt: null,
       });
+    };
     addFielder(setup.keeper, "keeper", "wicketkeeper", keeperSpot(setup.spinner));
     addFielder(setup.bowler, "bowler", "bowler", { x: 0.9, z: 16.8 });
     for (const f of setup.fielders) addFielder(f.player, "field", f.place.name, f.place.pos);
@@ -200,113 +203,44 @@ export class BallInPlay {
   }
 
   /**
-   * Predict the ball's path and pick the fielder who can get to it first
-   * (to catch, stop or, failing that, pick it up), plus a backup fielder.
+   * Predict the ball's path and give out the jobs (fielder-ai.js): who chases it (to catch, stop or,
+   * failing that, pick it up), who cuts it off behind them, and who covers the stumps.
    */
   replan() {
     const path = this.forecast();
-    const { res } = this.setup;
-    let best = null;
-    this.boundaryAt = null;
-    this.predictedBoundary = false;
-    for (const p of path) {
-      if (p.out) {
-        this.boundaryAt = p.t;
-        break;
-      }
-    }
-
+    const out = path.find((p) => p.out);
+    this.boundaryAt = out ? out.t : null;
+    const chasing = this.fielders.find((f) => f.job === "chase");
+    const { plan, predictedBoundary, jobs } = assignFieldingRoles(this.fielders, path, {
+      t: this.t,
+      origin: this.origin,
+      res: this.setup.res,
+      chaser: chasing ? chasing.idx : null,
+    });
+    this.plan = plan;
+    this.predictedBoundary = predictedBoundary;
+    const given = new Map(jobs.map((j) => [j.idx, j]));
     for (const f of this.fielders) {
-      if (f.state === "down") continue;
-      const startAt = Math.max(this.t, f.busyUntil) + f.react;
-      const reachBonus = f.role === "keeper" ? 1.5 : 1;
-      let dive = null;
-      for (const p of path) {
-        if ((this.boundaryAt !== null && p.t >= this.boundaryAt) || (best && p.t >= best.t)) break;
-        const travelled = Math.hypot(p.x - this.origin.x, p.z - this.origin.z);
-        const catchable = res.touchedBat && !p.bounced && p.y > 0.12 && p.y < 2.7 && travelled > 2.2;
-        // The keeper leaps for anything he can; others take it up to about head height.
-        const fieldable = p.y < (f.role === "keeper" ? 3.3 : 2.1);
-        if (!catchable && !fieldable) continue;
-        const dist = Math.hypot(f.pos.x - p.x, f.pos.z - p.z);
-        const covered = runDistance(Math.max(0, p.t - startAt), f.speed);
-        const reach = catchable ? (f.role === "keeper" ? 1.2 : 0.95) : reachBonus;
-        const kind = catchable ? "catch" : res.touchedBat || res.padHit ? "stop" : f.role === "keeper" ? "collect" : "stop";
-        const option = { fielder: f.idx, t: p.t, point: { x: p.x, y: p.y, z: p.z }, kind, dive: false, ballSpeed: p.v };
-        if (dist <= reach + covered) {
-          best = option;
-          dive = null;
-          break;
+      const j = given.get(f.idx);
+      if (!j) {
+        // Stood down: stop where they are.
+        if (f.job) {
+          f.job = null;
+          f.target = null;
+          f.arriveBy = null;
+          if (f.state === "chase" || f.state === "cutoff" || f.state === "cover" || f.state === "set")
+            setState(f, "idle", this.t);
         }
-        if (!dive && dist <= reach + covered + 1 && p.t - startAt > 0) dive = { ...option, dive: true };
+        continue;
       }
-      if (dive && (!best || dive.t < best.t) && best?.fielder !== f.idx) best = dive;
-    }
-
-    if (!best) {
-      // Nobody can intercept: whoever is quickest goes to where it stops (or the rope).
-      const end = this.boundaryAt !== null ? path.find((p) => p.t >= this.boundaryAt) : path[path.length - 1];
-      this.predictedBoundary = this.boundaryAt !== null;
-      let fastest = -1;
-      let fastestTime = 1e9;
-      for (const f of this.fielders) {
-        if (f.role === "keeper" && this.predictedBoundary) continue;
-        const time = Math.hypot(f.pos.x - end.x, f.pos.z - end.z) / f.speed;
-        if (time < fastestTime) {
-          fastestTime = time;
-          fastest = f.idx;
-        }
-      }
-      if (fastest >= 0) {
-        const f = this.fielders[fastest];
-        best = {
-          fielder: fastest,
-          t: Math.max(this.t + f.react + fastestTime, end.t),
-          point: { x: end.x, y: 0, z: end.z },
-          kind: "pickup",
-          dive: false,
-          ballSpeed: 0,
-        };
-      }
-    }
-
-    this.plan = best;
-    for (const f of this.fielders) {
-      if (f.state === "chase" || f.state === "backup") {
-        f.state = "idle";
-        f.target = null;
-      }
-    }
-    // Keeper and bowler get back to their stumps to take a throw, unless they're chasing.
-    for (const f of this.fielders) {
-      if ((f.role !== "keeper" && f.role !== "bowler") || f.idx === best?.fielder) continue;
-      if (f.state !== "idle" && f.state !== "cover") continue;
-      f.state = "cover";
-      f.target = coverSpot(f.role === "keeper" ? 0 : 1);
-    }
-    if (!best) return;
-
-    const chaser = this.fielders[best.fielder];
-    chaser.state = "chase";
-    chaser.target = { x: best.point.x, z: best.point.z };
-    chaser.stateAt = this.t;
-
-    let nearest = -1;
-    let nearestDist = 1e9;
-    for (const f of this.fielders) {
-      if (f.idx === chaser.idx || f.role !== "field") continue;
-      const dist = Math.hypot(f.pos.x - best.point.x, f.pos.z - best.point.z);
-      if (dist < nearestDist) {
-        nearestDist = dist;
-        nearest = f.idx;
-      }
-    }
-    if (nearest >= 0 && nearestDist < 40) {
-      const f = this.fielders[nearest];
-      f.state = "backup";
-      const to = { x: best.point.x - f.pos.x, z: best.point.z - f.pos.z };
-      const k = Math.max(0, (nearestDist - 6) / nearestDist);
-      f.target = { x: f.pos.x + to.x * k, z: f.pos.z + to.z * k };
+      // A fielder kept on the same job carries on without a second reaction.
+      if (f.job !== j.job) f.jobAt = this.t;
+      f.job = j.job;
+      f.target = j.target;
+      f.pace = j.pace;
+      f.arriveBy = j.job === "chase" ? plan.t : null;
+      if (f.state === "idle" || f.state === "ready" || f.state === "chase" || f.state === "cutoff" || f.state === "cover")
+        setState(f, j.job, f.state === j.job ? f.stateAt : this.t);
     }
   }
 
@@ -406,20 +340,17 @@ export class BallInPlay {
     const name = f.role === "keeper" ? "the keeper" : f.role === "bowler" ? "the bowler" : f.spot;
     const skill = f.player.field;
     this.plan = null;
+    const wasSet = f.state === "set";
+    // Jobs are done once they're at the ball.
+    f.job = null;
+    f.arriveBy = null;
     if (plan.dive) {
-      f.state = "dive";
-      f.stateAt = this.t;
+      setState(f, "dive", this.t);
       this.emit("dive", { fielder: f.idx });
     }
 
     if (plan.kind === "catch") {
-      const hands = f.role === "keeper" ? (skill.keeping + skill.catching) / 2 : skill.catching;
-      const pace = clamp((plan.ballSpeed - 18) / 25) * 0.3;
-      const chance = clamp(
-        0.55 + 0.42 * hands - pace - (plan.dive ? 0.32 : 0) - (plan.point.y > 2.2 || plan.point.y < 0.25 ? 0.1 : 0),
-        0.05,
-        0.985,
-      );
+      const chance = catchChance(f, plan, this.t);
       if (rng.chance(chance)) {
         this.ball.held = f.idx;
         this.ball.vel = { x: 0, y: 0, z: 0 };
@@ -442,10 +373,7 @@ export class BallInPlay {
       this.ball.vel = { x: Math.cos(dir) * speed, y: Math.abs(v.y) * 0.15, z: Math.sin(dir) * speed };
       this.ball.bounced = true;
       f.busyUntil = this.t + 0.8;
-      if (plan.dive) {
-        f.state = "down";
-        f.stateAt = this.t;
-      }
+      if (plan.dive) setState(f, "down", this.t);
       this.replan();
       return;
     }
@@ -466,10 +394,7 @@ export class BallInPlay {
         this.ball.vel = { x: Math.sin(dir) * speed, y: 0, z: Math.cos(dir) * speed };
         this.ball.bounced = true;
         f.busyUntil = this.t + 0.9;
-        if (plan.dive) {
-          f.state = "down";
-          f.stateAt = this.t;
-        }
+        if (plan.dive) setState(f, "down", this.t);
         this.replan();
         return;
       }
@@ -498,7 +423,9 @@ export class BallInPlay {
           return;
         }
       }
-      this.pickupAt = this.t + (plan.dive ? 0.75 : 0.35);
+      f.dived = plan.dive;
+      f.wasSet = wasSet;
+      this.pickupAt = this.t + gatherDelay(plan.dive);
     }
   }
 
@@ -510,44 +437,19 @@ export class BallInPlay {
     return Math.max(0, runner.startAt - this.t) + dist / runner.speed;
   }
 
-  /** Throw to whichever end gives the best run-out chance (or the safe end). */
+  /** Throw to whichever end gives the best run-out chance (or the keeper's), see fielder-throw.js. */
   throwBall(f) {
-    const rng = this.setup.rng;
-    const throwSpeed = 19 + 11 * f.player.field.arm;
-    let end = 0;
-    let bestMargin = -1e9;
-    const arrival = [0, 1].map((e) => {
-      const dist = Math.hypot(f.pos.x - ENDS[e].x, f.pos.z - ENDS[e].z);
-      return this.t + 0.22 + dist / throwSpeed + 0.18;
+    const th = planThrow(f, {
+      t: this.t,
+      rng: this.setup.rng,
+      running: this.running,
+      runners: this.runners,
+      runnerTimeTo: (r, e) => this.runnerTimeTo(r, e),
+      fielders: this.fielders,
+      wasSet: !!f.wasSet,
+      offBalance: !!f.dived,
     });
-    for (const e of [0, 1]) {
-      const times = this.runners.map((r) => this.runnerTimeTo(r, e));
-      const safeIn = Math.min(...times);
-      if (safeIn === 0) continue;
-      const margin = (safeIn === Infinity ? 5 : safeIn) - (arrival[e] - this.t);
-      if (this.running && margin > bestMargin) {
-        bestMargin = margin;
-        end = e;
-      }
-    }
-    if (!this.running || bestMargin < -0.25) {
-      const toStriker = Math.hypot(f.pos.x, f.pos.z);
-      end = Math.hypot(f.pos.x, f.pos.z - PITCH_LENGTH) < toStriker * 0.55 ? 1 : 0;
-      if (f.role === "keeper") end = 1;
-    }
-    // Keeper and bowler don't throw to their own end.
-    if ((end === 0 && f.role === "keeper") || (end === 1 && f.role === "bowler")) end = end === 0 ? 1 : 0;
-
-    let arriveAt = arrival[end];
-    const wild = !rng.chance(0.8 + 0.18 * f.player.field.throwAcc);
-    if (wild) arriveAt += rng.range(0.3, 0.9);
-    const dist = Math.hypot(f.pos.x - ENDS[end].x, f.pos.z - ENDS[end].z);
-    const chance = this.running && bestMargin > -0.25;
-    const shyOdds = (dist < 20 ? 0.7 : dist < 35 ? 0.45 : dist < 50 ? 0.2 : 0.05) * (bestMargin > 2.5 ? 0.6 : 1);
-    // A shy at the stumps: quicker, but may miss.
-    const shy = chance && f.role === "field" && !wild && rng.chance(shyOdds);
-    if (shy) arriveAt -= 0.06;
-
+    const { end, shy } = th;
     this.ball.throwing = {
       from: { x: f.pos.x, y: 1.6, z: f.pos.z },
       to: {
@@ -555,18 +457,20 @@ export class BallInPlay {
         y: shy ? 0.4 : 0.6,
         z: ENDS[end].z - (shy ? 0 : end === 0 ? 0.4 : -0.4),
       },
-      t0: this.t + 0.22,
-      t1: arriveAt - 0.12,
+      t0: th.t0,
+      t1: th.arriveAt - 0.12,
       end,
       fielder: f.idx,
       shy,
-      wild,
-      dist,
+      wild: th.wild,
+      overthrow: th.overthrow,
+      dist: th.dist,
     };
     this.ball.held = -1;
-    f.state = "throw";
-    f.stateAt = this.t;
-    this.emit("throw", { fielder: f.idx, end, text: wild ? "wild" : shy ? "shy" : "" });
+    f.dived = false;
+    // A long throw takes a crow-hop first (fielder-motion.js turns it into the throw).
+    setState(f, th.hop ? "crowHop" : "throw", this.t);
+    this.emit("throw", { fielder: f.idx, end, text: th.wild ? "wild" : shy ? "shy" : "" });
   }
 
   arriveAtEnd(end, thrower) {
@@ -575,6 +479,12 @@ export class BallInPlay {
     const rng = this.setup.rng;
     const f = this.fielders[thrower];
     const atRisk = this.riskRunner(end);
+
+    // Wild, and nobody backing up: it runs on past the stumps for overthrows.
+    if (th.overthrow) {
+      this.runOn(th, end, thrower, "overthrow");
+      return;
+    }
 
     if (th.shy && atRisk) {
       const hitChance = clamp(0.3 + 0.4 * f.player.field.throwAcc - th.dist / 90, 0.06, 0.6);
@@ -587,18 +497,7 @@ export class BallInPlay {
       }
       // Missed: the ball runs on past the stumps.
       this.nearMiss = { shy: true };
-      const dx = th.to.x - th.from.x;
-      const dz = th.to.z - th.from.z;
-      const len = Math.hypot(dx, dz) || 1;
-      const speed = rng.range(7, 15);
-      this.ball.atEnd = null;
-      this.ball.held = -1;
-      this.ball.bounced = true;
-      this.ball.pos = { x: ENDS[end].x + rng.normal(0, 0.4), y: 0.3, z: ENDS[end].z };
-      this.ball.vel = { x: (dx / len) * speed + rng.normal(0, 1.5), y: 0, z: (dz / len) * speed };
-      this.riskSince = null;
-      this.emit("misfield", { fielder: thrower, end, text: "missed the stumps" });
-      this.replan();
+      this.runOn(th, end, thrower, "missed the stumps");
       return;
     }
 
@@ -609,7 +508,7 @@ export class BallInPlay {
     let receiver = null;
     let gap = Infinity;
     for (const x of this.fielders) {
-      if (x.idx === thrower || x.state === "down" || x.state === "dive") continue;
+      if (x.idx === thrower || x.state === "down" || x.state === "dive" || x.state === "getUp") continue;
       const d = Math.hypot(x.pos.x - spot.x, x.pos.z - spot.z);
       if (d < gap) {
         gap = d;
@@ -621,7 +520,8 @@ export class BallInPlay {
     this.ball.held = receiver ? receiver.idx : -1;
     if (receiver) {
       receiver.target = spot;
-      receiver.state = "cover";
+      receiver.job = "cover";
+      if (receiver.state !== "set") setState(receiver, "cover", this.t);
     }
     this.ball.vel = { x: 0, y: 0, z: 0 };
     this.emit("gather", { end });
@@ -656,9 +556,27 @@ export class BallInPlay {
       if (safeIn > 1.25 && safeIn !== Infinity) {
         this.ball.atEnd = null;
         this.pickupAt = this.t + 0.1 + getThere;
-        receiver.state = "hold";
+        setState(receiver, "hold", this.t);
+        receiver.job = null;
       }
     }
+  }
+
+  /** A throw that got past the stumps (a missed shy, or wild with no one backing up) runs on. */
+  runOn(th, end, thrower, text) {
+    const rng = this.setup.rng;
+    const dx = th.to.x - th.from.x;
+    const dz = th.to.z - th.from.z;
+    const len = Math.hypot(dx, dz) || 1;
+    const speed = rng.range(7, 15);
+    this.ball.atEnd = null;
+    this.ball.held = -1;
+    this.ball.bounced = true;
+    this.ball.pos = { x: ENDS[end].x + rng.normal(0, 0.4), y: 0.3, z: ENDS[end].z };
+    this.ball.vel = { x: (dx / len) * speed + rng.normal(0, 1.5), y: 0, z: (dz / len) * speed };
+    this.riskSince = null;
+    this.emit("misfield", { fielder: thrower, end, text });
+    this.replan();
   }
 
   /** The batter who would be run out at `end` if the stumps were broken now. */
@@ -749,32 +667,7 @@ export class BallInPlay {
   }
 
   moveFielders(dt) {
-    for (const f of this.fielders) {
-      if (f.state === "dive" && this.t - f.stateAt > 0.5) f.state = "down";
-      if (f.state === "down" && this.t - f.stateAt > 1) f.state = "idle";
-      if (
-        !f.target ||
-        this.t < Math.max(f.busyUntil, f.state === "chase" ? f.stateAt + f.react : 0) ||
-        f.state === "hold" ||
-        f.state === "down" ||
-        f.state === "dive" ||
-        f.state === "celebrate"
-      ) {
-        continue;
-      }
-      const dx = f.target.x - f.pos.x;
-      const dz = f.target.z - f.pos.z;
-      const dist = Math.hypot(dx, dz);
-      const top = f.state === "backup" ? f.speed * 0.7 : f.speed;
-      if (dist < 0.05) {
-        f.curSpeed = 0;
-        continue;
-      }
-      f.curSpeed = Math.min(top, f.curSpeed + FIELDER_ACCEL * dt);
-      const step = Math.min(dist, f.curSpeed * dt);
-      f.pos.x += (dx / dist) * step;
-      f.pos.z += (dz / dist) * step;
-    }
+    for (const f of this.fielders) stepFielder(f, dt, this.t);
   }
 
   /** Final result once the ball is dead. */

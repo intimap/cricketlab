@@ -107,7 +107,11 @@ src/
     delivery.js       bowling: release, swing, seam, spin, bounce, flight
     batting.js        the shot: timing, where the bat goes, edges, LBW, bowled
     eye.js            every batter's eye: built by well-timed shots, dented by misses and edges
-    ball-in-play.js   after the shot: fielders, catches, throws, running, run-outs
+    ball-in-play.js   after the shot: the ball, catches, throws, running, run-outs
+    fielder-motion.js how fielders move: accelerating, turning, easing up, set, dive/get up, walking in
+    fielder-ai.js     who chases the ball, who cuts it off, who covers the stumps
+    fielder-catch.js  the chance of holding a catch
+    fielder-throw.js  release time, which end to throw to, shies and wild throws (overthrows)
     field.js          field presets and position names
     ai.js             computer bowler, field, delivery and shot choices
     innings.js        scorebook, cards, strike, bowler fatigue
@@ -169,7 +173,8 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **Player ratings and squads:** `sim/teams.js`.
 - **Pitch behaviour:** `PITCH_TYPES` in `sim/conditions.js`.
 - **AI tactics:** `sim/ai.js`.
-- **Fielding and running:** `sim/ball-in-play.js`.
+- **Fielding and running:** `sim/ball-in-play.js`; fielders' movement, choices, catching and throwing in
+  `sim/fielder-motion.js`, `fielder-ai.js`, `fielder-catch.js` and `fielder-throw.js`.
 - **What's shown on screen:** `scenes/match-view.js` and `render/`.
 - **Batter animation:** which pose or stroke when, in `scenes/batter-pose.js`; the poses, skeleton and drawing in
   `render/batter-rig.js`; the expanded sampler in `render/batter-motion-all.js` and poses in `render/batter-shots/`;

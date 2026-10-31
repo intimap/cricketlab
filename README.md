@@ -140,6 +140,7 @@ src/
     batter-catalog.js  input-family and shot-label routes to the 28 clips
     hud.js            score bar, mini-map, banners, scorecard, speech bubbles
     ball-trail.js     the delivery's fading trail and the pitch-map landing reticle (close view)
+    feedback.js       arcade feedback drawn: timing meter and callout, floating words, eased bars
     booth.js          commentator portraits and the commentary popup
     grounds.js        grounds as data: stripe layout, colours, pitch looks, which paintings to use
     ground.js         the layer compositor: builds each view's background from a ground's data
@@ -148,6 +149,7 @@ src/
     match.js          the match: phases, timing, events
     match-input.js    the player's controls: shots, defence, leaving, footwork, aiming the bowling
     match-decisions.js  LBW appeals, the umpire's decision and DRS reviews
+    match-feedback.js what feedback to show and when: shot words, +/-EYE and PRESSURE, hit-stop, shake
     match-view.js     drawing for the match scene
     batter-pose.js    the striker's pose through a ball: stance, trigger, backlift, strokes, follow-throughs
     batter-stroke.js  presentation-only selection and the existing attack/block/leave clocks

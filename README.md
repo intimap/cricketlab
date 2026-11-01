@@ -254,11 +254,26 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   can add analysis from read-only situations in `sim/booth-context.js` and personality-specific stories in
   `sim/booth-stories.js`. Wording and topic memory avoid recent repetition; when a primary pool is exhausted,
   the least recently used safe line is allowed back. HPD text is never used as a fallback.
-  `sim/booth-policy.js` rejects duplicate HPD text both at selection and display. Unused legacy ball commentary and between-over chat have been removed. Live end-of-over messages
-  are in `sim/over-summary.js`; fielder send-offs and chirps are in `sim/field-chatter.js`.
-  `sim/commentators.js` holds portrait identities only. The v1 pack is retained as a source archive;
+  `sim/booth-policy.js` rejects duplicate HPD text both at selection and display. The legacy duplicate generator remains removed.
+  `sim/commentary.js` is a facade owning one
+  narrative tracker and booth per match; it re-exports the new `LINES` and `COLOUR_LINES` banks.
+  `sim/commentary-narrative.js` reads every applied ball, including AI simulations, without changing
+  cricket state or drawing random numbers. It tracks each batter's legal dot streak, the current
+  over, approaching milestones and observed pitch/bounce changes. `sim/broadcast-context.js`
+  ranks this evidence; `sim/broadcast-lines.js` holds the three voices' wording. Pressure escalates
+  after 4, 8 and 12 dots faced, once per rung per streak. Milestone and field observations have
+  cooldowns; custom fields do not inherit preset claims. Selected AFTERNOON/EVENING lighting can
+  prompt an observation, but there is no invented day, session or weather clock.
+  `sim/booth-chat.js` provides end-of-over recaps: team runs from the over (including extras),
+  bowler overs/maidens/wickets/runs, and match score. The outgoing voice recaps before the change
+  of ends; long recaps use multiple panels rather than truncating figures. `getOverSummary(inn, over)`
+  accepts a tracked snapshot or a zero-based completed over number. Partial starting overs are
+  labelled as runs since resumption. `sim/over-summary.js` provides the older summary fallback;
+  fielder send-offs and chirps are in `sim/field-chatter.js`. `sim/commentators.js` keeps portrait
+  identities and compatible `boothCall`, `boothChat`, `boothJoke` entry points;
+  `Commentary.remember` accepts both `(rec, inn)` and `(rec, batter, bowler)`. The v1 pack is retained as a source archive;
   only its `ball_calls.json` bank is loaded by the game.
-  Run `node tools/booth-caller.test.mjs` and `node tools/booth-editor.test.mjs` to check every-ball coverage,
+  Run `node tools/commentary-narrative.test.mjs`, `node tools/booth-caller.test.mjs` and `node tools/booth-editor.test.mjs` to check every-ball coverage,
   factual eligibility, freshness, duplicate protection and unchanged match records.
 
 Bat contact resolves the ball against a simplified oriented blade: across its width and along its length

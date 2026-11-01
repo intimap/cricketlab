@@ -1,3 +1,4 @@
+import { callFromBooth } from "./broadcast-commentary.js";
 import { updateStrikePresentation } from "./strike-presentation.js";
 import { selectedWicketSide, activeWicketSide, updateBowlingSide } from "./bowling-side.js";
 import { bowlingGeometry } from "../sim/bowling-side.js";
@@ -21,7 +22,7 @@ import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from ".
 import { pickBowler } from "../sim/ai.js";
 import { pickSledges, pickChirp } from "../sim/field-chatter.js";
 import { makeKit } from "../render/sprites.js";
-import { scheduleCalls, boothDuration, fitsBox } from "../render/booth.js";
+import { scheduleCalls, boothDuration } from "../render/booth.js";
 import { buildGround } from "../render/ground.js";
 import { GROUNDS, DEFAULT_GROUND } from "../render/grounds.js";
 import { LIGHTS } from "../render/light.js";
@@ -354,8 +355,8 @@ export class MatchScene {
         this.updateReturn(dt);
         break;
       case "overEnd":
-        // Wait for the box to finish talking (within reason), unless the player moves on.
-        if (this.phaseT > clamp(this.boothEndsAt() - this.now, 2.4, 9) || keys.pressed("Space") || keys.pressed("Enter"))
+        // Finish the recap before changing ends, unless the player moves on.
+        if ((this.phaseT > 2.4 && this.now >= this.boothEndsAt()) || keys.pressed("Space") || keys.pressed("Enter"))
           this.nextBall();
         break;
       case "chooseBowler":
@@ -924,23 +925,7 @@ export class MatchScene {
 
   /** Who in the commentary box calls this ball, and what they say (one or two voices). */
   callFromBooth(done) {
-    const { rec } = done;
-    const inn = this.inn;
-    const names = {
-      batter: inn.bat[rec.wicket ? rec.wicket.batter : rec.striker].p.short,
-      bowler: inn.bowl[rec.bowler].p.short,
-      fielder: rec.dropped || rec.wicket?.fielder,
-    };
-    // Presentation only, so it draws on Math.random and leaves the match's dice alone.
-    const rng = {
-      pick: (list) => list[Math.floor(Math.random() * list.length)],
-      chance: (p) => Math.random() < p,
-      random: Math.random,
-    };
-    return this.match.booth.edit(rec, rec.call ?? "", names, rng, fitsBox, {
-      inn,
-      beforePressure: this.cur?.pressureBefore,
-    });
+    return callFromBooth(this, done);
   }
 
   /** The nets coach's verdict on the ball just finished. */
@@ -987,7 +972,7 @@ export class MatchScene {
         return;
       }
       if (applied.overEnded) {
-        this.big("END OF OVER", COLORS.cream, this.match.overCommentary.overSummary(this.inn), 2.3);
+        this.big("END OF OVER", COLORS.cream, "CHANGE OF ENDS", 2.3);
         this.setPhase("overEnd");
         return;
       }

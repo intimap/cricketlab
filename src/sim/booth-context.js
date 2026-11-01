@@ -1,11 +1,13 @@
+import { broadcastContext } from "./broadcast-context.js";
+
 /** Read-only, post-ball context. rec.striker stays correct even when the strike has changed. */
-export function boothContext(rec, inn, memory, beforePressure) {
+export function boothContext(rec, inn, memory, beforePressure, { narrative, light } = {}) {
   const batter = inn?.bat[rec.wicket?.batter ?? rec.striker];
   const bowler = inn?.bowl[rec.bowler];
   const facts = {
-    need: inn?.runsNeeded, left: inn?.ballsLeft, stand: inn?.partnership.runs,
+    need: inn?.runsNeeded, left: inn?.ballsLeft, stand: inn?.partnership?.runs,
   };
-  const options = [];
+  const options = broadcastContext(rec, inn, narrative, light);
   const add = (topic, priority, extra = {}) => options.push({ topic, priority, facts: { ...facts, ...extra } });
   if (rec.moment?.kind === "winningRuns" && inn?.chaseWon) add("winning", 130);
   else if (inn?.isOver) add("inningsEnd", 120);

@@ -1,14 +1,13 @@
 import { bowlerFieldingHome } from "./bowling-side.js";
 import { PITCH_TYPES, Pitch } from "./conditions.js";
 import { Innings } from "./innings.js";
-import { OverSummary } from "./over-summary.js";
+import { Commentary } from "./commentary.js";
 import { Rng } from "./rng.js";
 import { MomentTracker } from "./moments.js";
 import { isSpinner } from "./teams.js";
 import { bowlDelivery, movementOf } from "./delivery.js";
 import { resolveDelivery } from "./batting.js";
 import { plainCall } from "./call.js";
-import { BoothEditor } from "./booth-editor.js";
 import { nextEye, offStrikeEye, eyeMultiplier } from "./eye.js";
 import { BallInPlay } from "./ball-in-play.js";
 import { pickBowler, pickOverPlan, pickFieldPreset, pickDeliveryPlan, pickShot, battingAggression } from "./ai.js";
@@ -43,9 +42,10 @@ export class Match {
     this.tempo = this.totalInnings > 1 || opts.target ? clamp((60 - overs) / 55, 0.15, 1) : 0;
     this.pitch = new Pitch(PITCH_TYPES[pitchId]);
     // The commentary has its own dice (seeded from the match's), so what's said never changes what happens.
-    this.overCommentary = new OverSummary(new Rng(rng.state ^ 0x5bd1e995));
+    this.comm = new Commentary(new Rng(rng.state ^ 0x5bd1e995));
+    this.overCommentary = this.comm;
     /** One booth per match, retained across innings; presentation dice arrive from the scene. */
-    this.booth = new BoothEditor();
+    this.booth = this.comm.booth;
     this.beginInnings(batTeam, bowlTeam, opts.target ?? null);
     if (opts.start) this.inn.startFrom(opts.start);
   }
@@ -56,6 +56,7 @@ export class Match {
     this.inn.target = target;
     this.inn.tempo = this.tempo;
     this.inn.nets = this.nets;
+    this.comm.beginInnings(this.inn);
     this.innings.push(this.inn);
     this.moments = new MomentTracker();
     this.needOver = true;
@@ -308,6 +309,7 @@ export class Match {
     inn.settleStrike(out.strikerEnd === 1);
     rec.call = plainCall(rec, delivery, this.spinner);
     const applied = inn.apply(rec);
+    this.comm.remember(rec, inn);
     if (applied.overEnded) this.needOver = true;
     return { rec, applied };
   }

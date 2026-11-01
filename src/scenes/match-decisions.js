@@ -1,5 +1,5 @@
 import { playBroadcast } from "./match-audio.js";
-import { ON_FIELD_TIME } from "./match-broadcast.js";
+import { ON_FIELD_TIME } from "../render/match-broadcast.js";
 import { COLORS } from "../engine/screen.js";
 import { keys } from "../engine/input.js";
 import { sfx } from "../engine/audio.js";

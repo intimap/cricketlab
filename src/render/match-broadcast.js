@@ -4,7 +4,18 @@ import { clamp } from "../math.js";
 import { hitsStumps } from "../sim/delivery.js";
 import { projectClose } from "./camera.js";
 import { drawBroadcastBanner } from "./hud.js";
-import { ON_FIELD_TIME, TRACKING_TIME, reviewResult } from "../scenes/match-broadcast.js";
+
+/** The DRS broadcast's beats (s into the review phases): the on-field call, the ball tracking, the end. */
+export const ON_FIELD_TIME = 0.9;
+export const TRACKING_TIME = 3.4;
+export const REVIEW_END = 6.4;
+
+/** Presentation only: the rules still resolve the review in match-decisions. */
+export function reviewResult(cur) {
+  const verdict = cur.tracking.verdict;
+  const out = verdict === "out" ? true : verdict === "notOut" ? false : cur.onField;
+  return { out, changed: out !== cur.onField };
+}
 
 const SAFE = "#66d890";
 

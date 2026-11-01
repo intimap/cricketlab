@@ -1,3 +1,4 @@
+import { buildStadium } from "./stadium-ground.js";
 import { clamp } from "../math.js";
 import { PITCH_LENGTH } from "../sim/geometry.js";
 import { CLOSE_Y_OFFSET, closeGroundY, closeRowDepth, projectFromStriker, projectWide, ROPE } from "./camera.js";
@@ -355,6 +356,7 @@ export function buildClose(ground, images, pitch, seed = 1, sun = LIGHTS.midday)
 // --- Wide view -------------------------------------------------------------
 
 export function buildWide(ground, images, pitch, seed = 1, sun = LIGHTS.midday) {
+  if (ground.wide.stadium) return buildStadium(ground, images, pitch, seed);
   const px = new Pixels(sceneryCanvas(ground.wide.scenery, images, seed, sun));
   const view = ground.wide;
   const light = rgb(view.grass.light);

@@ -1,3 +1,4 @@
+import { MCG_CAMERA } from "./stadium-camera.js";
 /**
  * Grounds as data. Each view is built from layers (see ground.js):
  *   - scenery: the hand-made parts (sky, clouds, trees, stands, fence) -
@@ -85,14 +86,14 @@ function parklands(name, fence) {
 GROUNDS.parklands = parklands("PARKLANDS OVAL", "fence-picket");
 GROUNDS.parklandsBoards = parklands("PARKLANDS (BOARDS)", "fence-ads");
 
-/** The G: a floodlit Melbourne mega-stadium at night (tools/art/make_theg.py). Picking it sets the floodlit night light. */
+/** The G: afternoon stadium composition in wide view; the close composition stays separate. */
 function theG() {
   const oval = GROUNDS.oval;
   return {
     ...oval,
     name: "THE MCG",
     hidden: false,
-    light: "night",
+    light: "afternoon",
     grass: { light: "#4c9438", dark: "#38782a" },
     close: {
       ...oval.close,
@@ -107,16 +108,12 @@ function theG() {
     },
     wide: {
       ...oval.wide,
-      perimeter: "wide/mcg-perimeter",
-      groundFrom: 107,
-      scenery: [
-        { image: "theg/wide/sky", y: 0, sky: true },
-        // Down to where the stands' rim starts, so no sky shows under the city.
-        { image: "theg/wide/skyline", y: 11 },
-        { image: "theg/wide/stands", y: 46 },
-        { image: "theg/wide/fence-ads", y: 93 },
-      ],
-      scoreboard: { x: 520, y: 55, w: 60, h: 22, colour: "#101620", top: "#ffd23a", bottom: "#f4f4ee" },
+      stadium: "theg/wide/afternoon-stadium",
+      camera: MCG_CAMERA,
+      perimeter: null,
+      scenery: [],
+      scoreboard: null,
+      grass: { light: "#5c963e", dark: "#4f8738" },
     },
   };
 }

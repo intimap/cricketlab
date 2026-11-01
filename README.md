@@ -271,3 +271,19 @@ is right-arm; changing sides moves the release, run-up and follow-through rather
 The non-striker automatically stands on the opposite side of the run-up when the side is changed.
 The eye/pressure panel is hidden during bowling setup and returns for the run-up.
 Run `node tools/bowling-side.test.mjs` to check the side geometry, delivery angles and selection controls.
+
+### MCG wide-view prototype
+
+The MCG wide view uses the afternoon stadium composition in
+`assets/theg/wide/afternoon-stadium.png`. `render/stadium-camera.js` defines an
+orthographic camera calibrated to its inner parapet; `render/stadium-ground.js`
+draws the circular field, 30 m ring, true-scale pitch and creases through that
+same projection. The generated image has a pale field placeholder, which the
+renderer replaces with opaque playable turf. Field editing uses the inverse
+camera. Other venues retain the original wide mapping; the close batting camera
+and its artwork remain separate. Selecting THE MCG defaults to AFTERNOON.
+
+For a visual test, select THE MCG, start a match and press C twice to lock WIDE
+(AUTO → CLOSE → WIDE). The true-scale pitch is deliberately smaller than the
+older exaggerated wide pitch. The artwork is an afternoon composition; changing
+the lighting option tints it but does not replace the baked sky or architecture.

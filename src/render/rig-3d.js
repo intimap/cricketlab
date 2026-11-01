@@ -2,7 +2,6 @@
 export const add3 = (a, b) => ({ x: a.x + b.x, y: a.y + b.y, z: a.z + b.z });
 export const sub3 = (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
 export const mul3 = (a, k) => ({ x: a.x * k, y: a.y * k, z: a.z * k });
-export const dot3 = (a, b) => a.x * b.x + a.y * b.y + a.z * b.z;
 export const length3 = (a) => Math.hypot(a.x, a.y, a.z);
 export const unit3 = (a, fallback = { x: 0, y: 1, z: 0 }) => (length3(a) > 1e-8 ? mul3(a, 1 / length3(a)) : { ...fallback });
 export const cross3 = (a, b) => ({ x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x });

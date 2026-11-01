@@ -64,13 +64,6 @@ export function sampleBatterMotion(name, secondsFromContact, { view = "batter" }
   return addBatterFootwork(accentBackswing(pose, c, t), c, t, name);
 }
 
-export function batterPhase(name, t) {
-  const c = BATTER_CLIPS[name];
-  if (t >= c.end) return "Ready";
-  let phase = c.frames[0].phase;
-  for (const frame of c.frames) if (t >= frame.time) phase = frame.phase;
-  return phase;
-}
 
 export function gamePreparationWindow(name) {
   const c = BATTER_CLIPS[name];

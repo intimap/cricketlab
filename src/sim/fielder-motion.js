@@ -42,14 +42,6 @@ export function runDistance(t, topSpeed, v0 = 0) {
   return start * tTop + 0.5 * FIELDER_ACCEL * tTop * tTop + topSpeed * (t - tTop);
 }
 
-/** Seconds to cover dist from speed v0 (the inverse of runDistance). */
-export function runTime(dist, topSpeed, v0 = 0) {
-  const start = Math.min(v0, topSpeed);
-  const tTop = (topSpeed - start) / FIELDER_ACCEL;
-  const dTop = start * tTop + 0.5 * FIELDER_ACCEL * tTop * tTop;
-  if (dist > dTop) return tTop + (dist - dTop) / topSpeed;
-  return (-start + Math.sqrt(start * start + 2 * FIELDER_ACCEL * dist)) / FIELDER_ACCEL;
-}
 
 /**
  * Where a ring fielder has walked in to by the delivery (k = 0..1 of the run-up): 1-2 m towards the

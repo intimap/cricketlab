@@ -1,14 +1,14 @@
 import { bowlerFieldingHome } from "./bowling-side.js";
 import { PITCH_TYPES, Pitch } from "./conditions.js";
 import { Innings } from "./innings.js";
-import { Commentary } from "./commentary.js";
+import { OverSummary } from "./over-summary.js";
 import { Rng } from "./rng.js";
 import { MomentTracker } from "./moments.js";
 import { isSpinner } from "./teams.js";
 import { bowlDelivery, movementOf } from "./delivery.js";
 import { resolveDelivery } from "./batting.js";
 import { plainCall } from "./call.js";
-import { PackVoice } from "./pack-voice.js";
+import { BoothEditor } from "./booth-editor.js";
 import { nextEye, offStrikeEye, eyeMultiplier } from "./eye.js";
 import { BallInPlay } from "./ball-in-play.js";
 import { pickBowler, pickOverPlan, pickFieldPreset, pickDeliveryPlan, pickShot, battingAggression } from "./ai.js";
@@ -43,9 +43,9 @@ export class Match {
     this.tempo = this.totalInnings > 1 || opts.target ? clamp((60 - overs) / 55, 0.15, 1) : 0;
     this.pitch = new Pitch(PITCH_TYPES[pitchId]);
     // The commentary has its own dice (seeded from the match's), so what's said never changes what happens.
-    this.comm = new Commentary(new Rng(rng.state ^ 0x5bd1e995));
-    /** The commentary pack's lines, and what's been said (presentation only: the scene brings its own dice). */
-    this.pack = new PackVoice();
+    this.overCommentary = new OverSummary(new Rng(rng.state ^ 0x5bd1e995));
+    /** One booth per match, retained across innings; presentation dice arrive from the scene. */
+    this.booth = new BoothEditor();
     this.beginInnings(batTeam, bowlTeam, opts.target ?? null);
     if (opts.start) this.inn.startFrom(opts.start);
   }
@@ -306,7 +306,6 @@ export class Match {
     rec.eye = { before: batter.eye, after: nextEye(batter.eye, shot, res) };
     batter.eye = rec.eye.after;
     inn.settleStrike(out.strikerEnd === 1);
-    rec.commentary = this.comm.line(rec, inn);
     rec.call = plainCall(rec, delivery, this.spinner);
     const applied = inn.apply(rec);
     if (applied.overEnded) this.needOver = true;

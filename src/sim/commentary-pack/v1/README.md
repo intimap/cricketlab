@@ -1,5 +1,12 @@
 # Cricket Lab commentary pack 1.0
 
+This directory preserves the original content pack and its offline validation tools.
+The live game loads only `ball_calls.json` through `sim/pack-voice.js`.
+Its current voice and context lines live in `sim/booth-*-lines.js` and
+`sim/booth-stories.js`; the optional reaction/context banks below are archive data,
+not active or pending runtime integrations. The original integration notes below
+describe the source package, not the current game.
+
 First content batch for the Cricket Lab repository. The pack has 514 original templates: 328 factual ball calls across 41 categories, 96 optional reactions across the three existing commentators, and 90 contextual lines for 10 existing match moments.
 
 The main focus is the everyday cricket: leaves, blocks, singles, edges and misses. There are also starter sets for boundaries, catches, bowled dismissals and extras. This is the first batch, not an exhaustive cricket commentary corpus.

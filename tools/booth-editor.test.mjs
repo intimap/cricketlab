@@ -1,7 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { BoothEditor } from "../src/sim/booth-editor.js";
-import { boothCall } from "../src/sim/commentators.js";
 import { boothContext } from "../src/sim/booth-context.js";
 import { repeatsHpd, safeBoothCalls } from "../src/sim/booth-policy.js";
 import { BOOTH_STORIES } from "../src/sim/booth-stories.js";
@@ -32,7 +31,7 @@ test("the final gate rejects exact, normalised and embedded copies after substit
 });
 
 test("an ordinary ball always gets a primary call without copying the HPD", () => {
-  const result = boothCall(ball({ shot: "defend" }), "NO RUN", names, rng, {}, fitsBox, { inn: innings() });
+  const result = new BoothEditor().edit(ball({ shot: "defend" }), "NO RUN", names, rng, fitsBox, { inn: innings() });
   assert.equal(result.calls[0].topic, "ballCall");
   assert.ok(!repeatsHpd(result.calls[0].text, "NO RUN"));
 });
@@ -150,4 +149,31 @@ test("booth editing leaves HPD, match state and all simulation records unchanged
     assert.equal(match.inn.runs, control.inn.runs);
   }
   assert.ok(checked > 100 && spoken > 20, `${checked} balls, ${spoken} comments`);
+});
+
+test("a match owns its booth across innings, with independent memory for a new match", () => {
+  const match = new Match(australia(), england(), "green", 10, new Rng(5), "bat", { innings: 2 });
+  const editor = match.booth;
+  assert.ok(editor instanceof BoothEditor);
+  editor.edit(ball({ shot: "defend" }), "NO RUN", names, rng, fitsBox, { inn: match.inn });
+  assert.equal(editor.ball, 1);
+  match.beginInnings(england(), australia(), 100);
+  assert.equal(match.booth, editor);
+  const other = new Match(australia(), england(), "green", 10, new Rng(5), "bat");
+  assert.notEqual(other.booth, editor);
+  assert.equal(other.booth.ball, 0);
+});
+
+test("end-of-over messages still describe maidens and expensive overs without changing cricket dice", () => {
+  const match = new Match(australia(), england(), "green", 10, new Rng(5), "bat");
+  const state = match.rng.state;
+  const bowler = { p: { short: "TEST", bowl: { style: "fast" } }, overRuns: 0, spell: 1, stamina: 1 };
+  const inn = { bowl: [bowler], lastOverBowler: 0, pitch: { wear: 0 }, pressure: 0 };
+  assert.equal(match.overCommentary.overSummary(inn), "Maiden from TEST. Tight.");
+  bowler.overRuns = 12;
+  assert.equal(match.overCommentary.overSummary(inn), "12 from the over. TEST will want to forget that.");
+  bowler.stamina = 0.2;
+  bowler.spell = 8;
+  assert.match(match.overCommentary.overSummary(inn), /TEST.*(?:running on empty|legs are going)/);
+  assert.equal(match.rng.state, state);
 });

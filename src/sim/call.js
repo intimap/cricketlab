@@ -4,7 +4,7 @@ import { shotArea } from "./describe.js";
 /**
  * The plain call for the score bar: exactly what was bowled, what the batter
  * did with it and what came of it, with no colour. (The commentary box adds
- * the colour; see commentary.js and commentators.js.)
+ * the colour; see booth-editor.js and booth-caller.js.)
  */
 
 // The delivery as it's called; the stock seam ball goes unnamed.

@@ -1,23 +1,7 @@
 import BALL_CALLS from "./commentary-pack/v1/ball_calls.json" with { type: "json" };
-import COMMENTATOR_LINES from "./commentary-pack/v1/commentator_lines.json" with { type: "json" };
-import MATCH_CONTEXT from "./commentary-pack/v1/match_context.json" with { type: "json" };
 
-/**
- * The commentary pack (commentary-pack/v1, see its CLAUDE_INTEGRATION.md):
- * lines that each say when they're true of a ball, picked fresh. Three banks:
- *   ball_calls         what happened on the ball, for whoever is on the microphone ("neutral");
- *   commentator_lines  a commentator's reaction to it, now and then;
- *   match_context      a line for one of the moments MomentTracker spots.
- * Presentation only: the dice are passed in, never the match's.
- */
-const BANKS = {
-  ball_calls: BALL_CALLS.entries,
-  commentator_lines: COMMENTATOR_LINES.entries,
-  match_context: MATCH_CONTEXT.entries,
-};
-
-/** The moments the pack has lines for (others keep the box's own lines). */
-export const PACK_MOMENTS = new Set(MATCH_CONTEXT.entries.map((e) => e.requires["rec.moment.kind"]).filter(Boolean));
+/** Authored factual calls used by BoothCaller; presentation dice are passed in. */
+const BANKS = { ball_calls: BALL_CALLS.entries };
 
 const MISSING = Symbol("missing");
 /** A pack field path ("rec.extra.type") on { rec, facts }; a path that isn't there is MISSING, unlike null. */
@@ -93,7 +77,7 @@ const GROUP_MEMORY = 4;
 export class PackVoice {
   /** Balls delivered so far (illegal ones too): the clock for cooldowns. */
   ball = 0;
-  history = { ball_calls: [], commentator_lines: [], match_context: [] };
+  history = { ball_calls: [] };
 
   /** A ball has been delivered. */
   tick() {

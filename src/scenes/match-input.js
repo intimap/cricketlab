@@ -5,6 +5,7 @@ import { crossingAtZ } from "../sim/delivery.js";
 import { CONTACT_Z_FRONT, SWING_TIME, NORMAL_CHARGE, FOOTWORK_MIN, FOOTWORK_MAX } from "../sim/batting.js";
 import { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
 export { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
+import { meterPos, releaseError, METER_FROM } from "../sim/runup.js";
 import { LEAVE_LIFT } from "./batter-pose.js";
 
 /**
@@ -116,4 +117,41 @@ export function aimTarget(scene) {
   if (keys.pressed("ArrowDown")) scene.target.length -= 0.5 * step * turned;
   scene.target.line = clamp(scene.target.line, -0.9, 1.1);
   scene.target.length = clamp(scene.target.length, 0.5, 12.5);
+}
+
+/** Seconds of holding left/right in the run-up for full aftertouch. */
+const AFTERTOUCH_BUILD = 0.5;
+
+/** The bowler running in: aftertouch from the arrows, release on Space (or a late one if the player waits too long). */
+export function updateRunup(scene, dt) {
+  const cur = scene.cur;
+  cur.tRun += dt;
+  if (scene.human === "bowl") {
+    // Aftertouch: hold left or right through the run-up for extra swing or spin that way.
+    const held = (keys.down("ArrowRight") ? 1 : 0) - (keys.down("ArrowLeft") ? 1 : 0);
+    if (held && cur.tRun > cur.runupDur * 0.3) {
+      cur.aftertouch = clamp((cur.aftertouch ?? 0) + (held * scene.screenTurn * dt) / AFTERTOUCH_BUILD, -1, 1);
+    }
+    // Release on Space: early drops it short, late drags it full, very late is a no-ball.
+    const r = cur.runup;
+    const pos = meterPos(r, cur.tRun);
+    if (keys.pressed("Space") && pos > METER_FROM) {
+      const stamina = scene.inn.bowler.stamina;
+      let err = releaseError(r, pos);
+      cur.releaseMark = pos;
+      // Inside the gold zone the release is perfect; outside it, fatigue makes it worse.
+      if (Math.abs(err) <= r.zone) {
+        err = 0;
+        scene.flash("PERFECT RELEASE", COLORS.gold);
+      } else {
+        err *= 1.3 - 0.3 * stamina;
+      }
+      scene.release(clamp(err, -0.35, 0.3));
+    } else if (releaseError(r, pos) > 0.17) {
+      cur.releaseMark = pos;
+      scene.release(0.17 + Math.random() * 0.03);
+    }
+  } else if (cur.tRun >= cur.runupDur + clamp(cur.aiReleaseError, -0.08, 0.08)) {
+    scene.release(cur.aiReleaseError);
+  }
 }

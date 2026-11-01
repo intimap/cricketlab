@@ -3,8 +3,6 @@ import { BOOTH_STORIES } from "./booth-stories.js";
 import { boothContext } from "./booth-context.js";
 import { boothWords, safeBoothCalls } from "./booth-policy.js";
 
-const editors = new WeakMap();
-
 /** A match's booth has its own topic and line memory, separate from the cricket RNG. */
 export class BoothEditor {
   caller = new BoothCaller();
@@ -23,7 +21,7 @@ export class BoothEditor {
     const analysis = this.context(rec, hpd, names, rng, fits, {
       ...context, lead: primary ? (primary.who + 1) % 3 : rec.over % 3,
     });
-    return { calls: safeBoothCalls([...(primary ? [primary] : []), ...analysis.calls.slice(0, 1)], hpd, fits), picks: [] };
+    return { calls: safeBoothCalls([...(primary ? [primary] : []), ...analysis.calls.slice(0, 1)], hpd, fits) };
   }
 
   context(rec, hpd, names, rng, fits = () => true, { inn = null, beforePressure, lead = rec.over % 3 } = {}) {
@@ -71,19 +69,9 @@ export class BoothEditor {
         this.topics.set(option.topic, this.ball);
         this.topics.set(group, this.ball);
         this.lastTopic = option.topic;
-        return { calls: safe, picks: [] };
+        return { calls: safe };
       }
     }
-    return { calls: [], picks: [] };
+    return { calls: [] };
   }
-}
-
-/** Compatible entry point; pack supplies the per-match identity for call and context memory. */
-export function editBoothCall(rec, hpd, names, rng, pack, fits, context) {
-  let editor = pack && editors.get(pack);
-  if (!editor) {
-    editor = new BoothEditor();
-    if (pack) editors.set(pack, editor);
-  }
-  return editor.edit(rec, hpd, names, rng, fits, context);
 }

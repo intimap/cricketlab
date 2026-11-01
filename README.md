@@ -254,7 +254,10 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   can add analysis from read-only situations in `sim/booth-context.js` and personality-specific stories in
   `sim/booth-stories.js`. Wording and topic memory avoid recent repetition; when a primary pool is exhausted,
   the least recently used safe line is allowed back. HPD text is never used as a fallback.
-  `sim/booth-policy.js` rejects duplicate HPD text both at selection and display. The original chat helpers remain available for existing tools.
+  `sim/booth-policy.js` rejects duplicate HPD text both at selection and display. Unused legacy ball commentary and between-over chat have been removed. Live end-of-over messages
+  are in `sim/over-summary.js`; fielder send-offs and chirps are in `sim/field-chatter.js`.
+  `sim/commentators.js` holds portrait identities only. The v1 pack is retained as a source archive;
+  only its `ball_calls.json` bank is loaded by the game.
   Run `node tools/booth-caller.test.mjs` and `node tools/booth-editor.test.mjs` to check every-ball coverage,
   factual eligibility, freshness, duplicate protection and unchanged match records.
 

@@ -19,8 +19,7 @@ import { CONTACT_Z_FRONT, CONTACT_Z_BACK, SWING_TIME, playsBack } from "../sim/b
 import { eyeMultiplier } from "../sim/eye.js";
 import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from "../sim/field.js";
 import { pickBowler } from "../sim/ai.js";
-import { pickSledges, pickChirp } from "../sim/commentary.js";
-import { boothCall } from "../sim/commentators.js";
+import { pickSledges, pickChirp } from "../sim/field-chatter.js";
 import { makeKit } from "../render/sprites.js";
 import { scheduleCalls, boothDuration, fitsBox } from "../render/booth.js";
 import { buildGround } from "../render/ground.js";
@@ -842,7 +841,6 @@ export class MatchScene {
   completeBall() {
     const cur = this.cur;
     const done = this.match.finish(cur.play);
-    this.match.pack.tick();
     cur.done = done;
     onBallDone(this.juice, this.now, this.human === "bat" ? done.rec.eye : null, {
       before: cur.pressureBefore,
@@ -860,10 +858,8 @@ export class MatchScene {
     // The score bar gets the plain call; the commentary box (below) adds the colour.
     this.commentary = done.rec.call ?? "";
     this.commT = 0;
-    const { calls, picks } = this.callFromBooth(done);
+    const { calls } = this.callFromBooth(done);
     this.booth = scheduleCalls(calls, this.now + 0.2);
-    // Only once they're on air do the pack's lines count as said.
-    for (const pick of picks) this.match.pack.said(pick);
     const wicket = done.rec.wicket;
     if (wicket) {
       playBroadcast("wicket");
@@ -941,7 +937,7 @@ export class MatchScene {
       chance: (p) => Math.random() < p,
       random: Math.random,
     };
-    return boothCall(rec, rec.call ?? "", names, rng, this.match.pack, fitsBox, {
+    return this.match.booth.edit(rec, rec.call ?? "", names, rng, fitsBox, {
       inn,
       beforePressure: this.cur?.pressureBefore,
     });
@@ -991,7 +987,7 @@ export class MatchScene {
         return;
       }
       if (applied.overEnded) {
-        this.big("END OF OVER", COLORS.cream, this.match.comm.overSummary(this.inn), 2.3);
+        this.big("END OF OVER", COLORS.cream, this.match.overCommentary.overSummary(this.inn), 2.3);
         this.setPhase("overEnd");
         return;
       }
@@ -1007,7 +1003,6 @@ export class MatchScene {
     this.simLines = [];
     for (let i = 0; !inn.isOver && inn.overNo < until && i++ < 2000; ) {
       const { rec, applied } = this.match.simBall();
-      this.match.pack.tick();
       if (rec.wicket || rec.boundary || applied.milestones.length || applied.overEnded) {
         const result = rec.wicket ? "OUT! " + rec.wicket.text : rec.boundary ? rec.boundary + "!" : rec.total;
         let line = `${rec.over}.${rec.ball} ${inn.bowl[rec.bowler].p.short} to ${inn.bat[rec.striker].p.short}: ${result}`;
@@ -1016,7 +1011,7 @@ export class MatchScene {
         this.simLines.push(line);
       }
     }
-    this.commentary = this.simLines.length ? "Simulated. " + this.match.comm.overSummary(inn) : "";
+    this.commentary = this.simLines.length ? "Simulated. " + this.match.overCommentary.overSummary(inn) : "";
     this.setPhase("simSummary");
   }
 }

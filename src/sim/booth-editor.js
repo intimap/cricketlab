@@ -1,3 +1,5 @@
+import { BROADCAST_STORIES } from "./broadcast-context.js";
+import { boothChat, CHAT_TOPICS } from "./booth-chat.js";
 import { BoothCaller } from "./booth-caller.js";
 import { BOOTH_STORIES } from "./booth-stories.js";
 import { boothContext } from "./booth-context.js";
@@ -15,18 +17,22 @@ export class BoothEditor {
   lastTopic = null;
   innings = null;
   lastLegal = null;
+  narrativeKeys = new Set();
 
   edit(rec, hpd, names, rng, fits = () => true, context = {}) {
     const primary = this.caller.call(rec, hpd, names, rng, fits);
+    const recap = context.applied?.overEnded && context.commentary
+      ? boothChat(context.commentary, context.inn, rng, { rec, fits, hpd }) : [];
     const analysis = this.context(rec, hpd, names, rng, fits, {
-      ...context, lead: primary ? (primary.who + 1) % 3 : rec.over % 3,
+      ...context, lead: primary ? (primary.who + 1) % 3 : rec.over % 3, silent: recap.length > 0,
     });
-    return { calls: safeBoothCalls([...(primary ? [primary] : []), ...analysis.calls.slice(0, 1)], hpd, fits) };
+    return { calls: safeBoothCalls([...(primary ? [primary] : []), ...recap, ...analysis.calls.slice(0, 1)], hpd, fits) };
   }
 
-  context(rec, hpd, names, rng, fits = () => true, { inn = null, beforePressure, lead = rec.over % 3 } = {}) {
+  context(rec, hpd, names, rng, fits = () => true, { inn = null, beforePressure, lead = rec.over % 3, narrative, light, silent = false } = {}) {
     this.ball++;
     if (inn !== this.innings) {
+      this.narrativeKeys.clear();
       this.quiet = 0;
       this.dots = 0;
       this.drops = [];
@@ -45,15 +51,18 @@ export class BoothEditor {
     if (rec.dropped && !rec.freeHit && rec.extra?.type !== "nb" && inn) {
       this.drops.push({ batter: rec.striker, on: inn.bat[rec.striker].runs });
     }
+    if (silent) return { calls: [] };
     const duty = lead;
-    const options = boothContext(rec, inn, this, beforePressure);
+    const options = boothContext(rec, inn, this, beforePressure, { narrative, light });
     for (const option of options) {
-      const story = BOOTH_STORIES[option.topic];
+      const story = CHAT_TOPICS[option.topic] ?? BROADCAST_STORIES[option.topic] ?? BOOTH_STORIES[option.topic];
+      if (option.key && this.narrativeKeys.has(option.key)) continue;
       if (!story || this.ball - (this.topics.get(option.topic) ?? -Infinity) < story.rest) continue;
       // Closely related story names cannot evade a topic cooldown.
-      const group = option.topic.startsWith("chase") ? "chase" : option.topic;
+      const group = option.topic.startsWith("chase") ? "chase" :
+        option.topic.startsWith("dotPressure") ? "dotPressure" : option.topic;
       if (this.ball - (this.topics.get(group) ?? -Infinity) < story.rest) continue;
-      if (option.topic === this.lastTopic && story.rest > 0) continue;
+      if (!option.key && option.topic === this.lastTopic && story.rest > 0) continue;
       const facts = { b: names.batter, w: names.bowler, ...option.facts };
       const render = text => text.replace(/\{([^}]+)\}/g, (_, key) => String(facts[key] ?? `{${key}}`)).toUpperCase();
       // The primary voice already called the ball; another adds context when there is something to say.
@@ -69,6 +78,7 @@ export class BoothEditor {
         this.topics.set(option.topic, this.ball);
         this.topics.set(group, this.ball);
         this.lastTopic = option.topic;
+        if (option.key) this.narrativeKeys.add(option.key);
         return { calls: safe };
       }
     }

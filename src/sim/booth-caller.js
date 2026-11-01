@@ -1,3 +1,4 @@
+import { LINES } from "./broadcast-lines.js";
 import { BOOTH_DOT_LINES, GLOVE_LINES } from "./booth-dot-lines.js";
 import { BOOTH_SCORING_LINES, WINNING_EXTRA_LINES } from "./booth-scoring-lines.js";
 import { BOOTH_WICKET_LINES } from "./booth-wicket-lines.js";
@@ -71,6 +72,13 @@ export class BoothCaller {
       .replace(/\bONE BYES\b/g, "ONE BYE").replace(/\bONE LEG-BYES\b/g, "ONE LEG-BYE");
     const allowed = text => safeBoothCalls([{ who, text }], hpd, fits).length > 0;
     const candidates = BOOTH_BALL_LINES[category][who].map(render).filter(allowed).map(text => ({ text }));
+    if (category === "leave" && !rec.padVerdict) {
+      const line = rec.seenBall?.line;
+      const bank = line === "wide" ? LINES.leaveWide : line === "off" ? LINES.leaveClose : null;
+      if (bank) for (const text of bank[who].map(render).filter(allowed)) candidates.push({ text });
+      if (["back", "short"].includes(rec.seenBall?.length))
+        for (const text of LINES.leaveLength[who].map(render).filter(allowed)) candidates.push({ text });
+    }
     // The established bank supplies additional specific calls (movement, shot families, edges).
     const legacySafe = !["winningExtra", "offCentreDot", "offCentreRuns"].includes(category);
     const pick = !legacySafe ? null : this.pack.choose("ball_calls", packContext(rec, { b: facts.b, w: facts.w }), {

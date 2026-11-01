@@ -1,3 +1,4 @@
+import { projectStadium, unprojectStadium } from "./stadium-camera.js";
 import { MID_PITCH, BOUNDARY, STUMPS_HALF_WIDTH, PITCH_LENGTH } from "../sim/geometry.js";
 
 // Two hand-tuned projections, each matched to its background painting.
@@ -64,6 +65,9 @@ export function projectClose(x, y, z) {
 export function closePixelsPerMetre(z) {
   return HEIGHT_GAIN * depthScale(closeDepth(z));
 }
+
+let wideCamera = null;
+export function setWideCamera(camera = null) { wideCamera = camera; }
 
 // --- Wide camera: high behind the bowler's end, whole ground in view. ---
 // Piecewise linear: the pitch gets more room than the outfield.
@@ -152,6 +156,7 @@ function ropeCorrection(x, z) {
 
 /** World point to screen: { x, y, s } where s scales sprites (smaller further away). */
 export function projectWide(x, y, z) {
+  if (wideCamera) return projectStadium(x, y, z, wideCamera);
   const raw = rawWide(x, z);
   const k = ropeCorrection(x, z);
   const sx = WIDE_CX + (raw.x - WIDE_CX) * k;
@@ -162,6 +167,7 @@ export function projectWide(x, y, z) {
 
 /** Screen point to ground position (inverse of projectWide at y = 0). */
 export function unprojectWide(sx, sy) {
+  if (wideCamera) return unprojectStadium(sx, sy, wideCamera);
   // Undo the rope correction by fixed-point iteration; it changes slowly, so this converges fast.
   let k = 1;
   let g = rawUnprojectWide(sx, sy);

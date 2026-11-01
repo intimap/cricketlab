@@ -26,7 +26,7 @@ import { scheduleCalls, boothDuration, fitsBox } from "../render/booth.js";
 import { buildGround } from "../render/ground.js";
 import { GROUNDS, DEFAULT_GROUND } from "../render/grounds.js";
 import { LIGHTS } from "../render/light.js";
-import { projectWide, unprojectWide } from "../render/camera.js";
+import { projectWide, unprojectWide, setWideCamera } from "../render/camera.js";
 import { drawMatch } from "./match-view.js";
 import * as decisions from "./match-decisions.js";
 import { createFeedback, stepFeedback, timeFactor, onContact, onBallDone, hitStop } from "./match-feedback.js";
@@ -100,6 +100,7 @@ export class MatchScene {
     this.nets = this.match.nets;
     /** The ground's backgrounds, built from its data and the pitch (and rebuilt as it wears). */
     this.ground = GROUNDS[cfg.ground] ?? GROUNDS[DEFAULT_GROUND];
+    setWideCamera(this.ground.wide.camera);
     this.light = LIGHTS[cfg.light] ?? LIGHTS.midday;
     this.buildGround();
     /** Nets: balls faced or bowled, and how many the coach rated good. */

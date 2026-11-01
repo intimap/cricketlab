@@ -4,6 +4,7 @@
  * tools/build-single.py rewrites it into inline imports for one-file builds.
  */
 export const ASSET_URLS = {
+  "theg/wide/afternoon-stadium": new URL("../assets/theg/wide/afternoon-stadium.png", import.meta.url),
   "ground-close": new URL("../assets/ground-close.png", import.meta.url),
   "ground-wide": new URL("../assets/ground-wide.png", import.meta.url),
   "close/sky": new URL("../assets/close/sky.png", import.meta.url),

@@ -49,7 +49,7 @@ targets. If I say "syntax only", "no browser" or "no test build", do just that.
 - Commit subject: what the player notices, with before/after numbers where relevant
   (e.g. "High-effort bowling costs more stamina (2.6x medium, was 1.6x)").
   Body: what changed for the player, then the balance impact.
-- Add `[skip netlify]` to the merge message when I don't want a deploy yet.
+- Don't deploy on netlify, admin will do manually.
 - Update the README's controls table when keys change.
 
 # Cricket Lab - Architecture & Feature Guidelines

@@ -1,5 +1,5 @@
 import { addBatterFootwork } from "./batter-footwork.js";
-import { BACKLIFT_TIME } from "../sim/shot-timing.js";
+import { BACKLIFT_TIME } from "../../sim/shot-timing.js";
 import { accentBackswing } from "./batter-backswing.js";
 import { withBatterDepth } from "./batter-skeleton.js";
 

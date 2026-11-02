@@ -1,11 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { BATTER_CLIPS, sampleBatterMotion } from "../src/render/batter-motion-all.js";
-import { BATTER_POSES } from "../src/render/batter-poses.js";
-import { solveBatterSkeleton, batterJointToWorld, UNITS_PER_METRE } from "../src/render/batter-skeleton.js";
-import { solveBatterRig, projectBatterJoint } from "../src/render/batter-projection.js";
-import { batMesh } from "../src/render/bat-mesh.js";
-import { solveTwoBone3, length3, sub3 } from "../src/render/rig-3d.js";
+import { BATTER_CLIPS, sampleBatterMotion } from "../src/render/batter/batter-motion-all.js";
+import { BATTER_POSES } from "../src/render/batter/batter-poses.js";
+import { solveBatterSkeleton, batterJointToWorld, UNITS_PER_METRE } from "../src/render/batter/batter-skeleton.js";
+import { solveBatterRig, projectBatterJoint } from "../src/render/batter/batter-projection.js";
+import { batMesh } from "../src/render/batter/bat-mesh.js";
+import { solveTwoBone3, length3, sub3 } from "../src/render/batter/rig-3d.js";
 
 const near = (a, b, tolerance = 1e-7) => assert.ok(Math.abs(a - b) < tolerance, `${a} != ${b}`);
 const distance = (a, b) => length3(sub3(a, b));

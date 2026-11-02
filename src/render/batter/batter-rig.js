@@ -1,6 +1,6 @@
-import { drawLine, fillCircle, fillEllipse, fillPolygon } from "../engine/screen.js";
-import { drawText } from "../engine/text.js";
-import { PAD, PAD_SHADE, HAIR, mirrored, groundShadow, lighten, darken } from "./kit.js";
+import { drawLine, fillCircle, fillEllipse, fillPolygon } from "../../engine/screen.js";
+import { drawText } from "../../engine/text.js";
+import { PAD, PAD_SHADE, HAIR, mirrored, groundShadow, lighten, darken } from "../kit.js";
 import { drawCloth, drawBoot } from "./batter-surfaces.js";
 import { drawBat } from "./bat.js";
 

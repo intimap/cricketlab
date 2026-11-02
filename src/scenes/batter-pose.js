@@ -3,8 +3,8 @@ import { CREASE } from "../sim/geometry.js";
 import { crossingAtZ } from "../sim/delivery.js";
 import { SWING_TIME, NORMAL_CHARGE, CONTACT_Z_BACK, playsBack, backFootShot, driveBearing } from "../sim/batting.js";
 import { projectFromStriker } from "../render/camera.js";
-import { BATTER_POSES, lerpPose, reachPose } from "../render/batter-rig.js";
-import { BATTER_CLIPS, sampleGameBatterMotion } from "../render/batter-motion-all.js";
+import { BATTER_POSES, lerpPose, reachPose } from "../render/batter/batter-rig.js";
+import { BATTER_CLIPS, sampleGameBatterMotion } from "../render/batter/batter-motion-all.js";
 import { rigStroke } from "./batter-stroke.js";
 export { rigStroke } from "./batter-stroke.js";
 

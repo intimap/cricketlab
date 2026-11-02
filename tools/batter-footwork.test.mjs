@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { BATTER_CLIPS, sampleBatterMotion } from "../src/render/batter-motion-all.js";
-import { solveBatterSkeleton } from "../src/render/batter-skeleton.js";
-import { solveBatterRig } from "../src/render/batter-projection.js";
-import { batterSurfaces } from "../src/render/batter-surfaces.js";
+import { BATTER_CLIPS, sampleBatterMotion } from "../src/render/batter/batter-motion-all.js";
+import { solveBatterSkeleton } from "../src/render/batter/batter-skeleton.js";
+import { solveBatterRig } from "../src/render/batter/batter-projection.js";
+import { batterSurfaces } from "../src/render/batter/batter-surfaces.js";
 
 const near = (a, b) => assert.ok(Math.abs(a - b) < 1e-7, `${a} != ${b}`);
 const toe = (r, name) => ({

@@ -12,7 +12,7 @@ import {
   darken,
   drawFacialHair,
 } from "./kit.js";
-import { joint } from "./batter-rig.js";
+import { joint } from "./batter/batter-rig.js";
 
 /** Everyone but the striker: bowler, keeper, fielders, umpires and runners, close up and tiny in the wide view. */
 

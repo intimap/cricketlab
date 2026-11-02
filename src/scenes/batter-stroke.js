@@ -1,7 +1,7 @@
 import { crossingAtZ } from "../sim/delivery.js";
 import { SWING_TIME, CONTACT_Z_FRONT, CONTACT_Z_BACK, playsBack, backFootShot, driveBearing } from "../sim/batting.js";
-import { BATTER_CLIPS, gamePreparationWindow } from "../render/batter-motion-all.js";
-import { clipForShot } from "../render/batter-catalog.js";
+import { BATTER_CLIPS, gamePreparationWindow } from "../render/batter/batter-motion-all.js";
+import { clipForShot } from "../render/batter/batter-catalog.js";
 
 /**
  * Presentation routing only. It reads a committed shot, never changes its result or consumes dice.

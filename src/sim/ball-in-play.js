@@ -1,5 +1,5 @@
 import { clamp } from "../math.js";
-import { BOUNDARY, ENDS, GRAVITY, distFromCentre } from "./geometry.js";
+import { BOUNDARY_SCORES, ENDS, GRAVITY, distFromCentre } from "./geometry.js";
 import { keeperSpot } from "./field.js";
 import { stepFielder, setState, walkInSpot } from "./fielder-motion.js";
 import { assignFieldingRoles } from "./fielder-ai.js";
@@ -234,7 +234,7 @@ export class BallInPlay {
       stepBall(b, dt, this.setup.outfield);
       t += dt;
       const speed = Math.hypot(b.vel.x, b.vel.z);
-      const out = distFromCentre(b.pos.x, b.pos.z) > BOUNDARY;
+      const out = distFromCentre(b.pos.x, b.pos.z) > BOUNDARY_SCORES;
       path.push({ t, x: b.pos.x, y: b.pos.y, z: b.pos.z, v: speed, bounced: b.bounced, out });
       if (out || (speed < 0.05 && b.pos.y <= 0)) break;
     }
@@ -262,7 +262,7 @@ export class BallInPlay {
       stepBall(b, dt, this.setup.outfield);
       // A catch is no longer on once it lands.
       if (!wasBounced && b.bounced && this.plan?.kind === "catch" && this.plan.t > this.t + 0.05) this.replan();
-      if (!this.crossedBoundary && distFromCentre(b.pos.x, b.pos.z) > BOUNDARY) {
+      if (!this.crossedBoundary && distFromCentre(b.pos.x, b.pos.z) > BOUNDARY_SCORES) {
         this.crossedBoundary = true;
         this.boundary = !b.bounced && this.setup.res.touchedBat ? 6 : 4;
         this.emit(this.boundary === 6 ? "six" : "four");

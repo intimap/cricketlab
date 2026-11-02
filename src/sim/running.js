@@ -1,4 +1,5 @@
 import { ENDS, RUN_LENGTH, CREASE } from "./geometry.js";
+import { windUp } from "./fielder-throw.js";
 
 /**
  * The batters' running for a ball in play (ball-in-play.js): starting and calling off runs, moving
@@ -126,7 +127,13 @@ export function aiRun(live) {
   let ballBack = Infinity;
   const throwSpeed = 24;
   const returnTime = (pos, delay) =>
-    Math.min(...[0, 1].map((e) => delay + 0.22 + Math.hypot(pos.x - ENDS[e].x, pos.z - ENDS[e].z) / throwSpeed + 0.18));
+    Math.min(
+      ...[0, 1].map((e) => {
+        const dist = Math.hypot(pos.x - ENDS[e].x, pos.z - ENDS[e].z);
+        // The batters know a short throw comes out quicker.
+        return delay + 0.22 * windUp(dist) + dist / throwSpeed + 0.18;
+      }),
+    );
   if (b.throwing) ballBack = Math.min(throwBack(live, 0), throwBack(live, 1));
   else if (b.held >= 0) ballBack = returnTime(live.fielders[b.held].pos, Math.max(0, live.pickupAt - live.t));
   else if (live.plan) ballBack = returnTime({ x: live.plan.point.x, z: live.plan.point.z }, live.plan.t - live.t + 0.35);

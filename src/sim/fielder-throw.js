@@ -11,9 +11,11 @@ import { CROW_HOP_TIME, setState } from "./fielder-motion.js";
 /** Gathering the ball cleanly (s), and the extra to get up and gather after a dive. */
 const GATHER = 0.35;
 const GATHER_AFTER_DIVE = 0.35;
-/** Then the release (s): quick from a set stance, a touch slower on the move. */
+/** Then the release (s) for a full throw: quick from a set stance, a touch slower on the move. */
 const RELEASE_SET = 0.25;
 const RELEASE_MOVING = 0.3;
+/** A short throw needs less wind-up: a flick at the stumps takes this share of a full release. */
+const FLICK_SHARE = 0.4;
 /** Throws longer than this (m) take a crow-hop first. */
 export const CROW_HOP_FROM = 30;
 /** Arc and gather time on top of the flight (s). */
@@ -29,6 +31,14 @@ export function gatherDelay(dived) {
 }
 
 const throwSpeed = (f) => 19 + 11 * f.player.field.arm;
+
+/** Share of a full wind-up a throw of `dist` m needs: a flick close in, all of it from 30 m. */
+export const windUp = (dist) => FLICK_SHARE + (1 - FLICK_SHARE) * clamp(dist / CROW_HOP_FROM);
+
+/** Seconds from ball in hand to release for a throw of `dist` m, with a crow-hop beyond 30 m. */
+function releaseTime(dist, wasSet) {
+  return (wasSet ? RELEASE_SET : RELEASE_MOVING) * windUp(dist) + (dist > CROW_HOP_FROM ? CROW_HOP_TIME : 0);
+}
 
 /** Is someone covering `end`, backing up the throw? */
 function covered(fielders, end, thrower) {
@@ -47,7 +57,7 @@ export function planThrow(f, ctx) {
   const { t, rng } = ctx;
   const speed = throwSpeed(f);
   const dists = [0, 1].map((e) => Math.hypot(f.pos.x - ENDS[e].x, f.pos.z - ENDS[e].z));
-  const releaseAt = (e) => t + (ctx.wasSet ? RELEASE_SET : RELEASE_MOVING) + (dists[e] > CROW_HOP_FROM ? CROW_HOP_TIME : 0);
+  const releaseAt = (e) => t + releaseTime(dists[e], ctx.wasSet);
   const arrival = dists.map((d, e) => releaseAt(e) + d / speed + THROW_EXTRA);
 
   // The end where the ball beats a batter home by most (the smallest margin he has left).
@@ -73,7 +83,7 @@ export function planThrow(f, ctx) {
     const relay = deep ? relayCatcher(f, ctx.fielders, dists[1]) : null;
     if (relay) {
       const dist = Math.hypot(f.pos.x - relay.pos.x, f.pos.z - relay.pos.z);
-      const t0 = t + (ctx.wasSet ? RELEASE_SET : RELEASE_MOVING) + (dist > CROW_HOP_FROM ? CROW_HOP_TIME : 0);
+      const t0 = t + releaseTime(dist, ctx.wasSet);
       return { relayTo: relay.idx, end: null, t0, hop: dist > CROW_HOP_FROM, arriveAt: t0 + dist / speed + THROW_EXTRA, dist };
     }
   }

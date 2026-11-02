@@ -69,9 +69,12 @@ export function resultEntry(match) {
   const text =
     kind === "tie"
       ? "MATCH TIED"
-      : `${won ? "WON" : "LOST"} BY ${plural(margin, kind === "wkts" ? "WKT" : "RUN")}` +
+      : `${won ? "WON" : "LOST"} BY ${plural(margin, kind === "wkts" ? "WICKET" : "RUN")}` +
         (kind === "wkts" && ballsLeft > 0 ? ` (${plural(ballsLeft, "BALL")} LEFT)` : "");
-  const score = `${inn.batTeam.abbr} ${inn.runs}/${inn.wkts}`;
+  // Both sides, batting first first. A classic chase has no first innings: its target stands in.
+  const total = (i) => `${i.batTeam.abbr} ${i.runs}${i.wkts === 10 ? "" : `/${i.wkts}`}`;
+  const first = match.innings.length > 1 ? total(match.innings[0]) : `${inn.bowlTeam.abbr} ${inn.target - 1}`;
+  const score = inn.target === null ? total(inn) : `${first}  ${total(inn)}`;
   return { won, kind, margin, ballsLeft, rank: rankOf(won, kind, margin, ballsLeft), text, score };
 }
 
@@ -92,7 +95,7 @@ export function validEntry(raw) {
   if (!name || !Number.isFinite(rank) || !Number.isFinite(at) || typeof raw.board !== "string") return null;
   const short = (s, n) => cleanText(s).slice(0, n);
   const id = typeof raw.id === "string" && ID_PATTERN.test(raw.id) ? raw.id : null;
-  return { board: raw.board, name, rank, at, text: short(raw.text, 30), score: short(raw.score, 16), id };
+  return { board: raw.board, name, rank, at, text: short(raw.text, 36), score: short(raw.score, 22), id };
 }
 
 function cleanText(s) {

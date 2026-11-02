@@ -6,6 +6,12 @@ const smooth = (x) => {
   return k * k * (3 - 2 * k);
 };
 
+// Leg-side strokes open the hips and chest square to the wicket after contact (hips 0 degrees,
+// shoulders just past at -5). Clips that already turn further keep their own rotation.
+const LEG_SIDE = /pull|hook|glance|clipOff|onDrive|slogMidwicket/i;
+const SQUARE_HIPS = 0;
+const SQUARE_SHOULDERS = -5;
+
 /** Movement families share a base, but keep each shot's authored contact and placement. */
 function style(name) {
   if (/sweep/i.test(name))
@@ -87,6 +93,11 @@ export function addBatterFootwork(pose, clip, time, name) {
   p.headX += s.x * 0.32 * stride;
   p.hipTurn += s.sign * s.hip * hip;
   p.shoulderTurn += s.sign * s.torso * torso;
+  if (LEG_SIDE.test(name)) {
+    // Hips lead, shoulders follow: each eases to square on its own clock, never back past it.
+    p.hipTurn = Math.min(p.hipTurn, p.hipTurn + (SQUARE_HIPS - p.hipTurn) * hip);
+    p.shoulderTurn = Math.min(p.shoulderTurn, p.shoulderTurn + (SQUARE_SHOULDERS - p.shoulderTurn) * torso);
+  }
 
   // Toes stay put during the plant: the heel lifts and the boot turns about its toe.
   p[`${trailing}Heel`] += (lead === "front" ? 4.5 : 2.5) * hip;

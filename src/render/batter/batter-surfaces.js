@@ -39,10 +39,17 @@ function boot(ankle, yaw, heel) {
   return [...shell(upper, sole), { kind: "sole", points: sole }];
 }
 
+// The torso box is wide and shallow, so a real turn barely changes its width on screen. The cloth
+// shows each turn 1.5x (bones unchanged): the stance reads side-on and squaring up widens the back.
+const SHOW_TURN = 1.5;
+const shown = (yaw) => Math.max(-Math.PI / 2, Math.min(Math.PI / 2, yaw * SHOW_TURN));
+
 /** Cloth panels and boots follow the same XYZ hip, shoulder and foot rotations as the bones. */
 export function batterSurfaces(skeleton, front = false) {
-  const { pelvis, chest, hipTurn, shoulderTurn } = skeleton;
-  const shirtTop = ring(add3(chest, { x: 0, y: 1, z: 0 }), shoulderTurn, 10, 3.8);
+  const { pelvis, chest } = skeleton;
+  const hipTurn = shown(skeleton.hipTurn);
+  const shoulderTurn = shown(skeleton.shoulderTurn);
+  const shirtTop = ring(add3(chest, { x: 0, y: 1, z: 0 }), shoulderTurn, 12, 3.8);
   const waistCenter = add3(pelvis, { x: 0, y: 6, z: 0 });
   const waist = ring(waistCenter, hipTurn, 7, 3.5);
   const hipsBottom = ring(add3(pelvis, { x: 0, y: -4, z: 0 }), hipTurn, 7.5, 3.8);

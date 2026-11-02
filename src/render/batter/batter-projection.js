@@ -1,7 +1,7 @@
 import { solveBatterSkeleton, RIG_DEPTH_RISE } from "./batter-skeleton.js";
 import { batterSurfaces } from "./batter-surfaces.js";
 import { batMesh } from "./bat-mesh.js";
-import { sub3 } from "./rig-3d.js";
+import { sub3, mix3 } from "./rig-3d.js";
 
 /**
  * Oblique projection matched to the hand-tuned pixel-art camera. X/Y below
@@ -60,6 +60,11 @@ export function solveBatterRig(pose, front = false) {
   result.frontLegNear =
     cameraDepth(skeleton.frontHip) + cameraDepth(skeleton.frontFoot) <
     cameraDepth(skeleton.backHip) + cameraDepth(skeleton.backFoot);
+  // Leg-side strokes take the blade round in front of the pads, but the authored clips keep its depth
+  // near the back foot. So, seen from behind, a blade out on the leg side below the chest goes behind
+  // the body and legs. From the bowler's end it comes towards the camera and stays on top.
+  const mid = mix3(skeleton.topHand, skeleton.batToe, 0.5);
+  result.batBehind = !front && mid.x < skeleton.pelvis.x - 4 && mid.y < skeleton.chest.y;
   result.frontArmNear =
     cameraDepth(skeleton.frontShoulder) + cameraDepth(skeleton.frontWrist) <
     cameraDepth(skeleton.backShoulder) + cameraDepth(skeleton.backWrist);

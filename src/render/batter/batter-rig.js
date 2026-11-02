@@ -131,6 +131,7 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     frontArmNear,
     frontFootShadow,
     backFootShadow,
+    batBehind,
   } = solveBatterRig(pose, front);
 
   // --- Flesh and kit ---
@@ -166,6 +167,16 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     }
     drawBoot(boot, poly);
   };
+  const gloves = () => {
+    for (const g of [topHand, bottomHand]) {
+      const p = at(g);
+      fillCircle(p.x, p.y, 3 * scale, "#f1f1f1");
+      fillCircle(p.x + scale, p.y + scale, 1.3 * scale, kit.cap2);
+    }
+  };
+  // A blade beyond the body from the camera goes down first, so the body covers it.
+  if (batBehind) drawBat({ bat }, poly, line);
+
   // Depth determines which leg overlaps the other, whichever camera is selected.
   if (frontLegNear) {
     leg(backHip, backKnee, backFoot, body.backBoot);
@@ -216,11 +227,6 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   if (frontArmNear) arm(frontShoulder, frontElbow, frontWrist);
   else arm(backShoulder, backElbow, backWrist);
 
-  drawBat({ bat }, poly, line);
-  // Gloves.
-  for (const g of [topHand, bottomHand]) {
-    const p = at(g);
-    fillCircle(p.x, p.y, 3 * scale, "#f1f1f1");
-    fillCircle(p.x + scale, p.y + scale, 1.3 * scale, kit.cap2);
-  }
+  if (!batBehind) drawBat({ bat }, poly, line);
+  gloves();
 }

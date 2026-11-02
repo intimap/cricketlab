@@ -12,10 +12,10 @@ export const RUN_LENGTH = 17.68;
 /** Boundary radius from the centre of the ground. */
 export const BOUNDARY = 66;
 /** A ball touching the rope counts: it scores 0.2 m inside the line the rope is drawn on. */
-export const BOUNDARY_SCORES = BOUNDARY - 0.2;
+export const BOUNDARY_SCORES = BOUNDARY - 0.3;
 export const STUMPS_HALF_WIDTH = 0.114;
 export const STUMPS_HEIGHT = 0.711;
-export const BALL_RADIUS = 0.036;
+export const BALL_RADIUS = 0.046;
 export const GRAVITY = 9.81;
 
 /** The two sets of stumps: 0 = striker's end, 1 = bowler's end. */

@@ -1,5 +1,5 @@
 import { playSound, sfx } from "../engine/audio.js";
-import { TRACKING_TIME } from "./match-broadcast.js";
+import { TRACKING_TIME } from "../render/match-broadcast.js";
 
 /** Match contact data selects timbre here; the audio engine only synthesises voices. */
 export function playContact(contact) {

@@ -20,12 +20,9 @@ export const ASSET_URLS = {
   "wide/fence-ads": new URL("../assets/wide/fence-ads.png", import.meta.url),
   "wide/parklands-perimeter": new URL("../assets/wide/parklands-perimeter.png", import.meta.url),
   "wide/parklands-boards-perimeter": new URL("../assets/wide/parklands-boards-perimeter.png", import.meta.url),
-  "wide/mcg-perimeter": new URL("../assets/wide/mcg-perimeter.png", import.meta.url),
   "wide/lords-perimeter": new URL("../assets/wide/lords-perimeter.png", import.meta.url),
   "wide/scg-perimeter": new URL("../assets/wide/scg-perimeter.png", import.meta.url),
   "wide/lakshmi-perimeter": new URL("../assets/wide/lakshmi-perimeter.png", import.meta.url),
-  "wide/trees-left": new URL("../assets/wide/trees-left.png", import.meta.url),
-  "wide/trees-right": new URL("../assets/wide/trees-right.png", import.meta.url),
   "close/lords-sky": new URL("../assets/close/lords-sky.png", import.meta.url),
   "close/lords-stands": new URL("../assets/close/lords-stands.png", import.meta.url),
   "close/lords-fence": new URL("../assets/close/lords-fence.png", import.meta.url),
@@ -50,10 +47,6 @@ export const ASSET_URLS = {
   "theg/close/skyline": new URL("../assets/theg/close/skyline.png", import.meta.url),
   "theg/close/stands": new URL("../assets/theg/close/stands.png", import.meta.url),
   "theg/close/fence-ads": new URL("../assets/theg/close/fence-ads.png", import.meta.url),
-  "theg/wide/sky": new URL("../assets/theg/wide/sky.png", import.meta.url),
-  "theg/wide/skyline": new URL("../assets/theg/wide/skyline.png", import.meta.url),
-  "theg/wide/stands": new URL("../assets/theg/wide/stands.png", import.meta.url),
-  "theg/wide/fence-ads": new URL("../assets/theg/wide/fence-ads.png", import.meta.url),
 };
 
 /** Load them all: resolves to { id: HTMLImageElement }. */

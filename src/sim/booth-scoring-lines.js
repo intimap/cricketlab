@@ -108,11 +108,7 @@ export const BOOTH_SCORING_LINES = {
       "The ball reaches the rope. Four rather useful runs.",
       "Four more. {b} has given the scoreboard a small lift.",
     ],
-    [
-      "Four! That's what {b} was looking for!",
-      "{where}! To the rope! Four more to {b}!",
-      "He's got his boundary! Four added!",
-    ],
+    ["Four! That's what {b} was looking for!", "{where}! To the rope! Four more to {b}!", "He's got his boundary! Four added!"],
     [
       "Four to {b}. The bowler has conceded a scoring ball.",
       "It reaches the boundary. That's a ball the bowler will review.",
@@ -125,11 +121,7 @@ export const BOOTH_SCORING_LINES = {
       "Beyond the rope without a bounce. Six to {b}.",
       "Six more. That is one way to move the calculation along.",
     ],
-    [
-      "Six! {b} has cleared the boundary!",
-      "All the way! Six more to {b}!",
-      "He's sent it over the rope! That's six!",
-    ],
+    ["Six! {b} has cleared the boundary!", "All the way! Six more to {b}!", "He's sent it over the rope! That's six!"],
     [
       "Six. {b} has taken the aerial option and made it pay.",
       "Cleared for six. The bowler must find a different answer.",
@@ -159,11 +151,7 @@ export const BOOTH_SCORING_LINES = {
       "{b} has been given another opportunity. {result}.",
       "A catch not completed. The batter remains. {result}.",
     ],
-    [
-      "He's put it down! {b} survives! {result}!",
-      "A chance has gone begging! {result}!",
-      "They've let {b} off! {result}!",
-    ],
+    ["He's put it down! {b} survives! {result}!", "A chance has gone begging! {result}!", "They've let {b} off! {result}!"],
     [
       "A missed catch. {b} stays, and the ball brings {result}.",
       "The chance wasn't held. {result}. I'd stick to the plan that made it.",
@@ -258,11 +246,19 @@ export const BOOTH_SCORING_LINES = {
 };
 
 export const WINNING_EXTRA_LINES = [
-  ["{event}. {n} added, and the chase is over.", "{event} completes the scoring. They have reached their target.",
-    "{event}, and the target is reached. No more arithmetic required."],
-  ["{event}! That's enough! They've completed the chase!", "It's over! {event}, and the batting side are home!",
-    "{event}! The target's reached! They can celebrate now!"],
-  ["{event}. The chase is finished; the batting side have their target.",
+  [
+    "{event}. {n} added, and the chase is over.",
+    "{event} completes the scoring. They have reached their target.",
+    "{event}, and the target is reached. No more arithmetic required.",
+  ],
+  [
+    "{event}! That's enough! They've completed the chase!",
+    "It's over! {event}, and the batting side are home!",
+    "{event}! The target's reached! They can celebrate now!",
+  ],
+  [
+    "{event}. The chase is finished; the batting side have their target.",
     "The target is reached with {event}. That's the job done.",
-    "{event} closes the chase. The bowling side cannot defend that total any longer."],
+    "{event} closes the chase. The bowling side cannot defend that total any longer.",
+  ],
 ];

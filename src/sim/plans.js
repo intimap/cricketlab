@@ -2,41 +2,6 @@
 // weakness, remembers what he's been bowled, and gets harder to dismiss with
 // the same ball and easier with a well-disguised change.
 
-/**
- * Hidden weaknesses. `hints` are commentary lines that nudge the player
- * towards the weakness when it shows ({b} = batter).
- */
-export const WEAKNESSES = {
-  offStump: {
-    hints: [
-      "{b} is fishing outside off stump again. He can't help himself.",
-      "Another loose waft outside off from {b}. There's a weakness there.",
-      "{b} is feeling for it outside off. The slips are interested.",
-    ],
-  },
-  hook: {
-    hints: [
-      "{b} took that on without a second thought. He loves the hook, and he might not be able to resist it.",
-      "He's hooking at everything. That's a risk worth tempting.",
-    ],
-  },
-  bouncer: {
-    hints: ["{b} doesn't like it up around the ribs. Not one bit.", "Hurried by the short ball again. {b} looks uncomfortable."],
-  },
-  earlySpin: {
-    hints: [
-      "{b} looks all at sea against the spinner. He hasn't worked out the length yet.",
-      "Nervy against the turning ball, {b}. Hard hands, no footwork.",
-    ],
-  },
-  inswingYorker: {
-    hints: [
-      "Jammed! {b} is struggling with the full one coming back in.",
-      "{b} is late on the full inswinger. That's the ball to get him with.",
-    ],
-  },
-};
-
 /** Pick a hidden weakness for a batter. Openers and top order lean towards outside-off; tailenders hate the short ball. */
 export function pickWeakness(role, rng) {
   const odds = {

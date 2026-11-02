@@ -8,7 +8,7 @@ const ellipseRadius = (p) => Math.hypot((p.x - ROPE.cx) / ROPE.rx, (p.y - ROPE.c
 
 test("every boundary bearing projects onto the same rope as the generated rim", () => {
   for (let degrees = 0; degrees < 360; degrees++) {
-    const a = degrees * Math.PI / 180;
+    const a = (degrees * Math.PI) / 180;
     const p = projectWide(BOUNDARY * Math.sin(a), 0, MID_PITCH + BOUNDARY * Math.cos(a));
     assert.ok(Math.abs(ellipseRadius(p) - 1) < 1e-8);
     assert.ok(p.x >= 49 && p.x <= 588 && p.y >= 106 && p.y <= 291);
@@ -17,12 +17,15 @@ test("every boundary bearing projects onto the same rope as the generated rim", 
 });
 
 test("fielder placement round-trips through the resized camera within a centimetre", () => {
-  for (let degrees = 0; degrees < 360; degrees += 3) for (const d of [0, 5, 20, 40, BOUNDARY]) {
-    const a = degrees * Math.PI / 180;
-    const x = d * Math.sin(a), z = MID_PITCH + d * Math.cos(a);
-    const p = projectWide(x, 0, z), q = unprojectWide(p.x, p.y);
-    assert.ok(Math.hypot(q.x - x, q.z - z) < 0.01);
-  }
+  for (let degrees = 0; degrees < 360; degrees += 3)
+    for (const d of [0, 5, 20, 40, BOUNDARY]) {
+      const a = (degrees * Math.PI) / 180;
+      const x = d * Math.sin(a),
+        z = MID_PITCH + d * Math.cos(a);
+      const p = projectWide(x, 0, z),
+        q = unprojectWide(p.x, p.y);
+      assert.ok(Math.hypot(q.x - x, q.z - z) < 0.01);
+    }
 });
 
 test("all playable venues have a perimeter without covering or moving their far landmarks", () => {
@@ -39,22 +42,25 @@ test("all playable venues have a perimeter without covering or moving their far 
   }
 });
 
-
 test("MCG orthographic field matches the opening and resets for legacy venues", () => {
   const camera = GROUNDS.theG.wide.camera;
   setWideCamera(camera);
   try {
     for (let degrees = 0; degrees < 360; degrees += 3) {
-      const a = degrees * Math.PI / 180;
-      const x = BOUNDARY * Math.sin(a), z = MID_PITCH + BOUNDARY * Math.cos(a);
-      const p = projectWide(x, 0, z), q = unprojectWide(p.x, p.y);
-      assert.ok(Math.abs(Math.hypot((p.x-camera.cx)/camera.rx, (p.y-camera.cy)/camera.ry)-1) < 1e-10);
-      assert.ok(Math.hypot(q.x-x, q.z-z) < 1e-10);
+      const a = (degrees * Math.PI) / 180;
+      const x = BOUNDARY * Math.sin(a),
+        z = MID_PITCH + BOUNDARY * Math.cos(a);
+      const p = projectWide(x, 0, z),
+        q = unprojectWide(p.x, p.y);
+      assert.ok(Math.abs(Math.hypot((p.x - camera.cx) / camera.rx, (p.y - camera.cy) / camera.ry) - 1) < 1e-10);
+      assert.ok(Math.hypot(q.x - x, q.z - z) < 1e-10);
       const high = projectWide(x, 20, z);
       assert.equal(high.x, p.x);
       assert.ok(high.y < p.y);
     }
     assert.ok(camera.cy + camera.ry < 300);
-  } finally { setWideCamera(); }
-  assert.ok(Math.abs(ellipseRadius(projectWide(BOUNDARY, 0, MID_PITCH))-1) < 1e-8);
+  } finally {
+    setWideCamera();
+  }
+  assert.ok(Math.abs(ellipseRadius(projectWide(BOUNDARY, 0, MID_PITCH)) - 1) < 1e-8);
 });

@@ -5,20 +5,33 @@ export function boothContext(rec, inn, memory, beforePressure, { narrative, ligh
   const batter = inn?.bat[rec.wicket?.batter ?? rec.striker];
   const bowler = inn?.bowl[rec.bowler];
   const facts = {
-    need: inn?.runsNeeded, left: inn?.ballsLeft, stand: inn?.partnership?.runs,
+    need: inn?.runsNeeded,
+    left: inn?.ballsLeft,
+    stand: inn?.partnership?.runs,
   };
   const options = broadcastContext(rec, inn, narrative, light);
   const add = (topic, priority, extra = {}) => options.push({ topic, priority, facts: { ...facts, ...extra } });
   if (rec.moment?.kind === "winningRuns" && inn?.chaseWon) add("winning", 130);
   else if (inn?.isOver) add("inningsEnd", 120);
-  const moments = new Set(["collapse", "hatTrick", "twoInTwo", "hundred", "fifty", "outInNineties",
-    "fiveFor", "standBroken", "bigKnockEnds", "pressureReleased", "nearRunout"]);
+  const moments = new Set([
+    "collapse",
+    "hatTrick",
+    "twoInTwo",
+    "hundred",
+    "fifty",
+    "outInNineties",
+    "fiveFor",
+    "standBroken",
+    "bigKnockEnds",
+    "pressureReleased",
+    "nearRunout",
+  ]);
   if (moments.has(rec.moment?.kind)) add(rec.moment.kind, rec.moment.kind === "collapse" ? 110 : 100);
   if (rec.wicket && inn && !inn.isOver) add("wicket", 80);
   const validDrop = rec.dropped && !rec.freeHit && rec.extra?.type !== "nb";
   if (validDrop) add("drop", 90);
   if (rec.nearRunout) add("nearRunout", 85);
-  if (rec.boundary && (beforePressure >= 0.35 && inn?.pressure < beforePressure - 0.12)) add("pressureReleased", 88);
+  if (rec.boundary && beforePressure >= 0.35 && inn?.pressure < beforePressure - 0.12) add("pressureReleased", 88);
   if (inn && !inn.isOver && inn.target !== null && inn.ballsLeft > 0 && inn.runsNeeded > 0 && inn.ballsLeft <= 60) {
     add(inn.requiredRate >= 9 ? "chaseSteep" : inn.requiredRate <= 4 ? "chaseComfort" : "chaseTight", 65);
   }

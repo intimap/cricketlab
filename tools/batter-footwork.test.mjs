@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { BATTER_CLIPS, sampleBatterMotion } from "../src/render/batter-motion-all.js";
-import { solveBatterSkeleton } from "../src/render/batter-skeleton.js";
-import { solveBatterRig } from "../src/render/batter-projection.js";
-import { batterSurfaces } from "../src/render/batter-surfaces.js";
+import { BATTER_CLIPS, sampleBatterMotion } from "../src/render/batter/batter-motion-all.js";
+import { solveBatterSkeleton } from "../src/render/batter/batter-skeleton.js";
+import { solveBatterRig } from "../src/render/batter/batter-projection.js";
+import { batterSurfaces } from "../src/render/batter/batter-surfaces.js";
 
 const near = (a, b) => assert.ok(Math.abs(a - b) < 1e-7, `${a} != ${b}`);
 const toe = (r, name) => ({
@@ -42,7 +42,9 @@ test("both toes stay fixed through the drive plant while the rear heel rises", (
     const r = solveBatterSkeleton(sampleBatterMotion("straightDrive", i / 100));
     for (const side of ["front", "back"]) {
       const p = toe(r, side);
-      near(p.x, base[side].x); near(p.z, base[side].z); near(p.y, 0);
+      near(p.x, base[side].x);
+      near(p.z, base[side].z);
+      near(p.y, 0);
     }
   }
   assert.ok(solveBatterSkeleton(sampleBatterMotion("straightDrive", 0.25)).backHeel > reference.backHeel + 3);
@@ -55,32 +57,36 @@ test("every attacking stroke keeps its toes anchored until its plant windows end
     for (const side of ["front", "back"]) {
       const anchor = toe(contact, side);
       for (let i = 0; i <= 25; i++) {
-        const r = solveBatterSkeleton(sampleBatterMotion(name, clip.plant[side][1] * i / 25));
+        const r = solveBatterSkeleton(sampleBatterMotion(name, (clip.plant[side][1] * i) / 25));
         const planted = toe(r, side);
-        near(planted.x, anchor.x); near(planted.z, anchor.z);
+        near(planted.x, anchor.x);
+        near(planted.z, anchor.z);
       }
     }
   }
 });
 
 test("rotating cloth and boots stay finite, above the turf, and depth sorted in either camera", () => {
-  for (const [name, clip] of Object.entries(BATTER_CLIPS)) for (let i = 0; i <= 80; i++) {
-    const pose = sampleBatterMotion(name, clip.start + (clip.end - clip.start) * i / 80);
-    const r = solveBatterSkeleton(pose);
-    const surfaces = batterSurfaces(r);
-    for (const key of ["shirt", "hips", "frontBoot", "backBoot"]) for (const face of surfaces[key]) {
-      for (const p of face.points) {
-        assert.ok(Number.isFinite(p.x) && Number.isFinite(p.y) && Number.isFinite(p.z), name);
-        if (key.endsWith("Boot")) assert.ok(p.y > -1e-7, `${name}: boot below the ground`);
+  for (const [name, clip] of Object.entries(BATTER_CLIPS))
+    for (let i = 0; i <= 80; i++) {
+      const pose = sampleBatterMotion(name, clip.start + ((clip.end - clip.start) * i) / 80);
+      const r = solveBatterSkeleton(pose);
+      const surfaces = batterSurfaces(r);
+      for (const key of ["shirt", "hips", "frontBoot", "backBoot"])
+        for (const face of surfaces[key]) {
+          for (const p of face.points) {
+            assert.ok(Number.isFinite(p.x) && Number.isFinite(p.y) && Number.isFinite(p.z), name);
+            if (key.endsWith("Boot")) assert.ok(p.y > -1e-7, `${name}: boot below the ground`);
+          }
+        }
+      for (const front of [false, true]) {
+        const body = solveBatterRig(pose, front).body;
+        for (const key of ["shirt", "hips", "frontBoot", "backBoot"])
+          for (let j = 1; j < body[key].length; j++) {
+            assert.ok(body[key][j - 1].depth >= body[key][j].depth);
+          }
       }
     }
-    for (const front of [false, true]) {
-      const body = solveBatterRig(pose, front).body;
-      for (const key of ["shirt", "hips", "frontBoot", "backBoot"]) for (let j = 1; j < body[key].length; j++) {
-        assert.ok(body[key][j - 1].depth >= body[key][j].depth);
-      }
-    }
-  }
 });
 
 test("all clips return to guard without residual turns or step offsets", () => {
@@ -88,8 +94,11 @@ test("all clips return to guard without residual turns or step offsets", () => {
     const r = solveBatterSkeleton(sampleBatterMotion(name, clip.end));
     const source = solveBatterSkeleton(clip.frames.at(-1).pose);
     for (const key of ["frontFoot", "backFoot", "frontShoulder", "backShoulder"]) {
-      near(r[key].x, source[key].x); near(r[key].y, source[key].y); near(r[key].z, source[key].z);
+      near(r[key].x, source[key].x);
+      near(r[key].y, source[key].y);
+      near(r[key].z, source[key].z);
     }
-    near(r.frontToeYaw, 0); near(r.backToeYaw, 0);
+    near(r.frontToeYaw, 0);
+    near(r.backToeYaw, 0);
   }
 });

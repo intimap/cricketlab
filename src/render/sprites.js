@@ -3,7 +3,7 @@ import { groundShadow } from "./kit.js";
 
 // Players are drawn in kit.js, batter-rig.js and figures.js; re-exported so older imports keep working.
 export * from "./kit.js";
-export { BATTER_POSES, lerpPose, reachPose, solveBatterRig, drawBatter } from "./batter-rig.js";
+export { BATTER_POSES, lerpPose, reachPose, solveBatterRig, drawBatter } from "./batter/batter-rig.js";
 export * from "./figures.js";
 
 /** The ball; redder (shinier) when `shine` is high. */

@@ -4,7 +4,18 @@ import { clamp } from "../math.js";
 import { hitsStumps } from "../sim/delivery.js";
 import { projectClose } from "./camera.js";
 import { drawBroadcastBanner } from "./hud.js";
-import { ON_FIELD_TIME, TRACKING_TIME, reviewResult } from "../scenes/match-broadcast.js";
+
+/** The DRS broadcast's beats (s into the review phases): the on-field call, the ball tracking, the end. */
+export const ON_FIELD_TIME = 0.9;
+export const TRACKING_TIME = 3.4;
+export const REVIEW_END = 6.4;
+
+/** Presentation only: the rules still resolve the review in match-decisions. */
+export function reviewResult(cur) {
+  const verdict = cur.tracking.verdict;
+  const out = verdict === "out" ? true : verdict === "notOut" ? false : cur.onField;
+  return { out, changed: out !== cur.onField };
+}
 
 const SAFE = "#66d890";
 
@@ -26,20 +37,37 @@ export function drawMatchBroadcast(scene) {
     if (scene.phaseT < TRACKING_TIME) drawReview(scene);
     else {
       const { out, changed } = reviewResult(cur);
-      const title = scene.phaseT < TRACKING_TIME + 1.5
-        ? changed ? "DECISION OVERTURNED" : "ORIGINAL DECISION STANDS"
-        : out ? "OUT" : "NOT OUT";
-      drawBroadcastBanner(title, out ? COLORS.red : SAFE,
-        cur.tracking.verdict === "umpiresCall" ? "UMPIRE'S CALL - REVIEW RETAINED" : "THIRD UMPIRE", 1);
+      const title =
+        scene.phaseT < TRACKING_TIME + 1.5
+          ? changed
+            ? "DECISION OVERTURNED"
+            : "ORIGINAL DECISION STANDS"
+          : out
+            ? "OUT"
+            : "NOT OUT";
+      drawBroadcastBanner(
+        title,
+        out ? COLORS.red : SAFE,
+        cur.tracking.verdict === "umpiresCall" ? "UMPIRE'S CALL - REVIEW RETAINED" : "THIRD UMPIRE",
+        1,
+      );
     }
   }
   const rec = cur?.done?.rec;
   if (scene.phase === "after" && (rec?.wicket || rec?.boundary)) {
     const batter = scene.inn.bat[rec.wicket ? rec.wicket.batter : rec.striker];
     const title = rec.wicket ? "WICKET!" : rec.boundary === 6 ? "SIX!" : "FOUR!";
-    const how = rec.wicket ? (rec.wicket.how === "runout" ? "RUN OUT" : rec.wicket.caughtBehind ? "CAUGHT BEHIND" : rec.wicket.how.toUpperCase()) + "  -  " : "";
-    drawBroadcastBanner(title, rec.wicket ? COLORS.red : COLORS.gold,
-      `${how}${batter.p.short.toUpperCase()} ${batter.runs} (${batter.balls})`, Math.min(1, scene.phaseT / 0.15), true);
+    const how = rec.wicket
+      ? (rec.wicket.how === "runout" ? "RUN OUT" : rec.wicket.caughtBehind ? "CAUGHT BEHIND" : rec.wicket.how.toUpperCase()) +
+        "  -  "
+      : "";
+    drawBroadcastBanner(
+      title,
+      rec.wicket ? COLORS.red : COLORS.gold,
+      `${how}${batter.p.short.toUpperCase()} ${batter.runs} (${batter.balls})`,
+      Math.min(1, scene.phaseT / 0.15),
+      true,
+    );
   }
 }
 

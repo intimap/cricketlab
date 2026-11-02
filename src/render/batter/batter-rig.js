@@ -1,6 +1,6 @@
-import { drawLine, fillCircle, fillEllipse, fillPolygon } from "../engine/screen.js";
-import { drawText } from "../engine/text.js";
-import { PAD, PAD_SHADE, HAIR, mirrored, groundShadow, lighten, darken } from "./kit.js";
+import { drawLine, fillCircle, fillEllipse, fillPolygon } from "../../engine/screen.js";
+import { drawText } from "../../engine/text.js";
+import { PAD, PAD_SHADE, HAIR, mirrored, groundShadow, lighten, darken } from "../kit.js";
 import { drawCloth, drawBoot } from "./batter-surfaces.js";
 import { drawBat } from "./bat.js";
 
@@ -183,7 +183,10 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   if (number) {
     const label = at(body.number);
     drawText(String(number), label.x, label.y, {
-      align: "center", color: kit.cap, shadow: null, scale: scale >= 1.5 ? 2 : 1,
+      align: "center",
+      color: kit.cap,
+      shadow: null,
+      scale: scale >= 1.5 ? 2 : 1,
     });
   }
 

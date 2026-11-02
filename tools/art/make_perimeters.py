@@ -20,7 +20,6 @@ ROPE = {key: float(re.search(rf"\b{key}:\s*([\d.]+)", rope_literal).group(1))
 VENUES = {
     "parklands": dict(kind="picket", seat="#365345", slab="#b7b4a0", path="#9d997e", trees=True),
     "parklands-boards": dict(kind="boards", seat="#365345", slab="#b7b4a0", path="#9d997e", trees=True),
-    "mcg": dict(kind="stadium", seat="#263f54", slab="#8795a4", path="#48545b", tiers=True),
     "lords": dict(kind="picket", seat="#314b3d", slab="#ded8c4", path="#b0aa92", members=True),
     "scg": dict(kind="stadium", seat="#1c4e5e", slab="#dcdfe4", path="#7c8c91", tiers=True),
     "lakshmi": dict(kind="stone", seat="#45613b", slab="#858a8f", path="#8b7954"),
@@ -147,7 +146,6 @@ def landmarks(image, name):
     boards = {
         "parklands": ("assets/wide/stands.png", (525, 4, 585, 46), (525, 55)),
         "parklands-boards": ("assets/wide/stands.png", (525, 4, 585, 46), (525, 55)),
-        "mcg": ("assets/theg/wide/stands.png", (518, 5, 582, 33), (518, 51)),
         "lords": ("assets/wide/lords-stands.png", (559, 12, 629, 42), (559, 63)),
         "lakshmi": ("assets/wide/lakshmi-foothills.png", (518, 44, 582, 70), (518, 62)),
     }

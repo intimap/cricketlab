@@ -1,4 +1,4 @@
-import { BAT_FACE, BAT_EDGE } from "./kit.js";
+import { BAT_FACE, BAT_EDGE } from "../kit.js";
 
 const WILLOW = {
   face: BAT_FACE,

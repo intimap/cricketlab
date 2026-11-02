@@ -44,32 +44,37 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
   const figures = bowler ? `${inn.bowlerFigures(bowler)} (${inn.bowlerOvers(bowler)})` : "";
   const staminaWidth = textWidth("STA") + 3 + 28;
   const fullBowlerWidth = bowler ? textWidth(`${bowler.p.short.toUpperCase()} ${figures}`) : 0;
-  const battingMinimum = 7 + 2 * GAP + textWidth(partnership) + textWidth(strikerScore) + textWidth(otherScore) +
-    12 + Math.min(29, textWidth(striker.p.short)) + Math.min(29, textWidth(other.p.short));
+  const battingMinimum =
+    7 +
+    2 * GAP +
+    textWidth(partnership) +
+    textWidth(strikerScore) +
+    textWidth(otherScore) +
+    12 +
+    Math.min(29, textWidth(striker.p.short)) +
+    Math.min(29, textWidth(other.p.short));
   const preferredBowling = fullBowlerWidth + staminaWidth + GAP + (deliveryLabel ? textWidth(deliveryLabel) + GAP : 0);
   const bowlingWidth = bowler ? Math.min(preferredBowling, RIGHT - LEFT - battingMinimum - GAP) : 0;
   const bowlingContent = bowlingWidth - staminaWidth - GAP - (deliveryLabel ? GAP : 0);
   const minimumBowler = bowler ? Math.min(29, textWidth(bowler.p.short)) + 6 + textWidth(figures) : 0;
   const bowlerWidth = deliveryLabel
-    ? Math.min(fullBowlerWidth, Math.max(minimumBowler, Math.floor(bowlingContent * 0.65))) : bowlingContent;
+    ? Math.min(fullBowlerWidth, Math.max(minimumBowler, Math.floor(bowlingContent * 0.65)))
+    : bowlingContent;
   const battingRight = bowler ? RIGHT - bowlingWidth - GAP : RIGHT;
   const playerSpace = battingRight - LEFT - textWidth(partnership) - 2 * GAP - 7;
   const strikerWidth = Math.floor((playerSpace + textWidth(strikerScore) - textWidth(otherScore)) / 2);
   const otherWidth = playerSpace - strikerWidth;
   drawText("•", LEFT, y1, { color: COLORS.gold });
   let x = LEFT + 7;
-  x += drawText(playerLabel(striker.p, strikerScore, strikerWidth), x, y1,
-    { color: COLORS.cream }) + GAP;
-  x += drawText(playerLabel(other.p, otherScore, otherWidth), x, y1,
-    { color: COLORS.dim }) + GAP;
+  x += drawText(playerLabel(striker.p, strikerScore, strikerWidth), x, y1, { color: COLORS.cream }) + GAP;
+  x += drawText(playerLabel(other.p, otherScore, otherWidth), x, y1, { color: COLORS.dim }) + GAP;
   drawText(partnership, x, y1, { color: COLORS.gold });
   if (bowler) {
     const staminaX = RIGHT - staminaWidth;
     const bowlerRight = staminaX - GAP;
     const deliveryRight = bowlerRight - bowlerWidth - GAP;
     if (deliveryLabel) {
-      drawText(fit(deliveryLabel, bowlingContent - bowlerWidth), deliveryRight, y1,
-        { align: "right", color: COLORS.gold });
+      drawText(fit(deliveryLabel, bowlingContent - bowlerWidth), deliveryRight, y1, { align: "right", color: COLORS.gold });
     }
     drawText(playerLabel(bowler.p, figures, bowlerWidth), bowlerRight, y1, { align: "right", color: COLORS.cream });
     drawText("STA", staminaX, y1, { color: COLORS.dim });

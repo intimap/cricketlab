@@ -19,11 +19,11 @@ export function drawBatterMeters({ eye, pressure, eyeShown = eye, pressureShown 
   drawPanel(x, top, w, h, "rgba(10,28,18,0.88)", full ? COLORS.gold : COLORS.gold2);
   drawText("EYE", x + 6, top + 5, { color: COLORS.gold });
   drawText(`x${eyeMultiplier(eye).toFixed(2)}`, x + w - 6, top + 5, {
-    color: eye > 0 ? COLORS.gold : COLORS.dim, align: "right",
+    color: eye > 0 ? COLORS.gold : COLORS.dim,
+    align: "right",
   });
   const glow = full && Math.floor(now * 4) % 2 === 0;
-  drawEasedBar(x + 6, top + 15, w - 12, 5, eyeShown, eye,
-    glow ? COLORS.white : eyeShown > 0.6 ? COLORS.gold : "#7ec8ff");
+  drawEasedBar(x + 6, top + 15, w - 12, 5, eyeShown, eye, glow ? COLORS.white : eyeShown > 0.6 ? COLORS.gold : "#7ec8ff");
   const pressureColor = pressure > 0.6 ? COLORS.red : pressure > 0.35 ? COLORS.gold : "#7ec8ff";
   drawText("PRESSURE", x + 6, top + 27, { color: COLORS.dim });
   drawText(`${Math.round(pressure * 100)}%`, x + w - 6, top + 27, { color: pressureColor, align: "right" });

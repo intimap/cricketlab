@@ -186,10 +186,19 @@ export const BOOTH_DOT_LINES = {
 };
 
 export const GLOVE_LINES = [
-  ["Off the glove. {result}. Not quite the intended instrument.",
-    "The glove is involved. {result} from the delivery.", "{b} gets the glove to it. {result}."],
-  ["Off the glove! {result}!", "It's taken the glove! {result} for the batting side!",
-    "Glove on it! {result}! That wasn't the bat!"],
-  ["The glove makes contact. {result}. That was not a controlled connection.",
-    "{result} off the glove. The ball has not met the blade.", "Glove involved. {result}. I'd want the bat doing that work."],
+  [
+    "Off the glove. {result}. Not quite the intended instrument.",
+    "The glove is involved. {result} from the delivery.",
+    "{b} gets the glove to it. {result}.",
+  ],
+  [
+    "Off the glove! {result}!",
+    "It's taken the glove! {result} for the batting side!",
+    "Glove on it! {result}! That wasn't the bat!",
+  ],
+  [
+    "The glove makes contact. {result}. That was not a controlled connection.",
+    "{result} off the glove. The ball has not met the blade.",
+    "Glove involved. {result}. I'd want the bat doing that work.",
+  ],
 ];

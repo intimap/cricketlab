@@ -40,11 +40,7 @@ export const BOOTH_WICKET_LINES = {
       "Held this time. {b}'s innings is over.{extra}",
       "A catch brings {b}'s stay to a close.{extra}",
     ],
-    [
-      "He's held it! {b} is caught!{extra}",
-      "The catch sticks! {b} has to go!{extra}",
-      "Taken! They've caught {b}!{extra}",
-    ],
+    ["He's held it! {b} is caught!{extra}", "The catch sticks! {b} has to go!{extra}", "Taken! They've caught {b}!{extra}"],
     [
       "Caught. {b} has given a chance they have converted.{extra}",
       "The catch is taken. {b} hasn't got away with the stroke.{extra}",

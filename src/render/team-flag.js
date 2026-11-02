@@ -20,7 +20,7 @@ export function drawTeamFlag(team, x, y) {
   }
   // The Union Jack canton and Commonwealth / Southern Cross stars.
   for (let i = 0; i < 16; i++) {
-    const row = Math.floor(i * 10 / 16);
+    const row = Math.floor((i * 10) / 16);
     fillRect(x + i, y + row, 1, 1, COLORS.cream);
     fillRect(x + i, y + 9 - row, 1, 1, COLORS.cream);
   }
@@ -28,7 +28,13 @@ export function drawTeamFlag(team, x, y) {
   fillRect(x, y + 3, 16, 4, COLORS.cream);
   fillRect(x + 7, y, 2, 10, COLORS.red);
   fillRect(x, y + 4, 16, 2, COLORS.red);
-  for (const [sx, sy] of [[7, 15], [26, 4], [22, 10], [31, 11], [26, 17]]) {
+  for (const [sx, sy] of [
+    [7, 15],
+    [26, 4],
+    [22, 10],
+    [31, 11],
+    [26, 17],
+  ]) {
     fillRect(x + sx - 1, y + sy, 3, 1, COLORS.cream);
     fillRect(x + sx, y + sy - 1, 1, 3, COLORS.cream);
   }

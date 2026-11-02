@@ -77,4 +77,3 @@ export function reachPose(pose, reach, frontFoot) {
     backHeel,
   };
 }
-

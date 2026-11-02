@@ -8,11 +8,13 @@ export const MCG_CAMERA = Object.freeze({ cx: 320, cy: 209, rx: 263, ry: 90 });
 export function projectStadium(x, y, z, camera = MCG_CAMERA) {
   const scale = camera.rx / BOUNDARY;
   const elevation = Math.asin(camera.ry / camera.rx);
-  return { x: camera.cx + x * scale, y: camera.cy + (MID_PITCH - z) * scale * Math.sin(elevation)
-    - y * scale * Math.cos(elevation), s: 0.8 };
+  return {
+    x: camera.cx + x * scale,
+    y: camera.cy + (MID_PITCH - z) * scale * Math.sin(elevation) - y * scale * Math.cos(elevation),
+    s: 0.8,
+  };
 }
 
 export function unprojectStadium(x, y, camera = MCG_CAMERA) {
-  return { x: (x - camera.cx) * BOUNDARY / camera.rx,
-    z: MID_PITCH - (y - camera.cy) * BOUNDARY / camera.ry };
+  return { x: ((x - camera.cx) * BOUNDARY) / camera.rx, z: MID_PITCH - ((y - camera.cy) * BOUNDARY) / camera.ry };
 }

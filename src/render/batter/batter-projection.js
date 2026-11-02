@@ -23,25 +23,33 @@ export function solveBatterRig(pose, front = false) {
   const mesh = batMesh(skeleton);
   const cameraDepth = (point) => point.z * (front ? -1 : 1) - point.y * RIG_DEPTH_RISE;
   result.bat = {
-    faces: mesh.faces.map(({ kind, points }) => ({
-      kind,
-      depth: points.reduce((sum, point) => sum + cameraDepth(point), 0) / points.length,
-      points: points.map(project),
-    })).sort((a, b) => b.depth - a.depth),
+    faces: mesh.faces
+      .map(({ kind, points }) => ({
+        kind,
+        depth: points.reduce((sum, point) => sum + cameraDepth(point), 0) / points.length,
+        points: points.map(project),
+      }))
+      .sort((a, b) => b.depth - a.depth),
     grip: mesh.grip.map(project),
     grain: mesh.grain.map(project),
     grainVisible: cameraDepth(mesh.normal) < -0.08,
   };
   const surfaces = batterSurfaces(skeleton, front);
-  const panels = (list) => list.map(({ kind, points }) => ({
-    kind,
-    depth: points.reduce((sum, point) => sum + cameraDepth(point), 0) / points.length,
-    points: points.map(project),
-  })).sort((a, b) => b.depth - a.depth);
+  const panels = (list) =>
+    list
+      .map(({ kind, points }) => ({
+        kind,
+        depth: points.reduce((sum, point) => sum + cameraDepth(point), 0) / points.length,
+        points: points.map(project),
+      }))
+      .sort((a, b) => b.depth - a.depth);
   result.body = {
-    shirt: panels(surfaces.shirt), hips: panels(surfaces.hips),
-    frontBoot: panels(surfaces.frontBoot), backBoot: panels(surfaces.backBoot),
-    seam: surfaces.seam.map(project), number: project(surfaces.number),
+    shirt: panels(surfaces.shirt),
+    hips: panels(surfaces.hips),
+    frontBoot: panels(surfaces.frontBoot),
+    backBoot: panels(surfaces.backBoot),
+    seam: surfaces.seam.map(project),
+    number: project(surfaces.number),
   };
   const delta = sub3(skeleton.batToe, skeleton.topHand);
   result.dir = { x: delta.x / 36, y: (-delta.y - delta.z * RIG_DEPTH_RISE * (front ? -1 : 1)) / 36 };
@@ -49,9 +57,11 @@ export function solveBatterRig(pose, front = false) {
   result.frontLift = 0;
   result.frontFootShadow = project({ ...skeleton.frontFoot, y: 0 });
   result.backFootShadow = project({ ...skeleton.backFoot, y: 0 });
-  result.frontLegNear = cameraDepth(skeleton.frontHip) + cameraDepth(skeleton.frontFoot) <
+  result.frontLegNear =
+    cameraDepth(skeleton.frontHip) + cameraDepth(skeleton.frontFoot) <
     cameraDepth(skeleton.backHip) + cameraDepth(skeleton.backFoot);
-  result.frontArmNear = cameraDepth(skeleton.frontShoulder) + cameraDepth(skeleton.frontWrist) <
+  result.frontArmNear =
+    cameraDepth(skeleton.frontShoulder) + cameraDepth(skeleton.frontWrist) <
     cameraDepth(skeleton.backShoulder) + cameraDepth(skeleton.backWrist);
   // Make canonical joint positions available to studies and future visual tools.
   result.skeleton = skeleton;

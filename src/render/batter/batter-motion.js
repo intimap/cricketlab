@@ -1,8 +1,3 @@
-import { addBatterFootwork } from "./batter-footwork.js";
-import { BACKLIFT_TIME } from "../sim/shot-timing.js";
-import { accentBackswing } from "./batter-backswing.js";
-import { withBatterDepth } from "./batter-skeleton.js";
-
 // Visual study only. Time is seconds relative to the existing visual contact event.
 // No cricket decisions, collision tests or result-affecting random numbers belong here.
 const BASE = {
@@ -295,56 +290,3 @@ export const BATTER_CLIPS = {
     [0.85, "Ready", stance()],
   ]),
 };
-
-const ease = (kind, t) => (kind === "in" ? t * t : kind === "out" ? 1 - (1 - t) ** 2 : t * t * (3 - 2 * t));
-
-export function sampleBatterMotion(name, secondsFromContact, { view = "batter" } = {}) {
-  const c = BATTER_CLIPS[name];
-  if (!c) throw new Error(`Unknown batter clip: ${name}`);
-  const t = Math.max(c.start, Math.min(c.end, secondsFromContact));
-  let left = c.frames[0],
-    right = c.frames.at(-1);
-  for (let i = 1; i < c.frames.length; i++) {
-    if (t <= c.frames[i].time) {
-      left = c.frames[i - 1];
-      right = c.frames[i];
-      break;
-    }
-  }
-  const k = ease(left.ease, Math.max(0, Math.min(1, (t - left.time) / Math.max(0.0001, right.time - left.time))));
-  const a = withBatterDepth(left.pose);
-  const b = withBatterDepth(right.pose);
-  const pose = {};
-  for (const key of Object.keys(a)) pose[key] = a[key] + (b[key] - a[key]) * k;
-  // Camera changes belong to the projection, never to the canonical XYZ pose.
-  if (view !== "batter" && view !== "bowler") throw new Error(`Unknown camera view: ${view}`);
-  const clip = { ...c, kind: name === "forwardDefence" ? "defence" : "attack" };
-  return addBatterFootwork(accentBackswing(pose, clip, t), clip, t, name);
-}
-
-export function batterPhase(name, t) {
-  const c = BATTER_CLIPS[name];
-  if (t >= c.end) return "Ready";
-  let phase = c.frames[0].phase;
-  for (const frame of c.frames) if (t >= frame.time) phase = frame.phase;
-  return phase;
-}
-
-export function gamePreparationWindow(name) {
-  return name === "forwardDefence" ? 0.12 : BATTER_CLIPS[name].downswing + BACKLIFT_TIME;
-}
-
-// Fit the authored load into the committed shot's preparation window.
-// Downswings and contact remain at their original times. Defence has no swing to protect.
-export function gameMotionTime(name, t, windowBeforeContact = gamePreparationWindow(name)) {
-  const clip = BATTER_CLIPS[name];
-  const swing = name === "forwardDefence" ? 0 : clip.downswing;
-  if (!(windowBeforeContact > swing)) throw new Error("Preparation window must exceed the protected downswing");
-  if (t >= -swing) return t;
-  const progress = Math.max(0, Math.min(1, (t + windowBeforeContact) / (windowBeforeContact - swing)));
-  return clip.start + progress * (-swing - clip.start);
-}
-
-export function sampleGameBatterMotion(name, t, { view = "batter", windowBeforeContact = gamePreparationWindow(name) } = {}) {
-  return sampleBatterMotion(name, gameMotionTime(name, t, windowBeforeContact), { view });
-}

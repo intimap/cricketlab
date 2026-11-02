@@ -11,7 +11,7 @@ const near = (a, b) => assert.ok(Math.abs(a - b) < 1e-10, `${a} != ${b}`);
 test("toe and splice face contacts return less energy than the middle", () => {
   const middle = hit();
   const toe = hit({ dy: -0.17 });
-  const splice = hit({ dy: 0.30 });
+  const splice = hit({ dy: 0.3 });
   assert.equal(middle.region, "middle");
   near(middle.along, BAT_BLADE.sweet);
   near(middle.energy, 1);
@@ -31,19 +31,31 @@ test("ball radius permits grazing contacts but excludes air beyond toe, blade an
   assert.equal(hit({ dx: 0.091 }).missed, true);
   assert.equal(hit({ dy: -0.22 }).missed, false);
   assert.equal(hit({ dy: -0.24 }).missed, true);
-  assert.equal(hit({ dy: 0.40 }).region, "handle");
-  assert.equal(hit({ dy: 0.60 }).missed, true);
+  assert.equal(hit({ dy: 0.4 }).region, "handle");
+  assert.equal(hit({ dy: 0.6 }).missed, true);
 });
 
 test("length and width follow bat orientation for cuts, pulls, sweeps and ramps", () => {
-  for (const [type, back] of [["drive"], ["defend"], ["cutpull", "punch"], ["cutpull", "cut"],
-    ["cutpull", "pull"], ["sweep"], ["reverseSweep"], ["ramp"]]) {
+  for (const [type, back] of [
+    ["drive"],
+    ["defend"],
+    ["cutpull", "punch"],
+    ["cutpull", "cut"],
+    ["cutpull", "pull"],
+    ["sweep"],
+    ["reverseSweep"],
+    ["ramp"],
+  ]) {
     const angle = bladeAngle(type, back);
     // Rotate the same bat-local contact back into world coordinates.
     const width = 0.045;
     const length = -0.15;
-    const impact = hit({ type, back, dx: width * Math.cos(angle) + length * Math.sin(angle),
-      dy: -width * Math.sin(angle) + length * Math.cos(angle) });
+    const impact = hit({
+      type,
+      back,
+      dx: width * Math.cos(angle) + length * Math.sin(angle),
+      dy: -width * Math.sin(angle) + length * Math.cos(angle),
+    });
     near(impact.across, width);
     near(impact.along, BAT_BLADE.sweet + length);
     assert.equal(impact.region, "toe");
@@ -81,7 +93,7 @@ test("seeded match records retain contact geometry and finite velocities on ever
     };
     const records = run();
     assert.deepEqual(run(), records, `Non-deterministic outcomes on ${pitch}`);
-    const contacts = records.filter(r => r.impact && r.contact !== "none");
+    const contacts = records.filter((r) => r.impact && r.contact !== "none");
     assert.ok(contacts.length > 0);
     for (const rec of contacts) {
       assert.equal(rec.impact.missed, false);

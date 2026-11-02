@@ -332,8 +332,8 @@ export class MatchScene {
   }
 
   /** Small notice near the top of the screen. */
-  flash(text, color = COLORS.cream) {
-    this.banner(text, color, 1, 2, 40);
+  flash(text, color = COLORS.cream, display = false) {
+    this.banner(text, color, 1, 2, 40, this.now, display);
   }
 
   /** Big centre-screen announcement. */

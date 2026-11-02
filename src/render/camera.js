@@ -167,6 +167,22 @@ export function projectWide(x, y, z) {
   return { x: sx, y: sy - y * 2.4 * s, s };
 }
 
+/**
+ * A thrown ball in the wide view, k (0..1) of the way through its flight at height y. The wide view
+ * magnifies the square, so a straight throw across the ground would bend on screen: draw it straight
+ * between the projected ends instead. Returns the ball and its shadow.
+ */
+export function projectWideThrow(from, to, k, y) {
+  const a = projectWide(from.x, 0, from.z);
+  const b = projectWide(to.x, 0, to.z);
+  // Height lifts the ball by the camera's scale at each end, blended along the throw.
+  const riseA = projectWide(from.x, y, from.z).y - a.y;
+  const riseB = projectWide(to.x, y, to.z).y - b.y;
+  const rise = riseA + (riseB - riseA) * k;
+  const ground = { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k };
+  return { ground, ball: { x: ground.x, y: ground.y + rise } };
+}
+
 /** Screen point to ground position (inverse of projectWide at y = 0). */
 export function unprojectWide(sx, sy) {
   if (wideCamera) return unprojectStadium(sx, sy, wideCamera);

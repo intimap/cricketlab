@@ -17,6 +17,7 @@ import {
   setCloseEnd,
   closeFromBowlerEnd,
   projectWide,
+  projectWideThrow,
 } from "../render/camera.js";
 import { drawFigure, drawTinyFigure, fielderPose, drawBall, drawShadow, setShadowStretch, playerKit } from "../render/sprites.js";
 import { drawBooth, boothShowing } from "../render/booth.js";
@@ -402,7 +403,12 @@ function drawWide(scene) {
       );
     }
     const ball = live.ball;
-    if (!(ball.held >= 0 && !ball.throwing)) {
+    if (ball.throwing) {
+      const th = ball.throwing;
+      const { ground, ball: p } = projectWideThrow(th.from, th.to, clamp((live.t - th.t0) / (th.t1 - th.t0)), ball.pos.y);
+      sprites.push({ y: ground.y, draw: () => drawShadow(ground.x, ground.y, 1.2) });
+      sprites.push({ y: ground.y + 0.5, draw: () => drawBall(p.x, p.y - 1, 1.5, 1) });
+    } else if (!(ball.held >= 0)) {
       add(ball.pos.x, 0, ball.pos.z, (x, y) => drawShadow(x, y, 1.2));
       const p = projectWide(ball.pos.x, ball.pos.y, ball.pos.z);
       sprites.push({ y: p.y + ball.pos.y * 3 + 0.5, draw: () => drawBall(p.x, p.y - 1, 1.5, 1) });

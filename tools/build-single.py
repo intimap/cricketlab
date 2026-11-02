@@ -39,7 +39,7 @@ with tempfile.TemporaryDirectory() as tmp:
     cmd = [esbuild] if esbuild else ["npx", "--yes", "esbuild"]
     bundle = os.path.join(tmp, "game.js")
     subprocess.run(cmd + [os.path.join(tmp, "src", "main.js"), "--bundle", "--minify", "--format=iife",
-                          "--loader:.png=dataurl", f"--outfile={bundle}", "--log-level=warning"], check=True)
+                          "--loader:.png=dataurl", "--loader:.ttf=dataurl", f"--outfile={bundle}", "--log-level=warning"], check=True)
 
     html = open(os.path.join(tmp, "index.html")).read()
     js = open(bundle).read().replace("</script", "<\\/script")

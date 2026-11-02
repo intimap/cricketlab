@@ -3,7 +3,8 @@ import { drawText } from "./engine/text.js";
 import { initInput, keys, endFrame } from "./engine/input.js";
 import { initTouch } from "./engine/touch.js";
 import { unlockAudio, toggleMute } from "./engine/audio.js";
-import { loadAssets } from "./assets.js";
+import { loadAssets, FONT_URLS } from "./assets.js";
+import { loadDisplayFont } from "./engine/display-font.js";
 import { Menu } from "./scenes/menu.js";
 import { MatchScene } from "./scenes/match.js";
 import { ScoreboardScene } from "./scenes/scoreboard.js";
@@ -61,7 +62,7 @@ class Game {
     drawText("LOADING...", WIDTH / 2, HEIGHT / 2, { align: "center" });
     present();
 
-    const assets = await loadAssets(loadImage);
+    const [assets] = await Promise.all([loadAssets(loadImage), loadDisplayFont(FONT_URLS.linebeam)]);
     const close = assets["ground-close"];
     this.images = { ...assets, close, wide: assets["ground-wide"], stumps: cutOutStumps(close) };
     this.menu = new Menu(this);

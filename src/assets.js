@@ -49,6 +49,11 @@ export const ASSET_URLS = {
   "theg/close/fence-ads": new URL("../assets/theg/close/fence-ads.png", import.meta.url),
 };
 
+/** Font files, in the same form so the one-file build inlines them too. */
+export const FONT_URLS = {
+  "linebeam": new URL("../assets/fonts/linebeam.ttf", import.meta.url),
+};
+
 /** Load them all: resolves to { id: HTMLImageElement }. */
 export async function loadAssets(loadImage) {
   const entries = await Promise.all(Object.entries(ASSET_URLS).map(async ([id, url]) => [id, await loadImage(url)]));

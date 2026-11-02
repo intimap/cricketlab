@@ -1,5 +1,6 @@
 import { WIDTH, HEIGHT, COLORS, fillRect, fillCircle, fillEllipse, strokeEllipse, drawPanel, drawBar } from "../engine/screen.js";
 import { drawText, textWidth, wrapText } from "../engine/text.js";
+import { drawDisplayText } from "../engine/display-font.js";
 import { clamp } from "../math.js";
 export { PRESSURE_BAR } from "./batter-meters.js";
 import { MID_PITCH, BOUNDARY, distFromCentre } from "../sim/geometry.js";
@@ -180,6 +181,7 @@ export function drawSpeechBubble(text, x, y) {
 
 /** Broadcast card fitted to the pixel frame, with a short arcade pop. */
 export function drawBroadcastBanner(title, color, sub, pop = 1, skippable = false) {
+  if (skippable) return drawHeadline(title, color, sub, pop);
   const scale = Math.min(4, Math.max(1, Math.floor(584 / Math.max(1, textWidth(title, 1)))));
   const y = 102 + Math.round((1 - pop) * 12);
   // Score celebrations use the same green, brass and cream as the score HUD.
@@ -190,4 +192,13 @@ export function drawBroadcastBanner(title, color, sub, pop = 1, skippable = fals
   drawText(title, WIDTH / 2, y + 5, { scale, align: "center", color: ink, outline: COLORS.black });
   drawText(sub, WIDTH / 2, y + 43, { align: "center", color: COLORS.cream });
   if (skippable) drawText("SPACE / ENTER / TAP TO SKIP", WIDTH / 2, y + 72, { align: "center", color: COLORS.dim });
+}
+
+/** Wickets and boundaries: big display-font text across the top of the screen, no card behind it. */
+function drawHeadline(title, color, sub, pop) {
+  // Drops in from above as it pops.
+  const y = 14 - Math.round((1 - pop) * 16);
+  const h = drawDisplayText(title, WIDTH / 2, y, { size: 64, align: "center", color, outline: COLORS.black, thick: 1 });
+  drawText(sub, WIDTH / 2, y + h + 8, { align: "center", color: COLORS.cream, outline: COLORS.black });
+  drawText("SPACE / ENTER / TAP TO SKIP", WIDTH / 2, y + h + 20, { align: "center", color: COLORS.dim, outline: COLORS.black });
 }

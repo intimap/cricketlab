@@ -92,14 +92,15 @@ Each computer batter has a hidden weakness (loose outside off, a compulsive hook
 
 ```
 index.html            page shell and key strip
-assets/               venue art: each ground's layers for the close and wide views, wide perimeters, the MCG stadium
+assets/               venue art: each ground's layers for the close and wide views, wide perimeters, the MCG stadium; fonts/ holds the headline font (Linear Beam, personal-use licence in linebeam.txt)
 src/
   main.js             boot, asset loading, game loop, scene switching
-  assets.js           every image the game loads, by id
+  assets.js           every image and font the game loads, by id
   math.js             clamp, easing, angle helpers
   engine/             browser plumbing, no cricket in here
     screen.js         640x360 pixel frame buffer, scaling, drawing primitives
     text.js           5x7 bitmap font
+    display-font.js   big headline text from a font file, snapped to hard pixels
     input.js          keyboard and mouse state, polled per frame
     touch.js          on-screen buttons for phones, pressing the same keys
     audio.js          synthesised sound effects, stereo crowd and audio mix

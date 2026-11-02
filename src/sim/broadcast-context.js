@@ -1,5 +1,4 @@
 import { LINES, COLOUR_LINES } from "./broadcast-lines.js";
-import { getFieldObservation } from "./commentary-narrative.js";
 
 export const BROADCAST_STORIES = {
   ...Object.fromEntries([4, 8, 12].map((n) => [`dotPressure${n}`, { rest: 4, lines: LINES.defendPressure[n] }])),
@@ -52,10 +51,7 @@ export function broadcastContext(rec, inn, narrative, light) {
   if (pitch.type === "cracked" && pitch.uneven) add("unevenBounce", 53);
   const type = inn.bowl?.[rec.bowler]?.p.bowl?.style;
   if (pitch.type === "cracked" && pitch.wear >= 0.25 && ["offspin", "legspin"].includes(type)) add("wideningCracks", 42);
-  if (!inn.customField && (rec.ball === 1 || (rec.legal && (inn.legal ?? 0) % 6 === 0))) {
-    const field = getFieldObservation(inn.preset, type);
-    if (field) add("fieldPlan", 35, { field }, `field:${inn.preset}:${type}`);
-  }
+  // The field is read at the start of each over (booth-beats.js), from the actual placings.
   if (["afternoon", "evening"].includes(light)) add(light, 15, {}, `light:${light}`);
   return options;
 }

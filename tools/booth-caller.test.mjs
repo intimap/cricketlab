@@ -117,7 +117,7 @@ test("toe and splice contacts cannot inherit a legacy middled-shot call", () => 
   }
 });
 
-test("the expanded bank has 318 authored calls with valid three-voice structure", () => {
+test("the expanded bank has 354 authored calls with valid three-voice structure", () => {
   let count = 0;
   for (const [category, voices] of Object.entries(BOOTH_BALL_LINES)) {
     assert.equal(voices.length, 3, category);
@@ -133,5 +133,5 @@ test("the expanded bank has 318 authored calls with valid three-voice structure"
       count += lines.length;
     }
   }
-  assert.equal(count, 318);
+  assert.equal(count, 354);
 });

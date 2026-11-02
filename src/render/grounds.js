@@ -13,6 +13,8 @@ import { MCG_CAMERA } from "./stadium-camera.js";
 export const GROUNDS = {
   oval: {
     name: "THE OVAL",
+    // The two ends the commentators name the bowler running in from.
+    ends: ["PAVILION END", "SCOREBOARD END"],
     // Not offered on the menu for now (Parklands is built on it, so it stays). Drop this to bring it back.
     hidden: true,
     grass: { light: "#60a72e", dark: "#448f31" },
@@ -92,6 +94,7 @@ function theG() {
   return {
     ...oval,
     name: "THE MCG",
+    ends: ["MEMBERS END", "GREAT SOUTHERN STAND END"],
     hidden: false,
     light: "afternoon",
     grass: { light: "#4c9438", dark: "#38782a" },
@@ -124,6 +127,7 @@ GROUNDS.theG = theG();
 GROUNDS.lords = {
   ...GROUNDS.oval,
   name: "LORD'S",
+  ends: ["PAVILION END", "NURSERY END"],
   hidden: false,
   light: "midday",
   grass: { light: "#488c2c", dark: "#357321" },
@@ -162,6 +166,7 @@ GROUNDS.lords = {
 GROUNDS.scg = {
   ...GROUNDS.oval,
   name: "SYDNEY (SCG)",
+  ends: ["MEMBERS END", "RANDWICK END"],
   hidden: false,
   light: "midday",
   grass: { light: "#529c2e", dark: "#3a8428" },
@@ -197,6 +202,7 @@ GROUNDS.scg = {
 /** A Himalayan terrace ground with an abrasive, turning pitch by default. */
 GROUNDS.lakshmi = {
   ...GROUNDS.oval,
+  ends: ["TEMPLE END", "VALLEY END"],
   hidden: false,
   light: "midday",
   name: "LAKSHMI BLUFF",

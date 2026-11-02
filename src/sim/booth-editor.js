@@ -9,6 +9,11 @@ import { boothWords, safeBoothCalls } from "./booth-policy.js";
 /** Moments of the over itself: said as the over ends, before the recap (which otherwise keeps the second voice quiet). */
 const OVER_MOMENTS = new Set(["maiden", "maidenAgain", "bigOver", "tightSpell", "equation"]);
 
+/** Quiet outcomes, said calmly once a passage has gone quiet (no shouting over a run of dots). */
+const CALM = new Set(["defend", "leave", "beaten", "miss", "pad", "stopped", "miscue", "edgeDot", "offCentreDot", "single"]);
+const QUIET_PASSAGE = 6;
+const calmly = (call) => ({ ...call, text: call.text.replace(/!+/g, ".").replace(/\.\./g, ".") });
+
 /** A match's booth has its own topic and line memory, separate from the cricket RNG. */
 export class BoothEditor {
   caller = new BoothCaller();
@@ -24,7 +29,9 @@ export class BoothEditor {
   narrativeKeys = new Set();
 
   edit(rec, hpd, names, rng, fits = () => true, context = {}) {
-    const primary = this.caller.call(rec, hpd, names, rng, fits);
+    let primary = this.caller.call(rec, hpd, names, rng, fits);
+    // Match the energy to the passage: a quiet spell gets quiet calls.
+    if (primary && this.quiet >= QUIET_PASSAGE && CALM.has(primary.category)) primary = calmly(primary);
     const recap =
       context.applied?.overEnded && context.commentary ? boothChat(context.commentary, context.inn, rng, { rec, fits, hpd }) : [];
     const overMoment = recap.length > 0 && OVER_MOMENTS.has(rec.moment?.kind) ? rec.moment.kind : null;

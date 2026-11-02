@@ -15,13 +15,14 @@ import { battingFeedback, bowlingFeedback } from "../sim/coach.js";
 import { CONTACT_Z_FRONT, CONTACT_Z_BACK, playsBack } from "../sim/batting.js";
 import { pickBowler } from "../sim/ai.js";
 import { makeKit } from "../render/sprites.js";
-import { boothDuration } from "../render/booth.js";
+import { callDuration } from "../render/booth.js";
 import { buildGround } from "../render/ground.js";
 import { GROUNDS, DEFAULT_GROUND } from "../render/grounds.js";
 import { LIGHTS } from "../render/light.js";
 import { setWideCamera } from "../render/camera.js";
 import { drawMatch } from "./match-view.js";
 import * as decisions from "./match-decisions.js";
+import * as beats from "./booth-beats.js";
 import { createFeedback, stepFeedback } from "./match-feedback.js";
 import * as input from "./match-input.js";
 import * as ball from "./match-ball.js";
@@ -145,6 +146,7 @@ export class MatchScene {
   setPhase(phase) {
     this.phase = phase;
     this.phaseT = 0;
+    if (phase === "runup") beats.onRunup(this);
   }
 
   get inn() {
@@ -473,7 +475,8 @@ export class MatchScene {
   boothEndsAt() {
     if (!this.booth?.length) return this.now;
     const last = this.booth[this.booth.length - 1];
-    return last.t0 + boothDuration(last.text);
+    const end = last.t0 + callDuration(last);
+    return Number.isFinite(end) ? end : this.now;
   }
 
   /** Who in the commentary box calls this ball, and what they say (one or two voices). */

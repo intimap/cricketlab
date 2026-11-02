@@ -141,12 +141,21 @@ export function boothDuration(text) {
   return SLIDE + text.length / TALK_RATE + HOLD + SLIDE;
 }
 
+/**
+ * How long a scheduled call stays up. A call can carry on one already on screen (`cont`: no slide in,
+ * and `from` characters already said), or stay `open`, held until the rest of the sentence arrives.
+ */
+export function callDuration(call) {
+  if (call.open) return Infinity;
+  return (call.cont ? 0 : SLIDE) + (call.text.length - (call.from ?? 0)) / TALK_RATE + HOLD + SLIDE;
+}
+
 /** The commentary popup, bottom-left above the HUD. `call` = { who, text, t0 }. */
 function drawCall(call, now) {
   const t = now - call.t0;
-  const total = boothDuration(call.text);
+  const total = callDuration(call);
   if (t < 0 || t > total) return;
-  const slideIn = Math.min(1, t / SLIDE);
+  const slideIn = call.cont ? 1 : Math.min(1, t / SLIDE);
   const slideOut = Math.min(1, (total - t) / SLIDE);
   const ease = (k) => 1 - (1 - k) * (1 - k);
   const x = Math.round(BOX_X - (BOX_W + 8) * (1 - ease(Math.min(slideIn, slideOut))));
@@ -154,11 +163,11 @@ function drawCall(call, now) {
   const voice = COMMENTATORS[call.who];
 
   drawPanel(x, y, BOX_W, BOX_H, "#10241a");
-  const spoken = Math.max(0, Math.floor((t - SLIDE) * TALK_RATE));
+  const spoken = (call.from ?? 0) + Math.max(0, Math.floor((t - (call.cont ? 0 : SLIDE)) * TALK_RATE));
   const talking = spoken < call.text.length;
   // Jaw flaps irregularly while talking, closed once he's finished.
   const flap = Math.sin(t * 31) + Math.sin(t * 19.7);
-  const mouth = !talking || t < SLIDE ? 0 : flap > 0.6 ? 2 : flap > -0.4 ? 1 : 0;
+  const mouth = !talking || (!call.cont && t < SLIDE) ? 0 : flap > 0.6 ? 2 : flap > -0.4 ? 1 : 0;
   drawPortrait(voice.id, x + 6, y + 6, mouth);
 
   drawText(voice.name, x + 52, y + 5, { color: COLORS.gold });
@@ -181,7 +190,7 @@ export function scheduleCalls(calls, t0) {
   let at = t0;
   return calls.map((c) => {
     const call = { ...c, t0: at };
-    at += boothDuration(c.text);
+    at += callDuration(call);
     return call;
   });
 }
@@ -193,5 +202,5 @@ export function drawBooth(calls, now, hpd = "") {
 
 /** Whether any scheduled call is on screen. */
 export function boothShowing(calls, now) {
-  return !!calls && calls.some((c) => now >= c.t0 && now - c.t0 <= boothDuration(c.text));
+  return !!calls && calls.some((c) => now >= c.t0 && now - c.t0 <= callDuration(c));
 }

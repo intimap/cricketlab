@@ -55,8 +55,8 @@ from me narrows the checks to exactly that.
 
 ## Git workflow
 - Work on a branch. Commit for play-testing as `WIP (for testing, not merged): <feature>`.
-- When I say "merge", merge to `main` with `--no-ff` and the message `Merge <feature in plain words>`, adding
-  `[skip netlify]` when I don't want a deploy yet.
+- When I say "merge", merge to `main` with `--no-ff` and the message `Merge <feature in plain words>`.
+- Deploys are manual (the admin runs them): leave Netlify alone.
 - Commit subject: what the player notices, with before/after numbers where relevant
   (e.g. "High-effort bowling costs more stamina (2.6x medium, was 1.6x)").
   Body: what changed for the player, then the balance impact.

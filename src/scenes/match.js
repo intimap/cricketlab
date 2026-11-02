@@ -326,8 +326,9 @@ export class MatchScene {
     drawMatch(this);
   }
 
-  banner(text, color, dur, scale, y, t0 = this.now) {
-    this.banners.push({ text, color, t0, dur, scale, y });
+  /** `display`: big display-font text with no panel, instead of the boxed pixel-font banner. */
+  banner(text, color, dur, scale, y, t0 = this.now, display = false) {
+    this.banners.push({ text, color, t0, dur, scale, y, display });
   }
 
   /** Small notice near the top of the screen. */

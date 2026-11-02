@@ -73,7 +73,7 @@ export function commitSwing(scene, t, type, power) {
   cur.backliftAt = t;
   cur.swingAt = t + (power ? POWER_BACKLIFT_TIME : BACKLIFT_TIME);
   const timingError = cur.swingAt + SWING_TIME[type] - scene.arrival(type);
-  if (power) scene.flash("POWER!", COLORS.gold);
+  if (power) scene.banner("POWER!", COLORS.gold, 1, 2, 40, scene.now, true);
   cur.shot = {
     type,
     charge: power ? POWER_CHARGE : NORMAL_CHARGE,

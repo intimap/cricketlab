@@ -69,6 +69,12 @@ export function drawBanners(banners, now) {
     const y = b.y ?? 110;
     const fade = age > b.dur - 0.25 ? (b.dur - age) / 0.25 : 1;
     if (fade <= 0.05) continue;
+    if (b.display) {
+      // Display size in steps of 8px, so the font's pixel grid stays crisp.
+      const size = 8 * Math.max(2, scale + 1);
+      drawDisplayText(b.text, WIDTH / 2, y, { size, align: "center", color: b.color, ink: COLORS.black, outline: COLORS.black });
+      continue;
+    }
     const w = textWidth(b.text, scale) + 24;
     fillRect(WIDTH / 2 - w / 2, y - 6, w, 7 * scale + 12, "rgba(10,30,20,0.72)");
     fillRect(WIDTH / 2 - w / 2, y - 6, w, 2, COLORS.gold);
@@ -198,7 +204,7 @@ export function drawBroadcastBanner(title, color, sub, pop = 1, skippable = fals
 function drawHeadline(title, color, sub, pop) {
   // Drops in from above as it pops.
   const y = 14 - Math.round((1 - pop) * 16);
-  const h = drawDisplayText(title, WIDTH / 2, y, { size: 64, align: "center", color, outline: COLORS.black, thick: 1 });
+  const h = drawDisplayText(title, WIDTH / 2, y, { size: 40, align: "center", color, ink: COLORS.black, outline: COLORS.black });
   drawText(sub, WIDTH / 2, y + h + 8, { align: "center", color: COLORS.cream, outline: COLORS.black });
   drawText("SPACE / ENTER / TAP TO SKIP", WIDTH / 2, y + h + 20, { align: "center", color: COLORS.dim, outline: COLORS.black });
 }

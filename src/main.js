@@ -62,7 +62,7 @@ class Game {
     drawText("LOADING...", WIDTH / 2, HEIGHT / 2, { align: "center" });
     present();
 
-    const [assets] = await Promise.all([loadAssets(loadImage), loadDisplayFont(FONT_URLS.linebeam)]);
+    const [assets] = await Promise.all([loadAssets(loadImage), loadDisplayFont(FONT_URLS.display)]);
     const close = assets["ground-close"];
     this.images = { ...assets, close, wide: assets["ground-wide"], stumps: cutOutStumps(close) };
     this.menu = new Menu(this);

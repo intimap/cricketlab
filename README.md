@@ -92,7 +92,7 @@ Each computer batter has a hidden weakness (loose outside off, a compulsive hook
 
 ```
 index.html            page shell and key strip
-assets/               venue art: each ground's layers for the close and wide views, wide perimeters, the MCG stadium; fonts/ holds the headline font (Linear Beam, personal-use licence in linebeam.txt)
+assets/               venue art: each ground's layers for the close and wide views, wide perimeters, the MCG stadium; fonts/ holds the headline font (Karmatic Arcade)
 src/
   main.js             boot, asset loading, game loop, scene switching
   assets.js           every image and font the game loads, by id

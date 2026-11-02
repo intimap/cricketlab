@@ -202,7 +202,7 @@ export function completeBall(scene) {
     if (!done.applied.inningsOver && scene.inn.wkts < 10) {
       const inn = scene.inn;
       const fresh = inn.bat[inn.striker].balls === 0 && inn.bat[inn.striker].batted ? inn.striker : inn.nonStriker;
-      scene.banner(`NEW BATTER: ${inn.bat[fresh].p.name.toUpperCase()}`, COLORS.cream, 2.2, 1, 160, scene.now + WICKET_PAUSE - 2);
+      scene.banner(`NEW BATTER: ${inn.bat[fresh].p.name.toUpperCase()}`, COLORS.cream, 2.2, 1, 160, scene.now + WICKET_PAUSE - 2, true);
     }
   }
   for (const m of done.applied.milestones) scene.banner(m, COLORS.gold, 2.2, 2, 150, scene.now + 0.4);

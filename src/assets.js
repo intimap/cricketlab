@@ -51,7 +51,7 @@ export const ASSET_URLS = {
 
 /** Font files, in the same form so the one-file build inlines them too. */
 export const FONT_URLS = {
-  "linebeam": new URL("../assets/fonts/linebeam.ttf", import.meta.url),
+  "display": new URL("../assets/fonts/karmatic-arcade.ttf", import.meta.url),
 };
 
 /** Load them all: resolves to { id: HTMLImageElement }. */

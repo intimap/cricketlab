@@ -19,6 +19,12 @@ export function reviewResult(cur) {
 
 const SAFE = "#66d890";
 
+/** Why a ball that was hitting the stumps is still not out, for the verdict card. */
+const SAVED_BY = {
+  "PITCHING: OUTSIDE LEG": "PITCHED OUTSIDE LEG",
+  "IMPACT: OUTSIDE OFF": "IMPACT OUTSIDE THE LINE",
+};
+
 export function drawMatchBroadcast(scene) {
   const cur = scene.cur;
   if (scene.phase === "decision") {
@@ -48,7 +54,9 @@ export function drawMatchBroadcast(scene) {
       drawBroadcastBanner(
         title,
         out ? COLORS.red : SAFE,
-        cur.tracking.verdict === "umpiresCall" ? "UMPIRE'S CALL - REVIEW RETAINED" : "THIRD UMPIRE",
+        cur.tracking.verdict === "umpiresCall"
+          ? "UMPIRE'S CALL - REVIEW RETAINED"
+          : (!out && SAVED_BY[cur.tracking.reason]) || "THIRD UMPIRE",
         1,
       );
     }
@@ -103,7 +111,8 @@ function drawReview(scene) {
   }
   const lines = [
     ["PITCHING", res.lbwNote === "pitched outside leg" ? "OUTSIDE LEG" : "IN LINE"],
-    ["IMPACT", res.lbwNote === "outside the line" ? "OUTSIDE OFF" : "IN LINE"],
+    // Outside off only saves him because he played a shot.
+    ["IMPACT", res.lbwNote === "outside the line" ? "OUTSIDE (PLAYING A SHOT)" : "IN LINE"],
     [
       "WICKETS",
       cur.tracking.reason.startsWith("WICKETS: ") ? cur.tracking.reason.slice(9) : hitsStumps(d.samples) ? "HITTING" : "MISSING",

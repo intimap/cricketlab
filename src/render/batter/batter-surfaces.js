@@ -4,9 +4,12 @@ import { add3, mul3 } from "./rig-3d.js";
 function ring(center, yaw, width, depth) {
   const across = { x: Math.cos(yaw), y: 0, z: Math.sin(yaw) };
   const normal = { x: -Math.sin(yaw), y: 0, z: Math.cos(yaw) };
-  return [[1, 1], [-1, 1], [-1, -1], [1, -1]].map(([x, z]) =>
-    add3(center, add3(mul3(across, width * x), mul3(normal, depth * z))),
-  );
+  return [
+    [1, 1],
+    [-1, 1],
+    [-1, -1],
+    [1, -1],
+  ].map(([x, z]) => add3(center, add3(mul3(across, width * x), mul3(normal, depth * z))));
 }
 
 function shell(upper, lower) {
@@ -23,7 +26,12 @@ function boot(ankle, yaw, heel) {
   const axis = { x: Math.cos(yaw), y: 0, z: Math.sin(yaw) };
   const side = { x: -axis.z, y: 0, z: axis.x };
   const base = ankle.y - 3 - heel * HEEL_ANKLE_RISE;
-  const sole = [[BOOT_TOE, 2.6], [BOOT_TOE, -2.6], [-5, -3], [-5, 3]].map(([along, across]) => ({
+  const sole = [
+    [BOOT_TOE, 2.6],
+    [BOOT_TOE, -2.6],
+    [-5, -3],
+    [-5, 3],
+  ].map(([along, across]) => ({
     ...add3(ankle, add3(mul3(axis, along), mul3(side, across))),
     y: base + (along < 0 ? heel : 0),
   }));
@@ -57,5 +65,6 @@ export function drawCloth(panels, colour, shade, poly) {
 }
 
 export function drawBoot(panels, poly) {
-  for (const panel of panels) poly(panel.points, panel.kind === "sole" ? "#d8d7cd" : panel.kind === "side" ? "#252c29" : "#3a3a3a");
+  for (const panel of panels)
+    poly(panel.points, panel.kind === "sole" ? "#d8d7cd" : panel.kind === "side" ? "#252c29" : "#3a3a3a");
 }

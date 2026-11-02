@@ -37,20 +37,37 @@ export function drawMatchBroadcast(scene) {
     if (scene.phaseT < TRACKING_TIME) drawReview(scene);
     else {
       const { out, changed } = reviewResult(cur);
-      const title = scene.phaseT < TRACKING_TIME + 1.5
-        ? changed ? "DECISION OVERTURNED" : "ORIGINAL DECISION STANDS"
-        : out ? "OUT" : "NOT OUT";
-      drawBroadcastBanner(title, out ? COLORS.red : SAFE,
-        cur.tracking.verdict === "umpiresCall" ? "UMPIRE'S CALL - REVIEW RETAINED" : "THIRD UMPIRE", 1);
+      const title =
+        scene.phaseT < TRACKING_TIME + 1.5
+          ? changed
+            ? "DECISION OVERTURNED"
+            : "ORIGINAL DECISION STANDS"
+          : out
+            ? "OUT"
+            : "NOT OUT";
+      drawBroadcastBanner(
+        title,
+        out ? COLORS.red : SAFE,
+        cur.tracking.verdict === "umpiresCall" ? "UMPIRE'S CALL - REVIEW RETAINED" : "THIRD UMPIRE",
+        1,
+      );
     }
   }
   const rec = cur?.done?.rec;
   if (scene.phase === "after" && (rec?.wicket || rec?.boundary)) {
     const batter = scene.inn.bat[rec.wicket ? rec.wicket.batter : rec.striker];
     const title = rec.wicket ? "WICKET!" : rec.boundary === 6 ? "SIX!" : "FOUR!";
-    const how = rec.wicket ? (rec.wicket.how === "runout" ? "RUN OUT" : rec.wicket.caughtBehind ? "CAUGHT BEHIND" : rec.wicket.how.toUpperCase()) + "  -  " : "";
-    drawBroadcastBanner(title, rec.wicket ? COLORS.red : COLORS.gold,
-      `${how}${batter.p.short.toUpperCase()} ${batter.runs} (${batter.balls})`, Math.min(1, scene.phaseT / 0.15), true);
+    const how = rec.wicket
+      ? (rec.wicket.how === "runout" ? "RUN OUT" : rec.wicket.caughtBehind ? "CAUGHT BEHIND" : rec.wicket.how.toUpperCase()) +
+        "  -  "
+      : "";
+    drawBroadcastBanner(
+      title,
+      rec.wicket ? COLORS.red : COLORS.gold,
+      `${how}${batter.p.short.toUpperCase()} ${batter.runs} (${batter.balls})`,
+      Math.min(1, scene.phaseT / 0.15),
+      true,
+    );
   }
 }
 

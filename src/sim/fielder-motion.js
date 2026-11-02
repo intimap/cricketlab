@@ -42,7 +42,6 @@ export function runDistance(t, topSpeed, v0 = 0) {
   return start * tTop + 0.5 * FIELDER_ACCEL * tTop * tTop + topSpeed * (t - tTop);
 }
 
-
 /**
  * Where a ring fielder has walked in to by the delivery (k = 0..1 of the run-up): 1-2 m towards the
  * striker, the closer ones less. Close catchers and the outfield stay put.

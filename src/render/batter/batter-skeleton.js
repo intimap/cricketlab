@@ -27,7 +27,10 @@ function targets(p) {
     backFootY: -3,
     frontLift: 0,
     backLift: 0,
-    pelvisX, pelvisY, chestX, chestY,
+    pelvisX,
+    pelvisY,
+    chestX,
+    chestY,
     headX: chestX + p.lean * 0.4 + 1 + reach * 0.15,
     headY: chestY - 12,
     px: p.px,
@@ -64,13 +67,24 @@ function goalsFor(pose) {
   const batDir = { x: Math.sin(angle) * Math.cos(azimuth), y: -Math.cos(angle), z: -Math.sin(angle) * Math.sin(azimuth) };
   const handZ = p.handZ ?? rootZ - 20 - Math.sin(angle) * 4;
   return {
-    pelvis, chest, head, frontFoot, backFoot,
-    topHand: lifted(p.px, p.py, handZ), batDir,
-    hipTurn: p.hipTurn * RAD, shoulderTurn: p.shoulderTurn * RAD,
-    face: p.batFace ?? 1, angle, azimuth,
-    lean: p.lean ?? 0, drop: p.drop ?? 0,
-    frontToeYaw: (p.frontToeYaw ?? 0) * RAD, backToeYaw: (p.backToeYaw ?? 0) * RAD,
-    frontHeel: p.frontHeel ?? 0, backHeel: p.backHeel ?? 0,
+    pelvis,
+    chest,
+    head,
+    frontFoot,
+    backFoot,
+    topHand: lifted(p.px, p.py, handZ),
+    batDir,
+    hipTurn: p.hipTurn * RAD,
+    shoulderTurn: p.shoulderTurn * RAD,
+    face: p.batFace ?? 1,
+    angle,
+    azimuth,
+    lean: p.lean ?? 0,
+    drop: p.drop ?? 0,
+    frontToeYaw: (p.frontToeYaw ?? 0) * RAD,
+    backToeYaw: (p.backToeYaw ?? 0) * RAD,
+    frontHeel: p.frontHeel ?? 0,
+    backHeel: p.backHeel ?? 0,
   };
 }
 
@@ -79,8 +93,12 @@ export function withBatterDepth(pose) {
   const g = goalsFor(pose);
   return {
     ...pose,
-    frontFootZ: g.frontFoot.z, backFootZ: g.backFoot.z,
-    pelvisZ: g.pelvis.z, chestZ: g.chest.z, headZ: g.head.z, handZ: g.topHand.z,
+    frontFootZ: g.frontFoot.z,
+    backFootZ: g.backFoot.z,
+    pelvisZ: g.pelvis.z,
+    chestZ: g.chest.z,
+    headZ: g.head.z,
+    handZ: g.topHand.z,
   };
 }
 
@@ -160,18 +178,36 @@ export function solveBatterSkeleton(pose) {
   const frontArm = solveTwoBone3(frontShoulder, topHand, upperArm, forearm, { x: 0.8, y: 0.6 });
   const backArm = solveTwoBone3(backShoulder, bottomHand, upperArm, forearm, { x: 0.15, y: -0.8 });
   return {
-    pelvis, chest, head, ...hips, frontShoulder, backShoulder,
-    frontFoot: frontLeg.end, backFoot: backLeg.end,
-    frontKnee: frontLeg.joint, backKnee: backLeg.joint,
-    frontElbow: frontArm.joint, backElbow: backArm.joint,
-    topHand, bottomHand, frontWrist: topHand, backWrist: bottomHand,
+    pelvis,
+    chest,
+    head,
+    ...hips,
+    frontShoulder,
+    backShoulder,
+    frontFoot: frontLeg.end,
+    backFoot: backLeg.end,
+    frontKnee: frontLeg.joint,
+    backKnee: backLeg.joint,
+    frontElbow: frontArm.joint,
+    backElbow: backArm.joint,
+    topHand,
+    bottomHand,
+    frontWrist: topHand,
+    backWrist: bottomHand,
     batShoulder: add3(topHand, mul3(batDir, 9)),
     batToe: add3(topHand, mul3(batDir, 36)),
-    batDir, face: g.face, angle: g.angle, azimuth: g.azimuth,
-    lean: g.lean, drop: g.drop,
-    hipTurn: g.hipTurn, shoulderTurn: g.shoulderTurn,
-    frontToeYaw: g.frontToeYaw, backToeYaw: g.backToeYaw,
-    frontHeel: g.frontHeel, backHeel: g.backHeel,
+    batDir,
+    face: g.face,
+    angle: g.angle,
+    azimuth: g.azimuth,
+    lean: g.lean,
+    drop: g.drop,
+    hipTurn: g.hipTurn,
+    shoulderTurn: g.shoulderTurn,
+    frontToeYaw: g.frontToeYaw,
+    backToeYaw: g.backToeYaw,
+    frontHeel: g.frontHeel,
+    backHeel: g.backHeel,
   };
 }
 

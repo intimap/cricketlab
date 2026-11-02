@@ -11,7 +11,12 @@ const near = (a, b, tolerance = 1e-7) => assert.ok(Math.abs(a - b) < tolerance, 
 const distance = (a, b) => length3(sub3(a, b));
 function checkBones(r) {
   for (const side of ["front", "back"]) {
-    for (const [a, b, length] of [["Hip", "Knee", 22], ["Knee", "Foot", 23], ["Shoulder", "Elbow", 19], ["Elbow", "Wrist", 18]]) {
+    for (const [a, b, length] of [
+      ["Hip", "Knee", 22],
+      ["Knee", "Foot", 23],
+      ["Shoulder", "Elbow", 19],
+      ["Elbow", "Wrist", 18],
+    ]) {
       near(distance(r[side + a], r[side + b]), length);
     }
   }
@@ -24,11 +29,12 @@ function checkBones(r) {
 test("all 28 clips have finite XYZ joints, fixed bone lengths and rigid grips", () => {
   for (const [name, clip] of Object.entries(BATTER_CLIPS)) {
     for (let i = 0; i <= 120; i++) {
-      const pose = sampleBatterMotion(name, clip.start + (clip.end - clip.start) * i / 120);
+      const pose = sampleBatterMotion(name, clip.start + ((clip.end - clip.start) * i) / 120);
       const r = solveBatterSkeleton(pose);
       checkBones(r);
       for (const p of Object.values(r)) {
-        if (p && typeof p === "object") for (const axis of ["x", "y", "z"]) assert.ok(Number.isFinite(p[axis]), `${name}: ${axis}`);
+        if (p && typeof p === "object")
+          for (const axis of ["x", "y", "z"]) assert.ok(Number.isFinite(p[axis]), `${name}: ${axis}`);
       }
       // The leg solve may lower the pelvis but must keep the authored ankle goals.
       near(r.frontFoot.x, pose.frontFootX);
@@ -59,7 +65,10 @@ test("both cameras project the same canonical skeleton and reverse depth", () =>
   const farView = solveBatterRig(b, true);
   assert.deepEqual(nearView.skeleton, farView.skeleton);
   assert.notEqual(nearView.frontFoot.y, farView.frontFoot.y);
-  for (const [rig, front] of [[nearView, false], [farView, true]]) {
+  for (const [rig, front] of [
+    [nearView, false],
+    [farView, true],
+  ]) {
     const p = projectBatterJoint(rig.skeleton.batToe, front);
     near(rig.topHand.x + rig.dir.x * 36, p.x);
     near(rig.topHand.y + rig.dir.y * 36, p.y);
@@ -79,22 +88,24 @@ test("elbows and knees remain continuous through each stroke", () => {
   for (const [name, clip] of Object.entries(BATTER_CLIPS)) {
     let previous;
     for (let i = 0; i <= 600; i++) {
-      const r = solveBatterSkeleton(sampleBatterMotion(name, clip.start + (clip.end - clip.start) * i / 600));
-      if (previous) for (const key of ["frontElbow", "backElbow", "frontKnee", "backKnee"]) {
-        assert.ok(distance(r[key], previous[key]) < 3, `${name}: ${key} jumped`);
-      }
+      const r = solveBatterSkeleton(sampleBatterMotion(name, clip.start + ((clip.end - clip.start) * i) / 600));
+      if (previous)
+        for (const key of ["frontElbow", "backElbow", "frontKnee", "backKnee"]) {
+          assert.ok(distance(r[key], previous[key]) < 3, `${name}: ${key} jumped`);
+        }
       previous = r;
     }
   }
 });
 
 test("the 3D blade retains physical width and thickness throughout a swing", () => {
-  for (const [name, clip] of Object.entries(BATTER_CLIPS)) for (let i = 0; i <= 20; i++) {
-    const mesh = batMesh(solveBatterSkeleton(sampleBatterMotion(name, clip.start + (clip.end - clip.start) * i / 20)));
-    const toe = mesh.faces.find((f) => f.kind === "toe").points;
-    near(distance(toe[0], toe[1]), 6);
-    near(distance(toe[1], toe[2]), 2.1);
-  }
+  for (const [name, clip] of Object.entries(BATTER_CLIPS))
+    for (let i = 0; i <= 20; i++) {
+      const mesh = batMesh(solveBatterSkeleton(sampleBatterMotion(name, clip.start + ((clip.end - clip.start) * i) / 20)));
+      const toe = mesh.faces.find((f) => f.kind === "toe").points;
+      near(distance(toe[0], toe[1]), 6);
+      near(distance(toe[1], toe[2]), 2.1);
+    }
 });
 
 test("unreachable and coincident IK goals stay finite without stretching", () => {

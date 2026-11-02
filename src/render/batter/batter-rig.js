@@ -183,7 +183,10 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   if (number) {
     const label = at(body.number);
     drawText(String(number), label.x, label.y, {
-      align: "center", color: kit.cap, shadow: null, scale: scale >= 1.5 ? 2 : 1,
+      align: "center",
+      color: kit.cap,
+      shadow: null,
+      scale: scale >= 1.5 ? 2 : 1,
     });
   }
 

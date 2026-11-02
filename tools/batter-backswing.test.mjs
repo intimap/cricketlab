@@ -4,12 +4,19 @@ import { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../src/sim/shot-timing.js";
 import { SWING_TIME } from "../src/sim/batting.js";
 import { commitSwing } from "../src/scenes/match-input.js";
 import { rigStroke } from "../src/scenes/batter-stroke.js";
-import { BATTER_CLIPS, sampleBatterMotion, gameMotionTime, gamePreparationWindow } from "../src/render/batter/batter-motion-all.js";
+import {
+  BATTER_CLIPS,
+  sampleBatterMotion,
+  gameMotionTime,
+  gamePreparationWindow,
+} from "../src/render/batter/batter-motion-all.js";
 import { withBatterDepth } from "../src/render/batter/batter-skeleton.js";
 import { accentBackswing } from "../src/render/batter/batter-backswing.js";
 
 const near = (a, b) => assert.ok(Math.abs(a - b) < 1e-9, `${a} != ${b}`);
-const poseNear = (a, b) => { for (const key of Object.keys(b)) near(a[key], b[key]); };
+const poseNear = (a, b) => {
+  for (const key of Object.keys(b)) near(a[key], b[key]);
+};
 function scene() {
   return {
     cur: { intent: {}, delivery: { pitchedAt: { z: 5 } } },
@@ -20,7 +27,10 @@ function scene() {
 }
 
 test("normal and power input must precede contact by the new full load and downswing", () => {
-  for (const [power, preparation, oldPreparation] of [[false, 0.14, 0.07], [true, 0.26, 0.2]]) {
+  for (const [power, preparation, oldPreparation] of [
+    [false, 0.14, 0.07],
+    [true, 0.26, 0.2],
+  ]) {
     const s = scene();
     const press = 0.6 - preparation - SWING_TIME.drive;
     commitSwing(s, press, "drive", power);

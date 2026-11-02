@@ -70,7 +70,10 @@ export function unlockAudio() {
   crowd = ac.createGain();
   crowd.gain.value = 0.05;
   crowd.connect(crowdBus);
-  for (const [frequency, pan, rate] of [[550, -0.45, 0.87], [1150, 0.45, 1.03]]) {
+  for (const [frequency, pan, rate] of [
+    [550, -0.45, 0.87],
+    [1150, 0.45, 1.03],
+  ]) {
     const loop = ac.createBufferSource();
     loop.buffer = noise;
     loop.loop = true;
@@ -108,7 +111,11 @@ export function setAudioLevels(next) {
   }
   save("audioLevels", levels);
   if (!ac) return;
-  for (const [name, bus] of [["effects", effectsBus], ["crowd", crowdBus], ["cues", cuesBus]]) {
+  for (const [name, bus] of [
+    ["effects", effectsBus],
+    ["crowd", crowdBus],
+    ["cues", cuesBus],
+  ]) {
     holdGain(bus.gain, ac.currentTime);
     bus.gain.linearRampToValueAtTime(levels[name], ac.currentTime + 0.03);
   }
@@ -171,7 +178,7 @@ export const sfx = {
     crowd.gain.linearRampToValueAtTime(0.05 + 0.2 * level, t + 1.4);
     crowd.gain.linearRampToValueAtTime(0.05, t + 3.5);
     for (let i = 0; i < 10 * level; i++) {
-      crowdEffects.burst(0.065, 1800 + Math.random() * 1600, 2, 0.10 * level, 0.3 + Math.random() * 2);
+      crowdEffects.burst(0.065, 1800 + Math.random() * 1600, 2, 0.1 * level, 0.3 + Math.random() * 2);
     }
   },
   groan() {

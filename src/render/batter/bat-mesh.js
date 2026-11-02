@@ -3,7 +3,9 @@ import { add3, mul3, cross3, unit3 } from "./rig-3d.js";
 /** A rigid willow prism carried by the solved hands, in the skeleton's XYZ coordinates. */
 export function batMesh(skeleton) {
   const { topHand, batDir, angle, azimuth, face } = skeleton;
-  const c = Math.cos(azimuth), s = Math.sin(azimuth), a = Math.cos(angle);
+  const c = Math.cos(azimuth),
+    s = Math.sin(azimuth),
+    a = Math.cos(angle);
   // Transport the blade's width through the same rotation as its long axis.
   const baseWidth = unit3({ x: s * s + c * c * a, y: c * Math.sin(angle), z: s * c * (1 - a) });
   const baseNormal = unit3(cross3(batDir, baseWidth));
@@ -13,9 +15,12 @@ export function batMesh(skeleton) {
   const along = (t) => add3(topHand, mul3(batDir, t));
   const ring = (distance, halfWidth, halfDepth) => {
     const center = along(distance);
-    return [[1, 1], [-1, 1], [-1, -1], [1, -1]].map(([w, d]) =>
-      add3(center, add3(mul3(width, halfWidth * w), mul3(normal, halfDepth * d))),
-    );
+    return [
+      [1, 1],
+      [-1, 1],
+      [-1, -1],
+      [1, -1],
+    ].map(([w, d]) => add3(center, add3(mul3(width, halfWidth * w), mul3(normal, halfDepth * d))));
   };
   const shoulder = ring(9, 2.7, 0.55);
   const toe = ring(36, 3, 1.05);

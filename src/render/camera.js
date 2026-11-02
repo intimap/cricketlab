@@ -67,7 +67,9 @@ export function closePixelsPerMetre(z) {
 }
 
 let wideCamera = null;
-export function setWideCamera(camera = null) { wideCamera = camera; }
+export function setWideCamera(camera = null) {
+  wideCamera = camera;
+}
 
 // --- Wide camera: high behind the bowler's end, whole ground in view. ---
 // Piecewise linear: the pitch gets more room than the outfield.

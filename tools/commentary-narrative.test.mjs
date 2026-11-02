@@ -275,21 +275,24 @@ test("facade callers retain pack-owner identity and expose the old picks result"
 });
 
 test("the nervous-nineties observation is said once per batter and clears at the hundred", () => {
-  const comm = new Commentary(new Rng(1)), inn = innings();
+  const comm = new Commentary(new Rng(1)),
+    inn = innings();
   inn.bat[0].runs = 94;
   const calls = [];
   for (let i = 0; i < 3; i++) {
     const rec = feed(comm.narrative, inn);
-    calls.push(...boothCall(rec, "", { batter: "HEARN", bowler: "WOAKESLEY" }, rng, comm, fitsBox,
-      { inn, narrative: comm.narrative }).calls);
+    calls.push(
+      ...boothCall(rec, "", { batter: "HEARN", bowler: "WOAKESLEY" }, rng, comm, fitsBox, { inn, narrative: comm.narrative })
+        .calls,
+    );
   }
-  const nervous = calls.filter(c => c.topic === "nervousNineties");
+  const nervous = calls.filter((c) => c.topic === "nervousNineties");
   assert.equal(nervous.length, 1);
   assert.match(nervous[0].text, /94/);
   assert.match(nervous[0].text, /6/);
   inn.bat[0].runs = 100;
   const rec = feed(comm.narrative, inn);
-  assert.ok(!broadcastContext(rec, inn, comm.narrative).some(o => o.topic === "nervousNineties"));
+  assert.ok(!broadcastContext(rec, inn, comm.narrative).some((o) => o.topic === "nervousNineties"));
 });
 
 test("the match facade resets narrative at change of innings but retains the booth identity", () => {

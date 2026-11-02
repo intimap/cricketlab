@@ -8,7 +8,10 @@ export function boothCall(rec, hpd, names, rng, owner, fits, context = {}) {
   let editor = owner?.booth;
   if (!editor && owner && typeof owner === "object") {
     editor = editors.get(owner);
-    if (!editor) { editor = new BoothEditor(); editors.set(owner, editor); }
+    if (!editor) {
+      editor = new BoothEditor();
+      editors.set(owner, editor);
+    }
   }
   const result = (editor ?? new BoothEditor()).edit(rec, hpd, names, rng, fits, context);
   return { ...result, picks: [] };

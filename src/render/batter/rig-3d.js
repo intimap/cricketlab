@@ -26,12 +26,14 @@ export function solveTwoBone3(origin, target, upper, lower, hinge) {
   // Transport a hinge frame from -Z onto the limb axis. Projecting a fixed
   // pole directly onto the limb would flip it when the hand crosses that pole.
   const denominator = 1 - axis.z;
-  const across = denominator > 1e-6
-    ? { x: 1 - axis.x * axis.x / denominator, y: -axis.x * axis.y / denominator, z: axis.x }
-    : { x: 1, y: 0, z: 0 };
-  const up = denominator > 1e-6
-    ? { x: -axis.x * axis.y / denominator, y: 1 - axis.y * axis.y / denominator, z: axis.y }
-    : { x: 0, y: -1, z: 0 };
+  const across =
+    denominator > 1e-6
+      ? { x: 1 - (axis.x * axis.x) / denominator, y: (-axis.x * axis.y) / denominator, z: axis.x }
+      : { x: 1, y: 0, z: 0 };
+  const up =
+    denominator > 1e-6
+      ? { x: (-axis.x * axis.y) / denominator, y: 1 - (axis.y * axis.y) / denominator, z: axis.y }
+      : { x: 0, y: -1, z: 0 };
   const bend = unit3(add3(mul3(across, hinge.x), mul3(up, hinge.y)));
   const along = (upper * upper - lower * lower + distance * distance) / (2 * distance);
   const height = Math.sqrt(Math.max(0, upper * upper - along * along));

@@ -9,10 +9,12 @@ const BATTLE_LINES = {
 /** End-of-over messages use presentation dice, separate from the cricket. */
 export class OverSummary {
   recent = [];
-  constructor(rng) { this.rng = rng; }
+  constructor(rng) {
+    this.rng = rng;
+  }
 
   pick(lines) {
-    const fresh = lines.filter(line => !this.recent.includes(line));
+    const fresh = lines.filter((line) => !this.recent.includes(line));
     const line = this.rng.pick(fresh.length ? fresh : lines);
     this.recent.push(line);
     this.recent = this.recent.slice(-40);

@@ -64,7 +64,6 @@ export function sampleBatterMotion(name, secondsFromContact, { view = "batter" }
   return addBatterFootwork(accentBackswing(pose, c, t), c, t, name);
 }
 
-
 export function gamePreparationWindow(name) {
   const c = BATTER_CLIPS[name];
   return c.kind === "leave" ? 0.22 : c.kind === "defence" ? 0.12 : c.downswing + BACKLIFT_TIME;

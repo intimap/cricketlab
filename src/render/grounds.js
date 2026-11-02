@@ -140,7 +140,7 @@ GROUNDS.lords = {
       { image: "close/lords-fence", y: 112 },
     ],
     stripes: { edges: [0, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 27.5, 30], firstLight: true },
-    haze: { colour: "#6fa84a", rows: 14, amount: 0.30 },
+    haze: { colour: "#6fa84a", rows: 14, amount: 0.3 },
   },
   wide: {
     ...GROUNDS.oval.wide,
@@ -178,7 +178,7 @@ GROUNDS.scg = {
       { image: "close/scg-fence", y: 112 },
     ],
     stripes: { edges: [0, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 27.5, 30], firstLight: true },
-    haze: { colour: "#72b040", rows: 12, amount: 0.20 },
+    haze: { colour: "#72b040", rows: 12, amount: 0.2 },
   },
   wide: {
     ...GROUNDS.oval.wide,

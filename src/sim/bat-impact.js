@@ -2,7 +2,7 @@ import { clamp } from "../math.js";
 import { BALL_RADIUS } from "./geometry.js";
 
 /** Metres along the blade, measured from the toe towards the handle. */
-export const BAT_BLADE = Object.freeze({ length: 0.56, sweet: 0.20, halfWidth: 0.054, handle: 0.72 });
+export const BAT_BLADE = Object.freeze({ length: 0.56, sweet: 0.2, halfWidth: 0.054, handle: 0.72 });
 
 /**
  * A contact-plane approximation, independent of the animated bat rig. The blade
@@ -26,7 +26,7 @@ export function batImpact({ dx, dy, timing, type, back, sweetWidth }) {
   const outer = BAT_BLADE.halfWidth + BALL_RADIUS;
   const faceWidth = Math.min(sweetWidth, BAT_BLADE.halfWidth);
   const missed = width > outer || along < -BALL_RADIUS || along > BAT_BLADE.handle + BALL_RADIUS;
-  const region = along > BAT_BLADE.length ? "handle" : along < 0.10 ? "toe" : along > 0.40 ? "splice" : "middle";
+  const region = along > BAT_BLADE.length ? "handle" : along < 0.1 ? "toe" : along > 0.4 ? "splice" : "middle";
   // Effective rebound falls smoothly away from the sweet spot, with a softer splice.
   const offset = along - BAT_BLADE.sweet;
   const span = offset < 0 ? BAT_BLADE.sweet : BAT_BLADE.length - BAT_BLADE.sweet;

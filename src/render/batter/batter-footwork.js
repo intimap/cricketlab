@@ -8,24 +8,43 @@ const smooth = (x) => {
 
 /** Movement families share a base, but keep each shot's authored contact and placement. */
 function style(name) {
-  if (/sweep/i.test(name)) return {
-    lead: "front", x: 3, z: 5, lift: 2, hip: 19, torso: 27, pivot: 18,
-    sign: name === "reverseSweep" ? 1 : -1,
-  };
+  if (/sweep/i.test(name))
+    return {
+      lead: "front",
+      x: 3,
+      z: 5,
+      lift: 2,
+      hip: 19,
+      torso: 27,
+      pivot: 18,
+      sign: name === "reverseSweep" ? 1 : -1,
+    };
   if (/ramp|scoop/i.test(name)) return { lead: "front", x: 1, z: 3, lift: 2, hip: 6, torso: 9, pivot: 12, sign: -1 };
   const back = /backFoot|cut|pull|hook/i.test(name);
   const touch = /glance|clipOff/i.test(name);
-  if (back) return {
-    lead: "back", x: -3, z: -9, lift: 4,
-    hip: touch ? 10 : /cut/i.test(name) ? 14 : 25,
-    torso: touch ? 15 : /cut/i.test(name) ? 21 : 33,
-    pivot: /lateCut/i.test(name) ? 20 : 38, sign: -1,
-  };
+  if (back)
+    return {
+      lead: "back",
+      x: -3,
+      z: -9,
+      lift: 4,
+      hip: touch ? 10 : /cut/i.test(name) ? 14 : 25,
+      torso: touch ? 15 : /cut/i.test(name) ? 21 : 33,
+      pivot: /lateCut/i.test(name) ? 20 : 38,
+      sign: -1,
+    };
   const loft = /loft|slog/i.test(name);
   const x = /square/i.test(name) ? 6 : /cover/i.test(name) ? 5 : /onDrive/i.test(name) ? -3 : 2;
-  return { lead: "front", x, z: touch ? 5 : loft ? 10 : 9, lift: touch ? 3 : 5,
-    hip: touch ? 12 : loft ? 30 : 25, torso: touch ? 17 : loft ? 38 : 33,
-    pivot: touch ? 27 : 48, sign: -1 };
+  return {
+    lead: "front",
+    x,
+    z: touch ? 5 : loft ? 10 : 9,
+    lift: touch ? 3 : 5,
+    hip: touch ? 12 : loft ? 30 : 25,
+    torso: touch ? 17 : loft ? 38 : 33,
+    pivot: touch ? 27 : 48,
+    sign: -1,
+  };
 }
 
 function moveFoot(p, name, x, z, lift) {
@@ -56,8 +75,7 @@ export function addBatterFootwork(pose, clip, time, name) {
   const stride = step * stay;
   const p = { ...pose };
 
-  moveFoot(p, lead, s.x * stride, s.z * stride,
-    s.lift * Math.sin(Math.PI * step) * stay + 2.5 * Math.sin(Math.PI * recover));
+  moveFoot(p, lead, s.x * stride, s.z * stride, s.lift * Math.sin(Math.PI * step) * stay + 2.5 * Math.sin(Math.PI * recover));
   // Weight travels through the head and chest before the pelvis settles over the lead foot.
   const headStep = smooth((time - clip.start) / (plantAt - clip.start - 0.025));
   const chestStep = smooth((time - clip.start) / (plantAt - clip.start - 0.012));
@@ -77,11 +95,10 @@ export function addBatterFootwork(pose, clip, time, name) {
 
   // A short, lifted recovery step only starts after both authored plant windows end.
   const gather = Math.sin(Math.PI * recover);
-  moveFoot(p, trailing, (lead === "front" ? 2 : -2) * gather,
-    (lead === "front" ? 7 : -5) * gather, 3 * gather);
+  moveFoot(p, trailing, (lead === "front" ? 2 : -2) * gather, (lead === "front" ? 7 : -5) * gather, 3 * gather);
   // Rotate the ankle around the ball of the foot, rather than sliding a planted toe.
   for (const foot of ["front", "back"]) {
-    const yaw = p[`${foot}ToeYaw`] * Math.PI / 180;
+    const yaw = (p[`${foot}ToeYaw`] * Math.PI) / 180;
     moveFoot(p, foot, BOOT_TOE * (1 - Math.cos(yaw)), -BOOT_TOE * Math.sin(yaw), p[`${foot}Heel`] * HEEL_ANKLE_RISE);
   }
   return p;

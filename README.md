@@ -92,9 +92,10 @@ Each computer batter has a hidden weakness (loose outside off, a compulsive hook
 
 ```
 index.html            page shell and key strip
-assets/               the two painted backgrounds (close and wide camera)
+assets/               venue art: each ground's layers for the close and wide views, wide perimeters, the MCG stadium
 src/
   main.js             boot, asset loading, game loop, scene switching
+  assets.js           every image the game loads, by id
   math.js             clamp, easing, angle helpers
   engine/             browser plumbing, no cricket in here
     screen.js         640x360 pixel frame buffer, scaling, drawing primitives
@@ -112,21 +113,31 @@ src/
     conditions.js     pitch types, pitch wear, ball wear (swing, reverse, grip)
     bowling-side.js   over/around release geometry and follow-through position
     delivery.js       bowling: release, swing, seam, spin, bounce, flight
+    runup.js          the player's run-up and release meter: rhythm, ramp, stride surges
     bat-impact.js     blade contact coordinates, toe/splice rebound and continuous edge deflection
     shot-timing.js    shared normal/power backlift durations for input and animation
     batting.js        the shot: timing, where the bat goes, edges, LBW, bowled
+    describe.js       where a shot went, as commentators say it, and its scoring zone
     eye.js            every batter's eye: built by well-timed shots, dented by misses and edges
-    ball-in-play.js   after the shot: the ball, catches, throws, running, run-outs
+    plans.js          the battle with the bowler: hidden weaknesses, memory of recent balls
+    ball-in-play.js   after the shot: the ball's flight, who fields it, boundaries, the outcome
+    running.js        the batters' running: calling and abandoning runs, who's at risk, the computer's calls
     fielder-motion.js how fielders move: accelerating, turning, easing up, set, dive/get up, walking in
     fielder-ai.js     who chases the ball, who cuts it off, who covers the stumps
-    fielder-catch.js  the chance of holding a catch
-    fielder-throw.js  release time, which end to throw to, shies and wild throws (overthrows)
+    fielder-catch.js  catches, stops and fumbles when the fielder gets to the ball
+    fielder-throw.js  release time, which end to throw to, shies, wild throws; the throw arriving (run-outs)
     field.js          field presets and position names
     ai.js             computer bowler, field, delivery and shot choices
     innings.js        scorebook, cards, strike, bowler fatigue
+    match.js          plays innings ball by ball, swaps sides, works out the result
+    formats.js        game formats and Classic Match challenges (data)
+    coach.js          the nets coach: a verdict on every ball faced or bowled
+    leaderboard.js    high-score entries from a result, and how they rank
     call.js           the score bar's plain call: what was bowled, the shot, the result
     commentary.js     simulation commentary records, over summaries and sledges
     moments.js        spots situations worth talking about (droughts, pressure, near run-outs...)
+    commentary-narrative.js  the innings' running story (spells, partnerships, pressure) for the box
+    over-summary.js   a recap of the over just bowled
     commentators.js   commentary voices and compatible booth entry points
     booth-editor.js   every-ball call plus an optional contextual second voice
     booth-caller.js   factual outcome classification and fresh primary calls
@@ -135,67 +146,76 @@ src/
     booth-wicket-lines.js  voice-specific dismissal calls
     booth-context.js  read-only match situations and story priorities
     booth-stories.js  personality-specific analysis, reactions and banter
+    booth-chat.js     between-balls chat topics for the box
     booth-policy.js   final HPD duplication and booth line validation
+    broadcast-context.js  broadcast pressure and tactics stories from the ball and the narrative
+    broadcast-lines.js  each voice's broadcast and colour lines
+    field-chatter.js  fielders' send-offs and chirps
     pack-voice.js     picks commentary-pack lines that are true of the ball, fresh each time
     commentary-pack/  the commentary pack (v1): its lines as JSON, with its own README, checks and integration notes
-    booth-lines.js    each commentator's lines for every situation
-    match.js          plays innings ball by ball, swaps sides, works out the result
-    formats.js        game formats and Classic Match challenges (data)
-    runup.js          the player's run-up and release meter: rhythm, ramp, stride surges
-    coach.js          the nets coach: a verdict on every ball faced or bowled
-    leaderboard.js    high-score entries from a result, and how they rank
-  render/
+  render/             drawing, no game rules in here
     camera.js         projections for the close (either end) and wide views
-    sprites.js        the ball and its shadow; re-exports kit.js, batter-rig.js and figures.js
+    stadium-camera.js the MCG stadium image's measured wide projection
+    grounds.js        grounds as data: stripe layout, colours, pitch looks, which paintings to use
+    ground.js         the layer compositor: builds each view's background from a ground's data
+    stadium-ground.js a ground built round a stadium image (the MCG's wide view)
+    light.js          times of day: tint, sky glow, stand shadows, shadow length
+    sprites.js        the ball and its shadow; re-exports kit.js, batter/batter-rig.js and figures.js
     kit.js            kit colours, a player's looks (skin, hair, beard, height), mirroring, shadows
-    batter-rig.js     pixel-art striker drawing; re-exports poses and the projected rig for older callers
-    batter-poses.js   legacy stances, pose blending and whole-body reach
-    batter-skeleton.js  canonical XYZ joints, fixed-length 3D IK, planted feet and rigid hand grip
-    batter-projection.js  either close-camera view of the same skeleton, limb depth order and bat faces
-    rig-3d.js         vector math and two-bone hinge solves for visual rigs
-    bat-mesh.js       the rigid 3D willow blade carried by the solved hands
-    bat.js            draw the projected blade faces in depth order on the pixel grid
     figures.js        everyone else: bowler, keeper, fielders, umpires, runners, close up and tiny
-    batter-footwork.js  shot-specific steps, planted-toe pivots, hip-led follow-through and recovery
-    batter-surfaces.js  rotating cloth panels and 3D boots, drawn on the pixel grid
-    batter-backswing.js  higher hand lift and shoulder coil before attack contact
-    batter-motion.js  the original straight drive, forward defence and pull
-    batter-motion-all.js  all 28 stroke clips and the expanded visual sampler
-    batter-shot-extensions.js  composes authored data from batter-shots/
-    batter-shots/     additional drive, back-foot, sweep/ramp and touch-shot pose families
-    batter-catalog.js  input-family and shot-label routes to the 28 clips
-    match-broadcast.js DRS tracking, verdict cards and celebrations
-    bowling-setup.js  target-aiming panel and over/around selector
     bowler-motion.js  run-up and follow-through on the chosen side
-    batter-meters.js  shared eye and pressure panel
+    batter/           the striker
+      batter-rig.js     pixel-art striker drawing; re-exports poses and the projected rig for older callers
+      batter-poses.js   legacy stances, pose blending and whole-body reach
+      batter-skeleton.js  canonical XYZ joints, fixed-length 3D IK, planted feet and rigid hand grip
+      batter-projection.js  either close-camera view of the same skeleton, limb depth order and bat faces
+      rig-3d.js         vector math and two-bone hinge solves for visual rigs
+      bat-mesh.js       the rigid 3D willow blade carried by the solved hands
+      bat.js            draw the projected blade faces in depth order on the pixel grid
+      batter-surfaces.js  rotating cloth panels and 3D boots, drawn on the pixel grid
+      batter-footwork.js  shot-specific steps, planted-toe pivots, hip-led follow-through and recovery
+      batter-backswing.js  higher hand lift and shoulder coil before attack contact
+      batter-motion.js  the original straight drive, forward defence and pull
+      batter-motion-all.js  all 28 stroke clips and the motion player
+      batter-shot-extensions.js  composes authored data from batter-shots/
+      batter-shots/     drive, back-foot, sweep/ramp and touch-shot pose families
+      batter-catalog.js  input-family and shot-label routes to the 28 clips
     hud.js            HUD entry points, mini-map, banners, scorecard, speech bubbles
     score-bar.js      two-line batting/bowling strip with partnership and commentary
     team-flag.js      pixel team flags framing the bottom score strip
     over-balls.js     shaded delivery spheres with runs, wickets and extras
+    batter-meters.js  shared eye and pressure panel
+    bowling-setup.js  target-aiming panel and over/around selector
+    match-broadcast.js DRS tracking, verdict cards and celebrations, and the review's timings
     ball-trail.js     the delivery's fading trail and the pitch-map landing reticle (close view)
     feedback.js       arcade feedback drawn: timing meter and callout, floating words, eased bars
     booth.js          commentator portraits and the commentary popup
-    grounds.js        grounds as data: stripe layout, colours, pitch looks, which paintings to use
-    ground.js         the layer compositor: builds each view's background from a ground's data
   scenes/
     menu.js           title screen
-    match.js          the match: phases, timing, events
-    match-audio.js    contact timbres and broadcast sound cues
-    bowling-side.js   per-bowler side selection and setup controls
-    match-input.js    the player's controls: shots, defence, leaving, footwork, aiming the bowling
+    match.js          the match scene: state, the phase loop, camera, banners
+    match-ball.js     a ball's life: next ball, release, dead ball, completing it, the walk back, simulating
+    match-flight.js   the ball in flight: contact, the ball in play, its events, run calls
+    match-setup.js    between balls: bowling setup, choosing a bowler, field editing
+    match-input.js    the player's controls: shots, defence, leaving, footwork, aiming, the run-up
     match-decisions.js  LBW appeals, the umpire's decision and DRS reviews
     match-feedback.js what feedback to show and when: shot words, +/-EYE and PRESSURE, hit-stop, shake
-    match-view.js     drawing for the match scene
+    match-audio.js    contact timbres and broadcast sound cues
     strike-presentation.js  full-pace launch after contact and the close-to-wide broadcast cut
-    match-broadcast.js review timing and celebration skip input
+    celebrations.js   skipping a wicket's or boundary's celebration
+    broadcast-commentary.js  the box's call for each ball
+    bowling-side.js   per-bowler side selection and setup controls
     batter-pose.js    the striker's pose through a ball: stance, trigger, backlift, strokes, follow-throughs
     batter-stroke.js  presentation-only selection and the existing attack/block/leave clocks
+    match-view.js     drawing for the match scene: the close and wide views
+    match-striker.js  where the striker is drawn, and the blade onto the ball at contact
+    match-panels.js   the panels over the picture: setup, speed gun, meters, coach card, release meter, feedback
     audio-mix.js      pause-menu controls for effects, crowd and broadcast volumes
     pause-menu.js     the Esc menu: scorecard, instructions, sound
     scoreboard.js     the arcade high-score screen: name entry and the table
 netlify/
   functions/scores.mjs  the shared high-score service on Netlify (/api/scores)
   score-table.mjs       its tables: checks scores, keeps each table's best 200, safe against saves at once
+tools/                balance report, one-file build, art generators (tools/art/), tests (*.test.mjs)
 ```
 
 The rule of thumb: `sim/` knows nothing about the screen, `engine/` knows nothing about cricket, and
@@ -214,20 +234,20 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **Player ratings and squads:** `sim/teams.js`.
 - **Pitch behaviour:** `PITCH_TYPES` in `sim/conditions.js`.
 - **AI tactics:** `sim/ai.js`.
-- **Fielding and running:** `sim/ball-in-play.js`; fielders' movement, choices, catching and throwing in
-  `sim/fielder-motion.js`, `fielder-ai.js`, `fielder-catch.js` and `fielder-throw.js`.
-- **What's shown on screen:** `scenes/match-view.js` and `render/`.
+- **Fielding and running:** `sim/ball-in-play.js`; the batters' running in `sim/running.js`; fielders' movement,
+  choices, catching and throwing in `sim/fielder-motion.js`, `fielder-ai.js`, `fielder-catch.js` and `fielder-throw.js`.
+- **What's shown on screen:** `scenes/match-view.js` (the views), `match-striker.js`, `match-panels.js` and `render/`.
 - **Batter animation:** which pose or stroke when, in `scenes/batter-pose.js`; the poses, skeleton and drawing in
-  `render/batter-poses.js`, `render/batter-skeleton.js` and `render/batter-rig.js`;
+  `render/batter/batter-poses.js`, `render/batter/batter-skeleton.js` and `render/batter/batter-rig.js`;
   the skeleton has X across the pitch, Y up and Z towards the bowler, in local rig units (94 units per 1.8 m).
-  `render/batter-projection.js` projects the same joints from either end; `batterJointToWorld` converts a joint
+  `render/batter/batter-projection.js` projects the same joints from either end; `batterJointToWorld` converts a joint
   to match-world metres for visual tools. Clips can author `frontFootZ`, `backFootZ`, `pelvisZ`, `chestZ`, `headZ`
-  and `handZ`; existing clips receive inferred depth keyframes. The rigid blade mesh is in `render/bat-mesh.js`,
-  with pixel drawing in `render/bat.js`. `render/batter-footwork.js` adds shot-specific strides, toe pivots
-  and hip-led follow-through; `render/batter-surfaces.js` makes cloth and boots follow those turns.
+  and `handZ`; existing clips receive inferred depth keyframes. The rigid blade mesh is in `render/batter/bat-mesh.js`,
+  with pixel drawing in `render/batter/bat.js`. `render/batter/batter-footwork.js` adds shot-specific strides, toe pivots
+  and hip-led follow-through; `render/batter/batter-surfaces.js` makes cloth and boots follow those turns.
   These joints are visual and do not replace simulation contact physics;
-  the expanded sampler in `render/batter-motion-all.js` and poses in `render/batter-shots/`;
-  stroke selection and timing in `scenes/batter-stroke.js`, with routes in `render/batter-catalog.js`.
+  the expanded sampler in `render/batter/batter-motion-all.js` and poses in `render/batter/batter-shots/`;
+  stroke selection and timing in `scenes/batter-stroke.js`, with routes in `render/batter/batter-catalog.js`.
 - **Game modes and Classic Matches:** `sim/formats.js` (challenges are plain data). AI chase and
   limited-overs tempo constants are at the top of `sim/ai.js`.
 - **Ground art:** images live in `assets/` (layer art in `assets/close/`), listed by id in `src/assets.js`;
@@ -236,8 +256,7 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   Parklands close-view layers. `python3 tools/art/make_lords.py` regenerates Lord's six close/wide scenery layers
   (requires Pillow). `python3 tools/art/make_scg.py` regenerates SCG’s six close/wide layers, with seating
   tight to the advertising boards (also Pillow). `python3 tools/art/make_lakshmi.py` generates Lakshmi Bluff’s
-  eight Himalayan scenery layers; selecting this ground defaults the pitch to DUST BOWL. `tools/art/make_theg.py` makes all of The G's (the floodlit Melbourne stadium, in
-  `assets/theg/`). `python3 tools/art/make_perimeters.py` generates all six wrapping wide-view rims,
+  eight Himalayan scenery layers; selecting this ground defaults the pitch to DUST BOWL. `tools/art/make_theg.py` makes The G's close-view layers (in `assets/theg/close/`). `python3 tools/art/make_perimeters.py` generates the five wrapping wide-view rims (the MCG's wide view is its stadium image),
   reading the boundary ellipse from `src/render/camera.js`. Each ground selects a `wide.perimeter` asset;
   these layers leave the playing area transparent and keep the full boundary above the HUD. The rim
   curves around the far side too, with the original pavilion, Media Centre and scoreboard artwork
@@ -246,6 +265,7 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   boundary stays 66 m. A ground with `light` set picks that light on the menu when chosen.
 - **One-file builds:** `python3 tools/build-single.py out.html [--ref main] [--stamp]` bundles the game
   with its images inlined (needs esbuild).
+- **Tests:** `npm test` runs every `tools/*.test.mjs` (node's built-in runner; no packages needed).
 - **Balance checks:** `node tools/sim-report.mjs [innings] [pitch]` simulates AI-vs-AI innings and prints
   run rates, dismissals, plan figures and commentary moments.
 - **Commentary:** `sim/call.js` owns the factual HUD play description (HPD). The booth (BC) is selected

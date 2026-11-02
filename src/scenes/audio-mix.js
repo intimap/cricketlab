@@ -3,14 +3,22 @@ import { keys, mouse } from "../engine/input.js";
 import { COLORS, WIDTH, fillRect, drawPanel, drawBar } from "../engine/screen.js";
 import { drawText } from "../engine/text.js";
 
-const CHANNELS = [["effects", "BALL / EFFECTS"], ["crowd", "CROWD"], ["cues", "BROADCAST"]];
+const CHANNELS = [
+  ["effects", "BALL / EFFECTS"],
+  ["crowd", "CROWD"],
+  ["cues", "BROADCAST"],
+];
 const BAR_X = 245;
 const BAR_W = 180;
 
 export function updateAudioMix(menu) {
   menu.mixSel ??= 0;
-  if (keys.pressed("Escape") || keys.pressed("Enter") || keys.pressed("Backspace") ||
-      (mouse.pressed && mouse.x >= 165 && mouse.x < 240 && mouse.y >= 244 && mouse.y < 264)) {
+  if (
+    keys.pressed("Escape") ||
+    keys.pressed("Enter") ||
+    keys.pressed("Backspace") ||
+    (mouse.pressed && mouse.x >= 165 && mouse.x < 240 && mouse.y >= 244 && mouse.y < 264)
+  ) {
     menu.screen = "menu";
     return;
   }

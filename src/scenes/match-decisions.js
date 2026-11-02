@@ -52,7 +52,10 @@ export function updateDecision(scene) {
   if (loser === playerSide && inn.reviews[loser] > 0) {
     // Play stops while the player decides; a moment's grace so a stray press doesn't accept it.
     if (keys.pressed("KeyR")) scene.startReview(loser);
-    else if (scene.phaseT > REVIEW_WINDOW + ON_FIELD_TIME || (scene.phaseT > 0.4 && (keys.pressed("Space") || keys.pressed("Enter"))))
+    else if (
+      scene.phaseT > REVIEW_WINDOW + ON_FIELD_TIME ||
+      (scene.phaseT > 0.4 && (keys.pressed("Space") || keys.pressed("Enter")))
+    )
       scene.endDecision();
   } else if (loser === playerSide) {
     if (scene.phaseT > 2.8 || keys.pressed("Space")) scene.endDecision();

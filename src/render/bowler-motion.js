@@ -13,9 +13,12 @@ export function bowlerPose(scene, side) {
     const k = clamp(cur.tRun / cur.runupDur);
     const accel = 0.6 * k + 0.4 * k * k;
     const left = cur.runupDur - cur.tRun;
-    return { x: lane.startX + (lane.bodyX - lane.startX) * k,
+    return {
+      x: lane.startX + (lane.bodyX - lane.startX) * k,
       z: startZ + (19.4 - startZ) * clamp(accel),
-      pose: left < 0.08 ? "release" : left < 0.38 ? "bound" : "run", phase: cur.tRun * (1.6 + 2.2 * k) };
+      pose: left < 0.08 ? "release" : left < 0.38 ? "bound" : "run",
+      phase: cur.tRun * (1.6 + 2.2 * k),
+    };
   }
   const t = cur.t;
   if (cur.done?.rec.wicket && scene.phase !== "flight") return { x: lane.bodyX + 0.35, z: 16.5, pose: "celebrate", phase: 0 };

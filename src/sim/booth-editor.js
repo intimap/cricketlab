@@ -21,15 +21,24 @@ export class BoothEditor {
 
   edit(rec, hpd, names, rng, fits = () => true, context = {}) {
     const primary = this.caller.call(rec, hpd, names, rng, fits);
-    const recap = context.applied?.overEnded && context.commentary
-      ? boothChat(context.commentary, context.inn, rng, { rec, fits, hpd }) : [];
+    const recap =
+      context.applied?.overEnded && context.commentary ? boothChat(context.commentary, context.inn, rng, { rec, fits, hpd }) : [];
     const analysis = this.context(rec, hpd, names, rng, fits, {
-      ...context, lead: primary ? (primary.who + 1) % 3 : rec.over % 3, silent: recap.length > 0,
+      ...context,
+      lead: primary ? (primary.who + 1) % 3 : rec.over % 3,
+      silent: recap.length > 0,
     });
     return { calls: safeBoothCalls([...(primary ? [primary] : []), ...recap, ...analysis.calls.slice(0, 1)], hpd, fits) };
   }
 
-  context(rec, hpd, names, rng, fits = () => true, { inn = null, beforePressure, lead = rec.over % 3, narrative, light, silent = false } = {}) {
+  context(
+    rec,
+    hpd,
+    names,
+    rng,
+    fits = () => true,
+    { inn = null, beforePressure, lead = rec.over % 3, narrative, light, silent = false } = {},
+  ) {
     this.ball++;
     if (inn !== this.innings) {
       this.narrativeKeys.clear();
@@ -59,16 +68,20 @@ export class BoothEditor {
       if (option.key && this.narrativeKeys.has(option.key)) continue;
       if (!story || this.ball - (this.topics.get(option.topic) ?? -Infinity) < story.rest) continue;
       // Closely related story names cannot evade a topic cooldown.
-      const group = option.topic.startsWith("chase") ? "chase" :
-        option.topic.startsWith("dotPressure") ? "dotPressure" : option.topic;
+      const group = option.topic.startsWith("chase")
+        ? "chase"
+        : option.topic.startsWith("dotPressure")
+          ? "dotPressure"
+          : option.topic;
       if (this.ball - (this.topics.get(group) ?? -Infinity) < story.rest) continue;
       if (!option.key && option.topic === this.lastTopic && story.rest > 0) continue;
       const facts = { b: names.batter, w: names.bowler, ...option.facts };
-      const render = text => text.replace(/\{([^}]+)\}/g, (_, key) => String(facts[key] ?? `{${key}}`)).toUpperCase();
+      const render = (text) => text.replace(/\{([^}]+)\}/g, (_, key) => String(facts[key] ?? `{${key}}`)).toUpperCase();
       // The primary voice already called the ball; another adds context when there is something to say.
       for (const who of [duty, (duty + 1) % 3, (duty + 2) % 3]) {
-        const choices = story.lines[who].map(render).filter(text =>
-          !this.recent.includes(boothWords(text)) && safeBoothCalls([{ who, text }], hpd, fits).length);
+        const choices = story.lines[who]
+          .map(render)
+          .filter((text) => !this.recent.includes(boothWords(text)) && safeBoothCalls([{ who, text }], hpd, fits).length);
         if (!choices.length) continue;
         const text = choices[Math.min(choices.length - 1, Math.floor(rng.random() * choices.length))];
         const calls = [{ who, text, topic: option.topic }];

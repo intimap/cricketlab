@@ -165,7 +165,7 @@ export function completeBall(scene) {
   scene.commentary = done.rec.call ?? "";
   scene.commT = 0;
   const { calls } = scene.callFromBooth(done);
-  beats.onResult(scene, calls);
+  beats.onResult(scene, calls, done.rec);
   const wicket = done.rec.wicket;
   if (wicket) {
     playBroadcast("wicket");

@@ -1,7 +1,7 @@
 import { scheduleCalls, callDuration, fitsBox } from "../render/booth.js";
 import { GROUNDS } from "../render/grounds.js";
 import { TRACKING_TIME } from "../render/match-broadcast.js";
-import { setupCall, deliveryCall, overIntroCall, fieldCall } from "../sim/booth-beats.js";
+import { setupCall, deliveryCall, shotCall, outcomeCall, overIntroCall, fieldCall } from "../sim/booth-beats.js";
 import { venueCall } from "../sim/booth-venue-lines.js";
 import { onFieldCall, reviewCall, trackingCall, verdictCall } from "../sim/booth-drs-lines.js";
 import { activeWicketSide } from "./bowling-side.js";
@@ -102,12 +102,12 @@ export function onRunup(scene) {
   scene.booth = [beats.running];
 }
 
-/** The ball reaches the bat: what was bowled, carried on from the setup. */
+/** The ball reaches the bat: what was bowled and what he did with it, carried on from the setup. */
 export function onContact(scene) {
   if (!live(scene) || !scene.cur?.delivery) return;
   const beats = state(scene);
   const d = scene.cur.delivery;
-  const text = deliveryCall(
+  const delivery = deliveryCall(
     {
       type: scene.cur.intent.type,
       pitchZ: d.pitchedAt?.z ?? 0,
@@ -116,7 +116,25 @@ export function onContact(scene) {
     },
     pick,
   );
-  grow(scene, beats, lead(scene), text, true);
+  // The stroke, called as he plays it; where it ends up comes when the ball is dead.
+  const res = scene.cur.play?.res;
+  const shot = res
+    ? shotCall(
+        {
+          shot: scene.cur.play.shot.type,
+          contact: res.contact.kind,
+          shotName: res.contact.shotName,
+          touched: res.touchedBat,
+          padHit: res.padHit,
+          exit: res.contact.exit,
+        },
+        pick,
+      )
+    : "";
+  beats.shotSaid = !!shot;
+  grow(scene, beats, lead(scene), shot ? `${delivery} ${shot}` : delivery, true);
+  // Too long for the box with the setup: the shot alone carries on.
+  if (shot && !beats.running.text.endsWith(shot)) grow(scene, beats, lead(scene), shot, true);
 }
 
 /** Add `text` to the open sentence (or start one), keeping it open if more is coming. */
@@ -150,9 +168,31 @@ function close(scene, beats) {
  * The ball is done: the box's calls for it (booth-editor.js). The first, the lead voice's result, finishes
  * the open sentence; the rest follow it.
  */
-export function onResult(scene, calls) {
+export function onResult(scene, calls, rec) {
   const beats = state(scene);
   const [first, ...rest] = calls;
+  // The shot was called as it was played: finish the sentence with how it ended, if the box's own
+  // call for the ball isn't needed.
+  const outcome = beats.shotSaid && beats.running && first?.who === beats.running.who ? outcomeCall(rec, pick) : null;
+  beats.shotSaid = false;
+  if (outcome !== null) {
+    if (outcome) grow(scene, beats, first.who, outcome, false);
+    else {
+      const call = beats.running;
+      beats.running = {
+        ...call,
+        text: call.text.replace(/ --$/, "."),
+        from: call.text.length,
+        cont: true,
+        open: false,
+        t0: scene.now,
+      };
+      scene.booth = [beats.running];
+    }
+    beats.running = null;
+    queue(scene, rest);
+    return;
+  }
   if (first && beats.running && first.who === beats.running.who) {
     grow(scene, beats, first.who, first.text, false);
     beats.running = null;

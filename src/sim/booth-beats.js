@@ -1,5 +1,6 @@
 import { lengthName, lineName } from "./delivery.js";
 import { readField } from "./field-reading.js";
+import { shotArea } from "./describe.js";
 
 /**
  * The box's calls around the ball itself, in the broadcast's rhythm: the start of the over (the
@@ -78,6 +79,78 @@ export function deliveryCall(d, pick) {
   if (d.type !== "bouncer" || !parts.length) parts.push(pick((d.spin ? SPIN_LENGTH : LENGTH)[length]));
   parts.push(pick(LINE[lineName(d.line)]));
   return parts.join(", ") + " --";
+}
+
+// --- The shot: called the moment he plays it, before anyone knows where it ends up. ---
+
+/** The stroke's verb, from its name (batting.js shotName). */
+const VERB = [
+  [/sweep/, "SWEPT"],
+  [/ramp|scoop/, "RAMPED"],
+  [/hook/, "HOOKED"],
+  [/pull|slog/, "PULLED"],
+  [/cut/, "CUT"],
+  [/glance|clip/, "CLIPPED"],
+  [/punch|back-foot drive/, "PUNCHED"],
+  [/drive/, "DRIVEN"],
+];
+const EDGE = {
+  thinEdge: ["EDGED", "THERE'S AN EDGE", "OFF THE OUTSIDE EDGE"],
+  thickEdge: ["THICK EDGE", "EDGED, AND HARD", "OFF THE EDGE"],
+  insideEdge: ["INSIDE EDGE", "GETS AN INSIDE EDGE"],
+  padPop: ["BAT AND PAD", "INSIDE EDGE ONTO THE PAD"],
+  topEdge: ["TOP EDGE, UP IT GOES", "SKIED OFF THE TOP EDGE"],
+  bottomEdge: ["BOTTOM EDGE", "DRAGGED DOWN OFF THE BOTTOM EDGE"],
+  gloved: ["OFF THE GLOVE", "GLOVED"],
+};
+const NO_BAT = {
+  leave: ["LEFT ALONE", "SHOULDERS ARMS", "LEAVES IT"],
+  pad: ["STRUCK ON THE PAD", "RAPPED ON THE PADS", "HIT ON THE PAD"],
+  miss: ["PLAYS AND MISSES", "SWINGS AND MISSES", "BEATEN"],
+};
+const BLOCK = ["BLOCKED", "DEFENDED", "SOLID IN DEFENCE", "DEAD BAT"];
+
+/**
+ * The stroke as he plays it: { shot, contact, shotName, touched, padHit, exit } (batting.js's result).
+ * Ends in "--": the outcome follows once the ball is dead (outcomeCall).
+ */
+export function shotCall(b, pick) {
+  if (!b.touched) {
+    if (b.padHit) return `${pick(NO_BAT.pad)} --`;
+    return `${pick(b.shot === "leave" ? NO_BAT.leave : NO_BAT.miss)} --`;
+  }
+  if (EDGE[b.contact]) return `${pick(EDGE[b.contact])} --`;
+  if (b.shot === "defend" || /defence/.test(b.shotName ?? "")) return `${pick(BLOCK)} --`;
+  const verb = VERB.find(([re]) => re.test(b.shotName ?? ""))?.[1] ?? "STRUCK";
+  const far = b.exit ? Math.hypot(b.exit.x, b.exit.z) > 18 : false;
+  const where = b.exit && Math.hypot(b.exit.x, b.exit.z) > 0 ? shotArea(b.exit, far).words[0] : "";
+  const air = b.exit && b.exit.y > 6 ? ", IN THE AIR" : "";
+  return `${verb}${where ? `, ${where}` : ""}${air} --`.toUpperCase();
+}
+
+const OUTCOME = {
+  six: ["SIX!", "THAT'S GONE ALL THE WAY. SIX!", "OUT OF HERE! SIX!"],
+  four: ["FOUR!", "RACES AWAY. FOUR!", "ALL THE WAY FOR FOUR!"],
+  1: ["ONE.", "THEY TAKE A SINGLE.", "A QUICK SINGLE."],
+  2: ["THEY COME BACK FOR TWO.", "TWO RUNS.", "THEY RUN TWO."],
+  3: ["THREE RUNS.", "THEY RUN THREE.", "ALL THE WAY BACK FOR THREE."],
+  fielded: ["STRAIGHT TO THE FIELDER. NO RUN.", "FIELDED. NO RUN.", "WELL STOPPED. NO RUN."],
+};
+
+/**
+ * How the ball played (already called) ended, briefly: "FOUR!", "THEY RUN TWO." "" when the shot call
+ * already said it all (a leave, a block, a miss for no run); null when the box's own call for the
+ * ball is needed instead (wickets, drops, extras, run-out chances and the unusual).
+ */
+export function outcomeCall(rec, pick) {
+  if (rec.wicket || rec.dropped || rec.extra?.type || rec.nearRunout || rec.moment?.kind === "winningRuns") return null;
+  const bat = rec.boundary && rec.runsBat === rec.boundary;
+  if (bat) return pick(rec.boundary === 6 ? OUTCOME.six : OUTCOME.four);
+  if (rec.boundary) return null;
+  if (rec.total > 3) return null;
+  if (rec.total > 0) return pick(OUTCOME[rec.total]);
+  if (rec.contact === "middle" && rec.shot !== "defend" && rec.shot !== "leave") return pick(OUTCOME.fielded);
+  return "";
 }
 
 // --- The start of the over. ---

@@ -2,8 +2,12 @@ import { BROADCAST_STORIES } from "./broadcast-context.js";
 import { boothChat, CHAT_TOPICS } from "./booth-chat.js";
 import { BoothCaller } from "./booth-caller.js";
 import { BOOTH_STORIES } from "./booth-stories.js";
+import { MOMENT_STORIES } from "./booth-moment-lines.js";
 import { boothContext } from "./booth-context.js";
 import { boothWords, safeBoothCalls } from "./booth-policy.js";
+
+/** Moments of the over itself: said as the over ends, before the recap (which otherwise keeps the second voice quiet). */
+const OVER_MOMENTS = new Set(["maiden", "maidenAgain", "bigOver", "tightSpell", "equation"]);
 
 /** A match's booth has its own topic and line memory, separate from the cricket RNG. */
 export class BoothEditor {
@@ -23,12 +27,16 @@ export class BoothEditor {
     const primary = this.caller.call(rec, hpd, names, rng, fits);
     const recap =
       context.applied?.overEnded && context.commentary ? boothChat(context.commentary, context.inn, rng, { rec, fits, hpd }) : [];
+    const overMoment = recap.length > 0 && OVER_MOMENTS.has(rec.moment?.kind) ? rec.moment.kind : null;
     const analysis = this.context(rec, hpd, names, rng, fits, {
       ...context,
       lead: primary ? (primary.who + 1) % 3 : rec.over % 3,
-      silent: recap.length > 0,
+      silent: recap.length > 0 && !overMoment,
+      only: overMoment,
     });
-    return { calls: safeBoothCalls([...(primary ? [primary] : []), ...recap, ...analysis.calls.slice(0, 1)], hpd, fits) };
+    const extra = analysis.calls.slice(0, 1);
+    const calls = overMoment ? [...extra, ...recap] : [...recap, ...extra];
+    return { calls: safeBoothCalls([...(primary ? [primary] : []), ...calls], hpd, fits) };
   }
 
   context(
@@ -37,7 +45,7 @@ export class BoothEditor {
     names,
     rng,
     fits = () => true,
-    { inn = null, beforePressure, lead = rec.over % 3, narrative, light, silent = false } = {},
+    { inn = null, beforePressure, lead = rec.over % 3, narrative, light, silent = false, only = null } = {},
   ) {
     this.ball++;
     if (inn !== this.innings) {
@@ -63,8 +71,12 @@ export class BoothEditor {
     if (silent) return { calls: [] };
     const duty = lead;
     const options = boothContext(rec, inn, this, beforePressure, { narrative, light });
-    for (const option of options) {
-      const story = CHAT_TOPICS[option.topic] ?? BROADCAST_STORIES[option.topic] ?? BOOTH_STORIES[option.topic];
+    for (const option of only ? options.filter((o) => o.topic === only) : options) {
+      const story =
+        CHAT_TOPICS[option.topic] ??
+        BROADCAST_STORIES[option.topic] ??
+        BOOTH_STORIES[option.topic] ??
+        MOMENT_STORIES[option.topic];
       if (option.key && this.narrativeKeys.has(option.key)) continue;
       if (!story || this.ball - (this.topics.get(option.topic) ?? -Infinity) < story.rest) continue;
       // Closely related story names cannot evade a topic cooldown.

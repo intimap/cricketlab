@@ -5,7 +5,8 @@
  * ball is added, and keeps a little memory of its own. Deterministic, so it
  * never disturbs the match's dice.
  *
- * Returns { kind, n, k } (the numbers worth quoting) or null.
+ * Returns { kind, n, k } (the numbers worth quoting), with `also` (another such moment) for a wicket
+ * that is more than one thing, or null.
  */
 /** Movement worth a comment (metres), and pace (km/h). A jaffa needs less, as long as it beats the bat. */
 const BIG_SWING = 0.6;
@@ -68,22 +69,26 @@ export class MomentTracker {
     const runsAfter = batter.runs + (rec.wicket && rec.wicket.batter !== rec.striker ? 0 : rec.runsBat);
 
     if (rec.wicket) {
-      if (s.bowlerWicket && s.last.length === 2 && s.last[0] && s.last[1]) return m("hatTrick");
-      if (s.bowlerWicket && s.last[s.last.length - 1]) return m("twoInTwo");
-      if (s.bowlerWicket && s.bowler.wkts === 4) return m("fiveFor");
-      if (runsAfter >= 90 && runsAfter < 100) return m("outInNineties", runsAfter);
-      if (runsAfter === 0 && batter.balls === 0) return m("goldenDuck");
-      if (runsAfter === 0 && batter.balls >= 20) return m("longDuck", batter.balls + 1);
-      if (runsAfter === 0) return m("duck");
-      // A collapse: three or more wickets inside 25 runs. n = runs since the first of them, k = wickets.
+      // In order of importance; the first is the moment, the next (if any) is kept as `also` so the
+      // box can mention it too (a five-for that also completes a collapse).
+      const found = [];
       const score = inn.runs + rec.total;
+      // A collapse: three or more wickets inside 25 runs. n = runs since the first of them, k = wickets.
       const falls = inn.fow.filter((f) => score - f.score <= 25);
-      if (falls.length >= 2) return m("collapse", score - falls[0].score, falls.length + 1);
       const stand = inn.partnership.runs + rec.total;
-      if (stand >= 50) return m("standBroken", stand);
-      if (runsAfter >= 50) return m("bigKnockEnds", runsAfter);
-      if (s.bowlerWicket && s.bowler.wkts === 2) return m("bowlerThird");
-      return null;
+      if (s.bowlerWicket && s.last.length === 2 && s.last[0] && s.last[1]) found.push(m("hatTrick"));
+      if (s.bowlerWicket && s.last[s.last.length - 1]) found.push(m("twoInTwo"));
+      if (s.bowlerWicket && s.bowler.wkts === 4) found.push(m("fiveFor"));
+      if (runsAfter >= 90 && runsAfter < 100) found.push(m("outInNineties", runsAfter));
+      if (runsAfter === 0 && batter.balls === 0) found.push(m("goldenDuck"));
+      else if (runsAfter === 0 && batter.balls >= 20) found.push(m("longDuck", batter.balls + 1));
+      else if (runsAfter === 0) found.push(m("duck"));
+      if (falls.length >= 2) found.push(m("collapse", score - falls[0].score, falls.length + 1));
+      if (stand >= 50) found.push(m("standBroken", stand));
+      if (runsAfter >= 50) found.push(m("bigKnockEnds", runsAfter));
+      if (s.bowlerWicket && s.bowler.wkts === 2) found.push(m("bowlerThird"));
+      if (!found.length) return null;
+      return found[1] ? { ...found[0], also: found[1] } : found[0];
     }
     const scoreAfter = inn.runs + rec.total;
     if (inn.target !== null && scoreAfter >= inn.target) return m("winningRuns");

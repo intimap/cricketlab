@@ -89,6 +89,17 @@ export function moveRunners(live, dt) {
   }
 }
 
+/** Seconds until a thrown ball could be at `end`: a relay adds the catcher's turn and his throw on. */
+function throwBack(live, end) {
+  const th = live.ball.throwing;
+  if (th.relayTo === undefined) return th.end === end ? th.t1 - live.t : Infinity;
+  const r = live.fielders[th.relayTo].pos;
+  return th.t1 - live.t + RELAY_BACK + Math.hypot(r.x - ENDS[end].x, r.z - ENDS[end].z) / AI_THROW_SPEED;
+}
+/** What the batters reckon a throw takes: flight speed (m/s), and a relay catcher's gather and turn (s). */
+const AI_THROW_SPEED = 24;
+const RELAY_BACK = 0.7;
+
 /** Computer-controlled running: go if the run beats the ball, turn back if it won't. */
 export function aiRun(live) {
   if (live.dead || live.wicket || live.boundary) return;
@@ -98,8 +109,14 @@ export function aiRun(live) {
     const r = live.runners[0];
     const done = r.target === 1 ? r.progress : 1 - r.progress;
     if (done < 0.4 && b.throwing) {
-      const end = b.throwing.end;
-      if (Math.min(...live.runners.map((x) => live.runnerTimeTo(x, end))) > b.throwing.t1 - live.t + 0.5) live.recall();
+      // A relay could go on to either end: turn back if either is lost.
+      const ends = b.throwing.relayTo !== undefined ? [0, 1] : [b.throwing.end];
+      for (const end of ends) {
+        if (Math.min(...live.runners.map((x) => live.runnerTimeTo(x, end))) > throwBack(live, end) + 0.5) {
+          live.recall();
+          break;
+        }
+      }
     }
     return;
   }
@@ -110,7 +127,7 @@ export function aiRun(live) {
   const throwSpeed = 24;
   const returnTime = (pos, delay) =>
     Math.min(...[0, 1].map((e) => delay + 0.22 + Math.hypot(pos.x - ENDS[e].x, pos.z - ENDS[e].z) / throwSpeed + 0.18));
-  if (b.throwing) ballBack = b.throwing.t1 - live.t;
+  if (b.throwing) ballBack = Math.min(throwBack(live, 0), throwBack(live, 1));
   else if (b.held >= 0) ballBack = returnTime(live.fielders[b.held].pos, Math.max(0, live.pickupAt - live.t));
   else if (live.plan) ballBack = returnTime({ x: live.plan.point.x, z: live.plan.point.z }, live.plan.t - live.t + 0.35);
 

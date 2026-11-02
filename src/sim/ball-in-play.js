@@ -256,7 +256,10 @@ export class BallInPlay {
       b.pos.x = th.from.x + (th.to.x - th.from.x) * k;
       b.pos.z = th.from.z + (th.to.z - th.from.z) * k;
       b.pos.y = th.from.y + (th.to.y - th.from.y) * k + Math.sin(k * Math.PI) * Math.min(6, (th.t1 - th.t0) * 3.2);
-      if (k >= 1) this.arriveAtEnd(th.end, th.fielder);
+      if (k >= 1) {
+        if (th.relayTo !== undefined) fielderThrow.arriveAtFielder(this, this.fielders[th.relayTo]);
+        else this.arriveAtEnd(th.end, th.fielder);
+      }
     } else if (b.held < 0) {
       const wasBounced = b.bounced;
       stepBall(b, dt, this.setup.outfield);
@@ -332,6 +335,8 @@ export class BallInPlay {
       wasSet: !!f.wasSet,
       offBalance: !!f.dived,
     });
+    f.relayed = false;
+    if (th.relayTo !== undefined) return fielderThrow.relayThrow(this, f, th);
     const { end, shy } = th;
     this.ball.throwing = {
       from: { x: f.pos.x, y: 1.6, z: f.pos.z },

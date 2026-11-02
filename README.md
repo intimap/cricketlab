@@ -125,7 +125,7 @@ src/
     fielder-motion.js how fielders move: accelerating, turning, easing up, set, dive/get up, walking in
     fielder-ai.js     who chases the ball, who cuts it off, who covers the stumps
     fielder-catch.js  catches, stops and fumbles when the fielder gets to the ball
-    fielder-throw.js  release time, which end to throw to, shies, wild throws; the throw arriving (run-outs)
+    fielder-throw.js  release time, stumps or back to the bowler (relayed from the deep), shies, wild throws; the throw arriving (run-outs)
     field.js          field presets and position names
     ai.js             computer bowler, field, delivery and shot choices
     innings.js        scorebook, cards, strike, bowler fatigue

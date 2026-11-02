@@ -18,8 +18,10 @@ const RELEASE_MOVING = 0.3;
 export const CROW_HOP_FROM = 30;
 /** Arc and gather time on top of the flight (s). */
 const THROW_EXTRA = 0.18;
-/** With no run on, or no chance of one, a throw's margin (s) worse than this goes to the safe end. */
-const NO_CHANCE = -0.25;
+/** A batter within this (s) of being run out gets a throw at the stumps; otherwise the ball goes back to the bowler. */
+const NO_CHANCE = -1;
+/** A relay catcher gathers and turns to throw on in this (s). */
+const RELAY_TURN = 0.3;
 
 /** Seconds from reaching the ball to having it in hand, ready to throw. */
 export function gatherDelay(dived) {
@@ -63,7 +65,18 @@ export function planThrow(f, ctx) {
     }
   }
   const chance = ctx.running && margin > NO_CHANCE;
-  if (!chance) end = 0;
+  // No run-out on: back to the bowler's end. From the deep it goes through the nearest fielder first,
+  // if he's closer than the stumps.
+  if (!chance) {
+    end = 1;
+    const deep = f.role === "field" && !f.relayed && dists[1] > CROW_HOP_FROM;
+    const relay = deep ? relayCatcher(f, ctx.fielders, dists[1]) : null;
+    if (relay) {
+      const dist = Math.hypot(f.pos.x - relay.pos.x, f.pos.z - relay.pos.z);
+      const t0 = t + (ctx.wasSet ? RELEASE_SET : RELEASE_MOVING) + (dist > CROW_HOP_FROM ? CROW_HOP_TIME : 0);
+      return { relayTo: relay.idx, end: null, t0, hop: dist > CROW_HOP_FROM, arriveAt: t0 + dist / speed + THROW_EXTRA, dist };
+    }
+  }
   // Keeper and bowler don't throw to their own end.
   if ((end === 0 && f.role === "keeper") || (end === 1 && f.role === "bowler")) end = end === 0 ? 1 : 0;
 
@@ -90,7 +103,57 @@ export function planThrow(f, ctx) {
   };
 }
 
+const BUSY = new Set(["dive", "down", "getUp", "crowHop", "throw"]);
+
+/** The nearest fielder on his feet who's closer to `f` than the bowler's stumps (`toStumps` m), or null. */
+function relayCatcher(f, fielders, toStumps) {
+  let best = null;
+  let gap = toStumps;
+  for (const x of fielders) {
+    // On his feet, and not the one backing up at the stumps.
+    if (x.idx === f.idx || x.role !== "field" || x.job === "cover" || BUSY.has(x.state)) continue;
+    const d = Math.hypot(x.pos.x - f.pos.x, x.pos.z - f.pos.z);
+    if (d < gap) {
+      gap = d;
+      best = x;
+    }
+  }
+  return best;
+}
+
+/** No run-out on: a flat throw to the nearest fielder, who stops to take it and throws on to the bowler. */
+export function relayThrow(live, f, th) {
+  const r = live.fielders[th.relayTo];
+  r.target = { x: r.pos.x, z: r.pos.z };
+  setState(r, "hold", live.t);
+  live.ball.throwing = {
+    from: { x: f.pos.x, y: 1.6, z: f.pos.z },
+    to: { x: r.pos.x, y: 1.3, z: r.pos.z },
+    t0: th.t0,
+    t1: th.arriveAt - 0.12,
+    end: null,
+    relayTo: r.idx,
+    fielder: f.idx,
+    dist: th.dist,
+  };
+  live.ball.held = -1;
+  f.dived = false;
+  setState(f, th.hop ? "crowHop" : "throw", live.t);
+  live.emit("throw", { fielder: f.idx, end: null, text: "" });
+}
+
 // --- The throw arrives: a run-out, a gather at the stumps, or one that runs on (ball-in-play.js calls these) ---
+
+/** A relay reaches the fielder it was thrown to: he gathers and turns to throw on (see planThrow). */
+export function arriveAtFielder(live, receiver) {
+  live.ball.throwing = null;
+  live.ball.held = receiver.idx;
+  live.ball.atEnd = null;
+  live.ball.vel = { x: 0, y: 0, z: 0 };
+  receiver.relayed = true;
+  live.pickupAt = live.t + RELAY_TURN;
+  live.emit("gather", { fielder: receiver.idx });
+}
 
 export function arriveAtEnd(live, end, thrower) {
   const th = live.ball.throwing;

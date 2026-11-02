@@ -10,7 +10,7 @@ import { planRunup, releaseError } from "../sim/runup.js";
 import { CONTACT_Z_FRONT, SWING_TIME } from "../sim/batting.js";
 import { eyeMultiplier } from "../sim/eye.js";
 import { pickSledges, pickChirp } from "../sim/field-chatter.js";
-import { scheduleCalls } from "../render/booth.js";
+import * as beats from "./booth-beats.js";
 import { onBallDone } from "./match-feedback.js";
 import { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
 
@@ -21,9 +21,9 @@ import { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
  * same names call these.
  */
 
-/** How long the scene lingers after a wicket. */
 /** The pitch is redrawn each time its wear moves on by 1/GROUND_WEAR_STEPS. */
 export const GROUND_WEAR_STEPS = 40;
+/** How long the scene lingers after a wicket. */
 const WICKET_PAUSE = 6.5;
 const MAX_SLEDGES = 3;
 const SLEDGE_GAP = 1.5;
@@ -60,6 +60,7 @@ export function nextBall(scene) {
     scene.cur = null;
     scene.setPhase("setup");
   }
+  beats.onNextBall(scene);
 }
 
 export function newBall(scene, intent, aiReleaseError) {
@@ -164,7 +165,7 @@ export function completeBall(scene) {
   scene.commentary = done.rec.call ?? "";
   scene.commT = 0;
   const { calls } = scene.callFromBooth(done);
-  scene.booth = scheduleCalls(calls, scene.now + 0.2);
+  beats.onResult(scene, calls, done.rec);
   const wicket = done.rec.wicket;
   if (wicket) {
     playBroadcast("wicket");

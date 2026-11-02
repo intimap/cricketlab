@@ -1,4 +1,5 @@
 import { playBroadcast } from "./match-audio.js";
+import * as beats from "./booth-beats.js";
 import { ON_FIELD_TIME } from "../render/match-broadcast.js";
 import { COLORS } from "../engine/screen.js";
 import { keys } from "../engine/input.js";
@@ -36,6 +37,7 @@ export function decideLbw(scene) {
   const out = scene.match.umpireLbw(cur.play);
   if (scene.human === "bowl" && !res.lbw && res.lbwNote !== "umpire's call, not out") scene.inn.irritation += 1;
   cur.onField = out;
+  beats.onDecision(scene, out);
   // The broadcast overlay presents the on-field decision.
   if (out) sfx.cheer(0.8);
   else sfx.groan();
@@ -78,6 +80,7 @@ export function startReview(scene, side) {
   cur.reviewAudioStage = 0;
   playBroadcast("review");
   cur.tracking = scene.match.tracking(cur.play);
+  beats.onReview(scene, side);
   // Tracking and verdict are drawn in sequence, without overlapping banners.
   scene.setPhase("review");
 }
@@ -91,6 +94,7 @@ export function endReview(scene) {
   const won = cur.reviewBy === "bat" ? !out : out;
   // Umpire's call: the on-field decision stands and the review is kept.
   if (!won && t.verdict !== "umpiresCall") scene.inn.reviews[cur.reviewBy]--;
+  beats.onVerdict(scene, { onField: cur.onField, out, verdict: t.verdict });
   cur.onField = out;
   scene.endDecision();
 }

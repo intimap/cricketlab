@@ -1,6 +1,7 @@
 import { updateStrikePresentation } from "./strike-presentation.js";
 import { playContact, playBroadcast } from "./match-audio.js";
 import { COLORS } from "../engine/screen.js";
+import * as beats from "./booth-beats.js";
 import { keys } from "../engine/input.js";
 import { sfx } from "../engine/audio.js";
 import { PITCH_LENGTH } from "../sim/geometry.js";
@@ -35,6 +36,7 @@ export function updateFlight(scene, dt) {
 
   if (!cur.contactDone && cur.t >= res.start.t) {
     cur.contactDone = true;
+    beats.onContact(scene);
     onContact(scene.juice, scene.now, res, play.shot, scene.human === "bat");
     const kind = res.contact.kind;
     if (res.touchedBat) {

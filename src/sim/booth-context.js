@@ -1,4 +1,5 @@
 import { broadcastContext } from "./broadcast-context.js";
+import { MOMENT_PRIORITY } from "./booth-moment-lines.js";
 
 /** Read-only, post-ball context. rec.striker stays correct even when the strike has changed. */
 export function boothContext(rec, inn, memory, beforePressure, { narrative, light } = {}) {
@@ -27,6 +28,15 @@ export function boothContext(rec, inn, memory, beforePressure, { narrative, ligh
     "nearRunout",
   ]);
   if (moments.has(rec.moment?.kind)) add(rec.moment.kind, rec.moment.kind === "collapse" ? 110 : 100);
+  // The rest of the moments (moments.js), and a second one a wicket was as well, a little lower.
+  for (const [moment, drop] of [
+    [rec.moment, 0],
+    [rec.moment?.also, 12],
+  ]) {
+    if (!moment) continue;
+    if (MOMENT_PRIORITY[moment.kind]) add(moment.kind, MOMENT_PRIORITY[moment.kind] - drop, { n: moment.n, k: moment.k });
+    else if (drop && moments.has(moment.kind)) add(moment.kind, 100 - drop);
+  }
   if (rec.wicket && inn && !inn.isOver) add("wicket", 80);
   const validDrop = rec.dropped && !rec.freeHit && rec.extra?.type !== "nb";
   if (validDrop) add("drop", 90);

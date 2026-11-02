@@ -148,6 +148,11 @@ src/
     booth-stories.js  personality-specific analysis, reactions and banter
     booth-chat.js     between-balls chat topics for the box
     booth-policy.js   final HPD duplication and booth line validation
+    booth-beats.js    the ball's beats: start of the over, the setup as he runs in, the delivery at the bat
+    booth-moment-lines.js  lines for moments.js's ducks, maidens, big overs, jaffas, the equation...
+    booth-drs-lines.js  the LBW decision and the review in stages: given, reviewed, tracking, verdict
+    booth-venue-lines.js  scene-setting: each ground, and the pitch report at the start
+    field-reading.js  what the field says about the plan (slips, bat-pad, boundary riders, the ring)
     broadcast-context.js  broadcast pressure and tactics stories from the ball and the narrative
     broadcast-lines.js  each voice's broadcast and colour lines
     field-chatter.js  fielders' send-offs and chirps
@@ -203,6 +208,7 @@ src/
     strike-presentation.js  full-pace launch after contact and the close-to-wide broadcast cut
     celebrations.js   skipping a wicket's or boundary's celebration
     broadcast-commentary.js  the box's call for each ball
+    booth-beats.js    when the box speaks: before the over, as he runs in, at the bat, the result, the review
     bowling-side.js   per-bowler side selection and setup controls
     batter-pose.js    the striker's pose through a ball: stance, trigger, backlift, strokes, follow-throughs
     batter-stroke.js  presentation-only selection and the existing attack/block/leave clocks
@@ -268,9 +274,12 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **Tests:** `npm test` runs every `tools/*.test.mjs` (node's built-in runner; no packages needed).
 - **Balance checks:** `node tools/sim-report.mjs [innings] [pitch]` simulates AI-vs-AI innings and prints
   run rates, dismissals, plan figures and commentary moments.
-- **Commentary:** `sim/call.js` owns the factual HUD play description (HPD). The booth (BC) is selected
+- **Commentary:** each ball is called in beats: the start of the over and the setup before it, the delivery
+  as it reaches the bat, the result joined on as one sentence, then the second voice's reset (timed by
+  `scenes/booth-beats.js`, worded in `sim/booth-beats.js`, `booth-venue-lines.js`, `booth-drs-lines.js` and
+  `field-reading.js`). `sim/call.js` owns the factual HUD play description (HPD). The booth (BC) is selected
   by `sim/booth-editor.js`: every ball gets a primary call from `sim/booth-caller.js`, using the established
-  328-line ball-call bank and 318 additional voice-specific lines in `sim/booth-*-lines.js`. A second voice
+  328-line ball-call bank and 354 additional voice-specific lines in `sim/booth-*-lines.js`. A second voice
   can add analysis from read-only situations in `sim/booth-context.js` and personality-specific stories in
   `sim/booth-stories.js`. Wording and topic memory avoid recent repetition; when a primary pool is exhausted,
   the least recently used safe line is allowed back. HPD text is never used as a fallback.

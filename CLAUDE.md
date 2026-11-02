@@ -17,7 +17,22 @@ section instead of exploring the tree. Keep it up to date when you add or move a
 - Prettier with `printWidth: 130`. Match the surrounding comment style: short plain-English comments explaining why.
 - Don't add dependencies or a build step.
 
+## Usage estimate (before starting)
+Before changing anything, give one line: **Low / Medium / High**, and what drives it (files to read, checks
+to run). For **High**, wait for my go-ahead.
+- **Low:** one or two modules found from the code map, a small edit (a constant, text, colour, a single rule);
+  `node --check` only.
+- **Medium:** one feature in one area (3–6 files), or one round of balance tuning with `sim-report`, or a visual
+  change checked with one or two screenshots; plus the play-test build.
+- **High:** work across `sim/`, `render/` and `scenes/`, new art, refactors, tuning towards several targets,
+  outside packs, or anything needing browser play-throughs, seeded replays or debugging scripts.
+
+Keep it low: go straight to the module the code map names; prefer `npm test` and `sim-report` over the
+browser; take screenshots only for visual changes or when I ask; stop tuning at the first result inside the
+targets. If I say "syntax only", "no browser" or "no test build", do just that.
+
 ## Checking a change
+- **Tests:** `npm test` runs every `tools/*.test.mjs`.
 - **Balance or sim changes:** run `node tools/sim-report.mjs` before and after, and quote the AI-vs-AI runs per
   over (e.g. "4.59 -> 4.33 rpo") in the commit.
 - **Syntax:** `node --check <file>` on the files you touched.

@@ -28,6 +28,10 @@ from me narrows the checks to exactly that.
 - **The dice:** anything that affects the result uses the match's `Rng` (`sim/rng.js`). `Math.random()` is for
   presentation only (commentary picks, effects, sound). `moments.js` stays deterministic.
 - Units are metres, with the striker's stumps at the origin and `z = 20.12` at the bowler's end (`sim/geometry.js`).
+- **Player actions:** every player decision that can change the match (a shot, a release, a review, a field
+  change) is a plain message sent through `act()` in `scenes/player-actions.js`, never a direct call, so replays,
+  tests and a later network layer carry the same messages. Held controls (footwork, aftertouch, aiming) are read
+  where they're used; what they set travels in the action that commits them.
 
 ## Modules
 - Target 250–400 lines per file.

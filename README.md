@@ -117,10 +117,13 @@ src/
     bat-impact.js     blade contact coordinates, toe/splice rebound and continuous edge deflection
     shot-timing.js    shared normal/power backlift durations for input and animation
     batting.js        the shot: timing, where the bat goes, edges, LBW, bowled
+    shot-choice.js    which shot suits which ball: front or back foot, the back-foot shot
+    shot-direction.js where a shot goes and what it's called, finding the gap
     describe.js       where a shot went, as commentators say it, and its scoring zone
     eye.js            every batter's eye: built by well-timed shots, dented by misses and edges
     plans.js          the battle with the bowler: hidden weaknesses, memory of recent balls
     ball-in-play.js   after the shot: the ball's flight, who fields it, boundaries, the outcome
+    ball-roll.js      a free ball in the air and along the ground: drag, bounce, friction
     running.js        the batters' running: calling and abandoning runs, who's at risk, the computer's calls
     fielder-motion.js how fielders move: accelerating, turning, easing up, set, dive/get up, walking in
     fielder-ai.js     who chases the ball, who cuts it off, who covers the stumps
@@ -163,11 +166,14 @@ src/
     stadium-camera.js the MCG stadium image's measured wide projection
     grounds.js        grounds as data: stripe layout, colours, pitch looks, which paintings to use
     ground.js         the layer compositor: builds each view's background from a ground's data
+    ground-paint.js   the compositor's kit: pitch sizes, colour helpers, noise, scenery layers, cracks
     stadium-ground.js a ground built round a stadium image (the MCG's wide view)
     light.js          times of day: tint, sky glow, stand shadows, shadow length
     sprites.js        the ball and its shadow; re-exports kit.js, batter/batter-rig.js and figures.js
     kit.js            kit colours, a player's looks (skin, hair, beard, height), mirroring, shadows
-    figures.js        everyone else: bowler, keeper, fielders, umpires, runners, close up and tiny
+    figures.js        everyone else close up: bowler, keeper, fielders, umpires, runners
+    figure-poses.js   where a close figure's feet and hands go for each pose
+    tiny-figures.js   the wide view's tiny figures, and the pose a fielder's state shows
     bowler-motion.js  run-up and follow-through on the chosen side
     batter/           the striker
       batter-rig.js     pixel-art striker drawing; re-exports poses and the projected rig for older callers
@@ -197,7 +203,9 @@ src/
     booth.js          commentator portraits and the commentary popup
   scenes/
     menu.js           title screen
-    match.js          the match scene: state, the phase loop, camera, banners
+    match.js          the match scene: state, phases, camera, banners
+    match-update.js   one frame of the match scene: pause and camera keys, then the phase's update
+    player-actions.js every player decision as a message (swing, bowl, review...): the one way input changes the match
     match-ball.js     a ball's life: next ball, release, dead ball, completing it, the walk back, simulating
     match-flight.js   the ball in flight: contact, the ball in play, its events, run calls
     match-setup.js    between balls: bowling setup, choosing a bowler, field editing
@@ -213,6 +221,8 @@ src/
     batter-pose.js    the striker's pose through a ball: stance, trigger, backlift, strokes, follow-throughs
     batter-stroke.js  presentation-only selection and the existing attack/block/leave clocks
     match-view.js     drawing for the match scene: the close and wide views
+    match-wide.js     the wide view: the whole ground with everyone as small figures
+    match-positions.js where the non-striker and bowler are, shared by both views
     match-striker.js  where the striker is drawn, and the blade onto the ball at contact
     match-panels.js   the panels over the picture: setup, speed gun, meters, coach card, release meter, feedback
     audio-mix.js      pause-menu controls for effects, crowd and broadcast volumes
@@ -236,13 +246,15 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 ### Where to start for common changes
 
 - **Ball physics and difficulty:** `sim/delivery.js` (how balls are bowled) and `sim/batting.js` (timing
-  windows, edges, LBW).
+  windows, edges, LBW); which shot suits a ball in `sim/shot-choice.js`, where it goes in `sim/shot-direction.js`.
 - **Player ratings and squads:** `sim/teams.js`.
 - **Pitch behaviour:** `PITCH_TYPES` in `sim/conditions.js`.
 - **AI tactics:** `sim/ai.js`.
 - **Fielding and running:** `sim/ball-in-play.js`; the batters' running in `sim/running.js`; fielders' movement,
   choices, catching and throwing in `sim/fielder-motion.js`, `fielder-ai.js`, `fielder-catch.js` and `fielder-throw.js`.
-- **What's shown on screen:** `scenes/match-view.js` (the views), `match-striker.js`, `match-panels.js` and `render/`.
+- **What's shown on screen:** `scenes/match-view.js` (the close view) and `match-wide.js`, `match-striker.js`,
+  `match-panels.js` and `render/`.
+- **A new player control:** turn the key into an action in `scenes/player-actions.js` (see the rule in CLAUDE.md).
 - **Batter animation:** which pose or stroke when, in `scenes/batter-pose.js`; the poses, skeleton and drawing in
   `render/batter/batter-poses.js`, `render/batter/batter-skeleton.js` and `render/batter/batter-rig.js`;
   the skeleton has X across the pitch, Y up and Z towards the bowler, in local rig units (94 units per 1.8 m).

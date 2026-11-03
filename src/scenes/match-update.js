@@ -3,6 +3,7 @@ import { REVIEW_END } from "../render/match-broadcast.js";
 import { updateReviewAudio } from "./match-audio.js";
 import { skipCelebration } from "./celebrations.js";
 import { stepFeedback } from "./match-feedback.js";
+import { act } from "./player-actions.js";
 
 /** One frame of the match scene: pause and camera keys, then whatever the current phase does. */
 export function updateMatch(scene, dt) {
@@ -48,23 +49,23 @@ export function updateMatch(scene, dt) {
     case "flight":
       scene.updateFootwork(dt);
       scene.updateFlight(dt);
-      if (scene.human === "bowl" && keys.pressed("KeyH")) scene.appeal();
+      if (scene.human === "bowl" && keys.pressed("KeyH")) act(scene, { type: "appeal" });
       break;
     case "appeal":
       // A moment to shout after the ball is dead.
-      if (keys.pressed("KeyH")) scene.appeal();
+      if (keys.pressed("KeyH")) act(scene, { type: "appeal" });
       if (scene.cur.appealed || scene.phaseT > 1.1) scene.decideLbw();
       break;
     case "decision":
       scene.updateDecision();
       break;
     case "review":
-      updateReviewAudio(this);
+      updateReviewAudio(scene);
       if (scene.phaseT > REVIEW_END) scene.endReview();
       break;
     case "after": {
       scene.updateFlight(dt);
-      if (skipCelebration(this)) break;
+      if (skipCelebration(scene)) break;
       const wicket = !!scene.cur?.done?.rec.wicket;
       if (scene.nets) {
         // Take your time over the coach's verdict.

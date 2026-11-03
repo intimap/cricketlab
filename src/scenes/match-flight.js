@@ -1,4 +1,5 @@
 import { updateStrikePresentation } from "./strike-presentation.js";
+import { act } from "./player-actions.js";
 import { playContact, playBroadcast } from "./match-audio.js";
 import { COLORS } from "../engine/screen.js";
 import * as beats from "./booth-beats.js";
@@ -76,8 +77,8 @@ export function updateFlight(scene, dt) {
       scene.view = "wide";
     }
     if (scene.human === "bat" && scene.phase === "flight") {
-      if (keys.pressed("ArrowUp")) scene.runCommand(live, 1);
-      if (keys.pressed("ArrowDown")) scene.runCommand(live, 0);
+      if (keys.pressed("ArrowUp")) act(scene, { type: "run", end: 1 });
+      if (keys.pressed("ArrowDown")) act(scene, { type: "run", end: 0 });
     }
     // Nets: no fielders to wait for, so the ball is done soon after it reaches the bat.
     if (scene.nets && !live.dead && cur.contactDone && live.t - cur.play.res.start.t > NETS_PLAY_TIME) {

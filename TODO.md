@@ -12,15 +12,16 @@ from them rather than re-asking.
 - Runs smoothly on a 2022 MacBook Air, an iPhone 14 and a **Raspberry Pi 5** (the budget-setter).
 - Real names for now; go fully fictional (grounds, teams, players, booth) before any pub install. No licensed fonts.
 
-## 0. Cleanup
+## 0. Cleanup (done, branch `stream0-cleanup`)
 
 - Split the files over 400 lines: `sim/batting.js`, `scenes/match.js`, `render/ground.js`, `render/figures.js`,
   `scenes/match-view.js`, `sim/ball-in-play.js` (re-export from the originals).
 - Fix `tools/bat-impact.test.mjs` for the 0.046 m ball, so `npm test` is green again.
 - README: drop the promised weakness hints (they return with stream 5), refresh the code map.
 - Shrink the MCG stadium image (2.8 MB of the 4.1 MB assets).
-- Rule: every player input goes through one small **intent** interface (bat and bowl choices, presses), so
-  replays, tests and a later network layer carry the same messages.
+- Rule: every player decision goes through one small interface, so replays, tests and a later network layer
+  carry the same messages. Built as **player actions** (`scenes/player-actions.js`), since "intent" already
+  means a delivery's plan; the rule is in CLAUDE.md.
 
 ## 1. The HD-2D look
 

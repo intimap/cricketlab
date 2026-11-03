@@ -20,7 +20,7 @@ const NEAR_MISS = 0.35;
  *
  * setup: { res, strikerIdx, nonStrikerIdx, striker, nonStriker, fielders,
  *          keeper, bowler, bowlerHome?, spinner, outfield, noBall, freeHit, wide, aiRunning,
- *          aiAggression, pressure, deferLbw, rng }
+ *          aiAggression, aiRunRisk, pressure, deferLbw, rng }
  * deferLbw: don't give LBWs here; the scene handles the appeal (and DRS).
  */
 export class BallInPlay {

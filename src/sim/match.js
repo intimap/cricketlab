@@ -10,7 +10,7 @@ import { resolveDelivery } from "./batting.js";
 import { plainCall } from "./call.js";
 import { nextEye, offStrikeEye, eyeMultiplier } from "./eye.js";
 import { BallInPlay } from "./ball-in-play.js";
-import { pickBowler, pickOverPlan, pickFieldPreset, pickDeliveryPlan, pickShot, battingAggression } from "./ai.js";
+import { pickBowler, pickOverPlan, pickFieldPreset, pickDeliveryPlan, pickShot, battingAggression, runningRisk } from "./ai.js";
 import { describeBall } from "./plans.js";
 import { clamp } from "../math.js";
 import { bearingOf } from "./geometry.js";
@@ -164,6 +164,7 @@ export class Match {
       wide: res.wide,
       aiRunning: this.human !== "bat",
       aiAggression: battingAggression(inn, inn.striker),
+      aiRunRisk: runningRisk(inn, inn.striker),
       pressure: inn.pressure,
       deferLbw,
       rng: this.rng,

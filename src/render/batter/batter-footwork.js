@@ -1,6 +1,8 @@
 import { RIG_DEPTH_RISE, BOOT_TOE, HEEL_ANKLE_RISE } from "./batter-skeleton.js";
 
 const clamp = (x) => Math.max(0, Math.min(1, x));
+/** How far (rig units, about 2 cm each) the body sinks into a stroke at its lowest: about 12 cm. */
+const SINK = 6;
 const smooth = (x) => {
   const k = clamp(x);
   return k * k * (3 - 2 * k);
@@ -91,6 +93,12 @@ export function addBatterFootwork(pose, clip, time, name) {
   p.pelvisX += s.x * 0.2 * stride;
   p.chestX += s.x * 0.28 * stride;
   p.headX += s.x * 0.32 * stride;
+  // Weight down into the stroke: he sinks as he strides (front knee bending, head over the ball), most at
+  // contact, and rises out of it. The head drops first and furthest; the hips follow.
+  const sink = Math.sin(Math.PI * clamp((time - clip.start) / (holdUntil - clip.start))) * stay;
+  p.headY += SINK * 1.15 * smooth((time - clip.start) / (plantAt - clip.start - 0.02)) * sink;
+  p.chestY += SINK * sink;
+  p.pelvisY += SINK * 0.8 * sink;
   p.hipTurn += s.sign * s.hip * hip;
   p.shoulderTurn += s.sign * s.torso * torso;
   if (LEG_SIDE.test(name)) {

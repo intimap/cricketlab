@@ -319,7 +319,9 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
     case "thinEdge":
     case "thickEdge":
     case "insideEdge": {
-      const edge = edgeExit(impact, ballSpeed, batSpeed, defending, kind === "insideEdge" ? -1 : 1);
+      // The ball's climb as it reaches the bat (degrees), which an outside edge keeps.
+      const rise = Math.max(0, (Math.atan2(at.vy, ballSpeed) * 180) / Math.PI);
+      const edge = edgeExit(impact, ballSpeed, batSpeed, defending, kind === "insideEdge" ? -1 : 1, rise);
       speed = edge.speed;
       bearing = edge.bearing + rng.normal(0, edge.spread);
       elevation = edge.elevation + rng.normal(0, kind === "insideEdge" ? 5 : 4 + 4 * impact.thickness);

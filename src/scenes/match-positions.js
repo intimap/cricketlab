@@ -4,6 +4,9 @@ import { bowlerPose } from "../render/bowler-motion.js";
 
 /** Where the non-striker and bowler are through a ball: shared by the close and wide views. */
 
+/** Near the close camera, figures are capped at the striker's size (about 1.8 m in 94 px). */
+export const NEAR_PIXELS_PER_METRE = 52;
+
 /** How far down the pitch the non-striker backs up once the ball is bowled. */
 export const BACKED_UP_Z = 17.9;
 

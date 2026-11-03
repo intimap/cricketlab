@@ -3,13 +3,15 @@ import { bowlingGeometry } from "../sim/bowling-side.js";
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect } from "../engine/screen.js";
 import { drawText, textWidth } from "../engine/text.js";
 import { clamp } from "../math.js";
-import { CREASE, PITCH_LENGTH } from "../sim/geometry.js";
+import { CREASE, PITCH_LENGTH, MID_PITCH } from "../sim/geometry.js";
 import { keeperSpot } from "../sim/field.js";
 import { walkInSpot } from "../sim/fielder-motion.js";
 import { projectWide, projectWideThrow } from "../render/camera.js";
 import { drawTinyFigure, fielderPose, drawBall, drawShadow } from "../render/sprites.js";
 import { drawSpeechBubble } from "../render/hud.js";
 import { nonStrikerDepth, bowlerState, walkInShare } from "./match-positions.js";
+import { setShadowCast } from "../render/sprites.js";
+import { shadowSlope } from "../render/lighting.js";
 
 /** The wide view: the whole ground from the stands, with everyone on it as small figures. */
 
@@ -36,6 +38,9 @@ function drawGroundScoreboard(board, inn) {
 
 export function drawWide(scene) {
   ctx.drawImage(scene.groundArt.wide, 0, 0, WIDTH, HEIGHT);
+  // Under one sun the small figures' shadows lean its way; under floodlights all round they stay round.
+  const casts = scene.light.casts ?? [];
+  setShadowCast(casts.length === 1 ? shadowSlope(projectWide, 0, MID_PITCH, 1.8, 13, casts[0]) : null);
   const inn = scene.inn;
   if (scene.ground.wide.scoreboard) drawGroundScoreboard(scene.ground.wide.scoreboard, inn);
   const cur = scene.cur;
@@ -118,6 +123,7 @@ export function drawWide(scene) {
   sprites.sort((a, b) => a.y - b.y);
   for (const s of sprites) s.draw();
   if (live) drawSledges(scene, live);
+  setShadowCast(null);
 }
 
 function drawSledges(scene, live) {

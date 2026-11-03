@@ -23,13 +23,18 @@ from them rather than re-asking.
   carry the same messages. Built as **player actions** (`scenes/player-actions.js`), since "intent" already
   means a delivery's plan; the rule is in CLAUDE.md.
 
-## 1. The HD-2D look
+## 1. The HD-2D look (first pass done, branch `stream1-look`)
 
 - Pixel players and grounds with modern light on top, at 640x360.
 - First: time-of-day grading, sun-direction shadows (players, stumps), floodlight bloom at night. Later: animated
   crowd. Not planned: depth of field, weather.
 - Every effect is cheap or pre-baked per time of day and can be switched off; check against a Pi 5 budget.
 - Art: Claude builds templates and generators; the user supplies hero art (stadiums, scenery).
+- Done: per-time grading, dusk and night skies (stars), dimmed scenery, floodlight glow from `lamps` on the art
+  layers, cast silhouette shadows in the close view and sun-leaning shadows in the wide view, and the EFFECTS
+  setting (AUTO steps down to SIMPLE when the first seconds draw slowly).
+- Still to come: an MCG night painting (hero art: the day painting is relit by colour for now), check the look on
+  the Pi 5, the animated crowd, and the ground-art templates and generators for new fictional grounds.
 
 ## 2. The batter rebuild
 

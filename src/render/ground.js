@@ -152,7 +152,7 @@ export function buildClose(ground, images, pitch, seed = 1, sun = LIGHTS.midday)
 // --- Wide view -------------------------------------------------------------
 
 export function buildWide(ground, images, pitch, seed = 1, sun = LIGHTS.midday) {
-  if (ground.wide.stadium) return buildStadium(ground, images, pitch, seed);
+  if (ground.wide.stadium) return buildStadium(ground, images, pitch, seed, sun);
   const px = new Pixels(sceneryCanvas(ground.wide.scenery, images, seed, sun));
   const view = ground.wide;
   const light = rgb(view.grass.light);

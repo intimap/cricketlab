@@ -7,6 +7,7 @@ import { PITCH_TYPES } from "../sim/conditions.js";
 import { FORMATS, CLASSICS, OVERS_CHOICES } from "../sim/formats.js";
 import { GROUNDS, GROUND_CHOICES, DEFAULT_GROUND } from "../render/grounds.js";
 import { LIGHTS } from "../render/light.js";
+import { EFFECTS, EFFECT_NAMES } from "../render/lighting.js";
 
 const FORMAT_IDS = Object.keys(FORMATS);
 const MODES = ["bat", "bowl"];
@@ -66,6 +67,13 @@ export class Menu {
     return CLASSICS.find((c) => c.id === this.cfg.classic);
   }
 
+  /** Lighting effects: this machine's setting, kept apart from the match choices (render/lighting.js). */
+  get effectsRow() {
+    const setting = load("effects", "auto");
+    const stepped = setting === "auto" && load("effectsAuto", "full") === "simple";
+    return ["effects", "EFFECTS", `${EFFECT_NAMES[setting] ?? EFFECT_NAMES.auto}${stepped ? " (SIMPLE)" : ""}`];
+  }
+
   /** The menu rows for the chosen format: [key, label, value]. */
   get rows() {
     const cfg = this.cfg;
@@ -76,6 +84,7 @@ export class Menu {
       return [
         format,
         ["classic", "MATCH", `${this.classic.title}${won[cfg.classic] ? "  WON" : ""}`],
+        this.effectsRow,
         ["start", "", `START  >     (${done}/${CLASSICS.length} WON)`],
         ["scores", "", "HIGH SCORES  >"],
       ];
@@ -87,6 +96,7 @@ export class Menu {
         ["pitch", "PITCH", PITCH_TYPES[cfg.pitch].name],
         ["ground", "GROUND", GROUNDS[cfg.ground].name],
         ["light", "LIGHT", LIGHTS[cfg.light].name],
+        this.effectsRow,
         ["start", "", "START  >"],
       ];
     }
@@ -97,6 +107,7 @@ export class Menu {
       ["pitch", "PITCH", PITCH_TYPES[cfg.pitch].name],
       ["ground", "GROUND", GROUNDS[cfg.ground].name],
       ["light", "LIGHT", LIGHTS[cfg.light].name],
+      this.effectsRow,
       ["overs", cfg.format === "match" ? "INNINGS" : "SPELL", overs],
       ["start", "", "START  >"],
       ...(cfg.format === "match" ? [["scores", "", "HIGH SCORES  >"]] : []),
@@ -134,6 +145,11 @@ export class Menu {
         if (GROUNDS[cfg.ground].light) cfg.light = GROUNDS[cfg.ground].light;
       }
       if (key === "light") cfg.light = cycle(LIGHT_IDS, cfg.light, dir);
+      if (key === "effects") {
+        save("effects", cycle(EFFECTS, load("effects", "auto"), dir));
+        // Choosing AUTO again lets it try full effects afresh.
+        save("effectsAuto", "full");
+      }
       if (key === "overs") cfg.overs = cycle(OVERS_CHOICES[cfg.format], cfg.overs, dir);
       if (key === "classic") cfg.classic = cycle(CLASSIC_IDS, cfg.classic, dir);
     }
@@ -159,7 +175,7 @@ export class Menu {
     if (this.sel >= rows.length) this.sel = rows.length - 1;
     drawPanel(130, 98, 380, 132);
     // Rows close up a little when there are more of them.
-    const step = rows.length > 7 ? 12 : rows.length > 6 ? 14 : 16;
+    const step = rows.length > 8 ? 11 : rows.length > 7 ? 12 : rows.length > 6 ? 14 : 16;
     rows.forEach(([key, label, value], i) => {
       const y = 110 + i * step;
       const selected = this.sel === i;

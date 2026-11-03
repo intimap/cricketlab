@@ -100,6 +100,7 @@ src/
   engine/             browser plumbing, no cricket in here
     screen.js         640x360 pixel frame buffer, scaling, drawing primitives
     text.js           5x7 bitmap font
+    silhouette.js     cast shadows: a sprite's shape sheared onto the ground, all of a frame's in one layer
     input.js          keyboard and mouse state, polled per frame
     touch.js          on-screen buttons for phones, pressing the same keys
     audio.js          synthesised sound effects, stereo crowd and audio mix
@@ -168,7 +169,8 @@ src/
     ground.js         the layer compositor: builds each view's background from a ground's data
     ground-paint.js   the compositor's kit: pitch sizes, colour helpers, noise, scenery layers, cracks
     stadium-ground.js a ground built round a stadium image (the MCG's wide view)
-    light.js          times of day: tint, sky glow, stand shadows, shadow length
+    light.js          times of day: tint, sky glow, stand shadows, shadow length, and each one's HD-2D look
+    lighting.js       the HD-2D look: frame grading, dusk and night skies, dimmed scenery, floodlights, shadow direction
     sprites.js        the ball and its shadow; re-exports kit.js, batter/batter-rig.js and figures.js
     kit.js            kit colours, a player's looks (skin, hair, beard, height), mirroring, shadows
     figures.js        everyone else close up: bowler, keeper, fielders, umpires, runners
@@ -205,6 +207,8 @@ src/
     menu.js           title screen
     match.js          the match scene: state, phases, camera, banners
     match-update.js   one frame of the match scene: pause and camera keys, then the phase's update
+    match-shadows.js  the close view's cast shadows, laid before anyone is drawn
+    effects-auto.js   the effects setting; AUTO steps down to SIMPLE on a slow machine
     player-actions.js every player decision as a message (swing, bowl, review...): the one way input changes the match
     match-ball.js     a ball's life: next ball, release, dead ball, completing it, the walk back, simulating
     match-flight.js   the ball in flight: contact, the ball in play, its events, run calls
@@ -255,6 +259,9 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **What's shown on screen:** `scenes/match-view.js` (the close view) and `match-wide.js`, `match-striker.js`,
   `match-panels.js` and `render/`.
 - **A new player control:** turn the key into an action in `scenes/player-actions.js` (see the rule in CLAUDE.md).
+- **Lighting and time of day:** each time's numbers, and its HD-2D look (`hd`), in `render/light.js`; how they're drawn in
+  `render/lighting.js`. Floodlight heads are `lamps` on a ground's art layers in `render/grounds.js`. The menu's
+  EFFECTS row picks AUTO, FULL, SIMPLE (grading and skies, round shadows) or OFF (the plain look).
 - **Batter animation:** which pose or stroke when, in `scenes/batter-pose.js`; the poses, skeleton and drawing in
   `render/batter/batter-poses.js`, `render/batter/batter-skeleton.js` and `render/batter/batter-rig.js`;
   the skeleton has X across the pitch, Y up and Z towards the bowler, in local rig units (94 units per 1.8 m).

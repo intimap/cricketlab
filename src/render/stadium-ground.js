@@ -1,9 +1,10 @@
 import { BOUNDARY, MID_PITCH, PITCH_LENGTH } from "../sim/geometry.js";
 import { projectStadium, unprojectStadium } from "./stadium-camera.js";
 import { PITCH_LOOKS } from "./grounds.js";
+import { relightPainting, paintLamps } from "./lighting.js";
 
 /** The single stadium painting surrounds a field rasterised through its camera. */
-export function buildStadium(ground, images, pitch, seed) {
+export function buildStadium(ground, images, pitch, seed, sun = {}) {
   const view = ground.wide;
   const camera = view.camera;
   const canvas = document.createElement("canvas");
@@ -14,6 +15,7 @@ export function buildStadium(ground, images, pitch, seed) {
   ctx.fillStyle = "#90b6cf";
   ctx.fillRect(0, 0, 640, 360);
   ctx.drawImage(images[view.stadium], 0, 0, 640, 360);
+  relightPainting(ctx, sun, seed);
   const image = ctx.getImageData(0, 0, 640, 360);
   const rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
   const look = PITCH_LOOKS[pitch.type.id] ?? PITCH_LOOKS.green;
@@ -56,5 +58,6 @@ export function buildStadium(ground, images, pitch, seed) {
       top = projectStadium(0, 0.71, z, camera);
     ctx.fillRect(Math.round(base.x) - 1, Math.round(top.y), 3, Math.max(1, Math.round(base.y - top.y)));
   }
+  paintLamps(ctx, view.lamps, sun);
   return canvas;
 }

@@ -1,4 +1,5 @@
 import test from "node:test";
+import { toStriker } from "../src/sim/handedness.js";
 import assert from "node:assert/strict";
 import { bowlingGeometry, bowlerFieldingHome } from "../src/sim/bowling-side.js";
 import { bowlDelivery } from "../src/sim/delivery.js";
@@ -105,7 +106,8 @@ test("the live fielding bowler begins on the matching side after release", () =>
     const d = m.deliver(intent, 0);
     const play = m.resolve(intent, d, { type: "leave", charge: 0, timingError: 0 }, false);
     const bowler = play.live.fielders.find((f) => f.role === "bowler");
-    assert.deepEqual(bowler.home, bowlerFieldingHome(m.spinner, side));
-    assert.equal(Math.sign(bowler.pos.x), side === "around" ? -1 : 1);
+    // Positions in play are in the striker's frame (a left-hander's is mirrored: sim/handedness.js).
+    assert.deepEqual(bowler.home, toStriker(bowlerFieldingHome(m.spinner, side), m.facing));
+    assert.equal(Math.sign(bowler.pos.x) * m.facing, side === "around" ? -1 : 1);
   }
 });

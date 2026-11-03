@@ -57,7 +57,19 @@ export function projectFromStriker(x, y, z) {
 }
 
 /** World point to screen: { x, y, s } where s is the depth scale. */
-export function projectClose(x, y, z) {
+/**
+ * The striker's hand: +1 right, -1 left. Positions from the sim are in his frame (+ x his off side, see
+ * sim/handedness.js); the views show the world, so they're mirrored for a left-hander. Things fixed in the
+ * world (the bowler, umpire, non-striker, footmarks) are passed in already multiplied by viewFacing().
+ */
+let facing = 1;
+export function setFacing(f) {
+  facing = f;
+}
+export const viewFacing = () => facing;
+
+export function projectClose(strikerX, y, z) {
+  const x = strikerX * facing;
   return fromBowlerEnd ? projectFromStriker(-x, y, PITCH_LENGTH - z) : projectFromStriker(x, y, z);
 }
 
@@ -157,7 +169,8 @@ function ropeCorrection(x, z) {
 }
 
 /** World point to screen: { x, y, s } where s scales sprites (smaller further away). */
-export function projectWide(x, y, z) {
+export function projectWide(strikerX, y, z) {
+  const x = strikerX * facing;
   if (wideCamera) return projectStadium(x, y, z, wideCamera);
   const raw = rawWide(x, z);
   const k = ropeCorrection(x, z);
@@ -185,6 +198,11 @@ export function projectWideThrow(from, to, k, y) {
 
 /** Screen point to ground position (inverse of projectWide at y = 0). */
 export function unprojectWide(sx, sy) {
+  const p = unprojectWorld(sx, sy);
+  return { ...p, x: p.x * facing };
+}
+
+function unprojectWorld(sx, sy) {
   if (wideCamera) return unprojectStadium(sx, sy, wideCamera);
   // Undo the rope correction by fixed-point iteration; it changes slowly, so this converges fast.
   let k = 1;

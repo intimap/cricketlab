@@ -68,7 +68,7 @@ export function playerKit(teamKit, player) {
     height: look.height ?? 1.82,
     // Slim, average or stocky (render/skins.js BUILDS); a left-hander is drawn mirrored.
     build: look.build ?? "average",
-    hand: look.hand ?? "right",
+    hand: player?.hand ?? look.hand ?? "right",
   };
 }
 

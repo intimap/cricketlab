@@ -1,11 +1,12 @@
 import { bowlerFieldingHome } from "./bowling-side.js";
+import { facingOf, mirrorDelivery, toStriker } from "./handedness.js";
 import { PITCH_TYPES, Pitch } from "./conditions.js";
 import { Innings } from "./innings.js";
 import { Commentary } from "./commentary.js";
 import { Rng } from "./rng.js";
 import { MomentTracker } from "./moments.js";
 import { isSpinner } from "./teams.js";
-import { bowlDelivery, movementOf } from "./delivery.js";
+import { bowlDelivery, expectedTurnAtBat, movementOf } from "./delivery.js";
 import { resolveDelivery } from "./batting.js";
 import { plainCall } from "./call.js";
 import { nextEye, offStrikeEye, eyeMultiplier } from "./eye.js";
@@ -101,13 +102,34 @@ export class Match {
   }
 
   aiPlan() {
-    return pickDeliveryPlan(this.inn, this.rng);
+    const plan = pickDeliveryPlan(this.inn, this.rng);
+    // The computer's lines are set for where the ball should arrive; deliver() allows for the turn.
+    return { ...plan, intent: { ...plan.intent, byComputer: true } };
+  }
+
+  /** +1 if the striker bats right-handed, -1 left: the sim works in his frame (sim/handedness.js). */
+  get facing() {
+    return facingOf(this.inn.bat[this.inn.striker].p);
   }
 
   deliver(intent, releaseError) {
     const inn = this.inn;
     const bowler = inn.bowler;
-    const d = bowlDelivery(intent, bowler.p.bowl, bowler.stamina, inn.ball, inn.pitch, releaseError, this.rng);
+    // Aimed relative to the striker (+ line is his off side), bowled in the world, then seen from his end.
+    // Turn that comes into a right-hander goes away from a left-hander, so the computer's lines (set for
+    // right-handers) aim off for twice it: the ball then arrives where it would against a right-hander.
+    const facing = this.facing;
+    const allow = facing < 0 && intent.byComputer ? 2 * expectedTurnAtBat(intent, bowler.p.bowl, inn.ball, inn.pitch) : 0;
+    const world = bowlDelivery(
+      { ...intent, line: (intent.line + allow) * facing },
+      bowler.p.bowl,
+      bowler.stamina,
+      inn.ball,
+      inn.pitch,
+      releaseError,
+      this.rng,
+    );
+    const d = { ...(facing < 0 ? { ...mirrorDelivery(world), intent } : world), facing };
     inn.spendStamina(intent.effort, releaseError);
     // More than two bouncers in an over is a no-ball.
     if (intent.type === "bouncer" || (!isSpinner(bowler.p.bowl) && (d.pitchedAt?.z ?? 0) > 10)) {
@@ -156,7 +178,7 @@ export class Match {
       fielders: this.fieldersFor(),
       keeper: inn.keeper,
       bowler: inn.bowler.p,
-      bowlerHome: bowlerFieldingHome(this.spinner, intent.wicketSide),
+      bowlerHome: toStriker(bowlerFieldingHome(this.spinner, intent.wicketSide), this.facing),
       spinner: this.spinner,
       outfield: inn.pitch.type.outfield,
       noBall: delivery.noBall,

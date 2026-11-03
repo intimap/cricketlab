@@ -14,6 +14,8 @@ import {
   closeDepth,
   setCloseEnd,
   closeFromBowlerEnd,
+  setFacing,
+  viewFacing,
 } from "../render/camera.js";
 import { drawFigure, drawBall, drawShadow, setShadowStretch, playerKit } from "../render/sprites.js";
 import { drawBooth, boothShowing } from "../render/booth.js";
@@ -34,6 +36,8 @@ const miniMapShown = (scene) => !showingWide(scene) && scene.phase !== "setup" &
 
 export function drawMatch(scene) {
   setShadowStretch(scene.light.shadow.stretch);
+  // The sim's positions are in the striker's frame; the camera mirrors them back for a left-hander.
+  setFacing(scene.facing);
   // A sweet strike or broken stumps shakes the picture (not the scoreboard) by a pixel.
   const shake = shakeOffset(scene.juice, scene.now);
   if (shake) {
@@ -69,9 +73,11 @@ function drawClose(scene) {
   ctx.drawImage(scene.groundArt.close, 0, CLOSE_Y_OFFSET, WIDTH, HEIGHT);
   const cur = scene.cur;
   const inn = scene.inn;
-  const nonStrikerX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).nonStrikerX;
+  // The non-striker, umpire, bowler and footmarks are where they are in the world, whoever is batting.
+  const w = viewFacing();
+  const nonStrikerX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).nonStrikerX * w;
   const live = cur?.play?.live;
-  drawRough(inn.pitch);
+  drawRough(inn.pitch, w);
   const sprites = [];
   // Figures right by the camera are held to the striker's size; anyone behind it isn't drawn.
   const figure = (x, z, height, opts) => {
@@ -87,7 +93,7 @@ function drawClose(scene) {
     (scene.phase === "decision" && cur?.onField)
       ? "outFinger"
       : "stand";
-  const umpireX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).umpireX;
+  const umpireX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).umpireX * w;
   sprites.push({
     z: 22.6,
     cast: { x: umpireX, z: 22.6, height: 1.78 },
@@ -132,10 +138,11 @@ function drawClose(scene) {
     });
   }
   const bowler = bowlerState(scene);
+  const bowlerX = bowler.x * w;
   sprites.push({
     z: bowler.z,
-    cast: { x: bowler.x, z: bowler.z, height: bowlerKit.height },
-    draw: () => figure(bowler.x, bowler.z, bowlerKit.height, { kit: bowlerKit, pose: bowler.pose, phase: bowler.phase }),
+    cast: { x: bowlerX, z: bowler.z, height: bowlerKit.height },
+    draw: () => figure(bowlerX, bowler.z, bowlerKit.height, { kit: bowlerKit, pose: bowler.pose, phase: bowler.phase }),
   });
   sprites.push({ z: 1.25, cast: { striker: true }, draw: () => drawStriker(scene) });
   // The near stumps: the striker's, or the bowler's end when the camera is there.
@@ -225,14 +232,14 @@ function drawClose(scene) {
 }
 
 /** Footmarks: speckled, worn patches that grow as the pitch breaks up. */
-function drawRough(pitch) {
+function drawRough(pitch, w) {
   for (const r of pitch.roughPatches) {
     for (let z = r.z0; z < r.z1; z += 0.12) {
       for (let x = r.x0; x < r.x1; x += 0.04) {
         // Deterministic speckle, denser as the rough deepens.
         const h = Math.abs(Math.sin(x * 127.1 + z * 311.7) * 43758.5453) % 1;
         if (h > r.strength * 0.55) continue;
-        const p = projectClose(x, 0, z);
+        const p = projectClose(x * w, 0, z);
         fillRect(p.x, p.y, 1, 1, h < r.strength * 0.25 ? "#7d5f36" : "#a8865a");
       }
     }

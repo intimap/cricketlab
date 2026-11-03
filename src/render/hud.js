@@ -3,6 +3,7 @@ import { drawText, textWidth, wrapText } from "../engine/text.js";
 import { clamp } from "../math.js";
 export { PRESSURE_BAR } from "./batter-meters.js";
 import { MID_PITCH, BOUNDARY, distFromCentre } from "../sim/geometry.js";
+import { viewFacing } from "./camera.js";
 
 // Preserve the HUD entry points while the bottom strip owns its layout.
 export { HUD_Y, staminaColor, drawScoreBar } from "./score-bar.js";
@@ -36,7 +37,8 @@ export function drawMiniMap(left, top, fielders, runners, ball, keeper) {
   fillEllipse(cx, cy, 40, 30, "rgba(40,110,60,0.75)");
   strokeEllipse(cx, cy, 40, 30, COLORS.cream);
   fillRect(cx - 1, cy - 6, 2, 12, "#c8b07a");
-  const toMap = (p) => ({ x: cx + (p.x / BOUNDARY) * 40, y: cy + ((MID_PITCH - p.z) / BOUNDARY) * 30 });
+  // Positions come in the striker's frame; the map shows the world, like the views (mirrored for a left-hander).
+  const toMap = (p) => ({ x: cx + ((p.x * viewFacing()) / BOUNDARY) * 40, y: cy + ((MID_PITCH - p.z) / BOUNDARY) * 30 });
   for (const f of fielders) {
     const p = toMap(f);
     fillRect(p.x - 1, p.y - 1, 2, 2, COLORS.cream);

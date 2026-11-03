@@ -111,6 +111,7 @@ src/
     scores.js         high-score tables: the artifact's shared database, or this browser
   sim/                the cricket model, no drawing in here
     geometry.js       pitch dimensions and the world coordinate system
+    handedness.js     left-handers: the sim in the striker's frame, deliveries mirrored into it
     rng.js            seedable random numbers
     teams.js          squads and player ratings
     conditions.js     pitch types, pitch wear, ball wear (swing, reverse, grip)
@@ -264,6 +265,9 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **What's shown on screen:** `scenes/match-view.js` (the close view) and `match-wide.js`, `match-striker.js`,
   `match-panels.js` and `render/`.
 - **A new player control:** turn the key into an action in `scenes/player-actions.js` (see the rule in CLAUDE.md).
+- **Left-handers:** a player's `hand` in `sim/teams.js`; the sim works in the striker's frame (`sim/handedness.js`),
+  and `render/camera.js` `setFacing` mirrors it back to the world for the views. World-fixed things (bowler, umpire,
+  non-striker, footmarks, the sun) are drawn at `x * viewFacing()`.
 - **Fielding calls:** the player's catch press and throw call in `sim/fielding-calls.js`, sent as player actions.
 - **Lighting and time of day:** each time's numbers, and its HD-2D look (`hd`), in `render/light.js`; how they're drawn in
   `render/lighting.js`. Floodlight heads are `lamps` on a ground's art layers in `render/grounds.js`. The menu's

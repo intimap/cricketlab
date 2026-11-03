@@ -1,6 +1,7 @@
 import { clamp } from "../math.js";
 import { PITCH_LENGTH } from "../sim/geometry.js";
 import { PITCH_LOOKS } from "./grounds.js";
+import { paintSky, dimScenery, paintLamps } from "./lighting.js";
 
 /** The ground painter's kit: pitch and crease sizes, colour helpers, noise, a pixel buffer, scenery layers, cracks. */
 
@@ -77,13 +78,24 @@ export function sceneryCanvas(scenery, images, seed, light) {
   canvas.height = H;
   const ctx = canvas.getContext("2d");
   const layers = typeof scenery === "string" ? [{ image: scenery, y: 0 }] : scenery;
+  // A look that dims the scenery (dusk, night) builds everything but the sky on its own canvas first.
+  const front = light.dim && typeof scenery !== "string" ? document.createElement("canvas") : null;
+  if (front) {
+    front.width = W;
+    front.height = H;
+  }
+  const lamps = [];
   for (const layer of layers) {
-    if (layer.image) ctx.drawImage(images[layer.image], layer.x ?? 0, layer.y ?? 0);
-    if (layer.clouds) scatterClouds(ctx, images[layer.clouds], layer, seed);
-    if (layer.sky && light.glow) {
+    const target = front && !layer.sky ? front.getContext("2d") : ctx;
+    if (layer.image) target.drawImage(images[layer.image], layer.x ?? 0, layer.y ?? 0);
+    if (layer.clouds) scatterClouds(target, images[layer.clouds], layer, seed);
+    for (const [x, y, w, h] of layer.lamps ?? []) lamps.push([x + (layer.x ?? 0), y + (layer.y ?? 0), w, h]);
+    if (!layer.sky) continue;
+    const top = layer.y ?? 0;
+    const foot = top + images[layer.image].height;
+    if (light.sky) paintSky(ctx, top, foot, light, seed);
+    else if (light.glow) {
       // Over the sky alone (it's all that's on the canvas yet), strongest at its foot - much of which the trees hide.
-      const top = layer.y ?? 0;
-      const foot = top + images[layer.image].height;
       const [r, g, b] = rgb(light.glow.colour);
       const wash = ctx.createLinearGradient(0, top, 0, foot);
       wash.addColorStop(0, `rgba(${r},${g},${b},0.3)`);
@@ -97,6 +109,11 @@ export function sceneryCanvas(scenery, images, seed, light) {
       ctx.restore();
     }
   }
+  if (front) {
+    dimScenery(front.getContext("2d"), light);
+    ctx.drawImage(front, 0, 0);
+  }
+  paintLamps(ctx, lamps, light);
   return canvas;
 }
 

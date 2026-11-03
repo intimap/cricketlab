@@ -103,6 +103,15 @@ export function strikerPlace(scene, kit, fromBowler, moved = 0) {
   };
 }
 
+/** The striker's feet on screen, and his height there and in life, for his shadow (scenes/match-shadows.js). */
+export function strikerFeet(scene) {
+  const cur = scene.cur;
+  const kit = playerKit(scene.kitBat, scene.inn.bat[scene.inn.striker].p);
+  const moved = footworkOf(scene, cur, cur ? scene.clock() : 0);
+  const place = strikerPlace(scene, kit, closeFromBowlerEnd(), moved);
+  return { x: place.x, y: place.y, heightPx: BATTER_HEIGHT_PX * place.scale, heightM: kit.height, worldX: STRIKER_X + moved };
+}
+
 export function drawStriker(scene) {
   const cur = scene.cur;
   const inn = scene.inn;

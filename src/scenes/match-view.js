@@ -22,12 +22,11 @@ import { shakeOffset } from "./match-feedback.js";
 import { STRIKER_X } from "./batter-pose.js";
 import { HUD_Y, drawScoreBar, drawScoreBox, drawMiniMap, drawBanners, drawSpeechBubble } from "../render/hud.js";
 import { LEFT_CREASE, drawStriker } from "./match-striker.js";
-import { BACKED_UP_Z, nonStrikerDepth, bowlerState, walkInShare } from "./match-positions.js";
+import { BACKED_UP_Z, NEAR_PIXELS_PER_METRE, nonStrikerDepth, bowlerState, walkInShare } from "./match-positions.js";
 import { drawWide } from "./match-wide.js";
+import { gradeFrame } from "../render/lighting.js";
+import { castShadows } from "./match-shadows.js";
 import { showingWide, SPEED_GUN_MAX_H, drawPanels, drawFeedback } from "./match-panels.js";
-
-/** Near the close camera, figures are capped at the striker's size (about 1.8 m in 94 px). */
-const NEAR_PIXELS_PER_METRE = 52;
 
 /** The close view's mini-map, on the right just above where the speed gun pops up. */
 const MINI_MAP = { left: 552, top: HUD_Y - 3 - SPEED_GUN_MAX_H - 66 };
@@ -44,14 +43,8 @@ export function drawMatch(scene) {
   if (showingWide(scene)) drawWide(scene);
   else drawClose(scene);
   if (shake) ctx.restore();
-  // The time of day's colour, over everything on the field (not the scoreboard and panels drawn after).
-  if (scene.light.tint) {
-    ctx.save();
-    ctx.globalCompositeOperation = "multiply";
-    ctx.fillStyle = scene.light.tint;
-    ctx.fillRect(0, 0, WIDTH, HEIGHT);
-    ctx.restore();
-  }
+  // The time of day's grade, over everything on the field (not the scoreboard and panels drawn after).
+  gradeFrame(ctx, scene.light);
   const effort = scene.cur?.intent.effort ?? scene.effort;
   const label = scene.inn.bowler
     ? `${DELIVERY_NAMES[scene.cur?.intent.type ?? scene.deliveryType]} ${scene.spinner ? SPIN_EFFORT_NAMES[effort] : effort.toUpperCase()}`
@@ -94,10 +87,12 @@ function drawClose(scene) {
     (scene.phase === "decision" && cur?.onField)
       ? "outFinger"
       : "stand";
+  const umpireX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).umpireX;
   sprites.push({
     z: 22.6,
+    cast: { x: umpireX, z: 22.6, height: 1.78 },
     draw: () =>
-      figure(bowlingGeometry(scene.spinner, activeWicketSide(scene)).umpireX, 22.6, 1.78, {
+      figure(umpireX, 22.6, 1.78, {
         kit: { ...scene.kitBowl, cap: "#f4f4f0" },
         pose: umpirePose,
         phase: 0,
@@ -117,6 +112,7 @@ function drawClose(scene) {
       const moving = r.target !== null && live.t >= r.startAt;
       sprites.push({
         z,
+        cast: { x, z, height: kit.height },
         draw: () => figure(x, z, kit.height, { kit, pose: moving ? "run" : "stand", phase: scene.now * 3.5 + i, bat: true }),
       });
     }
@@ -125,6 +121,7 @@ function drawClose(scene) {
     const nonStrikerKit = playerKit(scene.kitBat, inn.bat[inn.nonStriker].p);
     sprites.push({
       z: nonStrikerZ,
+      cast: { x: nonStrikerX, z: nonStrikerZ, height: nonStrikerKit.height },
       draw: () =>
         figure(nonStrikerX, nonStrikerZ, nonStrikerKit.height, {
           kit: nonStrikerKit,
@@ -137,14 +134,22 @@ function drawClose(scene) {
   const bowler = bowlerState(scene);
   sprites.push({
     z: bowler.z,
+    cast: { x: bowler.x, z: bowler.z, height: bowlerKit.height },
     draw: () => figure(bowler.x, bowler.z, bowlerKit.height, { kit: bowlerKit, pose: bowler.pose, phase: bowler.phase }),
   });
-  sprites.push({ z: 1.25, draw: () => drawStriker(scene) });
+  sprites.push({ z: 1.25, cast: { striker: true }, draw: () => drawStriker(scene) });
   // The near stumps: the striker's, or the bowler's end when the camera is there.
   const nearEnd = fromBowler ? 1 : 0;
   const nearZ = fromBowler ? PITCH_LENGTH - 0.02 : 0.02;
+  const stumpsArt = scene.game.images.stumps;
   sprites.push({
     z: nearZ,
+    cast: {
+      x: 0,
+      z: nearZ,
+      height: 0.71,
+      screen: { x: 296 + stumpsArt.width / 2, y: 270 + CLOSE_Y_OFFSET + stumpsArt.height, heightPx: stumpsArt.height },
+    },
     draw: () => {
       if (!stumpsBroken(scene, nearEnd)) ctx.drawImage(scene.game.images.stumps, 296, 270 + CLOSE_Y_OFFSET);
       else drawBrokenStumps(fromBowler ? PITCH_LENGTH : 0);
@@ -188,6 +193,7 @@ function drawClose(scene) {
   // Far to near.
   sprites.sort((a, b) => closeDepth(b.z) - closeDepth(a.z));
   if (scene.phase === "setup") drawTarget(scene);
+  castShadows(scene, sprites);
   for (const s of sprites) s.draw();
 
   if (miniMapShown(scene)) {

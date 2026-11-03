@@ -62,7 +62,8 @@ function parklands(name, fence) {
         // Rows 0-23 are above the top of the screen, so the clouds and trees start below that.
         { clouds: "close/clouds", count: 5, top: 25, bottom: 62 },
         { image: "close/treeline", y: 40 },
-        { image: "close/stands", y: 58 },
+        // Lamps: the floodlight heads on each layer ([x, y, w, h] in its own pixels), lit at night.
+        { image: "close/stands", y: 58, lamps: [[412, 1, 26, 8]] },
         { image: `close/${fence}`, y: 112 },
       ],
     },
@@ -73,7 +74,7 @@ function parklands(name, fence) {
         { image: "wide/sky", y: 0, sky: true },
         { clouds: "close/clouds", count: 4, top: 0, bottom: 26 },
         { image: "wide/treeline", y: 9 },
-        { image: "wide/stands", y: 51 },
+        { image: "wide/stands", y: 51, lamps: [[467, 2, 17, 4]] },
         { image: `wide/${fence}`, y: 93 },
       ],
       // Base turf starts here; the generated perimeter covers the area beyond the rope.
@@ -104,7 +105,16 @@ function theG() {
       scenery: [
         { image: "theg/close/sky", y: 0, sky: true },
         { image: "theg/close/skyline", y: 15 },
-        { image: "theg/close/stands", y: 49 },
+        {
+          image: "theg/close/stands",
+          y: 49,
+          lamps: [
+            [66, 8, 28, 7],
+            [226, 8, 28, 7],
+            [386, 8, 28, 7],
+            [546, 8, 28, 7],
+          ],
+        },
         { image: "theg/close/fence-ads", y: 112 },
       ],
       haze: { colour: "#4a7838", rows: 12, amount: 0.2 },
@@ -112,6 +122,14 @@ function theG() {
     wide: {
       ...oval.wide,
       stadium: "theg/wide/afternoon-stadium",
+      // The five floodlight towers' heads in the painting (screen px), lit at night.
+      lamps: [
+        [58, 10, 18, 12],
+        [161, 23, 16, 10],
+        [312, 4, 16, 10],
+        [465, 24, 14, 10],
+        [563, 10, 20, 12],
+      ],
       camera: MCG_CAMERA,
       perimeter: null,
       scenery: [],
@@ -179,7 +197,14 @@ GROUNDS.scg = {
     scenery: [
       { image: "close/scg-sky", y: 0, sky: true },
       { clouds: "close/clouds", count: 3, top: 12, bottom: 42 },
-      { image: "close/scg-stands", y: 32 },
+      {
+        image: "close/scg-stands",
+        y: 32,
+        lamps: [
+          [8, 1, 16, 3],
+          [616, 1, 16, 3],
+        ],
+      },
       { image: "close/scg-fence", y: 112 },
     ],
     stripes: { edges: [0, 2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 22.5, 25, 27.5, 30], firstLight: true },
@@ -193,7 +218,14 @@ GROUNDS.scg = {
     scenery: [
       { image: "wide/scg-sky", y: 0, sky: true },
       { clouds: "close/clouds", count: 2, top: 0, bottom: 18 },
-      { image: "wide/scg-stands", y: 40 },
+      {
+        image: "wide/scg-stands",
+        y: 40,
+        lamps: [
+          [19, 1, 7, 2],
+          [611, 1, 9, 3],
+        ],
+      },
       { image: "wide/scg-fence", y: 93 },
     ],
   },

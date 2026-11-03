@@ -16,6 +16,7 @@ import { LIGHTS } from "../render/light.js";
 import { setWideCamera } from "../render/camera.js";
 import { drawMatch } from "./match-view.js";
 import { updateMatch } from "./match-update.js";
+import { startLook, drawTimed } from "./effects-auto.js";
 import * as decisions from "./match-decisions.js";
 import * as beats from "./booth-beats.js";
 import { createFeedback } from "./match-feedback.js";
@@ -80,7 +81,9 @@ export class MatchScene {
     /** The ground's backgrounds, built from its data and the pitch (and rebuilt as it wears). */
     this.ground = GROUNDS[cfg.ground] ?? GROUNDS[DEFAULT_GROUND];
     setWideCamera(this.ground.wide.camera);
-    this.light = LIGHTS[cfg.light] ?? LIGHTS.midday;
+    // The time of day, with the effects this machine is set to (render/lighting.js, effects-auto.js).
+    this.baseLight = LIGHTS[cfg.light] ?? LIGHTS.midday;
+    this.light = startLook(this.baseLight);
     this.buildGround();
     /** Nets: balls faced or bowled, and how many the coach rated good. */
     this.netsTally = { balls: 0, good: 0 };
@@ -216,7 +219,7 @@ export class MatchScene {
   }
 
   draw() {
-    drawMatch(this);
+    drawTimed(this, () => drawMatch(this));
   }
 
   banner(text, color, dur, scale, y, t0 = this.now) {

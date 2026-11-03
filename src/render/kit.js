@@ -31,8 +31,23 @@ export function setShadowStretch(stretch) {
   shadowStretch = stretch;
 }
 
+/** The sun's direction for small figures' shadows: screen px per px of height ({ gx, gy }), or null for round. */
+let shadowCast = null;
+export function setShadowCast(cast) {
+  shadowCast = cast;
+}
+
 /** A shadow on the ground round (x, y): drawn out long, towards the camera and to the right, when the sun is low. */
 export function groundShadow(x, y, rx, ry, alpha) {
+  if (shadowCast) {
+    // A small figure stands about three of these radii tall: its shadow's middle is half that along the sun's line.
+    const reach = rx * 1.5;
+    const dx = shadowCast.gx * reach * (flipped ? -1 : 1);
+    const dy = shadowCast.gy * reach;
+    // Spread thinner, so a cluster of them (keeper and slips) doesn't pool into a blot.
+    fillEllipse(x + dx, y + dy, rx + Math.abs(dx), ry + Math.abs(dy) * 0.6, `rgba(0,0,0,${alpha * 0.75})`);
+    return;
+  }
   const s = shadowStretch;
   // Mirrored figures still cast to the screen's right.
   const lean = (s - 1) * rx * 0.75 * (flipped ? -1 : 1);

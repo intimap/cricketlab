@@ -57,6 +57,20 @@ export function initScreen(container) {
   return screen;
 }
 
+/**
+ * Run `draw` with every drawing call going to `target` (a 2D context) instead of the frame buffer, e.g. to
+ * draw a sprite into a scratch canvas for its silhouette. Nested calls restore the outer target.
+ */
+export function drawInto(target, draw) {
+  const previous = ctx;
+  ctx = target;
+  try {
+    draw();
+  } finally {
+    ctx = previous;
+  }
+}
+
 /** Copy the frame buffer to the visible canvas. */
 export function present() {
   screenCtx.imageSmoothingEnabled = false;

@@ -7,6 +7,7 @@ import * as running from "./running.js";
 import * as fielderCatch from "./fielder-catch.js";
 import * as fielderThrow from "./fielder-throw.js";
 import { stepBall } from "./ball-roll.js";
+import { calledEnd } from "./fielding-calls.js";
 
 /** Seconds to spare inside which surviving a run-out counts as a near miss. */
 const NEAR_MISS = 0.35;
@@ -299,7 +300,10 @@ export class BallInPlay {
       fielders: this.fielders,
       wasSet: !!f.wasSet,
       offBalance: !!f.dived,
+      calledEnd: calledEnd(this),
     });
+    // A called throw is used up.
+    this.calledEnd = null;
     f.relayed = false;
     if (th.relayTo !== undefined) return fielderThrow.relayThrow(this, f, th);
     const { end, shy } = th;

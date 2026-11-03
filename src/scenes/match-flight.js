@@ -80,6 +80,16 @@ export function updateFlight(scene, dt) {
       if (keys.pressed("ArrowUp")) act(scene, { type: "run", end: 1 });
       if (keys.pressed("ArrowDown")) act(scene, { type: "run", end: 0 });
     }
+    // Fielding: a press timed to a catch, and calling the throw (both optional; sim/fielding-calls.js).
+    if (scene.human === "bowl" && scene.phase === "flight" && !live.dead) {
+      if (live.plan?.kind === "catch" && !live.safe && !cur.catchPrompted) {
+        cur.catchPrompted = true;
+        scene.flash("CATCH IT! SPACE AS IT ARRIVES", COLORS.gold);
+      }
+      if (keys.pressed("Space")) act(scene, { type: "catchPress" });
+      if (keys.pressed("KeyZ")) act(scene, { type: "throwCall", end: 0 });
+      if (keys.pressed("KeyX")) act(scene, { type: "throwCall", end: 1 });
+    }
     // Nets: no fielders to wait for, so the ball is done soon after it reaches the bat.
     if (scene.nets && !live.dead && cur.contactDone && live.t - cur.play.res.start.t > NETS_PLAY_TIME) {
       live.dead = true;

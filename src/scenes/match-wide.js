@@ -123,7 +123,19 @@ export function drawWide(scene) {
   sprites.sort((a, b) => a.y - b.y);
   for (const s of sprites) s.draw();
   if (live) drawSledges(scene, live);
+  if (live) drawInvolved(live);
   setShadowCast(null);
+}
+
+/** The fielder in the thick of it (going for it, holding it, throwing it) gets his name over his head. */
+function drawInvolved(live) {
+  const ball = live.ball;
+  const idx = ball.throwing ? ball.throwing.fielder : ball.held >= 0 ? ball.held : live.plan?.fielder;
+  const f = idx === undefined ? null : live.fielders[idx];
+  if (!f || f.role === "bowler" || f.role === "keeper") return;
+  const p = projectWide(f.pos.x, 0, f.pos.z);
+  const name = f.player.name.split(" ").at(-1).toUpperCase();
+  drawText(name, p.x, p.y - 16 * p.s - 10, { align: "center", color: COLORS.cream, shadow: "rgba(0,0,0,0.85)" });
 }
 
 function drawSledges(scene, live) {

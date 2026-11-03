@@ -60,24 +60,19 @@ export function planThrow(f, ctx) {
   const releaseAt = (e) => t + releaseTime(dists[e], ctx.wasSet);
   const arrival = dists.map((d, e) => releaseAt(e) + d / speed + THROW_EXTRA);
 
-  // The end where the ball beats a batter home by most (the smallest margin he has left).
-  let end = 0;
-  let margin = -Infinity;
-  if (ctx.running) {
-    for (const e of [0, 1]) {
-      const safeIn = Math.min(...ctx.runners.map((r) => ctx.runnerTimeTo(r, e)));
-      if (safeIn === 0 || safeIn === Infinity) continue;
-      const beatenBy = safeIn - (arrival[e] - t);
-      if (beatenBy > margin) {
-        margin = beatenBy;
-        end = e;
-      }
-    }
-  }
+  // The end where the ball beats a batter home by most (the smallest margin he has left), unless the
+  // player has called the end (sim/fielding-calls.js): then that end, whatever the margin there.
+  const margins = [0, 1].map((e) => {
+    const safeIn = ctx.running ? Math.min(...ctx.runners.map((r) => ctx.runnerTimeTo(r, e))) : 0;
+    return safeIn === 0 || safeIn === Infinity ? -Infinity : safeIn - (arrival[e] - t);
+  });
+  const called = ctx.calledEnd ?? null;
+  let end = called ?? (margins[1] > margins[0] ? 1 : 0);
+  const margin = margins[end];
   const chance = ctx.running && margin > NO_CHANCE;
   // No run-out on: back to the bowler's end. From the deep it goes through the nearest fielder first,
   // if he's closer than the stumps.
-  if (!chance) {
+  if (!chance && called === null) {
     end = 1;
     const deep = f.role === "field" && !f.relayed && dists[1] > CROW_HOP_FROM;
     const relay = deep ? relayCatcher(f, ctx.fielders, dists[1]) : null;

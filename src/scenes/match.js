@@ -1,17 +1,11 @@
 import { callFromBooth } from "./broadcast-commentary.js";
-import { updateReviewAudio } from "./match-audio.js";
-import { REVIEW_END } from "../render/match-broadcast.js";
-import { skipCelebration } from "./celebrations.js";
 import { COLORS } from "../engine/screen.js";
-import { keys } from "../engine/input.js";
 import { sfx } from "../engine/audio.js";
 import { load, save } from "../engine/storage.js";
 import { Rng } from "../sim/rng.js";
 import { isSpinner } from "../sim/teams.js";
 import { createMatch } from "../sim/formats.js";
 import { crossingAtZ } from "../sim/delivery.js";
-import { releaseError } from "../sim/runup.js";
-import { battingFeedback, bowlingFeedback } from "../sim/coach.js";
 import { CONTACT_Z_FRONT, CONTACT_Z_BACK, playsBack } from "../sim/batting.js";
 import { pickBowler } from "../sim/ai.js";
 import { makeKit } from "../render/sprites.js";
@@ -21,9 +15,10 @@ import { GROUNDS, DEFAULT_GROUND } from "../render/grounds.js";
 import { LIGHTS } from "../render/light.js";
 import { setWideCamera } from "../render/camera.js";
 import { drawMatch } from "./match-view.js";
+import { updateMatch } from "./match-update.js";
 import * as decisions from "./match-decisions.js";
 import * as beats from "./booth-beats.js";
-import { createFeedback, stepFeedback } from "./match-feedback.js";
+import { createFeedback } from "./match-feedback.js";
 import * as input from "./match-input.js";
 import * as ball from "./match-ball.js";
 import { GROUND_WEAR_STEPS } from "./match-ball.js";
@@ -205,121 +200,19 @@ export class MatchScene {
   }
 
   update(dt) {
-    this.now += dt;
-    const striker = this.inn.bat[this.inn.striker];
-    stepFeedback(this.juice, this.now, dt, this.human === "bat" && striker ? striker.eye : null, this.inn.pressure);
-    this.phaseT += dt;
-    this.commT += dt;
+    updateMatch(this, dt);
+  }
 
-    if (this.phase === "pause") {
-      const action = this.pauseMenu.update();
-      if (action === "view") this.toggleCloseEnd();
-      if (action === "resume") this.setPhase(this.pausedFrom);
-      else if (action === "quit") this.game.toMenu();
-      return;
+  /** The innings is over and acknowledged: the next innings, the high scores, or the menu. */
+  leaveInnings() {
+    if (this.match.hasNextInnings) {
+      this.match.nextInnings();
+      this.game.scene = new MatchScene(this.game, this.cfg, this.match);
+    } else if (this.hasScoreboard) {
+      this.game.scene = new ScoreboardScene(this.game, this.cfg, resultEntry(this.match));
+    } else {
+      this.game.toMenu();
     }
-    if (keys.pressed("Escape") && this.phase !== "inningsEnd" && this.phase !== "fieldEdit") {
-      this.pausedFrom = this.phase;
-      this.pauseMenu.open();
-      this.setPhase("pause");
-      return;
-    }
-    if (keys.pressed("KeyC")) {
-      this.cam = this.cam === "auto" ? "close" : this.cam === "close" ? "wide" : "auto";
-      this.flash(`CAMERA: ${this.cam.toUpperCase()}`);
-      if (this.cam !== "auto") this.view = this.cam;
-    }
-    if (keys.pressed("KeyB")) this.toggleCloseEnd();
-
-    switch (this.phase) {
-      case "ready":
-        this.updateFootwork(dt);
-        this.updateReady();
-        break;
-      case "setup":
-        this.updateSetup();
-        break;
-      case "runup":
-        this.updateFootwork(dt);
-        this.updateRunup(dt);
-        this.updateBatInput();
-        break;
-      case "flight":
-        this.updateFootwork(dt);
-        this.updateFlight(dt);
-        if (this.human === "bowl" && keys.pressed("KeyH")) this.appeal();
-        break;
-      case "appeal":
-        // A moment to shout after the ball is dead.
-        if (keys.pressed("KeyH")) this.appeal();
-        if (this.cur.appealed || this.phaseT > 1.1) this.decideLbw();
-        break;
-      case "decision":
-        this.updateDecision();
-        break;
-      case "review":
-        updateReviewAudio(this);
-        if (this.phaseT > REVIEW_END) this.endReview();
-        break;
-      case "after": {
-        this.updateFlight(dt);
-        if (skipCelebration(this)) break;
-        const wicket = !!this.cur?.done?.rec.wicket;
-        if (this.nets) {
-          // Take your time over the coach's verdict.
-          if (this.phaseT > 0.6 && (keys.pressed("Space") || keys.pressed("Enter"))) this.setPhase("return");
-          break;
-        }
-        if (wicket && this.cam === "auto" && this.phaseT > 1) this.view = "wide";
-        if (this.phaseT > this.afterDuration()) this.setPhase("return");
-        break;
-      }
-      case "return":
-        this.updateReturn(dt);
-        break;
-      case "overEnd":
-        // Finish the recap before changing ends, unless the player moves on.
-        if ((this.phaseT > 2.4 && this.now >= this.boothEndsAt()) || keys.pressed("Space") || keys.pressed("Enter"))
-          this.nextBall();
-        break;
-      case "chooseBowler":
-        this.updateChooseBowler();
-        break;
-      case "simSummary":
-        if (this.phaseT > 0.4 && (keys.pressed("Space") || keys.pressed("Enter"))) this.nextBall();
-        break;
-      case "fieldEdit":
-        this.updateFieldEdit();
-        break;
-      case "inningsEnd":
-        if (this.phaseT > 0.8 && (keys.pressed("Enter") || keys.pressed("Space"))) {
-          if (this.match.hasNextInnings) {
-            this.match.nextInnings();
-            this.game.scene = new MatchScene(this.game, this.cfg, this.match);
-          } else if (this.hasScoreboard) {
-            this.game.scene = new ScoreboardScene(this.game, this.cfg, resultEntry(this.match));
-          } else {
-            this.game.toMenu();
-          }
-        }
-        break;
-    }
-
-    this.banners = this.banners.filter((b) => this.now - b.t0 < b.dur);
-    for (const p of this.particles) {
-      p.vy -= 9.8 * dt;
-      p.x += p.vx * dt;
-      p.y += p.vy * dt;
-      p.z += p.vz * dt;
-      p.life -= dt;
-      if (p.y < 0) {
-        p.y = 0;
-        p.vy *= -0.3;
-        p.vx *= 0.6;
-        p.vz *= 0.6;
-      }
-    }
-    this.particles = this.particles.filter((p) => p.life > 0);
   }
 
   draw() {
@@ -486,13 +379,7 @@ export class MatchScene {
 
   /** The nets coach's verdict on the ball just finished. */
   coachFeedback(rec) {
-    const cur = this.cur;
-    const spinner = this.spinner;
-    if (this.human === "bat") return battingFeedback({ delivery: cur.delivery, shot: cur.shot, rec, spinner });
-    const r = cur.runup;
-    const err = r && cur.releaseMark != null ? releaseError(r, cur.releaseMark) : 0;
-    const perfect = !!r && Math.abs(err) <= r.zone;
-    return bowlingFeedback({ delivery: cur.delivery, intent: cur.intent, releaseError: err, perfect, rec, spinner });
+    return ball.coachFeedback(this, rec);
   }
 
   afterDuration() {

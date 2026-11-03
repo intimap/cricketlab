@@ -1,5 +1,5 @@
 import { beginShadows, takeSilhouette, castSilhouette, endShadows } from "../engine/silhouette.js";
-import { projectClose, closePixelsPerMetre, closeDepth } from "../render/camera.js";
+import { projectClose, closePixelsPerMetre, closeDepth, viewFacing } from "../render/camera.js";
 import { shadowSlope } from "../render/lighting.js";
 import { NEAR_PIXELS_PER_METRE } from "./match-positions.js";
 import { CREASE } from "../sim/geometry.js";
@@ -21,7 +21,11 @@ export function castShadows(scene, sprites) {
     // Room for a bat held out either side; kept tight, as every pixel of it is copied per shadow.
     const box = takeSilhouette(s.draw, { x: feet.x - h * 0.8, y: feet.y - h * 1.12, w: h * 1.6, h: h * 1.2 }, slot);
     for (const cast of casts) {
-      const { gx, gy } = shadowSlope(projectClose, feet.worldX, feet.worldZ, feet.heightM, h, cast);
+      // The sun is fixed in the world: its direction is mirrored into a left-hander's frame like the rest.
+      const { gx, gy } = shadowSlope(projectClose, feet.worldX, feet.worldZ, feet.heightM, h, {
+        ...cast,
+        x: cast.x * viewFacing(),
+      });
       castSilhouette(box, feet.x, feet.y, gx, gy);
     }
   }

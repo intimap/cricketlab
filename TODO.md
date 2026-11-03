@@ -70,10 +70,14 @@ from them rather than re-asking.
   all). Targets, run-outs as a share of dismissals, AI vs AI: 40+ overs 4-5%, 20 overs 6-8%, 10 overs 8-10%;
   nervous runners about half that, cavalier ones about 1.5x.
 
-## 4. Left-handers in the sim
+## 4. Left-handers in the sim (done, branch `stream4-lefthanders`)
 
 - Mirror geometry, field placings, shot areas, the LBW line, wides and the commentary's off/leg words.
   Checked with `sim-report`.
+- Done: six left-handers in the two XIs; the sim works in the striker's frame and a delivery is mirrored into
+  it (a right-armer's outswinger comes into a left-hander, an off-break turns away); the computer's spinners
+  aim off for the turn; the field crosses over; the camera mirrors it all back. Still to come: the field
+  crossing over visibly between balls, around-the-wicket choices against left-handers, commentary on it.
 
 ## 5. Commentary and GUI
 

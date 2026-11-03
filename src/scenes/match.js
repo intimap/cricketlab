@@ -191,9 +191,17 @@ export class MatchScene {
     return (this.game.closeEnd ??= load("closeEnd", "bat"));
   }
 
-  /** -1 when the close camera looks from the bowler's end (screen left/right is the world turned round), else 1. */
+  /** The striker's hand for what's on screen (+1 right, -1 left): the ball being played, else who's in. */
+  get facing() {
+    return this.cur?.delivery?.facing ?? this.match.facing;
+  }
+
+  /**
+   * Screen right in the striker's frame: -1 when the close camera looks from the bowler's end (the world
+   * turned round), and turned again for a left-hander, so the arrows always move things the way they look.
+   */
   get screenTurn() {
-    return this.view === "close" && this.closeEnd === "bowl" ? -1 : 1;
+    return (this.view === "close" && this.closeEnd === "bowl" ? -1 : 1) * this.facing;
   }
 
   toggleCloseEnd() {

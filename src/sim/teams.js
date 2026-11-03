@@ -153,6 +153,8 @@ function makeTeam(name, abbr, colour, colour2, seed, roster) {
       keeper: p.keeper,
       weakness: pickWeakness(p.role, quirks),
       look: p.look ?? DEFAULT_LOOK,
+      // Batting hand: most are right-handers; sim/handedness.js turns the game round for the rest.
+      hand: p.hand ?? "right",
     };
   });
   return { name, abbr, colour, colour2, players: players.slice(0, 11), reserves: players.slice(11) };
@@ -160,7 +162,7 @@ function makeTeam(name, abbr, colour, colour2, seed, roster) {
 
 export function australia() {
   return makeTeam("AUSTRALIA", "AUS", "#1f6b3a", "#f2c230", 101, [
-    { name: "Osman Kawaga", look: look(1.77, "tan", "black", "short", "full", 1), nick: "Uzzy", role: "opener" },
+    { name: "Osman Kawaga", hand: "left", look: look(1.77, "tan", "black", "short", "full", 1), nick: "Uzzy", role: "opener" },
     { name: "Trevor Hearn", look: look(1.83, "light", "brown", "short", "none", 23), nick: "Hearny", role: "opener", flair: 0.1 },
     {
       name: "Marcus La Bonshane",
@@ -178,6 +180,7 @@ export function australia() {
     },
     {
       name: "Marty Renclaw",
+      hand: "left",
       look: look(1.93, "fair", "lightBrown", "short", "none", 77, [], "slim"),
       nick: "Renny",
       role: "middle",
@@ -192,6 +195,7 @@ export function australia() {
     },
     {
       name: "Allan Corey",
+      hand: "left",
       look: look(1.78, "light", "brown", "short", "full", 4, ["sunglasses"]),
       nick: "Corey",
       role: "keeper",
@@ -213,6 +217,7 @@ export function australia() {
     },
     {
       name: "Michael Stork",
+      hand: "left",
       look: look(1.97, "fair", "sandy", "short", "none", 56, ["sunglasses"]),
       nick: "Storky",
       role: "tail",
@@ -229,6 +234,7 @@ export function australia() {
     // Reserves
     {
       name: "Travis Headley",
+      hand: "left",
       look: look(1.79, "fair", "ginger", "short", "moustache", 62, ["sunglasses"]),
       nick: "Heady",
       role: "middle",
@@ -271,6 +277,7 @@ export function england() {
     },
     {
       name: "Benny Dackett",
+      hand: "left",
       look: look(1.7, "fair", "brown", "short", "stubble", 17, ["zinc"]),
       nick: "Ducky",
       role: "opener",
@@ -293,6 +300,7 @@ export function england() {
     },
     {
       name: "Benny Stokeson",
+      hand: "left",
       look: look(1.85, "fair", "ginger", "short", "full", 55, ["sweatbands"]),
       nick: "Stokesy",
       role: "allround",
@@ -352,6 +360,7 @@ export function england() {
     },
     {
       name: "Jacob Betham",
+      hand: "left",
       look: look(1.88, "fair", "sandy", "short", "none", 34),
       nick: "Beth",
       role: "allround",

@@ -6,7 +6,7 @@ import { clamp } from "../math.js";
 import { CREASE, PITCH_LENGTH, MID_PITCH } from "../sim/geometry.js";
 import { keeperSpot } from "../sim/field.js";
 import { walkInSpot } from "../sim/fielder-motion.js";
-import { projectWide, projectWideThrow } from "../render/camera.js";
+import { projectWide, projectWideThrow, viewFacing } from "../render/camera.js";
 import { drawTinyFigure, fielderPose, drawBall, drawShadow } from "../render/sprites.js";
 import { drawSpeechBubble } from "../render/hud.js";
 import { nonStrikerDepth, bowlerState, walkInShare } from "./match-positions.js";
@@ -40,13 +40,15 @@ export function drawWide(scene) {
   ctx.drawImage(scene.groundArt.wide, 0, 0, WIDTH, HEIGHT);
   // Under one sun the small figures' shadows lean its way; under floodlights all round they stay round.
   const casts = scene.light.casts ?? [];
-  setShadowCast(casts.length === 1 ? shadowSlope(projectWide, 0, MID_PITCH, 1.8, 13, casts[0]) : null);
+  // The non-striker, umpire and bowler (and the sun) are where they are in the world, whoever is batting.
+  const w = viewFacing();
+  setShadowCast(casts.length === 1 ? shadowSlope(projectWide, 0, MID_PITCH, 1.8, 13, { ...casts[0], x: casts[0].x * w }) : null);
   const inn = scene.inn;
   if (scene.ground.wide.scoreboard) drawGroundScoreboard(scene.ground.wide.scoreboard, inn);
   const cur = scene.cur;
   const live = cur?.play?.live;
   const cap = scene.kitBowl.cap;
-  const nonStrikerX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).nonStrikerX;
+  const nonStrikerX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).nonStrikerX * w;
   const sprites = [];
   const add = (x, y, z, draw) => {
     const p = projectWide(x, y, z);
@@ -54,7 +56,7 @@ export function drawWide(scene) {
   };
 
   // Umpires.
-  add(activeWicketSide(scene) === "around" ? 1.2 : -1.2, 0, PITCH_LENGTH + 2.4, (x, y, s) =>
+  add((activeWicketSide(scene) === "around" ? 1.2 : -1.2) * w, 0, PITCH_LENGTH + 2.4, (x, y, s) =>
     drawTinyFigure(x, y, s, "idle", "#f4f4f0"),
   );
   add(-26, 0, 1, (x, y, s) => drawTinyFigure(x, y, s, "idle", "#f4f4f0"));
@@ -95,7 +97,7 @@ export function drawWide(scene) {
     const keeper = keeperSpot(scene.spinner);
     add(keeper.x, 0, keeper.z, (x, y, s) => drawTinyFigure(x, y, s, "keeper", cap));
     const bowler = bowlerState(scene);
-    add(bowler.x, 0, bowler.z, (x, y, s) => drawTinyFigure(x, y, s, bowler.pose, cap, bowler.phase));
+    add(bowler.x * w, 0, bowler.z, (x, y, s) => drawTinyFigure(x, y, s, bowler.pose, cap, bowler.phase));
     const walk = walkInShare(scene);
     inn.placements.forEach((place, i) => {
       const at = walkInSpot(place.pos, walk);

@@ -54,6 +54,19 @@ const DT = 1 / 240;
  * the intended pitching distance from the striker's stumps.
  * releaseError: seconds early (<0) or late (>0) at the delivery stride.
  */
+/**
+ * How far (m, + towards a right-hander's off side) a delivery of `intent` usually moves off the pitch before
+ * it reaches the bat: the turn or the seam a bowler allows for in his line. No dice: what he expects.
+ */
+export function expectedTurnAtBat(intent, skills, ball, pitch) {
+  const spinDir = { offspin: -1, legspin: 1, googly: -1 }[intent.type] ?? 0;
+  if (!spinDir || !isSpinner(skills)) return 0;
+  const turn = spinDir * Math.min(2.6, 0.85 * skills.spin * ball.grip * pitch.turn * SPIN_EFFORT_TURN[intent.effort]);
+  const speed = bowlingSpeed(skills) * EFFORT_SPEED[intent.effort] * (SPEED_FACTOR[intent.type] ?? 1);
+  const paceKept = clamp(0.86 * pitch.pace, 0.6, 0.97);
+  return (turn * Math.max(0, intent.length - CREASE)) / (speed * paceKept);
+}
+
 export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError, rng) {
   const spinner = isSpinner(skills);
   const tiredness = 1 - stamina;

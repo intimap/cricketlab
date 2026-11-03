@@ -1,7 +1,14 @@
 import { clamp, easeOut } from "../math.js";
 import { CREASE } from "../sim/geometry.js";
 import { drawOutlined } from "../engine/outline.js";
-import { closeGroundY, projectClose, closePixelsPerMetre, closeFromBowlerEnd } from "../render/camera.js";
+import {
+  closeGroundY,
+  projectClose,
+  projectFromStriker,
+  closePixelsPerMetre,
+  closeFromBowlerEnd,
+  viewFacing,
+} from "../render/camera.js";
 import { BATTER_POSES, solveBatterRig, lerpPose, drawBatter, playerKit } from "../render/sprites.js";
 import { STRIKER_X, STRIKER_SCREEN_X, readyPose, strikerStroke, footworkOf, footworkPixels } from "./batter-pose.js";
 
@@ -43,7 +50,9 @@ function contactOffset(scene, cur, place) {
   if (cur.batOffset[key]) return cur.batOffset[key];
   const { pose } = strikerStroke(scene, cur, res.start.t, place.front);
   const ball = projectClose(res.start.pos.x, res.start.pos.y, res.start.pos.z);
-  const at = (q) => ({ x: place.x + (place.front ? -q.x : q.x) * place.scale, y: place.y + q.y * place.scale });
+  // He's drawn mirrored face-on, and as a left-hander; both together cancel (render/batter/batter-rig.js).
+  const mirror = place.front !== viewFacing() < 0 ? -1 : 1;
+  const at = (q) => ({ x: place.x + mirror * q.x * place.scale, y: place.y + q.y * place.scale });
   // Screen distance from the ball to the blade (shoulder to toe) for a pose.
   const gap = (p) => {
     const rig = solveBatterRig(p, place.front);
@@ -56,7 +65,7 @@ function contactOffset(scene, cur, place) {
   };
   // The hands first, as far as they'll go towards the ball...
   const g = gap(pose);
-  let dx = (g.dx / place.scale) * (place.front ? -1 : 1);
+  let dx = (g.dx / place.scale) * mirror;
   let dy = g.dy / place.scale;
   const len = Math.hypot(dx, dy);
   if (len > HAND_REACH) {
@@ -98,8 +107,11 @@ export function strikerPlace(scene, kit, fromBowler, moved = 0) {
     const p = projectClose(STRIKER_X + moved, 0, CREASE);
     return { x: p.x, y: p.y + 1, scale: (closePixelsPerMetre(CREASE) * kit.height) / BATTER_HEIGHT_PX, front: true };
   }
+  // From behind him: a left-hander takes guard on the other side of the stumps (mirrored about them).
+  const x = STRIKER_SCREEN_X + footworkPixels(moved);
+  const stumps = projectFromStriker(0, 0, CREASE).x;
   return {
-    x: STRIKER_SCREEN_X + footworkPixels(moved),
+    x: viewFacing() < 0 ? 2 * stumps - x : x,
     y: closeGroundY(CREASE) + 2,
     scale: kit.height / STANDARD_HEIGHT,
     front: false,

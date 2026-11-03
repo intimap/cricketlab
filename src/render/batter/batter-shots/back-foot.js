@@ -219,7 +219,7 @@ export function extendBackFootShots({ clip, stance, clips }) {
       [
         0.085,
         "High rotation",
-        { px: 0, py: -93, angle: -122, hipTurn: -12, shoulderTurn: -33, frontHeel: 2, backHeel: 1, batFace: 0.7 },
+        { px: 0, py: -93, angle: -134, hipTurn: -12, shoulderTurn: -33, frontHeel: 2, backHeel: 1, batFace: 0.7 },
         "out",
       ],
       [0.23, "Finish", { px: -15, py: -86, angle: -151, hipTurn: -18, shoulderTurn: -45, batFace: 0.4 }],

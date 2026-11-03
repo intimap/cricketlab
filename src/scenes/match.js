@@ -8,8 +8,8 @@ import { createMatch } from "../sim/formats.js";
 import { crossingAtZ } from "../sim/delivery.js";
 import { CONTACT_Z_FRONT, CONTACT_Z_BACK, playsBack } from "../sim/batting.js";
 import { pickBowler } from "../sim/ai.js";
-import { makeKit } from "../render/sprites.js";
 import { callDuration } from "../render/booth.js";
+import { teamKit } from "../render/skins.js";
 import { buildGround } from "../render/ground.js";
 import { GROUNDS, DEFAULT_GROUND } from "../render/grounds.js";
 import { LIGHTS } from "../render/light.js";
@@ -90,8 +90,8 @@ export class MatchScene {
     /** Nets: the coach's verdict on the last ball. */
     this.feedback = null;
     const inn = this.match.inn;
-    this.kitBat = makeKit(inn.batTeam.colour, inn.batTeam.colour2);
-    this.kitBowl = makeKit(inn.bowlTeam.colour, inn.bowlTeam.colour2);
+    this.kitBat = teamKit(inn.batTeam);
+    this.kitBowl = teamKit(inn.bowlTeam);
     const pitch = inn.pitch.type;
     this.commentary = this.nets
       ? `Nets: ${this.human === "bat" ? "face as many as you like" : "bowl as many as you like"}. The coach rates every ball.`

@@ -6,6 +6,7 @@ import { projectFromStriker } from "../render/camera.js";
 import { BATTER_POSES, lerpPose, reachPose } from "../render/batter/batter-rig.js";
 import { BATTER_CLIPS, sampleGameBatterMotion } from "../render/batter/batter-motion-all.js";
 import { rigStroke } from "./batter-stroke.js";
+import { strokeTimeline } from "./batter-blend.js";
 export { rigStroke } from "./batter-stroke.js";
 
 /**
@@ -49,25 +50,18 @@ export function finishPose(cur, type) {
   return BATTER_POSES.straightDriveEnd;
 }
 
-/** How long a stroke on the new rig eases in from the old ready pose, and back out to the old stance after (s). */
-const RIG_BLEND_IN = 0.06;
-const RIG_BLEND_OUT = 0.2;
 /** The striker on the new rig for `stroke` at scene time t, eased in from the old ready pose and out to the old stance. */
 function rigPose(scene, cur, stroke, t, reach, fromBowler) {
   const view = fromBowler ? "bowler" : "batter";
   const start = stroke.contactAt - stroke.window;
-  const rel = t - stroke.contactAt;
-  const end = BATTER_CLIPS[stroke.name].end;
-  if (rel > end) {
-    const done = sampleGameBatterMotion(stroke.name, end, { view, windowBeforeContact: stroke.window });
-    return { ...BATTER_POSES.stance, from: done, fromK: Math.max(0, 1 - (rel - end) / RIG_BLEND_OUT) };
-  }
-  const motion = sampleGameBatterMotion(stroke.name, rel, { view, windowBeforeContact: stroke.window });
   // Reaching towards the line of the ball, as the old strokes do: in through contact, then let go.
-  const reachNow = (stroke.type === "leave" ? 0 : reach) * (rel < 0 ? clamp((t - start) / stroke.window) : clamp(1 - rel / 0.2));
-  const pose = reachPose(motion, reachNow, stroke.frontFoot);
-  const since = t - start;
-  return since < RIG_BLEND_IN ? { ...pose, from: readyPose(scene, cur, start), fromK: 1 - since / RIG_BLEND_IN } : pose;
+  const sample = (rel) => {
+    const motion = sampleGameBatterMotion(stroke.name, rel, { view, windowBeforeContact: stroke.window });
+    const reachNow =
+      (stroke.type === "leave" ? 0 : reach) * (rel < 0 ? clamp((rel + stroke.window) / stroke.window) : clamp(1 - rel / 0.2));
+    return reachPose(motion, reachNow, stroke.frontFoot);
+  };
+  return strokeTimeline(stroke.name, t - stroke.contactAt, stroke.window, readyPose(scene, cur, start), sample);
 }
 
 /** Where the striker is drawn from the batter's end (screen x). */

@@ -9,8 +9,8 @@ const WILLOW = {
 };
 
 /** Draw the projected faces of the rigid 3D blade, farthest first, on the pixel grid. */
-export function drawBat({ bat }, poly, line) {
-  line(bat.grip[0], bat.grip[1], 2, "#2b2b33");
+export function drawBat({ bat }, poly, line, grip = "#2b2b33") {
+  line(bat.grip[0], bat.grip[1], 2, grip);
   for (const face of bat.faces) poly(face.points, WILLOW[face.kind]);
   if (bat.grainVisible) line(bat.grain[0], bat.grain[1], 0.5, "#cdb079");
 }

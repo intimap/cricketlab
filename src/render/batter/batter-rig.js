@@ -3,6 +3,7 @@ import { drawText } from "../../engine/text.js";
 import { PAD, PAD_SHADE, HAIR, mirrored, groundShadow, lighten, darken } from "../kit.js";
 import { drawCloth, drawBoot } from "./batter-surfaces.js";
 import { drawBat } from "./bat.js";
+import { BUILDS } from "../skins.js";
 
 /**
  * The striker in the close view: his key poses, the projected 3D skeleton solved from a pose and the drawing of him in kit.
@@ -76,16 +77,23 @@ function drawBatterHelmetBack(head, h, scale, kit, poly, line) {
  * jointed skeleton (hips, knees, shoulders, elbows) is solved from the pose's
  * feet, hips and hands, then fleshed out with kit, pads, gloves and helmet.
  * Seen from behind, unless `front` (from the bowler's end): then mirrored, face on.
+ * `parts`: "all", or "shadow" / "body" to draw his ground shadows and the rest of him separately.
  */
-export function drawBatter(x, y, scale, pose, kit, number = 0, front = false) {
-  if (front) mirrored(x, () => drawBatterBody(x, y, scale, pose, kit, 0, true));
-  else drawBatterBody(x, y, scale, pose, kit, number, false);
+export function drawBatter(x, y, scale, pose, kit, number = 0, front = false, parts = "all") {
+  const body = () => drawBatterBody(x, y, scale, pose, kit, front ? 0 : number, front, parts);
+  // Face-on is mirrored; so is a left-hander, so a left-hander face-on isn't.
+  if (front !== (kit.hand === "left")) mirrored(x, body);
+  else body();
 }
 
-function drawBatterBody(x, y, scale, pose, kit, number, front) {
+function drawBatterBody(x, y, scale, pose, kit, number, front, parts) {
   const at = (p) => ({ x: x + p.x * scale, y: y + p.y * scale });
   // A limb segment tapering from radius r0 to r1, lit from the left: a shade rim on the right.
-  const limb = (a, b, r0, r1, color, shade) => {
+  // Thicker or thinner limbs for the player's build (render/skins.js).
+  const thick = BUILDS[kit.build] ?? 1;
+  const limb = (a, b, w0, w1, color, shade) => {
+    const r0 = w0 * thick;
+    const r1 = w1 * thick;
     const n = Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) * scale) + 1;
     for (const [c, off, trim] of shade
       ? [
@@ -147,23 +155,26 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     }
   };
 
-  groundShadow(x + 1 * scale, y - 2 * scale, 15 * scale, 5 * scale, 0.28);
-  for (const shadow of [frontFootShadow, backFootShadow]) {
-    const foot = at(shadow);
-    fillEllipse(foot.x, foot.y, 6 * scale, 1.6 * scale, "rgba(0,0,0,0.24)");
+  if (parts !== "body") {
+    groundShadow(x + 1 * scale, y - 2 * scale, 15 * scale, 5 * scale, 0.28);
+    for (const shadow of [frontFootShadow, backFootShadow]) {
+      const foot = at(shadow);
+      fillEllipse(foot.x, foot.y, 6 * scale, 1.6 * scale, "rgba(0,0,0,0.24)");
+    }
   }
+  if (parts === "shadow") return;
   const leg = (hip, knee, foot, boot) => {
     limb(hip, knee, 6, 5, kit.pants, kit.shade);
     // Pad from just above the knee to the boot, with a knee roll and straps.
     const top = { x: knee.x + (hip.x - knee.x) * 0.22, y: knee.y + (hip.y - knee.y) * 0.22 };
     // Seen edge-on: the pad's face (and its straps) turned to the off side.
-    limb(top, foot, 4.4, 4, PAD, PAD_SHADE);
+    limb(top, foot, 4.4, 4, kit.pads ?? PAD, kit.padShade ?? PAD_SHADE);
     const len = Math.hypot(foot.x - top.x, foot.y - top.y) || 1;
     const nx = Math.abs((foot.y - top.y) / len);
     const ny = -(foot.x - top.x) / len;
     for (const t of [0.12, 0.45, 0.75]) {
       const c = { x: top.x + (foot.x - top.x) * t, y: top.y + (foot.y - top.y) * t };
-      line({ x: c.x + nx * 0.5, y: c.y + ny * 0.5 }, { x: c.x + nx * 4, y: c.y + ny * 4 }, 1, PAD_SHADE);
+      line({ x: c.x + nx * 0.5, y: c.y + ny * 0.5 }, { x: c.x + nx * 4, y: c.y + ny * 4 }, 1, kit.padShade ?? PAD_SHADE);
     }
     drawBoot(boot, poly);
   };
@@ -171,11 +182,11 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     for (const g of [topHand, bottomHand]) {
       const p = at(g);
       fillCircle(p.x, p.y, 3 * scale, "#f1f1f1");
-      fillCircle(p.x + scale, p.y + scale, 1.3 * scale, kit.cap2);
+      fillCircle(p.x + scale, p.y + scale, 1.3 * scale, kit.gloveTrim ?? kit.cap2);
     }
   };
   // A blade beyond the body from the camera goes down first, so the body covers it.
-  if (batBehind) drawBat({ bat }, poly, line);
+  if (batBehind) drawBat({ bat }, poly, line, kit.grip);
 
   // Depth determines which leg overlaps the other, whichever camera is selected.
   if (frontLegNear) {
@@ -227,6 +238,6 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
   if (frontArmNear) arm(frontShoulder, frontElbow, frontWrist);
   else arm(backShoulder, backElbow, backWrist);
 
-  if (!batBehind) drawBat({ bat }, poly, line);
+  if (!batBehind) drawBat({ bat }, poly, line, kit.grip);
   gloves();
 }

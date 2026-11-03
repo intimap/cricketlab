@@ -3,6 +3,7 @@ import { isSpinner, bowlingSpeed } from "./teams.js";
 import { simulateFlight, crossingAtZ } from "./delivery.js";
 import { reactionTime, STANCE_X, FOOTWORK_MIN, FOOTWORK_MAX } from "./batting.js";
 import { describeBall, readAgainst, exploits, difficulty } from "./plans.js";
+import { TEST_BATTING as TEST } from "./test-match.js";
 
 /**
  * How wayward the computer's shot timing is (1 = as it was): more mistimes, edges and the odd air
@@ -221,12 +222,13 @@ export function battingAggression(inn, index) {
   let a = b.p.bat.aggression * (0.6 + 0.5 * state.settled);
   a += clamp(b.dotStreak / 25) * 0.25 * (1 - b.p.bat.temperament);
   if (inn.wkts >= 7) a += 0.15;
-  if (inn.oversLimit * 6 - inn.legal < 30) a += 0.15;
+  if (!inn.test && inn.oversLimit * 6 - inn.legal < 30) a += 0.15;
   if (inn.ball.hardness > 0.85 && inn.ball.overs < 10) a -= 0.12;
   // Pressure gets to the impatient ones.
   a += inn.pressure * PRESSURE_AGGRESSION * (1.1 - b.p.bat.temperament);
   if (inn.freeHit) a += 0.5;
   a += chaseAggression(inn) + inn.tempo * LIMITED_OVERS_PUSH;
+  if (inn.test) a -= TEST.caution;
   return clamp(a, 0.05, 0.98);
 }
 
@@ -246,7 +248,8 @@ export function runningRisk(inn, index) {
   const b = inn.bat[index].p.bat;
   let risk = RUN_RISK_BASE + inn.tempo * RUN_RISK_TEMPO;
   const rate = inn.requiredRate;
-  if (rate !== null && rate !== Infinity && inn.ballsLeft > 0) {
+  const forDraw = inn.test && rate > TEST.drawRate;
+  if (rate !== null && rate !== Infinity && inn.ballsLeft > 0 && !forDraw) {
     const scoring = inn.legal ? (6 * inn.runs) / inn.legal : rate;
     const behind = clamp((rate - Math.max(scoring, CHASE_PAR_RATE)) / 3);
     const late = clamp(1 - inn.ballsLeft / 60);
@@ -262,6 +265,7 @@ export function runningRisk(inn, index) {
 function chaseAggression(inn) {
   const rate = inn.requiredRate;
   if (rate === null) return 0;
+  if (inn.test && rate > TEST.drawRate) return TEST.forDraw;
   if (rate === Infinity || inn.runsNeeded > inn.ballsLeft * 3) return CHASE_MAX_PUSH;
   const push = clamp((rate - CHASE_PAR_RATE) * CHASE_PUSH_PER_RUN, -CHASE_MAX_PUSH, CHASE_MAX_PUSH);
   const wicketsLeft = 10 - inn.wkts;
@@ -289,7 +293,7 @@ export function pickShot(d, inn, rng) {
     d.bounceIndex >= 0 && readFrom.t >= d.samples[d.bounceIndex].t,
     -0.2,
   );
-  const misjudge = 0.07 * (1.25 - skills.technique) * (1.3 - 0.3 * state.settled);
+  const misjudge = 0.07 * (1.25 - skills.technique) * (1.3 - 0.3 * state.settled) * (inn.test ? TEST.read : 1);
   const atBat = crossingAtZ(read.samples, 1.4) ?? readFrom;
   const line = atBat.x + rng.normal(0, misjudge);
   const height = atBat.y + rng.normal(0, misjudge);
@@ -378,7 +382,8 @@ export function pickShot(d, inn, rng) {
   const vsType = spinner ? skills.vsSpin : skills.vsPace;
   const timingSd =
     ((0.03 - 0.012 * skills.timing - 0.006 * state.settled) * (1.25 - 0.4 * vsType) * (1 + charge * 0.4) + 0.006) *
-    AI_TIMING_SPREAD;
+    AI_TIMING_SPREAD *
+    (inn.test ? TEST.timing : 1);
   // A slower ball he hasn't picked: through the shot too early.
   const timingError = rng.normal(d.paceMisread ? -0.035 : 0, Math.max(0.006, timingSd) * Math.sqrt(hard));
   return {

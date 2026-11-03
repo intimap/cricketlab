@@ -1,10 +1,11 @@
 import { Match } from "./match.js";
 import { australia, england } from "./teams.js";
 import { TEAMS } from "./team-list.js";
+import { rollWeather } from "./weather.js";
 
 /**
  * How a game is played, as data:
- *   spell   - one innings, then the scorecard (practice)
+ *   test    - two innings each over five days of 90 overs: a win, or a draw if time runs out
  *   match   - both sides bat the same overs; the second chases a target
  *   classic - a set piece dropped into the closing stages of a chase
  *   nets    - endless practice: no innings to lose, a coach's verdict on every ball
@@ -23,7 +24,7 @@ import { TEAMS } from "./team-list.js";
  * tools/sim-report.mjs-style runs whenever batting balance changes.
  */
 export const FORMATS = {
-  spell: { name: "SPELL", innings: 1, blurb: "ONE INNINGS. BAT OR BOWL A SPELL." },
+  test: { name: "TEST MATCH", innings: 4, blurb: "FIVE DAYS, TWO INNINGS EACH. BOWL THEM OUT TWICE TO WIN." },
   match: { name: "FULL MATCH", innings: 2, blurb: "BOTH SIDES BAT. THE SECOND CHASES THE TOTAL." },
   classic: { name: "CLASSIC MATCHES", innings: 1, blurb: "WIN FROM A TIGHT SPOT." },
   nets: { name: "NETS", innings: 1, blurb: "PRACTICE AS LONG AS YOU LIKE. THE COACH RATES EVERY BALL." },
@@ -102,11 +103,15 @@ export const CLASSICS = [
 const NETS_OVERS = 9999;
 
 /** Overs choices on the menu, per format. */
-export const OVERS_CHOICES = { spell: [10, 20, 40, 90], match: [5, 10, 20, 50] };
+export const OVERS_CHOICES = { match: [5, 10, 20, 50] };
+
+/** The fewest overs rain can leave a limited-overs game (a shorter game than that isn't cut). */
+const MIN_RAIN_OVERS = 5;
 
 /**
  * Build the Match for a menu choice:
- * cfg = { format, mode ("bat"/"bowl"), pitch, overs, classic (id) }.
+ * cfg = { format, mode ("bat"/"bowl"), pitch, overs, classic (id), ground (id), team, opponent }.
+ * Matches get the day's weather (sim/weather.js); rain before the start cuts a limited-overs game's overs.
  */
 export function createMatch(cfg, rng) {
   const aus = australia();
@@ -121,5 +126,11 @@ export function createMatch(cfg, rng) {
   const theirs = (TEAMS[cfg.opponent] ?? england)();
   const [bat, bowl] = cfg.mode === "bat" ? [mine, theirs] : [theirs, mine];
   if (cfg.format === "nets") return new Match(bat, bowl, cfg.pitch, NETS_OVERS, rng, cfg.mode, { nets: true });
-  return new Match(bat, bowl, cfg.pitch, cfg.overs, rng, cfg.mode, { innings: FORMATS[cfg.format]?.innings ?? 1 });
+  if (cfg.format === "test") return new Match(bat, bowl, cfg.pitch, 0, rng, cfg.mode, { test: true, ground: cfg.ground });
+  const weather = rollWeather(rng, cfg.ground);
+  const overs = Math.max(Math.min(cfg.overs, MIN_RAIN_OVERS), Math.round(cfg.overs * (1 - weather.lost)));
+  const match = new Match(bat, bowl, cfg.pitch, overs, rng, cfg.mode, { innings: FORMATS[cfg.format]?.innings ?? 1, weather });
+  /** Overs the rain took before the start (the weather report says so). */
+  match.oversLost = cfg.overs - overs;
+  return match;
 }

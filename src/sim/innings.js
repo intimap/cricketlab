@@ -88,7 +88,7 @@ export class Innings {
     return `${this.overNo}.${this.ballInOver}`;
   }
   get isOver() {
-    return this.wkts >= 10 || this.legal >= this.oversLimit * 6 || this.chaseWon;
+    return this.wkts >= 10 || this.legal >= this.oversLimit * 6 || this.chaseWon || this.declared;
   }
 
   /** Runs to win, when chasing (null otherwise). */
@@ -98,6 +98,9 @@ export class Innings {
    * innings (bat time), 1 is a short slog. Set by the Match.
    */
   tempo = 0;
+  /** A Test innings (sim/test-match.js): no death overs, and the batting side can declare. */
+  test = false;
+  declared = false;
   /** Nets practice: dismissals are counted but nobody walks off. */
   nets = false;
   netsOuts = 0;

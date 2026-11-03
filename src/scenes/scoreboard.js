@@ -175,12 +175,18 @@ export class ScoreboardScene {
   drawEntry() {
     const e = this.entry;
     drawPanel(90, 70, 460, 200, "#0d2318");
-    const color = e.won ? COLORS.gold : e.kind === "tie" ? COLORS.cream : COLORS.red;
-    drawText(e.kind === "tie" ? "MATCH TIED" : e.won ? "YOU WON!" : "YOU LOST", WIDTH / 2, 84, {
-      scale: 3,
-      align: "center",
-      color,
-    });
+    const level = e.kind === "tie" || e.kind === "draw";
+    const color = e.won ? COLORS.gold : level ? COLORS.cream : COLORS.red;
+    drawText(
+      e.kind === "tie" ? "MATCH TIED" : e.kind === "draw" ? "MATCH DRAWN" : e.won ? "YOU WON!" : "YOU LOST",
+      WIDTH / 2,
+      84,
+      {
+        scale: 3,
+        align: "center",
+        color,
+      },
+    );
     drawText(e.text, WIDTH / 2, 112, { align: "center", color: COLORS.cream });
     drawText(e.score, WIDTH / 2, 124, { align: "center", color: COLORS.dim });
     drawText("ENTER YOUR NAME", WIDTH / 2, 146, { align: "center", color: COLORS.gold });

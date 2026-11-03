@@ -5,6 +5,8 @@ import { setupCall, deliveryCall, shotCall, outcomeCall, overIntroCall, fieldCal
 import { COLORS } from "../engine/screen.js";
 import { venueCall } from "../sim/booth-venue-lines.js";
 import { wrapUpCall } from "../sim/booth-wrap-lines.js";
+import { weatherCall, breakCall, declareCall } from "../sim/booth-weather-lines.js";
+import { leadOf } from "../sim/test-match.js";
 import { onFieldCall, reviewCall, trackingCall, verdictCall } from "../sim/booth-drs-lines.js";
 import { activeWicketSide } from "./bowling-side.js";
 
@@ -46,13 +48,50 @@ export function onInningsEnd(scene) {
   if (!live(scene)) return;
   const inn = scene.inn;
   const match = scene.match;
-  const score = `${inn.runs}${inn.wkts >= 10 ? " ALL OUT" : `/${inn.wkts}`}`;
+  const score = `${inn.runs}${inn.wkts >= 10 ? " ALL OUT" : `/${inn.wkts}${inn.declared ? " DECLARED" : ""}`}`;
   const facts = { team: inn.batTeam.name, score, chasers: inn.bowlTeam.name };
-  if (match.hasNextInnings) facts.need = inn.runs + 1;
+  // A Test has a target to talk about only before the last innings.
+  if (match.hasNextInnings && !match.clock) facts.need = inn.runs + 1;
+  else if (match.hasNextInnings && match.innings.length === 3) facts.need = Math.max(1, -leadOf(match, inn.bowlTeam) + 1);
   else if (match.result) facts.result = match.result.text;
   const who = lead(scene);
   const text = wrapUpCall(who, facts, pick);
   if (fitsBox(text)) queue(scene, [{ who, text }], scene.now + 0.6);
+}
+
+/** The weather report is up: the box's take on the day (and the rain), the longest version that fits. */
+export function onForecast(scene) {
+  if (scene.nets) return;
+  const { match } = scene;
+  const w = match.weather;
+  const who = (match.clock?.day ?? 0) % 3;
+  const facts = {
+    id: w.id,
+    temp: w.temp,
+    day: match.clock?.day,
+    lost: match.clock?.lostToday,
+    overs: match.oversLost ? match.overs : 0,
+  };
+  for (const f of [facts, { ...facts, day: 0 }, { id: w.id, temp: w.temp }]) {
+    const text = weatherCall(who, f, pick);
+    if (fitsBox(text)) return queue(scene, [{ who, text }], scene.now + 0.5);
+  }
+}
+
+/** Lunch, tea or stumps in a Test. */
+export function onBreak(scene, brk, day) {
+  if (scene.nets) return;
+  const inn = scene.inn;
+  const who = lead(scene);
+  const text = breakCall(who, brk, { team: inn.batTeam.name, score: `${inn.runs}/${inn.wkts}`, day }, pick);
+  if (fitsBox(text)) queue(scene, [{ who, text }], scene.now + 0.6);
+}
+
+/** Batting in a Test: the box reckons it's time to declare. */
+export function onDeclareAdvice(scene) {
+  const who = lead(scene);
+  const text = declareCall(who, pick);
+  if (fitsBox(text)) queue(scene, [{ who, text }], scene.now + 0.4);
 }
 
 /** The next ball is being set up: at an innings' start, the ground and pitch; at an over's, the bowler. */

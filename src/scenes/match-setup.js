@@ -5,6 +5,7 @@ import { PRESET_ORDER, clampFieldPosition } from "../sim/field.js";
 import { projectWide, unprojectWide } from "../render/camera.js";
 import * as input from "./match-input.js";
 import { act } from "./player-actions.js";
+import { updateDeclareKey } from "./match-test.js";
 
 /**
  * Between balls in the match scene: the keys there (sim an over, view the field), the bowling setup
@@ -12,7 +13,7 @@ import { act } from "./player-actions.js";
  * (scenes/match.js), whose methods of the same names call these.
  */
 
-/** Keys available between balls: simulate, or look at the field. */
+/** Keys available between balls: simulate, look at the field, or (a Test) declare. */
 export function betweenBalls(scene) {
   if (keys.pressed("KeyO")) {
     act(scene, { type: "simulate", overs: 1 });
@@ -22,6 +23,12 @@ export function betweenBalls(scene) {
     act(scene, { type: "simulate", overs: 5 });
     return true;
   }
+  // A Test: L plays on to the next interval; C (twice) declares.
+  if (scene.match.clock && keys.pressed("KeyL")) {
+    act(scene, { type: "simulate", overs: "break" });
+    return true;
+  }
+  if (updateDeclareKey(scene)) return true;
   if (keys.pressed("KeyV")) {
     scene.setPhase("fieldEdit");
     scene.view = "wide";

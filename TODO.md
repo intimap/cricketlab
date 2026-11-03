@@ -90,6 +90,16 @@ from them rather than re-asking.
   partnership is labelled STAND. Still to come: drama and personality beyond the existing banks, more of the GUI
   pass (the bottom ticker, the bowling setup panel), commentary on fielders and left-handers.
 
+## Tests and weather (first pass done, branch `test-weather`)
+
+- Done: five-day Tests (90 overs a day, lunch, tea and stumps, the draw), declarations and the follow-on (the
+  computer captain decides; the player is advised and chooses), the weather (five kinds, by ground, rolled each
+  Test morning) on the pitch, the swing and the outfield, a weather report before play, rain costing overs.
+- Still to come: rain interruptions during play, the light changing by session, an overcast look, bad light,
+  around-the-wicket and field changes for the Test situation (attacking fields for a declaration, saving the draw).
+- AI-vs-AI Tests (`tools/test-report.mjs`, 20 Tests): 20% drawn, over on day 3.8 on average, 2.86 rpo, 54.5 balls
+  a wicket. England's batting is weaker than Australia's (3.5 vs 4.6 rpo in sim-report-style innings): worth a look.
+
 ## Later
 
 - Fictional names and art before any pub install.
@@ -98,5 +108,5 @@ from them rather than re-asking.
 
 ## Not applicable to the game (yet)
 
-Sessions and days, drinks breaks, rain and DLS, declarations and the follow-on, net run rate, venue records and
+Drinks breaks, DLS (rain shortens a limited-overs game only before the start), net run rate, venue records and
 career stats: the game has none of these to talk about.

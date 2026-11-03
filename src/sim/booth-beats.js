@@ -266,7 +266,7 @@ function extraFor(inn, fresh, opening, style, striker, field, facts, pick) {
     return fill(pick(NEW_BALL.due), { n: Math.ceil(80 - ball.overs) });
   const limit = inn.oversLimit;
   const left = Number.isFinite(limit) ? limit - inn.overNo : Infinity;
-  if (limit <= 50 && left <= Math.max(2, Math.ceil(limit * 0.2)) && left > 0) {
+  if (!inn.test && limit <= 50 && left <= Math.max(2, Math.ceil(limit * 0.2)) && left > 0) {
     if (inn.target !== null && inn.runsNeeded > 0) return fill(pick(PHASE.deathChase), { left, need: inn.runsNeeded });
     return fill(pick(PHASE.death), { left });
   }

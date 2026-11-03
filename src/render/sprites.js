@@ -9,11 +9,13 @@ export * from "./figures.js";
 /** Ball colours: its rim, and its face as it loses its shine (new, worn, old), and the glint. */
 const BALLS = {
   red: { rim: "#3b0a0a", faces: ["#c4161c", "#a3201e", "#7e2a22"], glint: "#ffb3a8" },
-  // Under lights it's the pink ball, easier to pick up at night.
+  // A day-night Test's pink ball, easier to pick up under lights.
   pink: { rim: "#4a1030", faces: ["#ff5fa8", "#e2559a", "#b94a82"], glint: "#ffe0ef" },
+  // Limited overs' white ball, scuffing grey as it gets older.
+  white: { rim: "#6e6c64", faces: ["#fbfbf4", "#e6e3d6", "#c9c4b4"], glint: "#ffffff" },
 };
 
-/** The ball (`kind`: "red" or "pink"); brighter (shinier) when `shine` is high. */
+/** The ball (`kind`: "red", "pink" or "white"); brighter (shinier) when `shine` is high. */
 export function drawBall(x, y, radius, shine, kind = "red") {
   const ball = BALLS[kind] ?? BALLS.red;
   const face = ball.faces[shine > 0.5 ? 0 : shine > 0.2 ? 1 : 2];

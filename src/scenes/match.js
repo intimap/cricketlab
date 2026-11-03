@@ -1,6 +1,5 @@
 import { callFromBooth } from "./broadcast-commentary.js";
 import { COLORS } from "../engine/screen.js";
-import { sfx } from "../engine/audio.js";
 import { load, save } from "../engine/storage.js";
 import { Rng } from "../sim/rng.js";
 import { isSpinner } from "../sim/teams.js";
@@ -27,7 +26,9 @@ import * as flight from "./match-flight.js";
 import * as setup from "./match-setup.js";
 import { PauseMenu } from "./pause-menu.js";
 import { ScoreboardScene } from "./scoreboard.js";
-import { boardFor, resultEntry } from "../sim/leaderboard.js";
+import { resultEntry } from "../sim/leaderboard.js";
+import * as ending from "./match-ending.js";
+import * as test from "./match-test.js";
 
 /**
  * One innings, played ball by ball. Phases:
@@ -39,6 +40,7 @@ import { boardFor, resultEntry } from "../sim/leaderboard.js";
  *   after        ball dead, showing the result
  *   return       fielders walking back
  *   overEnd, simSummary, fieldEdit, pause, inningsEnd
+ *   forecast     the weather report before play (and each morning of a Test): scenes/match-test.js
  */
 export class MatchScene {
   phase = "ready";
@@ -84,8 +86,8 @@ export class MatchScene {
     setWideCamera(this.ground.wide.camera);
     // The time of day, with the effects this machine is set to (render/lighting.js, effects-auto.js).
     this.baseLight = LIGHTS[cfg.light] ?? LIGHTS.midday;
-    /** A pink ball under lights, otherwise red (render/sprites.js drawBall). */
-    this.ballKind = cfg.light === "night" ? "pink" : "red";
+    /** A Test's red ball (pink under lights), limited overs' white one (render/sprites.js drawBall). */
+    this.ballKind = cfg.format === "test" ? (cfg.light === "night" ? "pink" : "red") : "white";
     this.light = startLook(this.baseLight);
     this.buildGround();
     /** Nets: balls faced or bowled, and how many the coach rated good. */
@@ -103,48 +105,28 @@ export class MatchScene {
       : inn.target !== null
         ? `${inn.batTeam.name} need ${inn.runsNeeded} to win off ${inn.ballsLeft} balls.`
         : `${inn.batTeam.name} to bat on a ${pitch.name.toLowerCase()}. ${pitch.blurb}`;
-    if (this.human === "bowl") {
-      this.match.inn.setPreset("attacking");
-      this.toChooseBowler();
-    } else {
-      this.nextBall();
-    }
+    if (this.human === "bowl") this.match.inn.setPreset("attacking");
+    // The weather report first, then the first ball (or the choice of bowler).
+    this.nextBall();
   }
 
   endInnings() {
-    this.setPhase("inningsEnd");
-    beats.onInningsEnd(this);
-    if (this.ending.good === true && this.cfg.format === "classic") {
-      save("classicsWon", { ...load("classicsWon", {}), [this.cfg.classic]: true });
-    }
-    if (this.ending.good === true) sfx.cheer(1);
-    else if (this.ending.good === false) sfx.groan();
+    return ending.endInnings(this);
   }
 
-  /** How the innings (or match) ended, for the end screen: { title, sub, good?, next }. */
+  /** How the innings (or match) ended, for the end screen (scenes/match-ending.js). */
   get ending() {
-    const match = this.match;
-    const inn = this.inn;
-    if (match.hasNextInnings) {
-      return { title: "INNINGS BREAK", sub: `${inn.bowlTeam.name.toUpperCase()} NEED ${inn.runs + 1} TO WIN`, next: true };
-    }
-    const result = match.result;
-    if (!result) return { title: inn.wkts >= 10 ? "ALL OUT" : "END OF SPELL", sub: `${inn.runs}/${inn.wkts}` };
-    const humanSide = this.human === "bat" ? inn.batTeam : inn.bowlTeam;
-    const good = result.winner === humanSide ? true : result.winner === null ? null : false;
-    if (this.cfg.format === "classic") {
-      return { title: good ? "CHALLENGE COMPLETE!" : "CHALLENGE FAILED", sub: result.text.toUpperCase(), good };
-    }
-    return {
-      title: result.text.toUpperCase(),
-      sub: good ? "WELL PLAYED!" : good === null ? "WHAT A FINISH!" : "BETTER LUCK NEXT TIME",
-      good,
-    };
+    return ending.endingOf(this);
   }
 
   /** Does this game's result go on a high-score table (a finished match or Classic Match)? */
   get hasScoreboard() {
-    return !this.match.hasNextInnings && !!this.match.result && !!boardFor(this.cfg);
+    return ending.hasScoreboard(this);
+  }
+
+  /** The player's side declares (a Test: scenes/match-test.js). */
+  declare() {
+    return test.declare(this);
   }
 
   setPhase(phase) {
@@ -220,10 +202,10 @@ export class MatchScene {
     updateMatch(this, dt);
   }
 
-  /** The innings is over and acknowledged: the next innings, the high scores, or the menu. */
-  leaveInnings() {
+  /** The innings is over and acknowledged: the next innings, the high scores, or the menu. `enforce`: the follow-on call. */
+  leaveInnings(enforce) {
     if (this.match.hasNextInnings) {
-      this.match.nextInnings();
+      this.match.nextInnings(enforce);
       this.game.scene = new MatchScene(this.game, this.cfg, this.match);
     } else if (this.hasScoreboard) {
       this.game.scene = new ScoreboardScene(this.game, this.cfg, resultEntry(this.match));

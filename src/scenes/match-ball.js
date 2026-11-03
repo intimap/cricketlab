@@ -14,6 +14,7 @@ import { pickSledges, pickChirp } from "../sim/field-chatter.js";
 import * as beats from "./booth-beats.js";
 import { onBallDone } from "./match-feedback.js";
 import { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
+import { forecastDue, openForecast, overEndBanner, simShouldStop } from "./match-test.js";
 
 /**
  * A ball's life in the match scene, around the delivery itself: setting up the next ball, the
@@ -37,6 +38,8 @@ export function nextBall(scene) {
     scene.endInnings();
     return;
   }
+  // Before play, and each morning of a Test: the weather report.
+  if (forecastDue(scene)) return openForecast(scene);
   if (scene.match.needOver) {
     if (scene.human === "bowl") {
       scene.toChooseBowler();
@@ -258,7 +261,7 @@ export function updateReturn(scene, dt) {
       return;
     }
     if (applied.overEnded) {
-      scene.big("END OF OVER", COLORS.cream, "CHANGE OF ENDS", 2.3);
+      overEndBanner(scene, applied);
       scene.setPhase("overEnd");
       return;
     }
@@ -266,10 +269,14 @@ export function updateReturn(scene, dt) {
   }
 }
 
-/** Simulate `overs` overs on the AI and list the highlights. */
+/**
+ * Simulate `overs` overs on the AI (or, in a Test, "break": to the next lunch, tea or stumps) and list the
+ * highlights. Stops early when it's time for the player's side to think about declaring.
+ */
 export function simulate(scene, overs) {
   const inn = scene.inn;
-  const until = Math.min(inn.oversLimit, inn.overNo + overs);
+  const toBreak = overs === "break";
+  const until = toBreak ? Infinity : Math.min(inn.oversLimit, inn.overNo + overs);
   scene.booth = null;
   scene.simLines = [];
   for (let i = 0; !inn.isOver && inn.overNo < until && i++ < 2000; ) {
@@ -279,8 +286,10 @@ export function simulate(scene, overs) {
       let line = `${rec.over}.${rec.ball} ${inn.bowl[rec.bowler].p.short} to ${inn.bat[rec.striker].p.short}: ${result}`;
       if (applied.milestones.length) line += "  " + applied.milestones.join(", ");
       if (applied.overEnded) line += `  | END OF OVER ${inn.overNo}: ${inn.runs}/${inn.wkts}`;
+      if (applied.testBreak) line += `  ${applied.testBreak.toUpperCase()}`;
       scene.simLines.push(line);
     }
+    if ((toBreak && applied.testBreak) || simShouldStop(scene, applied)) break;
   }
   scene.commentary = scene.simLines.length ? "Simulated. " + scene.match.overCommentary.overSummary(inn) : "";
   scene.setPhase("simSummary");

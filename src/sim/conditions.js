@@ -1,4 +1,5 @@
 import { clamp } from "../math.js";
+import { NO_WEATHER } from "./weather.js";
 
 export const PITCH_TYPES = {
   green: {
@@ -54,17 +55,29 @@ export const PITCH_TYPES = {
 /** A pitch wears as overs are bowled: more turn and uneven bounce, less pace and seam. */
 export class Pitch {
   wear = 0;
+  /** Today's weather (sim/weather.js): multipliers on the pitch's own swing, seam, pace, wear and the rest. */
+  weather = NO_WEATHER;
+  /** How fast it wears for the format: a Test's five days wear it slower per over (sim/test-match.js). */
+  wearScale = 1;
 
   constructor(type) {
     this.type = type;
   }
 
   addOvers(overs) {
-    this.wear = clamp(this.wear + overs * 0.0022 * this.type.wearRate);
+    this.wear = clamp(this.wear + overs * 0.0022 * this.type.wearRate * this.weather.wear * this.wearScale);
   }
 
   get turn() {
-    return this.type.turn * (1 + 0.9 * this.wear);
+    return this.type.turn * (1 + 0.9 * this.wear) * this.weather.turn;
+  }
+  /** Swing in the air: the pitch's, as the sky helps or hinders it. */
+  get swingAir() {
+    return this.type.swingAir * this.weather.swing;
+  }
+  /** The outfield's drag on a rolling ball (higher is slower): wet slows it, baked hard speeds it up. */
+  get outfield() {
+    return this.type.outfield * this.weather.drag;
   }
   get variability() {
     return this.type.variability + 0.12 * this.wear;
@@ -76,13 +89,13 @@ export class Pitch {
     return this.type.highChance + 0.03 * this.wear;
   }
   get bounce() {
-    return this.type.bounce * (1 - 0.12 * this.wear);
+    return this.type.bounce * (1 - 0.12 * this.wear) * this.weather.bounce;
   }
   get pace() {
-    return this.type.pace * (1 - 0.08 * this.wear);
+    return this.type.pace * (1 - 0.08 * this.wear) * this.weather.pace;
   }
   get seam() {
-    return this.type.seam * (1 - 0.35 * this.wear);
+    return this.type.seam * (1 - 0.35 * this.wear) * this.weather.seam;
   }
 
   /**

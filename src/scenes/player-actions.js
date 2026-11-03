@@ -16,6 +16,7 @@ import { PRESET_LABELS, positionName } from "../sim/field.js";
  *   chooseBowler { bowler }      delivery { delivery }    effort { effort } field { preset }
  *   newBall {}                   wicketSide { side }      placeFielder { idx, pos }
  *   simulate { overs }           catchPress {}            throwCall { end }
+ *   declare {}                   followOn { enforce }     (a Test: scenes/match-test.js)
  */
 export function act(scene, action) {
   (scene.actions ??= []).push({ ...action, at: scene.now, ball: scene.inn.legal });
@@ -69,6 +70,10 @@ export function act(scene, action) {
     case "throwCall":
       scene.cur.play.live.calledEnd = action.end;
       return scene.flash(action.end === 0 ? "THROW: KEEPER'S END" : "THROW: BOWLER'S END");
+    case "declare":
+      return scene.declare();
+    case "followOn":
+      return scene.leaveInnings(action.enforce);
     default:
       throw new Error(`Unknown player action: ${action.type}`);
   }

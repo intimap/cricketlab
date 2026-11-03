@@ -29,7 +29,11 @@ import { drawWide } from "./match-wide.js";
 import { gradeFrame } from "../render/lighting.js";
 import { castShadows } from "./match-shadows.js";
 import { showingWide, SPEED_GUN_MAX_H, drawPanels, drawFeedback } from "./match-panels.js";
+import { drawWeatherTile, ICON } from "../render/weather-icon.js";
+import { statusLine } from "./match-test.js";
 
+/** The score box's left edge (render/hud.js drawScoreBox: 132 wide, 4 from the right). */
+const SCORE_BOX_LEFT = WIDTH - 4 - 132;
 /** The close view's mini-map, on the right just above where the speed gun pops up. */
 const MINI_MAP = { left: 552, top: HUD_Y - 3 - SPEED_GUN_MAX_H - 66 };
 const miniMapShown = (scene) => !showingWide(scene) && scene.phase !== "setup" && scene.phase !== "chooseBowler";
@@ -55,11 +59,14 @@ export function drawMatch(scene) {
     : "";
   // The call types itself out, and stays up while the box talks.
   const booth = boothShowing(scene.booth, scene.now);
-  drawScoreBar(scene.inn, scene.commentary.slice(0, Math.floor(scene.commT * 70)), label);
-  // The score in the corner, except over the full scorecard and the pause menu.
-  if (scene.phase !== "pause" && scene.phase !== "inningsEnd") drawScoreBox(scene.inn);
-  // At the end of an innings the commentators sit over the scorecard, so they can still be seen.
-  const over = scene.phase === "inningsEnd";
+  drawScoreBar(scene.inn, scene.commentary.slice(0, Math.floor(scene.commT * 70)), label, statusLine(scene));
+  // The score in the corner (and the weather beside it), except over the full scorecard and the pause menu.
+  if (scene.phase !== "pause" && scene.phase !== "inningsEnd") {
+    drawScoreBox(scene.inn);
+    if (scene.match.weather) drawWeatherTile(scene.match.weather.id, SCORE_BOX_LEFT - ICON.w - 8, 4);
+  }
+  // At the end of an innings (and over the weather report) the commentators sit on top, so they can be seen.
+  const over = scene.phase === "inningsEnd" || scene.phase === "forecast";
   if (booth && !over) drawBooth(scene.booth, scene.now, scene.commentary);
   drawBanners(scene.banners, scene.now);
   drawPanels(scene);

@@ -40,14 +40,17 @@ export function batImpact({ dx, dy, timing, type, back, sweetWidth }) {
 }
 
 /** Continuous edge response; thin inside edges go finer than thick ones too. */
-export function edgeExit(impact, ballSpeed, batSpeed, defending, side) {
+export function edgeExit(impact, ballSpeed, batSpeed, defending, side, rise = 0) {
   const t = impact.thickness;
-  const thinSpeed = side > 0 ? 0.62 * ballSpeed * (defending ? 0.55 : 1) : 0.32 * ballSpeed;
+  // A thin edge barely slows the ball (soft hands take some off); a thick one is struck, and slower.
+  const thinSpeed = side > 0 ? 0.8 * ballSpeed * (defending ? 0.72 : 1) : 0.32 * ballSpeed;
   const thickSpeed = side > 0 ? 0.42 * ballSpeed + 0.35 * batSpeed : 0.38 * ballSpeed + 0.25 * batSpeed;
+  // And it keeps the ball's rise off the pitch (`rise`, degrees), the thinner the more: so it carries.
   return {
     speed: thinSpeed + (thickSpeed - thinSpeed) * t,
-    bearing: side > 0 ? 166 - 44 * t : -174 + 42 * t,
+    // Thin edges fly fine, to the keeper and first slip; thicker ones squarer, to the cordon and gully.
+    bearing: side > 0 ? 176 - 50 * t * t : -174 + 42 * t,
     spread: 8 + 14 * t,
-    elevation: side > 0 ? 6 + t - (defending ? 4 + 2 * t : 0) : 2,
+    elevation: side > 0 ? 6 + t - (defending ? 4 + 2 * t : 0) + rise * (1 - 0.6 * t) : 2,
   };
 }

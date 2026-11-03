@@ -1,4 +1,5 @@
 import { clamp } from "../math.js";
+import { catchPressEffect } from "./fielding-calls.js";
 import { ENDS } from "./geometry.js";
 import { setState } from "./fielder-motion.js";
 import { gatherDelay } from "./fielder-throw.js";
@@ -48,7 +49,8 @@ export function resolvePlan(live) {
   }
 
   if (plan.kind === "catch") {
-    const chance = catchChance(f, plan, live.t);
+    // The player's timed press, when their side is fielding, shifts the odds (sim/fielding-calls.js).
+    const chance = clamp(catchChance(f, plan, live.t) + catchPressEffect(live, plan), 0.05, 0.99);
     if (rng.chance(chance)) {
       live.ball.held = f.idx;
       live.ball.vel = { x: 0, y: 0, z: 0 };

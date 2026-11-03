@@ -140,7 +140,8 @@ export function aiRun(live) {
 
   const slowest = Math.min(...live.runners.map((r) => r.speed));
   const runTime = RUN_LENGTH / slowest + (live.runsAttempted === 0 ? 0.32 : 0.36);
-  const safety = 0.85 - 0.6 * aggression;
+  // The batters' usual margin, less what the format, the chase and their nature will risk (sim/ai.js).
+  const safety = 0.85 - 0.6 * aggression - (live.setup.aiRunRisk ?? 0);
   if (live.misjudge === null) {
     const running = (live.setup.striker.bat.running + live.setup.nonStriker.bat.running) / 2;
     // Pressure makes them hurry their calls.

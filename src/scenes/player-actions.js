@@ -15,7 +15,7 @@ import { PRESET_LABELS, positionName } from "../sim/field.js";
  *   bowl { plan }                release { error }        appeal {}         review { side }   accept {}
  *   chooseBowler { bowler }      delivery { delivery }    effort { effort } field { preset }
  *   newBall {}                   wicketSide { side }      placeFielder { idx, pos }
- *   simulate { overs }
+ *   simulate { overs }           catchPress {}            throwCall { end }
  */
 export function act(scene, action) {
   (scene.actions ??= []).push({ ...action, at: scene.now, ball: scene.inn.legal });
@@ -63,6 +63,12 @@ export function act(scene, action) {
       return;
     case "simulate":
       return scene.simulate(action.overs);
+    case "catchPress":
+      scene.cur.play.live.catchPressAt = scene.cur.play.live.t;
+      return;
+    case "throwCall":
+      scene.cur.play.live.calledEnd = action.end;
+      return scene.flash(action.end === 0 ? "THROW: KEEPER'S END" : "THROW: BOWLER'S END");
     default:
       throw new Error(`Unknown player action: ${action.type}`);
   }

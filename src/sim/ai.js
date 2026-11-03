@@ -230,6 +230,31 @@ export function battingAggression(inn, index) {
   return clamp(a, 0.05, 0.98);
 }
 
+/** Running risk (lower safety margin, s) for the chase and the batter's nature; see runningRisk. */
+const RUN_RISK_BASE = 0.06;
+/** A touch more in the short games, on top of the tempo they already bat with. */
+const RUN_RISK_TEMPO = 0.02;
+const RUN_RISK_CHASE = 0.35;
+const RUN_RISK_NATURE = 0.18;
+
+/**
+ * How much more the computer's batters will risk on a run than their usual margin (s): much more behind the
+ * rate late in a chase, and more for a cavalier runner (aggressive, impatient) than a nervous one. (Short
+ * games are already run harder, through battingAggression's tempo.) Feeds the running calls, not the shots.
+ */
+export function runningRisk(inn, index) {
+  const b = inn.bat[index].p.bat;
+  let risk = RUN_RISK_BASE + inn.tempo * RUN_RISK_TEMPO;
+  const rate = inn.requiredRate;
+  if (rate !== null && rate !== Infinity && inn.ballsLeft > 0) {
+    const scoring = inn.legal ? (6 * inn.runs) / inn.legal : rate;
+    const behind = clamp((rate - Math.max(scoring, CHASE_PAR_RATE)) / 3);
+    const late = clamp(1 - inn.ballsLeft / 60);
+    risk += RUN_RISK_CHASE * behind * (0.4 + 0.6 * late);
+  }
+  return risk + RUN_RISK_NATURE * (b.aggression - b.temperament);
+}
+
 /**
  * How the state of a chase pushes the batters: above par they go harder, well
  * below it they knock it around, and with few wickets left they temper both.

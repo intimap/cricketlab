@@ -36,7 +36,7 @@ from them rather than re-asking.
 - Still to come: an MCG night painting (hero art: the day painting is relit by colour for now), check the look on
   the Pi 5, the animated crowd, and the ground-art templates and generators for new fictional grounds.
 
-## 2. The batter rebuild
+## 2. The batter rebuild (first pass done, branch `stream2-batter`)
 
 - Problems to fix: stiff with no weight transfer, strokes don't read, proportions and silhouette, transitions
   that snap.
@@ -47,8 +47,13 @@ from them rather than re-asking.
 - Skins as data, a small JSON entry each: team (kit colours, helmet, pads, bat stickers, sponsor patch) and
   player (skin, hair, beard, height, build, extras). Signature stances later.
 - A mirror flag for left-handers in the rig (the sim side is stream 4).
+- Done: keyframes on smooth curves (speed carried through contact), S-curve blends in and out of the stance,
+  `tools/batter-snaps.mjs` and a test against jolts, the body sinking into strokes, a pixel-art outline on the
+  striker, `render/skins.js` (team grip, glove trim, pads; player build; the left-hander mirror).
+- Still to come: proportions and silhouette (needs your eye on frame sheets), the reverse sweep and scoop (their
+  bat turns back at contact: which way round should it go?), drawn parts on the rig, more team skins.
 
-## 3. Fielding
+## 3. Fielding (first pass done, branch `stream3-fielding`)
 
 - Make keeper and outfield catches happen (6 keeper chances and no outfield catches in 60 AI innings).
 - Spectacle: visible dives and stops, direct hits, relays you can follow.
@@ -56,6 +61,11 @@ from them rather than re-asking.
   hurts), throw choice (striker's or bowler's end), direct-hit aim on a run-out.
 - Fielder character from the existing ratings: commentary, a name tag over whoever's involved, and fielding
   cards in the field editor.
+- Done: edges carry (keeper catch chances 13 -> 76 per 30 innings), riskier AI running inside every run-out
+  target, the catch press and throw call (`sim/fielding-calls.js`), name tags over the fielder involved.
+- Still to come: outfield catches (skied shots are still rare: 53 in 30 innings), the direct-hit aim, fielding
+  cards in the field editor, commentary on fielders' arms and hands, visible dives and relays; and the batting
+  is more fragile now catches carry (36.9 balls per wicket, was 41.8): worth a look.
 - Riskier AI running, by format, by batter and by match situation (chasing late and behind the rate most of
   all). Targets, run-outs as a share of dismissals, AI vs AI: 40+ overs 4-5%, 20 overs 6-8%, 10 overs 8-10%;
   nervous runners about half that, cavalier ones about 1.5x.

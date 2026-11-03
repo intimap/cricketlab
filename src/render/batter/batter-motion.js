@@ -251,7 +251,8 @@ export const BATTER_CLIPS = {
       {
         px: -11,
         py: -58.5,
-        angle: -116,
+        // The bat carries its speed on through the ball rather than stopping at it.
+        angle: -130,
         batFace: 0.72,
         hipTurn: -15,
         shoulderTurn: -38,

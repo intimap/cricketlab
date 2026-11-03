@@ -1,5 +1,6 @@
 import { clamp, easeOut } from "../math.js";
 import { CREASE } from "../sim/geometry.js";
+import { drawOutlined } from "../engine/outline.js";
 import { closeGroundY, projectClose, closePixelsPerMetre, closeFromBowlerEnd } from "../render/camera.js";
 import { BATTER_POSES, solveBatterRig, lerpPose, drawBatter, playerKit } from "../render/sprites.js";
 import { STRIKER_X, STRIKER_SCREEN_X, readyPose, strikerStroke, footworkOf, footworkPixels } from "./batter-pose.js";
@@ -14,6 +15,8 @@ const BATTER_HEIGHT_PX = 92;
 const STANDARD_HEIGHT = 1.82;
 /** Run progress (0..1) at which the striker has left his crease and is drawn as a runner. */
 export const LEFT_CREASE = 0.02;
+/** The striker's sprite outline. */
+const SPRITE_OUTLINE = "#16140f";
 /**
  * Bringing the blade onto the ball at contact: the hands move at most HAND_REACH (pose units) and the bat
  * turns at most BAT_TURN (degrees) to take it the rest of the way, easing in over ALIGN_IN, holding for
@@ -142,5 +145,18 @@ export function drawStriker(scene) {
       return;
     }
   }
-  drawBatter(place.x, place.y, place.scale, pose, kit, place.front ? 0 : kit.number || inn.striker + 1, place.front);
+  const number = place.front ? 0 : kit.number || inn.striker + 1;
+  drawBatter(place.x, place.y, place.scale, pose, kit, number, place.front, "shadow");
+  // The body as a pixel-art sprite: a dark 1px outline round his shape, the bat included.
+  const h = BATTER_HEIGHT_PX * place.scale;
+  drawOutlined(
+    () => drawBatter(place.x, place.y, place.scale, pose, kit, number, place.front, "body"),
+    {
+      x: place.x - h * 0.8,
+      y: place.y - h * 1.15,
+      w: h * 1.6,
+      h: h * 1.2,
+    },
+    SPRITE_OUTLINE,
+  );
 }

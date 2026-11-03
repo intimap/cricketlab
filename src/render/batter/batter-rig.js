@@ -76,13 +76,14 @@ function drawBatterHelmetBack(head, h, scale, kit, poly, line) {
  * jointed skeleton (hips, knees, shoulders, elbows) is solved from the pose's
  * feet, hips and hands, then fleshed out with kit, pads, gloves and helmet.
  * Seen from behind, unless `front` (from the bowler's end): then mirrored, face on.
+ * `parts`: "all", or "shadow" / "body" to draw his ground shadows and the rest of him separately.
  */
-export function drawBatter(x, y, scale, pose, kit, number = 0, front = false) {
-  if (front) mirrored(x, () => drawBatterBody(x, y, scale, pose, kit, 0, true));
-  else drawBatterBody(x, y, scale, pose, kit, number, false);
+export function drawBatter(x, y, scale, pose, kit, number = 0, front = false, parts = "all") {
+  if (front) mirrored(x, () => drawBatterBody(x, y, scale, pose, kit, 0, true, parts));
+  else drawBatterBody(x, y, scale, pose, kit, number, false, parts);
 }
 
-function drawBatterBody(x, y, scale, pose, kit, number, front) {
+function drawBatterBody(x, y, scale, pose, kit, number, front, parts) {
   const at = (p) => ({ x: x + p.x * scale, y: y + p.y * scale });
   // A limb segment tapering from radius r0 to r1, lit from the left: a shade rim on the right.
   const limb = (a, b, r0, r1, color, shade) => {
@@ -147,11 +148,14 @@ function drawBatterBody(x, y, scale, pose, kit, number, front) {
     }
   };
 
-  groundShadow(x + 1 * scale, y - 2 * scale, 15 * scale, 5 * scale, 0.28);
-  for (const shadow of [frontFootShadow, backFootShadow]) {
-    const foot = at(shadow);
-    fillEllipse(foot.x, foot.y, 6 * scale, 1.6 * scale, "rgba(0,0,0,0.24)");
+  if (parts !== "body") {
+    groundShadow(x + 1 * scale, y - 2 * scale, 15 * scale, 5 * scale, 0.28);
+    for (const shadow of [frontFootShadow, backFootShadow]) {
+      const foot = at(shadow);
+      fillEllipse(foot.x, foot.y, 6 * scale, 1.6 * scale, "rgba(0,0,0,0.24)");
+    }
   }
+  if (parts === "shadow") return;
   const leg = (hip, knee, foot, boot) => {
     limb(hip, knee, 6, 5, kit.pants, kit.shade);
     // Pad from just above the knee to the boot, with a knee roll and straps.

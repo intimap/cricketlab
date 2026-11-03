@@ -124,20 +124,20 @@ const HAIR = {
  * full), shirt number, and extras: "sunglasses", "zinc" (sunscreen on the
  * nose and lips) and "sweatbands"; and build: slim, average or stocky (thinner or thicker limbs).
  */
-function look(height, skin, hair, hairStyle, beard, number, extras = [], build = "average") {
+export function look(height, skin, hair, hairStyle, beard, number, extras = [], build = "average") {
   return { height, skin: SKIN[skin], hair: HAIR[hair], hairStyle, beard, number, extras, build };
 }
 
 const DEFAULT_LOOK = look(1.82, "light", "brown", "short", "none", 0);
 
 /** Bowling skills from a style template, scaled by `quality` (0..1) and then overridden. */
-function bowler(style, quality, overrides = {}) {
+export function bowler(style, quality, overrides = {}) {
   const s = { style, ...BOWLING_STYLES[style], ...overrides };
   const scale = (v) => clamp(v * (0.85 + 0.3 * quality), 0.05, 0.98);
   return { ...s, accuracy: scale(s.accuracy), swing: scale(s.swing), seam: scale(s.seam), spin: scale(s.spin) };
 }
 
-function makeTeam(name, abbr, colour, colour2, seed, roster) {
+export function makeTeam(name, abbr, colour, colour2, seed, roster) {
   const rng = new Rng(seed);
   // Weaknesses come from their own stream so they don't disturb the ratings.
   const quirks = new Rng(seed * 31 + 7);

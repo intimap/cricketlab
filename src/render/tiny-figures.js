@@ -5,33 +5,36 @@ import { BAT_FACE, PAD, groundShadow } from "./kit.js";
 
 /**
  * A tiny figure for the wide view, feet at (x, y).
- * pose: idle | run | dive | down | celebrate | throw | keeper | batter
+ * pose: idle | run | dive | down | celebrate | throw | keeper | batter. opts: { bat?, shirt?, pants? }
  */
 export function drawTinyFigure(x, y, scale, pose, cap, phase = 0, opts = {}) {
   const k = Math.max(1, scale * 1.45);
+  // Whites unless a coloured kit is given (opts.shirt, opts.pants).
+  const shirt = opts.shirt ?? COLORS.cream;
+  const pants = opts.pants ?? "#e8e2cc";
   const rect = (rx, ry, w, h, color) =>
     fillRect(x + rx * k, y + ry * k, Math.max(1, Math.round(w * k)), Math.max(1, Math.round(h * k)), color);
   groundShadow(x, y, 3 * k, 1, 0.35);
   if (pose === "dive" || pose === "down") {
-    rect(-4, -3, 8, 2, COLORS.cream);
+    rect(-4, -3, 8, 2, shirt);
     rect(-5, -4, 2, 2, cap);
-    rect(3, -3, 2, 1, "#e8e2cc");
+    rect(3, -3, 2, 1, pants);
     return;
   }
   const stride = pose === "run" ? (Math.sin(phase * Math.PI * 2) > 0 ? 1 : -1) : 0;
-  rect(-1 - (stride > 0 ? 1 : 0), -3, 1, 3, "#e8e2cc");
-  rect(1 + (stride < 0 ? 1 : 0), -3, 1, 3, "#e8e2cc");
+  rect(-1 - (stride > 0 ? 1 : 0), -3, 1, 3, pants);
+  rect(1 + (stride < 0 ? 1 : 0), -3, 1, 3, pants);
   if (opts.bat) {
     rect(-1, -3, 1, 2, PAD);
     rect(1, -3, 1, 2, PAD);
   }
-  rect(-1, -6, 3, 3, COLORS.cream);
+  rect(-1, -6, 3, 3, shirt);
   rect(-1, -8, 3, 2, cap);
   if (pose === "celebrate") {
-    rect(-2, -9, 1, 2, COLORS.cream);
-    rect(2, -9, 1, 2, COLORS.cream);
+    rect(-2, -9, 1, 2, shirt);
+    rect(2, -9, 1, 2, shirt);
   } else if (pose === "throw") {
-    rect(2, -9, 1, 3, COLORS.cream);
+    rect(2, -9, 1, 3, shirt);
   } else if (pose === "keeper") {
     rect(-2, -5, 1, 1, "#f0b030");
     rect(2, -5, 1, 1, "#f0b030");

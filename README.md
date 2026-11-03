@@ -114,6 +114,8 @@ src/
     handedness.js     left-handers: the sim in the striker's frame, deliveries mirrored into it
     rng.js            seedable random numbers
     teams.js          squads and player ratings
+    team-list.js      every team the menu offers (Australia, England, New Zealand, South Africa)
+    squads/           the New Zealand and South Africa squads
     conditions.js     pitch types, pitch wear, ball wear (swing, reverse, grip)
     bowling-side.js   over/around release geometry and follow-through position
     delivery.js       bowling: release, swing, seam, spin, bounce, flight
@@ -161,6 +163,7 @@ src/
     booth-moment-lines.js  lines for moments.js's ducks, maidens, big overs, jaffas, the equation...
     booth-drs-lines.js  the LBW decision and the review in stages: given, reviewed, tracking, verdict
     booth-venue-lines.js  scene-setting: each ground, and the pitch report at the start
+    booth-wrap-lines.js the box's wrap-up over the scorecard at the end of an innings or match
     field-reading.js  what the field says about the plan (slips, bat-pad, boundary riders, the ring)
     broadcast-context.js  broadcast pressure and tactics stories from the ball and the narrative
     broadcast-lines.js  each voice's broadcast and colour lines

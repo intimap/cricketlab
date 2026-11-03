@@ -93,8 +93,10 @@ export class MatchScene {
     /** Nets: the coach's verdict on the last ball. */
     this.feedback = null;
     const inn = this.match.inn;
-    this.kitBat = teamKit(inn.batTeam);
-    this.kitBowl = teamKit(inn.bowlTeam);
+    // Whites for a Test, coloured kits for everything else.
+    const coloured = cfg.format !== "test";
+    this.kitBat = teamKit(inn.batTeam, coloured);
+    this.kitBowl = teamKit(inn.bowlTeam, coloured);
     const pitch = inn.pitch.type;
     this.commentary = this.nets
       ? `Nets: ${this.human === "bat" ? "face as many as you like" : "bowl as many as you like"}. The coach rates every ball.`

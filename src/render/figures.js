@@ -55,7 +55,7 @@ function drawFigureBody(x, y, height, opts) {
   const shirt = umpire ? "#f4f4f0" : kit.shirt;
   const shirtShade = umpire ? "#d8d8d0" : kit.shade;
   const pants = umpire ? "#2a2d36" : kit.pants;
-  const pantsShade = umpire ? "#1c1e25" : kit.shade;
+  const pantsShade = umpire ? "#1c1e25" : (kit.pantsShade ?? kit.shade);
   const skinShade = darken(kit.skin, 35);
 
   const { lean, top, feet, hands } = figurePose(opts.pose, opts.phase);

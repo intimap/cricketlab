@@ -7,9 +7,12 @@ import { PITCH_TYPES } from "../sim/conditions.js";
 import { FORMATS, CLASSICS, OVERS_CHOICES } from "../sim/formats.js";
 import { GROUNDS, GROUND_CHOICES, DEFAULT_GROUND } from "../render/grounds.js";
 import { LIGHTS } from "../render/light.js";
+import { TEAMS, TEAM_IDS } from "../sim/team-list.js";
 import { EFFECTS, EFFECT_NAMES } from "../render/lighting.js";
 
 const FORMAT_IDS = Object.keys(FORMATS);
+/** Every match-up: [your team, theirs], your side changing slowest. */
+const PAIRINGS = TEAM_IDS.flatMap((a) => TEAM_IDS.filter((b) => b !== a).map((b) => [a, b]));
 const MODES = ["bat", "bowl"];
 const PITCHES = ["green", "dust", "cracked"];
 const CLASSIC_IDS = CLASSICS.map((c) => c.id);
@@ -40,6 +43,8 @@ export class Menu {
   cfg = {
     format: "match",
     mode: "bat",
+    team: "AUS",
+    opponent: "ENG",
     pitch: "green",
     overs: DEFAULT_MATCH_OVERS,
     classic: CLASSIC_IDS[0],
@@ -67,6 +72,12 @@ export class Menu {
     return CLASSICS.find((c) => c.id === this.cfg.classic);
   }
 
+  /** Who plays whom: your side first. Left and right go through every pairing (sim/team-list.js). */
+  get teamsRow() {
+    const name = (id) => (TEAMS[id] ?? TEAMS.AUS)().name;
+    return ["teams", "TEAMS", `${name(this.cfg.team)} V ${name(this.cfg.opponent)}`];
+  }
+
   /** Lighting effects: this machine's setting, kept apart from the match choices (render/lighting.js). */
   get effectsRow() {
     const setting = load("effects", "auto");
@@ -92,7 +103,8 @@ export class Menu {
     if (cfg.format === "nets") {
       return [
         format,
-        ["mode", "PRACTISE", cfg.mode === "bat" ? "BATTING (AUSTRALIA)" : "BOWLING (AUSTRALIA)"],
+        this.teamsRow,
+        ["mode", "PRACTISE", cfg.mode === "bat" ? "BATTING" : "BOWLING"],
         ["pitch", "PITCH", PITCH_TYPES[cfg.pitch].name],
         ["ground", "GROUND", GROUNDS[cfg.ground].name],
         ["light", "LIGHT", LIGHTS[cfg.light].name],
@@ -103,7 +115,8 @@ export class Menu {
     const overs = `${cfg.overs} OVERS${cfg.overs === 90 ? " (A FULL DAY)" : cfg.format === "match" ? " EACH" : ""}`;
     return [
       format,
-      ["mode", "YOU", cfg.mode === "bat" ? "BAT FIRST (AUSTRALIA)" : "BOWL FIRST (AUSTRALIA)"],
+      this.teamsRow,
+      ["mode", "YOU", cfg.mode === "bat" ? "BAT FIRST" : "BOWL FIRST"],
       ["pitch", "PITCH", PITCH_TYPES[cfg.pitch].name],
       ["ground", "GROUND", GROUNDS[cfg.ground].name],
       ["light", "LIGHT", LIGHTS[cfg.light].name],
@@ -136,6 +149,12 @@ export class Menu {
         if (choices && !choices.includes(cfg.overs)) cfg.overs = choices[1];
       }
       if (key === "mode") cfg.mode = cycle(MODES, cfg.mode, dir);
+      if (key === "teams")
+        [cfg.team, cfg.opponent] = cycle(
+          PAIRINGS,
+          PAIRINGS.find((p) => p[0] === cfg.team && p[1] === cfg.opponent) ?? PAIRINGS[0],
+          dir,
+        );
       if (key === "pitch") cfg.pitch = cycle(PITCHES, cfg.pitch, dir);
       if (key === "ground") {
         cfg.ground = cycle(GROUND_IDS, cfg.ground, dir);
@@ -175,7 +194,7 @@ export class Menu {
     if (this.sel >= rows.length) this.sel = rows.length - 1;
     drawPanel(130, 98, 380, 132);
     // Rows close up a little when there are more of them.
-    const step = rows.length > 8 ? 11 : rows.length > 7 ? 12 : rows.length > 6 ? 14 : 16;
+    const step = rows.length > 9 ? 10 : rows.length > 8 ? 11 : rows.length > 7 ? 12 : rows.length > 6 ? 14 : 16;
     rows.forEach(([key, label, value], i) => {
       const y = 110 + i * step;
       const selected = this.sel === i;

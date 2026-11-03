@@ -164,7 +164,7 @@ function drawBatterBody(x, y, scale, pose, kit, number, front, parts) {
   }
   if (parts === "shadow") return;
   const leg = (hip, knee, foot, boot) => {
-    limb(hip, knee, 6, 5, kit.pants, kit.shade);
+    limb(hip, knee, 6, 5, kit.pants, kit.pantsShade ?? kit.shade);
     // Pad from just above the knee to the boot, with a knee roll and straps.
     const top = { x: knee.x + (hip.x - knee.x) * 0.22, y: knee.y + (hip.y - knee.y) * 0.22 };
     // Seen edge-on: the pad's face (and its straps) turned to the off side.
@@ -199,14 +199,14 @@ function drawBatterBody(x, y, scale, pose, kit, number, front, parts) {
   if (frontArmNear) arm(backShoulder, backElbow, backWrist);
   else arm(frontShoulder, frontElbow, frontWrist);
 
-  drawCloth(body.hips, kit.pants, kit.shade, poly);
+  drawCloth(body.hips, kit.pants, kit.pantsShade ?? kit.shade, poly);
   drawCloth(body.shirt, kit.shirt, kit.shade, poly);
   line(body.seam[0], body.seam[1], 1, kit.shade);
   if (number) {
     const label = at(body.number);
     drawText(String(number), label.x, label.y, {
       align: "center",
-      color: kit.cap,
+      color: kit.numberColour ?? kit.cap,
       shadow: null,
       scale: scale >= 1.5 ? 2 : 1,
     });

@@ -26,11 +26,6 @@ export function updateMatch(scene, dt) {
     scene.setPhase("pause");
     return;
   }
-  if (keys.pressed("KeyC")) {
-    scene.cam = scene.cam === "auto" ? "close" : scene.cam === "close" ? "wide" : "auto";
-    scene.flash(`CAMERA: ${scene.cam.toUpperCase()}`);
-    if (scene.cam !== "auto") scene.view = scene.cam;
-  }
   if (keys.pressed("KeyB")) scene.toggleCloseEnd();
 
   switch (scene.phase) {

@@ -21,7 +21,6 @@ const PAD = [
 // Small buttons along the top, for what the keyboard's letter keys do.
 const TOP = [
   ["MENU", "Escape", ["bat", "bowl"]],
-  ["CAMERA", "KeyC", ["bat", "bowl"]],
   ["END", "KeyB", ["bat", "bowl"]],
   ["FIELD", "KeyV", ["bat", "bowl"]],
   ["SIM", "KeyO", ["bat", "bowl"]],

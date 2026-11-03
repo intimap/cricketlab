@@ -87,11 +87,11 @@ export function drawWide(scene) {
       const th = ball.throwing;
       const { ground, ball: p } = projectWideThrow(th.from, th.to, clamp((live.t - th.t0) / (th.t1 - th.t0)), ball.pos.y);
       sprites.push({ y: ground.y, draw: () => drawShadow(ground.x, ground.y, 1.2) });
-      sprites.push({ y: ground.y + 0.5, draw: () => drawBall(p.x, p.y - 1, 1.5, 1) });
+      sprites.push({ y: ground.y + 0.5, draw: () => drawBall(p.x, p.y - 1, 1.5, 1, scene.ballKind) });
     } else if (!(ball.held >= 0)) {
       add(ball.pos.x, 0, ball.pos.z, (x, y) => drawShadow(x, y, 1.2));
       const p = projectWide(ball.pos.x, ball.pos.y, ball.pos.z);
-      sprites.push({ y: p.y + ball.pos.y * 3 + 0.5, draw: () => drawBall(p.x, p.y - 1, 1.5, 1) });
+      sprites.push({ y: p.y + ball.pos.y * 3 + 0.5, draw: () => drawBall(p.x, p.y - 1, 1.5, 1, scene.ballKind) });
     }
   } else {
     const keeper = keeperSpot(scene.spinner);

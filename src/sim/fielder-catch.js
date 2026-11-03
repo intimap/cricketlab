@@ -24,7 +24,8 @@ export function catchChance(f, plan, t) {
   const awkward = plan.point.y > HIGH || plan.point.y < 0.25 ? 0.1 : 0;
   const set = f.state === "set" && f.setAt != null ? SET_BONUS * clamp((t - f.setAt) / SET_FOR) : 0;
   const running = f.curSpeed > RUNNING_SHARE * f.speed ? RUNNING_PENALTY + (plan.point.y > HIGH ? HIGH_RUNNING_PENALTY : 0) : 0;
-  return clamp(0.55 + 0.42 * hands - pace - (plan.dive ? 0.32 : 0) - awkward + set - running, 0.05, 0.985);
+  // A regulation catch to an average fielder is held about nine times in ten; dives are half-chances.
+  return clamp(0.62 + 0.42 * hands - pace - (plan.dive ? 0.32 : 0) - awkward + set - running, 0.05, 0.985);
 }
 
 // --- Fielding the ball: what happens when the planned fielder gets to it (ball-in-play.js calls this) ---

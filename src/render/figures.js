@@ -1,4 +1,4 @@
-import { COLORS, fillRect, plot, drawLine, fillCircle, fillEllipse, fillPolygon } from "../engine/screen.js";
+import { fillRect, drawLine, fillCircle, fillEllipse, fillPolygon } from "../engine/screen.js";
 import {
   BAT_FACE,
   BAT_EDGE,
@@ -13,109 +13,12 @@ import {
   drawFacialHair,
 } from "./kit.js";
 import { joint } from "./batter/batter-rig.js";
+import { figurePose } from "./figure-poses.js";
+
+// The wide view's tiny figures live in tiny-figures.js; older callers import them from here.
+export { drawTinyFigure, fielderPose } from "./tiny-figures.js";
 
 /** Everyone but the striker: bowler, keeper, fielders, umpires and runners, close up and tiny in the wide view. */
-
-/**
- * Where a close-view figure's feet and hands go for each pose, in figure
- * units (48 = standing height, feet at 0, y up the screen is negative).
- * `top` is the top of the shoulders; bob lifts or sinks the whole body.
- */
-function figurePose(pose, phase) {
-  let lean = 0;
-  let bob = 0;
-  let feet = [
-    { x: -4, y: -1 },
-    { x: 4, y: -1 },
-  ];
-  if (pose === "run" || pose === "walk" || pose === "backup") {
-    const swing = Math.sin(phase * Math.PI * 2) * (pose === "run" ? 1 : 0.5);
-    feet = [
-      { x: -3 - swing * 2, y: -1 - Math.max(0, swing) * 6 },
-      { x: 3 + swing * 2, y: -1 - Math.max(0, -swing) * 6 },
-    ];
-    bob = Math.abs(swing);
-    if (pose === "run") lean = 1;
-  } else if (pose === "bound") {
-    feet = [
-      { x: -4, y: -9 },
-      { x: 5, y: -12 },
-    ];
-    bob = -4;
-  } else if (pose === "follow") {
-    feet = [
-      { x: -6, y: -1 },
-      { x: 5, y: -1 },
-    ];
-    lean = 3;
-    bob = 3;
-  } else if (pose === "celebrate") {
-    bob = -1;
-  }
-  const top = -42 + bob;
-  let hands;
-  switch (pose) {
-    case "run": {
-      const swing = Math.sin(phase * Math.PI * 2);
-      hands = [
-        { x: -8, y: top + 15 - swing * 6 },
-        { x: 8, y: top + 15 + swing * 6 },
-      ];
-      break;
-    }
-    case "bound":
-      hands = [
-        { x: -10, y: top - 10 },
-        { x: 9, y: top - 12 },
-      ];
-      break;
-    case "release":
-      hands = [
-        { x: -4, y: top - 21 },
-        { x: 13, y: top + 10 },
-      ];
-      break;
-    case "follow":
-      hands = [
-        { x: 9 + lean, y: top + 19 },
-        { x: 14, y: top + 11 },
-      ];
-      break;
-    case "celebrate":
-      hands = [
-        { x: -12, y: top - 14 },
-        { x: 12, y: top - 14 },
-      ];
-      break;
-    case "appeal":
-      hands = [
-        { x: -9, y: top - 16 },
-        { x: 12, y: top + 12 },
-      ];
-      break;
-    case "outFinger":
-      hands = [
-        { x: -9, y: top + 16 },
-        { x: 6, y: top - 16 },
-      ];
-      break;
-    case "backup":
-    case "walk": {
-      const swing = Math.sin(phase * Math.PI * 2);
-      hands = [
-        { x: -9, y: top + 19 - swing * 3 },
-        { x: 9, y: top + 19 + swing * 3 },
-      ];
-      break;
-    }
-    default:
-      hands = [
-        { x: -9, y: top + 19.5 },
-        { x: 9, y: top + 19.5 },
-      ];
-  }
-  return { lean, top, feet, hands };
-}
 
 /**
  * A full-size figure for the close view (bowler, umpire, non-striker), feet
@@ -402,60 +305,4 @@ function drawFigureBody(x, y, height, opts) {
     drawLine(a.x, a.y, b.x, b.y, Math.max(2, Math.round(3 * k)), BAT_EDGE);
     drawLine(a.x + 0.5, a.y, b.x + 0.5, b.y, Math.max(1, Math.round(2 * k)), BAT_FACE);
   }
-}
-
-/**
- * A tiny figure for the wide view, feet at (x, y).
- * pose: idle | run | dive | down | celebrate | throw | keeper | batter
- */
-export function drawTinyFigure(x, y, scale, pose, cap, phase = 0, opts = {}) {
-  const k = Math.max(1, scale * 1.45);
-  const rect = (rx, ry, w, h, color) =>
-    fillRect(x + rx * k, y + ry * k, Math.max(1, Math.round(w * k)), Math.max(1, Math.round(h * k)), color);
-  groundShadow(x, y, 3 * k, 1, 0.35);
-  if (pose === "dive" || pose === "down") {
-    rect(-4, -3, 8, 2, COLORS.cream);
-    rect(-5, -4, 2, 2, cap);
-    rect(3, -3, 2, 1, "#e8e2cc");
-    return;
-  }
-  const stride = pose === "run" ? (Math.sin(phase * Math.PI * 2) > 0 ? 1 : -1) : 0;
-  rect(-1 - (stride > 0 ? 1 : 0), -3, 1, 3, "#e8e2cc");
-  rect(1 + (stride < 0 ? 1 : 0), -3, 1, 3, "#e8e2cc");
-  if (opts.bat) {
-    rect(-1, -3, 1, 2, PAD);
-    rect(1, -3, 1, 2, PAD);
-  }
-  rect(-1, -6, 3, 3, COLORS.cream);
-  rect(-1, -8, 3, 2, cap);
-  if (pose === "celebrate") {
-    rect(-2, -9, 1, 2, COLORS.cream);
-    rect(2, -9, 1, 2, COLORS.cream);
-  } else if (pose === "throw") {
-    rect(2, -9, 1, 3, COLORS.cream);
-  } else if (pose === "keeper") {
-    rect(-2, -5, 1, 1, "#f0b030");
-    rect(2, -5, 1, 1, "#f0b030");
-  }
-  if (opts.bat) {
-    plot(x + 2 * k, y - 4 * k, BAT_FACE);
-    plot(x + 2 * k, y - 3 * k, BAT_FACE);
-    plot(x + 3 * k, y - 2 * k, BAT_FACE);
-  }
-}
-
-/**
- * The small figure's pose for a fielder's state (sim/fielder-motion.js): crouched
- * ready or set, on the ground after a dive and getting up, the crow-hop run into a throw.
- */
-export function fielderPose(f, t, phase) {
-  const since = t - f.stateAt;
-  if (f.state === "dive") return "dive";
-  if (f.state === "down" || (f.state === "getUp" && since < 0.2)) return "down";
-  if (f.state === "celebrate") return "celebrate";
-  if (f.state === "crowHop") return "run";
-  if (f.state === "throw" && since < 0.4) return "throw";
-  if (f.curSpeed > 0.5 || (f.state === "idle" && phase === "return")) return "run";
-  if (f.role === "keeper" || f.state === "ready" || f.state === "set") return "keeper";
-  return "idle";
 }

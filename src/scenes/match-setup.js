@@ -1,12 +1,10 @@
 import { selectedWicketSide, updateBowlingSide } from "./bowling-side.js";
-import { COLORS } from "../engine/screen.js";
 import { keys, mouse } from "../engine/input.js";
-import { sfx } from "../engine/audio.js";
-import { isSpinner } from "../sim/teams.js";
 import { EFFORTS } from "../sim/delivery.js";
-import { PRESET_ORDER, PRESET_LABELS, positionName, clampFieldPosition } from "../sim/field.js";
+import { PRESET_ORDER, clampFieldPosition } from "../sim/field.js";
 import { projectWide, unprojectWide } from "../render/camera.js";
 import * as input from "./match-input.js";
+import { act } from "./player-actions.js";
 
 /**
  * Between balls in the match scene: the keys there (sim an over, view the field), the bowling setup
@@ -17,11 +15,11 @@ import * as input from "./match-input.js";
 /** Keys available between balls: simulate, or look at the field. */
 export function betweenBalls(scene) {
   if (keys.pressed("KeyO")) {
-    scene.simulate(1);
+    act(scene, { type: "simulate", overs: 1 });
     return true;
   }
   if (keys.pressed("KeyP")) {
-    scene.simulate(5);
+    act(scene, { type: "simulate", overs: 5 });
     return true;
   }
   if (keys.pressed("KeyV")) {
@@ -43,39 +41,27 @@ export function updateSetup(scene) {
   input.aimTarget(scene);
   updateBowlingSide(scene);
   for (let i = 0; i < skills.repertoire.length; i++) {
-    if (keys.pressed(`Digit${i + 1}`)) {
-      scene.deliveryType = skills.repertoire[i];
-      sfx.click();
-    }
+    if (keys.pressed(`Digit${i + 1}`)) act(scene, { type: "delivery", delivery: skills.repertoire[i] });
   }
-  if (keys.pressed("KeyE")) {
-    scene.effort = EFFORTS[(EFFORTS.indexOf(scene.effort) + 1) % 3];
-    sfx.click();
-  }
-  if (keys.pressed("KeyF")) {
-    scene.cyclePreset();
-    scene.flash(`FIELD: ${PRESET_LABELS[scene.inn.preset]}`);
-  }
-  if (keys.pressed("KeyN") && scene.inn.newBallAvailable) {
-    scene.inn.takeNewBall();
-    scene.big("NEW BALL", COLORS.red, undefined, 1.2);
-  }
+  if (keys.pressed("KeyE")) act(scene, { type: "effort", effort: EFFORTS[(EFFORTS.indexOf(scene.effort) + 1) % 3] });
+  if (keys.pressed("KeyF")) scene.cyclePreset();
+  if (keys.pressed("KeyN") && scene.inn.newBallAvailable) act(scene, { type: "newBall" });
   if (keys.pressed("Space")) {
-    const intent = {
+    const plan = {
       type: scene.deliveryType,
       line: scene.target.line,
       length: scene.target.length,
       effort: scene.effort,
       wicketSide: selectedWicketSide(scene),
     };
-    scene.cur = scene.newBall(intent, 0);
-    scene.setPhase("runup");
+    act(scene, { type: "bowl", plan });
   }
 }
 
+/** The next field setting in the cycle. */
 export function cyclePreset(scene) {
   const i = PRESET_ORDER.indexOf(scene.inn.preset);
-  scene.inn.setPreset(PRESET_ORDER[(i + 1) % PRESET_ORDER.length]);
+  act(scene, { type: "field", preset: PRESET_ORDER[(i + 1) % PRESET_ORDER.length] });
 }
 
 export function updateChooseBowler(scene) {
@@ -86,19 +72,8 @@ export function updateChooseBowler(scene) {
   for (let i = 0; i < count; i++) {
     if (keys.pressed(`Digit${i + 1}`)) scene.selBowler = i;
   }
-  if ((keys.pressed("Enter") || keys.pressed("Space")) && inn.canBowl(scene.selBowler)) {
-    scene.match.startOver(scene.selBowler);
-    const skills = inn.bowler.p.bowl;
-    scene.deliveryType = skills.repertoire[0];
-    if (isSpinner(skills)) {
-      scene.target = { line: 0.25, length: 5.4 };
-      if (!inn.customField) inn.setPreset("spin");
-    } else {
-      scene.target = { line: 0.22, length: 6.4 };
-      if (inn.preset === "spin" && !inn.customField) inn.setPreset("attacking");
-    }
-    scene.nextBall();
-  }
+  if ((keys.pressed("Enter") || keys.pressed("Space")) && inn.canBowl(scene.selBowler))
+    act(scene, { type: "chooseBowler", bowler: scene.selBowler });
 }
 
 export function updateFieldEdit(scene) {
@@ -120,9 +95,7 @@ export function updateFieldEdit(scene) {
       scene.dragIdx = nearest;
     }
     if (mouse.down && scene.dragIdx >= 0) {
-      const pos = clampFieldPosition(unprojectWide(mouse.x, mouse.y));
-      inn.placements[scene.dragIdx] = { name: positionName(pos), pos };
-      inn.customField = true;
+      act(scene, { type: "placeFielder", idx: scene.dragIdx, pos: clampFieldPosition(unprojectWide(mouse.x, mouse.y)) });
     }
     if (mouse.released) scene.dragIdx = -1;
   }

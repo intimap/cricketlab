@@ -1,4 +1,5 @@
 import { playBroadcast } from "./match-audio.js";
+import { act } from "./player-actions.js";
 import * as beats from "./booth-beats.js";
 import { ON_FIELD_TIME } from "../render/match-broadcast.js";
 import { COLORS } from "../engine/screen.js";
@@ -53,14 +54,12 @@ export function updateDecision(scene) {
   if (scene.phaseT < ON_FIELD_TIME) return;
   if (loser === playerSide && inn.reviews[loser] > 0) {
     // Play stops while the player decides; a moment's grace so a stray press doesn't accept it.
-    if (keys.pressed("KeyR")) scene.startReview(loser);
-    else if (
-      scene.phaseT > REVIEW_WINDOW + ON_FIELD_TIME ||
-      (scene.phaseT > 0.4 && (keys.pressed("Space") || keys.pressed("Enter")))
-    )
-      scene.endDecision();
+    if (keys.pressed("KeyR")) act(scene, { type: "review", side: loser });
+    else if (scene.phaseT > 0.4 && (keys.pressed("Space") || keys.pressed("Enter"))) act(scene, { type: "accept" });
+    else if (scene.phaseT > REVIEW_WINDOW + ON_FIELD_TIME) scene.endDecision();
   } else if (loser === playerSide) {
-    if (scene.phaseT > 2.8 || keys.pressed("Space")) scene.endDecision();
+    if (keys.pressed("Space")) act(scene, { type: "accept" });
+    else if (scene.phaseT > 2.8) scene.endDecision();
   } else if (scene.phaseT > 1) {
     const t = scene.match.tracking(cur.play);
     const wrong = cur.onField ? t.verdict === "notOut" : t.verdict === "out";

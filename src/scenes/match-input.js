@@ -7,6 +7,7 @@ import { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
 export { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
 import { meterPos, releaseError, METER_FROM } from "../sim/runup.js";
 import { LEAVE_LIFT } from "./batter-pose.js";
+import { act } from "./player-actions.js";
 
 /**
  * The player's controls in the match scene: batting (shots, defence, leaving it, stepping across the
@@ -32,14 +33,14 @@ export function updateBatInput(scene) {
   if (!cur.delivery) return;
   const power = keys.down("ShiftLeft") || keys.down("ShiftRight");
   for (const [key, type] of Object.entries(SHOT_KEYS)) {
-    if (keys.pressed(key) && !cur.shot) scene.commitSwing(t, scene.shotVariant(type), power);
+    if (keys.pressed(key) && !cur.shot) act(scene, { type: "swing", t, shot: scene.shotVariant(type), power });
   }
   for (const [key, foot] of Object.entries(DEFEND_KEYS)) {
-    if (keys.pressed(key) && !cur.shot) scene.commitDefend(t, foot);
+    if (keys.pressed(key) && !cur.shot) act(scene, { type: "defend", t, foot });
   }
   if (cur.delivery && !cur.shot) {
     const arrive = crossingAtZ(cur.delivery.samples, CONTACT_Z_FRONT)?.t ?? 0.6;
-    if (t > arrive + 0.05) scene.commitLeave();
+    if (t > arrive + 0.05) act(scene, { type: "leave" });
   }
 }
 
@@ -146,10 +147,11 @@ export function updateRunup(scene, dt) {
       } else {
         err *= 1.3 - 0.3 * stamina;
       }
-      scene.release(clamp(err, -0.35, 0.3));
+      act(scene, { type: "release", error: clamp(err, -0.35, 0.3) });
     } else if (releaseError(r, pos) > 0.17) {
       cur.releaseMark = pos;
-      scene.release(0.17 + Math.random() * 0.03);
+      // Held on too long: dragged full, by the match's dice.
+      act(scene, { type: "release", error: scene.match.rng.range(0.17, 0.2) });
     }
   } else if (cur.tRun >= cur.runupDur + clamp(cur.aiReleaseError, -0.08, 0.08)) {
     scene.release(cur.aiReleaseError);

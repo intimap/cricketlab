@@ -1,6 +1,6 @@
 import { MID_PITCH, BOUNDARY } from "../sim/geometry.js";
 
-// Measured inner parapet of the approved 1672 x 940 MCG composition.
+// Measured inner parapet of the MCG composition (drawn at 640 x 360; the file is that size, flattened on the sky colour).
 // Orthographic: a circular field projects to an ellipse; upright heights use
 // the same pixels/metre and elevation, without stretching the pitch.
 export const MCG_CAMERA = Object.freeze({ cx: 320, cy: 209, rx: 263, ry: 90 });

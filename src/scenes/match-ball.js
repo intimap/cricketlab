@@ -7,6 +7,7 @@ import { sfx } from "../engine/audio.js";
 import { clamp } from "../math.js";
 import { crossingAtZ } from "../sim/delivery.js";
 import { planRunup, releaseError } from "../sim/runup.js";
+import { battingFeedback, bowlingFeedback } from "../sim/coach.js";
 import { CONTACT_Z_FRONT, SWING_TIME } from "../sim/batting.js";
 import { eyeMultiplier } from "../sim/eye.js";
 import { pickSledges, pickChirp } from "../sim/field-chatter.js";
@@ -280,4 +281,15 @@ export function simulate(scene, overs) {
   }
   scene.commentary = scene.simLines.length ? "Simulated. " + scene.match.overCommentary.overSummary(inn) : "";
   scene.setPhase("simSummary");
+}
+
+/** The nets coach's verdict on the ball just finished. */
+export function coachFeedback(scene, rec) {
+  const cur = scene.cur;
+  const spinner = scene.spinner;
+  if (scene.human === "bat") return battingFeedback({ delivery: cur.delivery, shot: cur.shot, rec, spinner });
+  const r = cur.runup;
+  const err = r && cur.releaseMark != null ? releaseError(r, cur.releaseMark) : 0;
+  const perfect = !!r && Math.abs(err) <= r.zone;
+  return bowlingFeedback({ delivery: cur.delivery, intent: cur.intent, releaseError: err, perfect, rec, spinner });
 }

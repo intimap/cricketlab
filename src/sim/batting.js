@@ -1,7 +1,12 @@
 import { batImpact, edgeExit } from "./bat-impact.js";
-import { clamp, toRad, angleDiff } from "../math.js";
+import { clamp, toRad } from "../math.js";
 import { CREASE, STUMPS_HALF_WIDTH, BALL_RADIUS } from "./geometry.js";
 import { simulateFlight, crossingAtZ, sampleAtTime, hitsStumps, isWide } from "./delivery.js";
+import { isSweep, playsBack, shotSuitability, backFootShot } from "./shot-choice.js";
+import { driveBearing, shotBearing, shotName, intoGap } from "./shot-direction.js";
+
+// Shot choice and direction live in their own modules; older callers import them from here.
+export { playsBack, shotSuitability, backFootShot, driveBearing };
 
 /** Depth (z) at which the bat meets the ball, front and back foot. */
 export const CONTACT_Z_FRONT = 1.95;
@@ -19,7 +24,6 @@ export const SWING_TIME = {
   leave: 0,
 };
 
-const isSweep = (type) => type === "sweep" || type === "reverseSweep";
 /** Extra vertical bat error (m) when hooking a ball above the shoulder: top edges and gloves. */
 const HOOK_ERROR = 0.11;
 
@@ -95,152 +99,6 @@ function expectedAt(d, readTime, z, bat) {
     z - 0.5,
   );
   return crossingAtZ(flight.samples, z);
-}
-
-/**
- * Does this shot go back (true) or forward? The attacking shots carry their
- * foot; defence follows the player's choice (`foot`), or the length for the
- * computer when it hasn't said; leaves follow the length.
- */
-export function playsBack(type, foot, pitchZ) {
-  if (type === "cutpull" || type === "ramp") return true;
-  if (type === "defend") return foot ? foot === "back" : pitchZ > 6.8;
-  if (type === "leave") return pitchZ > 7;
-  return false;
-}
-
-/**
- * 0..1: how well the chosen shot suits the ball (height at contact, pitching
- * length, line). `foot` is the defence's foot ("front"/"back").
- */
-export function shotSuitability(type, height, pitchZ, line, spinner, foot = null) {
-  let s = 1;
-  // A yorker at the toes can be dug out, but it's very hard to hit.
-  if (pitchZ > 1.2 && pitchZ < 2.6 && !spinner && type !== "defend" && type !== "leave") s -= 0.5;
-  if (type === "drive") {
-    if (height > 0.95) s -= (height - 0.95) * 1.3;
-    if (pitchZ > 8) s -= 0.35;
-    if (line > 0.6) s -= 0.3;
-    if (line < -0.3) s -= 0.15;
-  } else if (type === "cutpull") {
-    if (pitchZ < 6 && pitchZ > 1.3) s -= 0.5;
-    if (height < 0.45) s -= 0.35;
-    if (line > 0.2 && line < 0.32) s -= 0.15;
-    // No width and not much bounce: only a punch down the ground, and that's a risk.
-    if (line <= 0.2 && line > -0.1 && height < 0.8) s -= 0.2;
-    // Above the shoulder it's very hard to keep down.
-    if (height > 1.55) s -= 0.45;
-  } else if (type === "loft") {
-    if (pitchZ > 6.5) s -= 0.4;
-    if (height > 1) s -= 0.3;
-    if (spinner) s += 0.1;
-  } else if (type === "ramp") {
-    // Needs pace to work with, and a ball short enough to get under.
-    s -= 0.25;
-    if (spinner) s -= 0.45;
-    if (pitchZ < 4.5) s -= 0.4;
-    if (height < 0.5) s -= 0.3;
-    if (height > 1.4) s -= 0.2;
-  } else if (isSweep(type)) {
-    // A spinner's shot: full and low. Against pace or bounce it's a gamble.
-    if (!spinner) s -= 0.55;
-    if (pitchZ > 7) s -= 0.45;
-    if (height > 0.9) s -= 0.4;
-    if (type === "reverseSweep") s -= 0.1;
-  } else if (type === "defend") {
-    if (height > 1.35) s = 0.5;
-    if (line > 0.6) s = Math.min(s, 0.8);
-    // The wrong foot: forward to a short one (it climbs at the splice), back to a full one (stuck on the crease).
-    const back = playsBack(type, foot, pitchZ);
-    if (!back && pitchZ > 7.5) s -= 0.3 + (height > 1 ? 0.2 : 0);
-    if (back && pitchZ < 5) s -= 0.45;
-  }
-  return clamp(s, 0.15, 1);
-}
-
-/**
- * Which back-foot shot a ball calls for, from its line and height at the bat:
- * "cut" with width outside off, "punch" (back-foot drive) with no width and
- * not much bounce, "glance" off the hip down leg, otherwise "pull" (a hook
- * when it's up around the head).
- */
-export function backFootShot(line, height) {
-  if (line > 0.24) return "cut";
-  if (line > -0.12 && height < 1) return "punch";
-  if (line < -0.3 && height < 0.95) return "glance";
-  return "pull";
-}
-
-/**
- * A front-foot drive's direction from the line it's played to: straight,
- * through the covers, square when wide; on leg stump it's worked through
- * midwicket, and off the pads it's glanced fine.
- */
-export function driveBearing(line) {
-  if (line >= -0.15) return clamp(line * 75, -11, 70);
-  return Math.max(-140, -11 + (line + 0.15) * 350);
-}
-
-/** Natural direction of a shot (degrees, 0 = straight back past the bowler, + = off side). */
-function shotBearing(type, line, height, back) {
-  switch (type) {
-    case "drive":
-    case "loft":
-      return driveBearing(line);
-    case "cutpull":
-      if (back === "cut") return 92 + line * 15;
-      if (back === "punch") return 8 + line * 70;
-      if (back === "glance") return -125;
-      return -72 - clamp(height - 0.8, 0, 1) * 30;
-    case "ramp":
-      return line > 0.15 ? 160 : -165;
-    case "sweep":
-      return -115;
-    case "reverseSweep":
-      return 110;
-    case "defend":
-      return clamp(line * 40, -30, 40);
-    default:
-      return 0;
-  }
-}
-
-function shotName(type, bearing, height, footBack, back) {
-  if (type === "defend") return footBack ? "back-foot defence" : "forward defence";
-  if (type === "cutpull") {
-    if (back === "cut") return bearing > 115 ? "late cut" : "cut";
-    if (back === "punch") return "back-foot drive";
-    if (back === "glance") return "leg glance";
-    return height > 1.35 ? "hook" : "pull";
-  }
-  if (type === "ramp")
-    return Math.abs(bearing) > 168 ? "ramp over the keeper" : bearing > 0 ? "ramp over the slips" : "scoop over fine leg";
-  if (type === "sweep") return bearing < -125 ? "paddle sweep" : "sweep";
-  if (type === "reverseSweep") return "reverse sweep";
-  const lofted = type === "loft" ? "lofted " : "";
-  if (bearing > 80) return "square drive";
-  if (bearing > 45) return lofted + "cover drive";
-  if (bearing > 12) return lofted + "off drive";
-  if (bearing > -12) return lofted + "straight drive";
-  if (bearing > -40) return lofted + "on drive";
-  if (bearing > -100) return type === "loft" ? "slog over midwicket" : "clip off the pads";
-  return type === "loft" ? "slog over midwicket" : "leg glance";
-}
-
-/** The direction within `reach` degrees of `bearing` furthest from any fielder (bearings in `field`). */
-function intoGap(bearing, field, reach) {
-  if (!field.length || reach < 1) return bearing;
-  let best = bearing;
-  let bestGap = -1;
-  for (let b = bearing - reach; b <= bearing + reach; b += 2) {
-    const gap = Math.min(...field.map((f) => Math.abs(angleDiff(b, f))));
-    // Ties go to the smaller change of direction.
-    if (gap > bestGap + 0.5 || (Math.abs(gap - bestGap) <= 0.5 && Math.abs(b - bearing) < Math.abs(best - bearing))) {
-      bestGap = gap;
-      best = b;
-    }
-  }
-  return best;
 }
 
 /**

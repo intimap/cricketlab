@@ -154,6 +154,9 @@ export function completeBall(scene) {
     after: scene.inn.pressure,
   });
   if (scene.human === "bat") scene.flashEye(done.rec.eye);
+  // Bowling, and he's given his weakness away: say so on screen too (the box says it in words).
+  if (scene.human === "bowl" && done.rec.scout?.tag)
+    scene.banner(`WEAKNESS: ${done.rec.scout.tag}`, COLORS.gold, 2.2, 2, 150, scene.now + 0.6);
   if (scene.nets) {
     scene.feedback = scene.coachFeedback(done.rec);
     scene.netsTally.balls++;

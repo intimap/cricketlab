@@ -39,7 +39,8 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
   const other = inn.bat[inn.nonStriker];
   const strikerScore = `${striker.runs}(${striker.balls})`;
   const otherScore = `${other.runs}(${other.balls})`;
-  const partnership = `${inn.partnership.runs}(${inn.partnership.balls})`;
+  // The partnership, labelled: an unlabelled third score read as a mystery.
+  const partnership = `STAND ${inn.partnership.runs}(${inn.partnership.balls})`;
   const chase = inn.target !== null ? `NEED ${inn.runsNeeded} OFF ${inn.ballsLeft}` : "";
   const figures = bowler ? `${inn.bowlerFigures(bowler)} (${inn.bowlerOvers(bowler)})` : "";
   const staminaWidth = textWidth("STA") + 3 + 28;

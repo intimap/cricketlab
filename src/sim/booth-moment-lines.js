@@ -177,6 +177,22 @@ export const MOMENT_STORIES = {
       ],
     ],
   },
+  weaknessHint: {
+    rest: 0,
+    lines: [
+      ["{b} DIDN'T LOOK COMFORTABLE THERE, {how}.", "NOT ENTIRELY HAPPY {how}, {b}."],
+      ["OOH! {b} WAS ALL AT SEA {how}!", "LOOK AT THAT! {b} HAS NO IDEA {how}!"],
+      ["WATCH {b} {how}. THERE MIGHT BE SOMETHING IN THAT.", "{w} WILL HAVE NOTICED THAT. {b} {how}."],
+    ],
+  },
+  weaknessShown: {
+    rest: 0,
+    lines: [
+      ["THAT'S TWICE NOW {how}. A WEAKNESS, I'D SAY.", "{b} HAS A PROBLEM {how}. IT'S PLAIN NOW."],
+      ["AGAIN! {b} JUST CANNOT COPE {how}!", "THERE IT IS AGAIN! {b} IS IN ALL SORTS {how}!"],
+      ["THAT'S THE PLAN, THEN: KEEP AT {b} {how}.", "TWICE IN TROUBLE {how}. BOWL THERE AND KEEP BOWLING THERE."],
+    ],
+  },
 };
 
 /** The moment kinds above, with how highly the box ranks each against other stories. */

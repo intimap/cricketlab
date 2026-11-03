@@ -1,5 +1,6 @@
 import { bowlerFieldingHome } from "./bowling-side.js";
 import { facingOf, mirrorDelivery, toStriker } from "./handedness.js";
+import { scout } from "./scouting.js";
 import { PITCH_TYPES, Pitch } from "./conditions.js";
 import { Innings } from "./innings.js";
 import { Commentary } from "./commentary.js";
@@ -323,6 +324,8 @@ export class Match {
     rec.nearRunout = out.nearRunout;
     rec.movement = movementOf(delivery);
     rec.moment = this.moments.read(rec, inn);
+    // Has the striker given his weakness away? (sim/scouting.js)
+    rec.scout = scout(inn, rec);
     // The striker's eye builds or dents with his shot; his partner's fades at the other end.
     const batter = inn.bat[play.striker];
     const partner = inn.bat[play.live.setup.nonStrikerIdx];

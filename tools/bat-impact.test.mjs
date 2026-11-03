@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { BAT_BLADE, batImpact, bladeAngle, edgeExit } from "../src/sim/bat-impact.js";
+import { BALL_RADIUS } from "../src/sim/geometry.js";
 import { Match } from "../src/sim/match.js";
 import { Rng } from "../src/sim/rng.js";
 import { australia, england } from "../src/sim/teams.js";
@@ -27,12 +28,16 @@ test("toe and splice face contacts return less energy than the middle", () => {
 });
 
 test("ball radius permits grazing contacts but excludes air beyond toe, blade and handle", () => {
-  assert.equal(hit({ dx: 0.089 }).missed, false);
-  assert.equal(hit({ dx: 0.091 }).missed, true);
-  assert.equal(hit({ dy: -0.22 }).missed, false);
-  assert.equal(hit({ dy: -0.24 }).missed, true);
+  // Limits follow the ball's size, so changing BALL_RADIUS doesn't break the test.
+  const edge = BAT_BLADE.halfWidth + BALL_RADIUS;
+  const toe = -(BAT_BLADE.sweet + BALL_RADIUS);
+  const handle = BAT_BLADE.handle + BALL_RADIUS - BAT_BLADE.sweet;
+  assert.equal(hit({ dx: edge - 0.001 }).missed, false);
+  assert.equal(hit({ dx: edge + 0.001 }).missed, true);
+  assert.equal(hit({ dy: toe + 0.01 }).missed, false);
+  assert.equal(hit({ dy: toe - 0.01 }).missed, true);
   assert.equal(hit({ dy: 0.4 }).region, "handle");
-  assert.equal(hit({ dy: 0.6 }).missed, true);
+  assert.equal(hit({ dy: handle + 0.01 }).missed, true);
 });
 
 test("length and width follow bat orientation for cuts, pulls, sweeps and ramps", () => {

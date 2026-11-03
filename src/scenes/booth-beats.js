@@ -1,7 +1,8 @@
 import { scheduleCalls, callDuration, fitsBox } from "../render/booth.js";
 import { GROUNDS } from "../render/grounds.js";
 import { TRACKING_TIME } from "../render/match-broadcast.js";
-import { setupCall, deliveryCall, shotCall, outcomeCall, overIntroCall, fieldCall } from "../sim/booth-beats.js";
+import { setupCall, deliveryCall, shotCall, outcomeCall, overIntroCall, fieldCall, PLAN_READS } from "../sim/booth-beats.js";
+import { COLORS } from "../engine/screen.js";
 import { venueCall } from "../sim/booth-venue-lines.js";
 import { onFieldCall, reviewCall, trackingCall, verdictCall } from "../sim/booth-drs-lines.js";
 import { activeWicketSide } from "./bowling-side.js";
@@ -53,8 +54,18 @@ export function onNextBall(scene) {
   }
   const sig = fieldSignature(inn);
   if (inn.ballInOver === 0) {
-    const text = overIntroCall(lead(scene), inn, fieldCall(inn, beats.fieldSaid), pick);
-    if (fitsBox(text)) calls.push({ who: lead(scene), text, keep: true });
+    // Batting against the computer, a change of plan is read out, and tagged on screen as it's said.
+    const plan = scene.human === "bat" && PLAN_READS[inn.overPlan] && inn.overPlan !== beats.planSaid ? inn.overPlan : null;
+    let text = overIntroCall(lead(scene), inn, fieldCall(inn, beats.fieldSaid), pick, plan);
+    // Too long with the intro: the plan alone is what matters.
+    if (!fitsBox(text) && plan) text = pick(PLAN_READS[plan].lines);
+    if (fitsBox(text)) {
+      calls.push({ who: lead(scene), text, keep: true });
+      if (plan) {
+        beats.planSaid = plan;
+        scene.flash(`READ: ${PLAN_READS[plan].tag}`, COLORS.gold);
+      }
+    }
   } else if (beats.field !== null && sig !== beats.field) {
     // The captain has moved the field mid-over.
     const field = fieldCall(inn, beats.fieldSaid);

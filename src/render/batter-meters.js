@@ -12,8 +12,19 @@ export function meterAnchors(top = BATTER_PANEL.y) {
   return { eye: { x: center, y: top + 22 }, pressure: { x: center, y: top + 46 } };
 }
 
-/** The striker's eye and bowling pressure share a compact, two-row panel. */
-export function drawBatterMeters({ eye, pressure, eyeShown = eye, pressureShown = pressure, now = 0, top = BATTER_PANEL.y }) {
+/**
+ * The striker's eye and bowling pressure share a compact, two-row panel; `tag` (e.g. a weakness he's given
+ * away) sits in a strip under it.
+ */
+export function drawBatterMeters({
+  eye,
+  pressure,
+  eyeShown = eye,
+  pressureShown = pressure,
+  now = 0,
+  top = BATTER_PANEL.y,
+  tag = "",
+}) {
   const { x, w, h } = BATTER_PANEL;
   const full = eye >= 1;
   drawPanel(x, top, w, h, "rgba(10,28,18,0.88)", full ? COLORS.gold : COLORS.gold2);
@@ -28,4 +39,8 @@ export function drawBatterMeters({ eye, pressure, eyeShown = eye, pressureShown 
   drawText("PRESSURE", x + 6, top + 27, { color: COLORS.dim });
   drawText(`${Math.round(pressure * 100)}%`, x + w - 6, top + 27, { color: pressureColor, align: "right" });
   drawEasedBar(PRESSURE_BAR.x, top + 37, PRESSURE_BAR.w, 5, pressureShown, pressure, pressureColor);
+  if (tag) {
+    drawPanel(x, top + h + 2, w, 13, "rgba(60,18,10,0.9)", COLORS.red);
+    drawText(tag, x + w / 2, top + h + 5, { align: "center", color: COLORS.gold });
+  }
 }

@@ -1,6 +1,7 @@
 import { selectedWicketSide } from "./bowling-side.js";
 import { drawSetupPanel } from "../render/bowling-setup.js";
 import { drawBatterMeters, meterAnchors } from "../render/batter-meters.js";
+import { WEAKNESS_NAMES } from "../sim/scouting.js";
 import { WIDTH, COLORS, fillRect, drawPanel, drawBar } from "../engine/screen.js";
 import { drawText, wrapText } from "../engine/text.js";
 import { clamp } from "../math.js";
@@ -161,8 +162,12 @@ const METER_PHASES = new Set(["ready", "runup", "flight", "after", "return", "ap
 
 /** The shared meter panel returns once the run-up has begun. */
 function drawBatterPanel(scene) {
-  const eye = scene.inn.bat[scene.inn.striker].eye;
+  const striker = scene.inn.bat[scene.inn.striker];
+  const eye = striker.eye;
+  // Bowling at him: the weakness he's given away (sim/scouting.js), as a reminder where to bowl.
+  const tag = scene.human === "bowl" && striker.weaknessShown ? (WEAKNESS_NAMES[striker.p.weakness]?.tag ?? "") : "";
   drawBatterMeters({
+    tag,
     eye,
     pressure: scene.inn.pressure,
     eyeShown: scene.juice.shown.eye ?? eye,

@@ -79,12 +79,16 @@ from them rather than re-asking.
   aim off for the turn; the field crosses over; the camera mirrors it all back. Still to come: the field
   crossing over visibly between balls, around-the-wicket choices against left-handers, commentary on it.
 
-## 5. Commentary and GUI
+## 5. Commentary and GUI (first pass done, branch `stream5-commentary`)
 
 - Commentary adds value three ways: gameplay information, drama, personality.
 - What it reveals (a weakness, a plan, why the field moved) also flashes as a short tag on screen, e.g. LOOSE
   OUTSIDE OFF on the batter's card.
 - A readability pass on the GUI and HUD. Text size stays as it is for now.
+- Done: scouting (`sim/scouting.js`): a hint, then the weakness given away and tagged under the batter's panel
+  when bowling; batting, the box reads the computer's plan for each new over with a READ: tag on screen; the
+  partnership is labelled STAND. Still to come: drama and personality beyond the existing banks, more of the GUI
+  pass (the bottom ticker, the bowling setup panel), commentary on fielders and left-handers.
 
 ## Later
 

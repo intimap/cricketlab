@@ -201,7 +201,39 @@ const PHASE = {
  * (why he's on, the new ball, the phase, the field). `field` is the field reading's text, if fresh.
  * Returns the text.
  */
-export function overIntroCall(who, inn, field, pick) {
+/**
+ * The box reading the bowler's plan for the over (sim/ai.js pickOverPlan), so a player batting can use it,
+ * with the short tag shown on screen as it's said.
+ */
+export const PLAN_READS = {
+  short: {
+    tag: "SHORT BALL COMING",
+    lines: ["THE FIELD SAYS IT: EXPECT IT SHORT THIS OVER.", "THEY'LL TEST HIM WITH THE SHORT BALL HERE, I THINK."],
+  },
+  corridor: {
+    tag: "OUTSIDE OFF",
+    lines: ["THIS WILL BE THE CORRIDOR: OUTSIDE OFF, AND WAIT.", "HE'LL KEEP IT OUTSIDE OFF AND WAIT FOR THE MISTAKE."],
+  },
+  squeeze: {
+    tag: "TIGHT LINES",
+    lines: ["A SQUEEZE ON: TIGHT LINES, NOTHING TO HIT.", "THEY'RE GOING TO DRY UP THE RUNS THIS OVER."],
+  },
+  setup: {
+    tag: "WATCH THE ONE BACK IN",
+    lines: ["WATCH FOR THE SET-UP: A FEW AWAY, THEN ONE BACK IN.", "HE'LL SET HIM UP OUTSIDE OFF, THEN BRING ONE IN."],
+  },
+  flight: {
+    tag: "FLIGHTED: TEMPTING THE DRIVE",
+    lines: ["HE'LL GIVE IT AIR THIS OVER AND INVITE THE DRIVE.", "TOSSING IT UP: HE WANTS HIM TO COME AT HIM."],
+  },
+  rough: {
+    tag: "INTO THE FOOTMARKS",
+    lines: ["HE'LL AIM FOR THE FOOTMARKS. A TOUGH OVER TO SURVIVE.", "INTO THE ROUGH, I'D THINK. WATCH FOR THE BIG ONE."],
+  },
+};
+
+/** `plan`: the computer bowler's plan to read out (or null, as when the player is bowling). */
+export function overIntroCall(who, inn, field, pick, plan = null) {
   const bowler = inn.bowler;
   const style = bowler.p.bowl?.style;
   const overs = Math.floor(bowler.balls / 6);
@@ -218,7 +250,9 @@ export function overIntroCall(who, inn, field, pick) {
   const opening = inn.legal === 0 || (overs === 0 && inn.overNo < 2);
   const pool = opening ? (inn.overNo === 1 ? INTRO_PARTNER : INTRO_OPEN) : fresh || overs === 0 ? INTRO_NEW : INTRO;
   const head = fill(pick(pool[who]), facts);
-  return [head, extraFor(inn, fresh, opening, style, striker, field, facts, pick)].filter(Boolean).join(" ");
+  // A new plan is the most useful thing the box can tell a batter; otherwise the usual scene-setting.
+  const read = plan && PLAN_READS[plan] ? pick(PLAN_READS[plan].lines) : null;
+  return [head, read ?? extraFor(inn, fresh, opening, style, striker, field, facts, pick)].filter(Boolean).join(" ");
 }
 
 function extraFor(inn, fresh, opening, style, striker, field, facts, pick) {

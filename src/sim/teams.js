@@ -122,10 +122,10 @@ const HAIR = {
  * How a player looks on screen: height (m), skin tone, hair colour and style
  * (short, buzz, curly, long, bald), facial hair (none, stubble, moustache,
  * full), shirt number, and extras: "sunglasses", "zinc" (sunscreen on the
- * nose and lips) and "sweatbands".
+ * nose and lips) and "sweatbands"; and build: slim, average or stocky (thinner or thicker limbs).
  */
-function look(height, skin, hair, hairStyle, beard, number, extras = []) {
-  return { height, skin: SKIN[skin], hair: HAIR[hair], hairStyle, beard, number, extras };
+function look(height, skin, hair, hairStyle, beard, number, extras = [], build = "average") {
+  return { height, skin: SKIN[skin], hair: HAIR[hair], hairStyle, beard, number, extras, build };
 }
 
 const DEFAULT_LOOK = look(1.82, "light", "brown", "short", "none", 0);
@@ -171,12 +171,17 @@ export function australia() {
     },
     {
       name: "Stan Smoth",
-      look: look(1.74, "light", "darkBrown", "short", "none", 49, ["zinc", "sweatbands"]),
+      look: look(1.74, "light", "darkBrown", "short", "none", 49, ["zinc", "sweatbands"], "stocky"),
       nick: "Smudge",
       role: "top",
       bowl: bowler("legspin", 0.15, { spin: 0.55, accuracy: 0.55, stamina: 0.6 }),
     },
-    { name: "Marty Renclaw", look: look(1.93, "fair", "lightBrown", "short", "none", 77), nick: "Renny", role: "middle" },
+    {
+      name: "Marty Renclaw",
+      look: look(1.93, "fair", "lightBrown", "short", "none", 77, [], "slim"),
+      nick: "Renny",
+      role: "middle",
+    },
     {
       name: "Camden Greenwich",
       look: look(1.98, "fair", "lightBrown", "short", "none", 25),

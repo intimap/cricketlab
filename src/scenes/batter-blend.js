@@ -19,7 +19,8 @@ const smooth = (k) => k * k * (3 - 2 * k);
 export function strokeTimeline(name, rel, window, ready, sample) {
   const end = BATTER_CLIPS[name].end;
   if (rel < -window) return ready;
-  if (rel > end) return { ...BATTER_POSES.stance, from: sample(end), fromK: smooth(Math.max(0, 1 - (rel - end) / RIG_BLEND_OUT)) };
+  if (rel > end)
+    return { ...BATTER_POSES.stance, from: sample(end), fromK: smooth(Math.max(0, 1 - (rel - end) / RIG_BLEND_OUT)) };
   const pose = sample(rel);
   const since = rel + window;
   return since < RIG_BLEND_IN ? { ...pose, from: ready, fromK: smooth(1 - since / RIG_BLEND_IN) } : pose;

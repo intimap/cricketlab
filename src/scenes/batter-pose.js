@@ -57,7 +57,8 @@ function rigPose(scene, cur, stroke, t, reach, fromBowler) {
   // Reaching towards the line of the ball, as the old strokes do: in through contact, then let go.
   const sample = (rel) => {
     const motion = sampleGameBatterMotion(stroke.name, rel, { view, windowBeforeContact: stroke.window });
-    const reachNow = (stroke.type === "leave" ? 0 : reach) * (rel < 0 ? clamp((rel + stroke.window) / stroke.window) : clamp(1 - rel / 0.2));
+    const reachNow =
+      (stroke.type === "leave" ? 0 : reach) * (rel < 0 ? clamp((rel + stroke.window) / stroke.window) : clamp(1 - rel / 0.2));
     return reachPose(motion, reachNow, stroke.frontFoot);
   };
   return strokeTimeline(stroke.name, t - stroke.contactAt, stroke.window, readyPose(scene, cur, start), sample);

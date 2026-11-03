@@ -49,7 +49,12 @@ function channels(c) {
   if (!ch) {
     const poses = c.frames.map((f) => withBatterDepth(f.pose));
     const keys = Object.keys(poses[0]).filter((k) => typeof poses[0][k] === "number");
-    ch = { times: c.frames.map((f) => f.time), keys, values: keys.map((k) => poses.map((p) => p[k] ?? poses[0][k])), first: poses[0] };
+    ch = {
+      times: c.frames.map((f) => f.time),
+      keys,
+      values: keys.map((k) => poses.map((p) => p[k] ?? poses[0][k])),
+      first: poses[0],
+    };
     channelCache.set(c, ch);
   }
   return ch;
@@ -82,7 +87,10 @@ function smoothAt(times, ys, t) {
   const s2 = s * s;
   const s3 = s2 * s;
   return (
-    (2 * s3 - 3 * s2 + 1) * ys[k] + (s3 - 2 * s2 + s) * h * tangent(k) + (-2 * s3 + 3 * s2) * ys[k + 1] + (s3 - s2) * h * tangent(k + 1)
+    (2 * s3 - 3 * s2 + 1) * ys[k] +
+    (s3 - 2 * s2 + s) * h * tangent(k) +
+    (-2 * s3 + 3 * s2) * ys[k + 1] +
+    (s3 - s2) * h * tangent(k + 1)
   );
 }
 

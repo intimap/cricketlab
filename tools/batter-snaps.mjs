@@ -18,7 +18,9 @@ export function strokeFrames(name) {
   const clip = BATTER_CLIPS[name];
   const frames = [];
   for (let t = -window - 0.1; t <= clip.end + 0.35; t += 1 / FPS) {
-    const pose = strokeTimeline(name, t, window, ready, (rel) => sampleGameBatterMotion(name, rel, { windowBeforeContact: window }));
+    const pose = strokeTimeline(name, t, window, ready, (rel) =>
+      sampleGameBatterMotion(name, rel, { windowBeforeContact: window }),
+    );
     const s = solveBatterSkeleton(pose);
     frames.push({ t, joints: JOINTS.map((j) => s[j]) });
   }
@@ -47,5 +49,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     .filter((n) => !only || n === only)
     .map((name) => ({ name, ...worstJolt(strokeFrames(name)) }))
     .sort((a, b) => b.jolt - a.jolt);
-  for (const r of rows) console.log(`${r.name.padEnd(22)} jolt ${r.jolt.toFixed(1).padStart(5)} at ${r.t.toFixed(2)}s (${r.joint})`);
+  for (const r of rows)
+    console.log(`${r.name.padEnd(22)} jolt ${r.jolt.toFixed(1).padStart(5)} at ${r.t.toFixed(2)}s (${r.joint})`);
 }

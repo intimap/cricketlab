@@ -101,6 +101,7 @@ src/
     screen.js         640x360 pixel frame buffer, scaling, drawing primitives
     text.js           5x7 bitmap font
     silhouette.js     cast shadows: a sprite's shape sheared onto the ground, all of a frame's in one layer
+    outline.js        a sprite drawn with a 1px outline round its whole shape (the striker)
     input.js          keyboard and mouse state, polled per frame
     touch.js          on-screen buttons for phones, pressing the same keys
     audio.js          synthesised sound effects, stereo crowd and audio mix
@@ -170,6 +171,7 @@ src/
     ground-paint.js   the compositor's kit: pitch sizes, colour helpers, noise, scenery layers, cracks
     stadium-ground.js a ground built round a stadium image (the MCG's wide view)
     light.js          times of day: tint, sky glow, stand shadows, shadow length, and each one's HD-2D look
+    skins.js          skins as data: each team's kit beyond its colours, and player builds
     lighting.js       the HD-2D look: frame grading, dusk and night skies, dimmed scenery, floodlights, shadow direction
     sprites.js        the ball and its shadow; re-exports kit.js, batter/batter-rig.js and figures.js
     kit.js            kit colours, a player's looks (skin, hair, beard, height), mirroring, shadows
@@ -223,6 +225,7 @@ src/
     booth-beats.js    when the box speaks: before the over, as he runs in, at the bat, the result, the review
     bowling-side.js   per-bowler side selection and setup controls
     batter-pose.js    the striker's pose through a ball: stance, trigger, backlift, strokes, follow-throughs
+    batter-blend.js   how a stroke joins the stance either side of it, eased in and out
     batter-stroke.js  presentation-only selection and the existing attack/block/leave clocks
     match-view.js     drawing for the match scene: the close and wide views
     match-wide.js     the wide view: the whole ground with everyone as small figures
@@ -235,7 +238,7 @@ src/
 netlify/
   functions/scores.mjs  the shared high-score service on Netlify (/api/scores)
   score-table.mjs       its tables: checks scores, keeps each table's best 200, safe against saves at once
-tools/                balance report, one-file build, art generators (tools/art/), tests (*.test.mjs)
+tools/                balance report, one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
 ```
 
 The rule of thumb: `sim/` knows nothing about the screen, `engine/` knows nothing about cricket, and

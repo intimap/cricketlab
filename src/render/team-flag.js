@@ -14,6 +14,9 @@ export function drawTeamFlag(team, x, y) {
     return;
   }
   if (team.abbr === "SA") return southAfrica(x, y, w, h);
+  if (team.abbr === "IND") return india(x, y, w, h);
+  if (team.abbr === "PAK") return pakistan(x, y, w, h);
+  if (team.abbr === "SL") return sriLanka(x, y, w, h);
   const canton = team.abbr === "AUS" || team.abbr === "NZ";
   fillRect(x, y, w, h, team.abbr === "AUS" ? "#172a50" : team.abbr === "NZ" ? "#14306e" : team.colour);
   if (!canton) {
@@ -80,4 +83,63 @@ function southAfrica(x, y, w, h) {
     fillRect(x + i, y + 10 - half - 1, 1, half * 2 + 2, "#ffb612");
     fillRect(x + i, y + 10 - half, 1, half * 2, "#000000");
   }
+}
+
+/** India: saffron, white and green, the navy wheel in the middle. */
+function india(x, y, w, h) {
+  fillRect(x, y, w, 7, "#ff9933");
+  fillRect(x, y + 7, w, 6, "#f8f8f2");
+  fillRect(x, y + 13, w, h - 13, "#138808");
+  const cx = x + w / 2;
+  const cy = y + 10;
+  // The wheel: a ring with a hub.
+  fillRect(cx - 2, cy - 3, 4, 1, "#0b2a80");
+  fillRect(cx - 2, cy + 2, 4, 1, "#0b2a80");
+  fillRect(cx - 3, cy - 2, 1, 4, "#0b2a80");
+  fillRect(cx + 2, cy - 2, 1, 4, "#0b2a80");
+  fillRect(cx - 1, cy - 1, 2, 2, "#0b2a80");
+}
+
+/** Pakistan: dark green with a white band at the hoist, and the white crescent and star. */
+function pakistan(x, y, w, h) {
+  const green = "#0b5d2a";
+  fillRect(x, y, w, h, green);
+  fillRect(x, y, 9, h, "#f4f4f0");
+  // The crescent: a white disc with a green one cut from it, up and to the right.
+  const cx = x + 22;
+  const cy = y + 11;
+  for (let dy = -5; dy <= 5; dy++)
+    for (let dx = -5; dx <= 5; dx++) {
+      const inner = (dx - 1.6) ** 2 + (dy + 1.4) ** 2 <= 16;
+      if (dx * dx + dy * dy <= 25 && !inner) fillRect(cx + dx, cy + dy, 1, 1, "#f4f4f0");
+    }
+  // The star.
+  fillRect(x + 26, y + 6, 3, 1, "#f4f4f0");
+  fillRect(x + 27, y + 5, 1, 3, "#f4f4f0");
+}
+
+/** Sri Lanka: a gold border, green and saffron stripes at the hoist, the gold lion on maroon. */
+function sriLanka(x, y, w, h) {
+  const gold = "#ffbe29";
+  fillRect(x, y, w, h, gold);
+  fillRect(x + 2, y + 2, 4, h - 4, "#00534e");
+  fillRect(x + 6, y + 2, 4, h - 4, "#eb7400");
+  fillRect(x + 12, y + 2, w - 14, h - 4, "#8d153a");
+  // The lion, standing with a sword raised: body, head, legs and the sword.
+  const lx = x + 18;
+  const ly = y + 6;
+  fillRect(lx, ly + 3, 9, 4, gold);
+  fillRect(lx + 6, ly, 4, 4, gold);
+  fillRect(lx, ly + 7, 2, 3, gold);
+  fillRect(lx + 7, ly + 7, 2, 3, gold);
+  fillRect(lx + 10, ly - 2, 1, 5, gold);
+  fillRect(lx - 2, ly + 2, 2, 1, gold);
+  // Bo leaves in the corners of the maroon.
+  for (const [dx, dy] of [
+    [14, 4],
+    [w - 4, 4],
+    [14, h - 5],
+    [w - 4, h - 5],
+  ])
+    fillRect(x + dx, y + dy, 1, 1, gold);
 }

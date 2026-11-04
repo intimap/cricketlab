@@ -6,7 +6,7 @@ import { WIDTH, COLORS, fillRect, drawPanel, drawBar } from "../engine/screen.js
 import { drawText, wrapText } from "../engine/text.js";
 import { clamp } from "../math.js";
 import { CREASE } from "../sim/geometry.js";
-import { movementParts } from "../sim/delivery.js";
+import { movementParts, DELIVERY_NAMES } from "../sim/delivery.js";
 import { PRESET_LABELS } from "../sim/field.js";
 import { closeFromBowlerEnd, projectWide } from "../render/camera.js";
 import { playerKit } from "../render/sprites.js";
@@ -19,6 +19,8 @@ import { strikerPlace } from "./match-striker.js";
 import { drawWeatherReport, drawRainReport } from "../render/weather-report.js";
 import { declareAdvice } from "./match-test.js";
 import { gradeTap } from "../sim/rhythm.js";
+import { overReview } from "../sim/over-review.js";
+import { drawOverSummary } from "../render/over-summary.js";
 
 /**
  * The match's panels over the picture: the bowling setup and choice of bowler, the speed gun, the
@@ -52,6 +54,13 @@ export function drawPanels(scene) {
   }
   if (scene.phase === "forecast" && scene.report) drawWeatherReport(scene.report, scene.now);
   if (scene.phase === "rain" && scene.rainReport) drawRainReport(scene.rainReport, scene.now);
+  if (scene.phase === "overEnd" && scene.human === "bowl" && inn.lastOverPitches.length) {
+    const dots = inn.lastOverPitches;
+    const review = overReview(dots);
+    const wkts = review.wickets ? `, ${review.wickets} WICKET${review.wickets > 1 ? "S" : ""}` : "";
+    const title = `OVER ${inn.overNo}: ${review.runs} RUN${review.runs === 1 ? "" : "S"}${wkts}`;
+    drawOverSummary({ title, dots, line: review.line, facing: scene.screenTurn }, scene.now);
+  }
 
   if (scene.phase === "flight" && scene.human === "bat" && scene.cur?.contactDone && scene.cur.play) {
     const live = scene.cur.play.live;
@@ -166,8 +175,11 @@ const SPEED_GUN_PHASES = new Set(["flight", "after", "return", "appeal", "decisi
 function drawSpeedGun(scene) {
   const d = scene.cur?.delivery;
   if (!d) return;
-  const parts = scene.cur.contactDone || scene.cur.t > 1.2 ? movementParts(d) : [];
-  const shown = scene.cur.contactDone || scene.cur.t > 1.2 ? (parts.length ? parts : ["STRAIGHT ON"]) : [];
+  const played = scene.cur.contactDone || scene.cur.t > 1.2;
+  const parts = played ? movementParts(d) : [];
+  const shown = played ? (parts.length ? parts : ["STRAIGHT ON"]) : [];
+  // Batting, what he bowled, once it's been played (it isn't on the score bar before).
+  if (played && scene.human === "bat") shown.unshift(DELIVERY_NAMES[scene.cur.intent.type] ?? "");
   const w = 108;
   const h = 24 + shown.length * 9;
   const x = WIDTH - w - 4;

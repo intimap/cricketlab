@@ -71,7 +71,8 @@ export function statusLine(scene) {
 /** An over has ended: in a Test the interval it brings (lunch, tea, stumps) takes the end-of-over banner's place. */
 export function overEndBanner(scene, applied) {
   const brk = applied.testBreak;
-  if (!brk) return scene.big("END OF OVER", COLORS.cream, "CHANGE OF ENDS", 2.3);
+  // Bowling, the over's summary takes the banner's place (render/over-summary.js).
+  if (!brk) return scene.human === "bowl" ? null : scene.big("END OF OVER", COLORS.cream, "CHANGE OF ENDS", 2.3);
   const { inn, match } = scene;
   // Stumps has already turned the clock to tomorrow.
   const day = brk === "stumps" ? match.clock.day - 1 : match.clock.day;

@@ -3,6 +3,7 @@ import { sfx } from "../engine/audio.js";
 import { isSpinner } from "../sim/teams.js";
 import { PRESET_LABELS, positionName } from "../sim/field.js";
 import { pickFieldPreset } from "../sim/ai.js";
+import { takeAdvice } from "./bowling-advice.js";
 
 /**
  * Every player decision that can change the match, as a plain message: { type, ...details }. The scene's
@@ -18,6 +19,7 @@ import { pickFieldPreset } from "../sim/ai.js";
  *   newBall {}                   wicketSide { side }      placeFielder { idx, pos }
  *   simulate { overs }           catchPress {}            throwCall { end }
  *   declare {}                   followOn { enforce }     (a Test: scenes/match-test.js)
+ *   takeAdvice { plan }          (the keeper's suggested ball: scenes/bowling-advice.js)
  */
 export function act(scene, action) {
   (scene.actions ??= []).push({ ...action, at: scene.now, ball: scene.inn.legal });
@@ -34,6 +36,9 @@ export function act(scene, action) {
     case "bowl":
       scene.cur = scene.newBall(action.plan, 0);
       return scene.setPhase("runup");
+    case "takeAdvice":
+      takeAdvice(scene, action.plan);
+      return scene.flash("THE KEEPER'S BALL", "#9fd0ff");
     case "beat":
       scene.cur.beats[action.index].error = action.error;
       return sfx.click();

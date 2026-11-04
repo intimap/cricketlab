@@ -16,6 +16,8 @@ import { onBallDone } from "./match-feedback.js";
 import { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
 import { forecastDue, openForecast, overEndBanner, simShouldStop } from "./match-test.js";
 import { rhythmBeats, actionTimes } from "../render/bowler/bowler-action.js";
+import { suggestBall } from "./bowling-advice.js";
+import { readWord } from "../sim/plans.js";
 import { rainDue, openRain, stopForRain } from "./match-rain.js";
 import { updateLight } from "./match-light.js";
 
@@ -69,6 +71,7 @@ export function nextBall(scene) {
     if (!skills.repertoire.includes(scene.deliveryType)) scene.deliveryType = skills.repertoire[0];
     scene.cur = null;
     scene.setPhase("setup");
+    scene.advice = suggestBall(scene);
   }
   beats.onNextBall(scene);
 }
@@ -184,6 +187,9 @@ export function completeBall(scene) {
     after: scene.inn.pressure,
   });
   if (scene.human === "bat") scene.flashEye(done.rec.eye);
+  // Bowling: how he read it, in a word (sim/plans.js).
+  const read = scene.human === "bowl" ? readWord(done.rec, scene.inn.bat[done.rec.striker].weaknessShown) : null;
+  if (read) scene.banner(read, read === "HE'S LINED IT UP" ? COLORS.red : "#9fd0ff", 1.8, 2, 132, scene.now + 0.5);
   // Bowling, and he's given his weakness away: say so on screen too (the box says it in words).
   if (scene.human === "bowl" && done.rec.scout?.tag)
     scene.banner(`WEAKNESS: ${done.rec.scout.tag}`, COLORS.gold, 2.2, 2, 150, scene.now + 0.6);

@@ -18,9 +18,8 @@ import { clamp } from "../math.js";
 import { bearingOf } from "./geometry.js";
 import { TestClock, TEST_WEAR, testOverEnded, testNextInnings, testResult } from "./test-match.js";
 import { showerComes, limitedRain, revisedTarget } from "./rain.js";
+import { callBouncer } from "./bouncer-law.js";
 
-/** A ball passing the batter higher than this (m, about his shoulder) counts as a bouncer (Law 41.6). */
-const BOUNCER_HEIGHT = 1.3;
 /** How often the on-field umpire gets an LBW wrong, either way. */
 const UMPIRE_ERROR = 0.15;
 
@@ -129,7 +128,9 @@ export class Match {
     inn.setBowler(bowlerIdx ?? pickBowler(inn));
     // A new bowler mid-over (the last one taken off) starts the bouncer count afresh.
     inn.overBouncers = 0;
-    inn.overPlan = pickOverPlan(inn, this.rng);
+    // Bowling, the player's captain plans with only what the player has seen given away (sim/scouting.js).
+    const known = this.human === "bowl" ? !!inn.bat[inn.striker].weaknessShown : undefined;
+    inn.overPlan = pickOverPlan(inn, this.rng, known);
     if (this.human !== "bowl" && !inn.customField) inn.setPreset(pickFieldPreset(inn));
     if (inn.newBallAvailable && this.human !== "bowl") inn.takeNewBall();
   }
@@ -164,24 +165,14 @@ export class Match {
     );
     const d = { ...(facing < 0 ? { ...mirrorDelivery(world), intent } : world), facing };
     inn.spendStamina(intent.effort, releaseError);
-    // More than two bouncers in an over is a no-ball and a first and final warning; the next time in the
-    // innings, the bowler is taken off (Law 41.6).
-    // A bouncer, for the law, is one that passes him above the shoulder, whatever it was meant to be.
-    if (!isSpinner(bowler.p.bowl) && (d.atCrease?.y ?? 0) > BOUNCER_HEIGHT) {
-      inn.overBouncers++;
-      if (inn.overBouncers > 2) {
-        d.noBall = true;
-        d.bouncerNoBall = true;
-        bowler.bouncerWarnings = (bowler.bouncerWarnings ?? 0) + 1;
-        d.bouncerWarning = bowler.bouncerWarnings === 1 ? "warning" : "suspended";
-        if (d.bouncerWarning === "suspended") bowler.suspended = true;
-      }
-    }
+    // Too many bouncers (sim/bouncer-law.js).
+    callBouncer(inn, bowler, d);
     // Disguised deliveries: does the striker pick it out of the hand?
     if (d.disguised) {
       const bat = inn.bat[inn.striker].p.bat;
       const picks = this.rng.chance(intent.type === "slower" ? 0.3 + 0.4 * bat.vsPace : 0.25 + 0.45 * bat.vsSpin);
       if (!picks) {
+        d.notPicked = true;
         d.expectedSpinKick = d.decoySpinKick;
         if (intent.type === "slower") d.paceMisread = true;
       }
@@ -331,6 +322,8 @@ export class Match {
       battle: shot.battle ?? null,
       freeHit: inn.freeHit,
       bouncerNoBall: !!delivery.bouncerNoBall,
+      /** A disguised ball (googly, arm ball, slower ball) he didn't pick out of the hand. */
+      notPicked: !!delivery.notPicked,
       /** The umpire's word on too many bouncers: "warning" (first and final) or "suspended" (taken off). */
       bouncerWarning: delivery.bouncerWarning ?? null,
       over: inn.overNo,

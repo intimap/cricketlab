@@ -4,6 +4,7 @@ import { isSpinner } from "../sim/teams.js";
 import { DELIVERY_NAMES, SPIN_EFFORT_NAMES, lengthName, lineName } from "../sim/delivery.js";
 import { PRESET_LABELS } from "../sim/field.js";
 import { staminaColor } from "./hud.js";
+import { drawPitchMap } from "./pitch-map.js";
 
 export const BOWLING_SIDE_CONTROL = { x: 8, y: 94, w: 232, h: 13 };
 
@@ -13,7 +14,8 @@ export function drawSetupPanel(scene, wicketSide = "over") {
   const bowler = inn.bowler;
   const skills = bowler.p.bowl;
   const spinner = isSpinner(skills);
-  drawPanel(4, 4, 240, 140, "rgba(13,35,24,0.92)");
+  const advice = scene.advice;
+  drawPanel(4, 4, 240, advice ? 166 : 140, "rgba(13,35,24,0.92)");
   drawText(`${bowler.p.name.toUpperCase()}`, 10, 10, { color: COLORS.gold });
   drawText(`${skills.style.toUpperCase()}  ${inn.bowlerOvers(bowler)} OV  ${inn.bowlerFigures(bowler)}`, 10, 20, {
     color: COLORS.dim,
@@ -39,5 +41,13 @@ export function drawSetupPanel(scene, wicketSide = "over") {
   drawText(notes.join("   "), 10, 109, { color: inn.freeHit ? COLORS.gold : COLORS.dim });
   drawText("ARROWS AIM  SHIFT = FINE", 10, 120, { color: COLORS.dim });
   drawText("SPACE = RUN IN   H = APPEAL", 10, 131, { color: COLORS.gold });
+  if (advice) {
+    // The keeper's ball (scenes/bowling-advice.js), and Enter to take it.
+    drawText(advice.lines[0], 10, 145, { color: "#9fd0ff" });
+    drawText(`${advice.lines[1]}  (ENTER)`, 10, 156, { color: COLORS.cream });
+  }
   if (inn.newBallAvailable) drawText("N = TAKE THE NEW BALL", 252, 10, { color: COLORS.red, outline: COLORS.black });
+  // Where the last balls to this batter pitched, under the panel.
+  const pitches = inn.bat[inn.striker].pitches ?? [];
+  if (pitches.length) drawPitchMap(4, advice ? 174 : 148, 84, 88, pitches, { title: "TO HIM", facing: scene.screenTurn });
 }

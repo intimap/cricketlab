@@ -60,9 +60,12 @@ export function drawMatch(scene) {
   gradeFrame(ctx, scene.light);
   if (raining(scene)) drawRain(scene.now);
   const effort = scene.cur?.intent.effort ?? scene.effort;
-  const label = scene.inn.bowler
-    ? `${DELIVERY_NAMES[scene.cur?.intent.type ?? scene.deliveryType]} ${scene.spinner ? SPIN_EFFORT_NAMES[effort] : effort.toUpperCase()}`
-    : "";
+  // Batting, what's coming isn't given away: the delivery shows once he's played it (with the speed gun).
+  const played = !!scene.cur && (scene.cur.contactDone || scene.cur.t > 1.2);
+  const label =
+    scene.inn.bowler && (scene.human === "bowl" || played)
+      ? `${DELIVERY_NAMES[scene.cur?.intent.type ?? scene.deliveryType]} ${scene.spinner ? SPIN_EFFORT_NAMES[effort] : effort.toUpperCase()}`
+      : "";
   // The call types itself out, and stays up while the box talks.
   const booth = boothShowing(scene.booth, scene.now);
   drawScoreBar(scene.inn, scene.commentary.slice(0, Math.floor(scene.commT * 70)), label, statusLine(scene));

@@ -7,6 +7,8 @@ import { act } from "./player-actions.js";
 import { updateForecast, updateFollowOn } from "./match-test.js";
 import { updateRain } from "./match-rain.js";
 
+/** How long the over's summary stays up while bowling, unless Space moves on (s). */
+const OVER_SUMMARY_TIME = 8;
 /** Slow motion (G), for watching the bowler's action and the batter's strokes: this share of real speed. */
 const SLOW_MOTION = 0.25;
 
@@ -84,11 +86,13 @@ export function updateMatch(scene, dt) {
     case "return":
       scene.updateReturn(dt);
       break;
-    case "overEnd":
-      // Finish the recap before changing ends, unless the player moves on.
-      if ((scene.phaseT > 2.4 && scene.now >= scene.boothEndsAt()) || keys.pressed("Space") || keys.pressed("Enter"))
-        scene.nextBall();
+    case "overEnd": {
+      // Finish the recap before changing ends, unless the player moves on (bowling, he reads his over's summary).
+      const hold = scene.human === "bowl" ? OVER_SUMMARY_TIME : 2.4;
+      const skip = scene.phaseT > 0.4 && (keys.pressed("Space") || keys.pressed("Enter"));
+      if ((scene.phaseT > hold && scene.now >= scene.boothEndsAt()) || skip) scene.nextBall();
       break;
+    }
     case "chooseBowler":
       scene.updateChooseBowler();
       break;

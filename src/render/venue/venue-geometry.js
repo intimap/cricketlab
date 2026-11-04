@@ -8,6 +8,8 @@ import { polar } from "./venue-map.js";
  */
 
 export const V = (x, y, z) => ({ x, y, z });
+/** A roof's ridge capping: pale galvanised iron. */
+const RIDGE = () => [184, 190, 182];
 const sub = (a, b) => V(a.x - b.x, a.y - b.y, a.z - b.z);
 const len = (a) => Math.hypot(a.x, a.y, a.z);
 const unit = (a) => {
@@ -52,7 +54,10 @@ export function wall(pic, p, q, y0, y1, material, layer, opts = {}) {
 export function slope(pic, p, q, y0, back, y1, material, layer, opts = {}) {
   const p1 = V(p.x + back.x, y1, p.z + back.z);
   const q1 = V(q.x + back.x, y1, q.z + back.z);
-  drawFace(pic, face([at(p, y0), at(q, y0), q1, p1], material, layer, { outward: V(-back.x, 1, -back.z), ...opts }));
+  drawFace(
+    pic,
+    face([at(p, y0), at(q, y0), q1, p1], material, layer, { outward: opts.outward ?? V(-back.x, 1, -back.z), ...opts }),
+  );
 }
 
 /** The frame of a part whose front centre is at plan point `c`, facing `bearing`: front and right unit vectors. */
@@ -91,7 +96,7 @@ export function box(pic, c, bearing, w, d, y0, y1, materials, layer, opts = {}) 
  * A pitched roof over a w x d plan from eaves at `eave` to a ridge at `ridge` running across (left to
  * right), with vertical gable ends. `overhang` m past the walls all round.
  */
-export function pitchedRoof(pic, c, bearing, w, d, eave, ridge, material, gable, layer, overhang = 0.5) {
+export function pitchedRoof(pic, c, bearing, w, d, eave, ridge, material, gable, layer, overhang = 0.5, cap = RIDGE) {
   const f = frame(c, bearing);
   const half = w / 2 + overhang;
   const FL = f.point(-half, -overhang);
@@ -103,6 +108,18 @@ export function pitchedRoof(pic, c, bearing, w, d, eave, ridge, material, gable,
   const toRidge = { x: RL.x - FL.x, z: RL.z - FL.z };
   slope(pic, FL, FR, eave, toRidge, ridge, material, layer);
   slope(pic, BR, BL, eave, { x: RR.x - BR.x, z: RR.z - BR.z }, ridge, material, layer);
+  // A capping along the ridge, a shade lighter, so the roof's top edge shows against what's behind.
+  box(
+    pic,
+    f.point(0, d / 2 - 0.2),
+    bearing,
+    w + overhang * 2,
+    0.4,
+    ridge - 0.12,
+    ridge + 0.18,
+    { front: cap, back: cap, top: cap, sides: cap },
+    layer,
+  );
   if (!gable) return;
   const gl = f.point(-w / 2, 0);
   const gr = f.point(w / 2, 0);

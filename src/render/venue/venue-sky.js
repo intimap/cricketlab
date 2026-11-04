@@ -64,8 +64,8 @@ export function paintLampGlow(g, pic, map) {
     if (!at) continue;
     const size = (8 * pic.cam.fy) / at.depth;
     for (const [radius, alpha] of [
-      [size * 1.4, 0.55],
-      [size * 5, 0.18],
+      [size * 0.8, 0.5],
+      [size * 2.4, 0.14],
     ]) {
       const halo = g.createRadialGradient(at.x, at.y, 0, at.x, at.y, radius);
       halo.addColorStop(0, `rgba(255,248,220,${alpha})`);

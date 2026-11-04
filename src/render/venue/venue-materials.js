@@ -45,8 +45,10 @@ export const PAL = {
   concreteDark: hex("#86837a"),
   grass: hex("#5c9a3a"),
   grassDark: hex("#4b8530"),
-  bank: hex("#67a03f"),
-  bankDark: hex("#548b33"),
+  // The banks' grass: drier and more worn than the outfield's, so they don't read as more of it.
+  bank: hex("#7aa046"),
+  bankDark: hex("#62893a"),
+  bankWorn: hex("#9aa65a"),
   gravel: hex("#b9ad8e"),
   gravelDark: hex("#9f9476"),
   steel: hex("#9aa0a6"),
@@ -63,7 +65,27 @@ export const PAL = {
   canvas: hex("#f0ece0"),
   clockFace: hex("#f6f2e2"),
   gold: hex("#c8a040"),
+  // A crowd mostly in everyday colours, the odd bright one; the members in blazers and hats.
   shirts: [
+    "#e6e2d6",
+    "#c9c1ab",
+    "#3d4b6d",
+    "#6d8cbe",
+    "#e6e2d6",
+    "#a93f36",
+    "#d6b246",
+    "#4e7a4c",
+    "#3d4b6d",
+    "#8b6c9a",
+    "#e28a52",
+    "#2b2b31",
+    "#d6d0c2",
+    "#5b6b8b",
+    "#c9c1ab",
+  ].map(hex),
+  members: ["#2c3650", "#6a2a32", "#e8e2cc", "#f2efe6", "#3a5a3a", "#8a7a5a", "#2c3650", "#e8e2cc", "#1e2430"].map(hex),
+  hats: ["#efe8d2", "#d8c08a", "#f4f2ea", "#3d4b6d"].map(hex),
+  brightShirts: [
     "#d8453e",
     "#f2f0e8",
     "#3f6fc0",
@@ -85,9 +107,15 @@ export const PAL = {
 
 /** The crowd's colours as pixels on the crowd layer, made once. */
 const onCrowd = (list) => list.map((c) => [...c, 0, LAYER.crowd]);
-const CROWD = { shirts: onCrowd(PAL.shirts), skins: onCrowd(PAL.skins), hair: onCrowd(PAL.hair) };
+const CROWD = {
+  shirts: onCrowd(PAL.shirts),
+  members: onCrowd(PAL.members),
+  skins: onCrowd(PAL.skins),
+  hair: onCrowd(PAL.hair),
+  hats: onCrowd(PAL.hats),
+};
 const ON_BANK = PAL.rugs.map((c) => [...c, FLAG.shadowed]);
-const BANK = [PAL.bankDark, PAL.bank, add(PAL.bank, 18)].map((c) => [...c, FLAG.shadowed]);
+const BANK = [PAL.bankDark, PAL.bank, add(PAL.bank, 18), PAL.bankWorn].map((c) => [...c, FLAG.shadowed]);
 
 /** A plain surface with a little grain. */
 export function flat(colour, grain = 5, seed = 1) {
@@ -156,7 +184,17 @@ export function windowed(base, { storeys, spacing = 3, width = 1.4, margin = 1.5
  * Seating rows up a sloping face, each seat a person or empty (seeded): heads in the top of the seat and
  * shirts below. The people are on the crowd layer. `rows` m deep along v, seats `seat` m wide.
  */
-export function seating({ rowDepth = 0.8, seat = 0.5, full = 0.7, seed = 1, colour = PAL.seat, dark = PAL.seatDark } = {}) {
+export function seating({
+  rowDepth = 0.8,
+  seat = 0.5,
+  full = 0.7,
+  seed = 1,
+  colour = PAL.seat,
+  dark = PAL.seatDark,
+  members = false,
+} = {}) {
+  const shirts = members ? CROWD.members : CROWD.shirts;
+  const hatShare = members ? 0.35 : 0.12;
   return (u, v, ppm, x, y) => {
     const row = Math.floor(v / rowDepth);
     const col = Math.floor(u / seat);
@@ -165,14 +203,17 @@ export function seating({ rowDepth = 0.8, seat = 0.5, full = 0.7, seed = 1, colo
     if (fv < 0.18) return dark;
     if (hash(col, row, seed) > full) return colour;
     const h = hash(col, row, seed + 1);
-    const shirt = CROWD.shirts[Math.floor(h * PAL.shirts.length)];
+    const shirt = shirts[Math.floor(h * shirts.length)];
     // Small at this distance: a shirt with a head pixel on top.
     const tall = rowDepth * ppm;
     const head = tall >= 4 ? fv > 0.62 : fv > 0.8;
     if (head) {
       if (fu < 0.25 || fu > 0.75) return colour;
-      const hair = hash(col, row, seed + 2) < 0.35;
-      return hair ? CROWD.hair[Math.floor(h * 7) % PAL.hair.length] : CROWD.skins[Math.floor(h * 11) % PAL.skins.length];
+      const top = hash(col, row, seed + 2);
+      if (top < hatShare) return CROWD.hats[Math.floor(h * 13) % PAL.hats.length];
+      return top < hatShare + 0.3
+        ? CROWD.hair[Math.floor(h * 7) % PAL.hair.length]
+        : CROWD.skins[Math.floor(h * 11) % PAL.skins.length];
     }
     if (fu < 0.1 || fu > 0.9) return colour;
     return shirt;
@@ -189,17 +230,20 @@ export function bankGrass(seed = 1, rugs = 0.12) {
       const fv = v / 2.2 - cv;
       if (fu > 0.2 && fu < 0.8 && fv > 0.25 && fv < 0.75) return ON_BANK[Math.floor(hash(cu, cv, seed + 1) * PAL.rugs.length)];
     }
+    // Mottled: worn patches a few metres across where people sit, and the grain of the grass.
+    const worn = hash(Math.floor(u / 3.1), Math.floor(v / 2.3), seed + 5) < 0.22;
     const h = noise(x, y, seed + 3);
-    return BANK[h < 0.25 ? 0 : h > 0.96 ? 2 : 1];
+    return BANK[worn && h > 0.3 ? 3 : h < 0.25 ? 0 : h > 0.96 ? 2 : 1];
   };
 }
 
 /** The picket fence: white pickets with gaps, a rail behind; pointed tops. */
 export function pickets(height = 1.05) {
-  return (u, v, ppm) => {
+  return (u, v, ppm, x) => {
     const period = 0.15;
     const px = period * ppm;
-    const at = px >= 3 ? ((u % period) + period) % period < 0.09 : Math.floor(u * ppm) % 2 === 0;
+    // Smaller than a few pixels, every other column (by the screen, so they don't drift into blocks).
+    const at = px >= 3 ? ((u % period) + period) % period < 0.09 : (x & 1) === 0;
     const rail = Math.abs(v - 0.3) < Math.max(0.05, 0.5 / ppm) || Math.abs(v - 0.8) < Math.max(0.05, 0.5 / ppm);
     if (v > height - Math.max(0.06, 1 / ppm))
       return at && px >= 3 && ((u % period) + period) % period > 0.02 && ((u % period) + period) % period < 0.07

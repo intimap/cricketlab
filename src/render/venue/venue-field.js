@@ -3,6 +3,8 @@ import { PITCH_HALF, POPPING, POPPING_HALF, RETURN_X, STUMP_HEIGHT, pitchColours
 import { noise } from "./venue-materials.js";
 import { FLAG, LAYER } from "./venue-raster.js";
 import { box } from "./venue-geometry.js";
+import { hash } from "./venue-materials.js";
+import { bearingOf, withinBearings } from "./venue-map.js";
 
 /**
  * The ground itself in a map's frame: the outfield's mowing stripes across the pitch, the rope, the
@@ -26,6 +28,19 @@ function grain(out, c, px, py, seed) {
   out[0] = c[0] + j;
   out[1] = c[1] + j * (h < 0.03 ? 1.1 : 1);
   out[2] = c[2] + j * 0.7;
+}
+
+/** Smooth noise 0..1 over the ground (bilinear between hashed corners), for patches that don't look gridded. */
+function smooth(x, z) {
+  const i = Math.floor(x);
+  const j = Math.floor(z);
+  const fx = x - i;
+  const fz = z - j;
+  const sx = fx * fx * (3 - 2 * fx);
+  const sz = fz * fz * (3 - 2 * fz);
+  const a = hash(i, j, 3) + (hash(i + 1, j, 3) - hash(i, j, 3)) * sx;
+  const b = hash(i, j + 1, 3) + (hash(i + 1, j + 1, 3) - hash(i, j + 1, 3)) * sx;
+  return a + (b - a) * sz;
 }
 
 /** How wide a line `half` m either side looks at least: about half the pixel's footprint across it. */
@@ -81,14 +96,46 @@ export function groundShade(map, pitch, { field = true } = {}) {
   const path = rgb(map.grass.path);
   const beyond = rgb(map.grass.beyond);
   const verge = path.map((v, i) => (v + beyond[i]) / 2);
+  const mown = beyond.map((v, i) => v + [6, 10, 2][i]);
+  const rough = beyond.map((v, i) => v - [10, 8, 6][i]);
+  const tarmac = [92, 94, 96];
+  const line = [214, 214, 200];
+  const concrete = [176, 172, 160];
   const colours = outfield(map);
+  // The ground's own markings past the fence: paths, the car park, the nets' strips (venue-parts.js).
+  const decals = map.parts.filter((p) => p.kind === "path" || p.kind === "carpark" || p.kind === "nets");
+  const onDecal = (x, z, r, out, px, py) => {
+    const b = bearingOf(x, z);
+    for (const d of decals) {
+      if (d.kind === "path" && d.bearing !== undefined) {
+        // A path straight out from the ground: within its width of the line along its bearing.
+        const a = (d.bearing * Math.PI) / 180;
+        const along = x * Math.sin(a) + z * Math.cos(a);
+        const across = x * Math.cos(a) - z * Math.sin(a);
+        if (along > d.r0 && along < d.r1 && Math.abs(across) < d.width / 2) return (grain(out, path, px, py, 8), true);
+        continue;
+      }
+      if (r < d.r0 || r > d.r1 || !withinBearings(b, d.from, d.to)) continue;
+      if (d.kind === "path") return (grain(out, path, px, py, 8), true);
+      if (d.kind === "nets") return (grain(out, concrete, px, py, 6), true);
+      // The car park: tarmac, white lines between the bays.
+      const bay = ((b - d.from + 360) % 360) * ((Math.PI * r) / 180);
+      const painted = bay % 2.6 < 0.12 && (r - d.r0) % 6 > 1 && (r - d.r0) % 6 < 5.2;
+      return (grain(out, painted ? line : tarmac, px, py, 6), true);
+    }
+    return false;
+  };
   const fieldFlags = FLAG.shadowed | FLAG.field;
   return (x, z, footX, footZ, px, py, out) => {
     const r = Math.sqrt(x * x + z * z);
     if (r > map.fence.radius) {
-      grain(out, r < map.fence.radius + 0.4 ? verge : r < map.fence.radius + 3.2 ? path : beyond, px, py, 8);
       out[3] = FLAG.shadowed;
       out[4] = LAYER.ground;
+      if (r < map.fence.radius + 3.2) return (grain(out, r < map.fence.radius + 0.4 ? verge : path, px, py, 8), true);
+      if (onDecal(x, z, r, out, px, py)) return true;
+      // Mown and rough patches of grass (the trees' own shadows fall on it from the sun: venue-light.js).
+      const patch = smooth(x / 11, z / 11);
+      grain(out, patch < 0.32 ? mown : patch > 0.7 ? rough : beyond, px, py, 8);
       return true;
     }
     if (!field) return false;

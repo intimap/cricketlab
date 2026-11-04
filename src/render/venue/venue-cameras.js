@@ -73,7 +73,7 @@ export function closeCamera(far) {
 }
 
 /** The TV camera: distance (m) from the middle of the ground, how far it looks down, and its focal length (px). */
-export const TV = Object.freeze({ distance: 1100, down: 20, focal: 3933, cx: 320, cy: 196 });
+export const TV = Object.freeze({ distance: 1100, down: 20, focal: 3750, cx: 320, cy: 194 });
 
 /** The TV camera's eye and axes in the world (behind the striker, looking towards the bowler's end). */
 function tvAxes() {

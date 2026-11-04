@@ -24,12 +24,19 @@ export const PARKLANDS_MAP = {
     // The Old Stand, square of the wicket on the right.
     { kind: "stand", bearing: 90, radius: 77, width: 58, depth: 15, wall: 1.2, rise: 6.4, eave: 8.8, walls: "brick", seed: 25 },
     // The scoreboard end: banks either side of the scoreboard, tents along from it.
-    { kind: "bank", from: 140, to: 222, r0: 76, r1: 92, height: 3, top: 106, people: 0.16, seed: 33 },
+    { kind: "bank", from: 140, to: 222, r0: 76, r1: 92, height: 3, top: 106, people: 0.24, seed: 33 },
     { kind: "scoreboard", bearing: 168, radius: 94, base: 3, width: 12 },
     { kind: "tents", from: 122, to: 139, radius: 80, colours: ["#c8433a", "#2f6fb0", "#3a8a4a"] },
     { kind: "sightscreen", bearing: 180, radius: 69.8, width: 12, height: 5 },
     // The Hill on the left.
     { kind: "bank", from: 236, to: 304, r0: 76, r1: 100, height: 6.5, top: 110, people: 0.2, seed: 35, rugs: 0.16 },
+    // Round the back: the car park and the nets either side of the Old Stand, the groundsman's shed, paths.
+    { kind: "carpark", from: 104, to: 128, r0: 80, r1: 98 },
+    { kind: "nets", from: 54, to: 66, r0: 78, r1: 96, lanes: 3 },
+    { kind: "shed", bearing: 318, radius: 86, width: 7, depth: 4.5 },
+    { kind: "path", bearing: 0, r0: 74, r1: 84, width: 2.4 },
+    { kind: "path", bearing: 116, r0: 74, r1: 80, width: 3 },
+    { kind: "path", bearing: 238, r0: 74, r1: 78, width: 2.4 },
     // Floodlights at the corners.
     { kind: "floodlight", bearing: 48, radius: 97, height: 40 },
     { kind: "floodlight", bearing: 132, radius: 97, height: 40 },
@@ -48,9 +55,25 @@ export const PARKLANDS_MAP = {
       seed: 52,
     },
     { kind: "trees", from: 48, to: 132, r0: 100, r1: 140, count: 60, height: [13, 20], kinds: ["oak", "elm", "gum"], seed: 53 },
-    { kind: "trees", from: 132, to: 230, r0: 122, r1: 175, count: 46, height: [9, 14], kinds: ["gum", "elm", "oak"], seed: 54 },
+    { kind: "trees", from: 132, to: 230, r0: 122, r1: 175, count: 80, height: [9, 14], kinds: ["gum", "elm", "oak"], seed: 54 },
     { kind: "trees", from: 228, to: 314, r0: 110, r1: 150, count: 64, height: [14, 21], kinds: ["gum", "gum", "oak"], seed: 55 },
     { kind: "trees", from: 240, to: 300, r0: 104, r1: 112, count: 9, height: [13, 18], kinds: ["gum"], base: 6.5, seed: 56 },
+    // Shrubs along the foot of the belts, hiding the trunks.
+    { kind: "trees", from: 300, to: 62, r0: 108, r1: 116, count: 40, height: [3, 5], kinds: ["bush"], seed: 58 },
+    { kind: "trees", from: 62, to: 128, r0: 96, r1: 104, count: 28, height: [3, 5], kinds: ["bush"], seed: 59 },
+    { kind: "trees", from: 140, to: 220, r0: 116, r1: 124, count: 24, height: [2.5, 4], kinds: ["bush"], seed: 60 },
+    // The park beyond: a deep belt of trees all round, filling the gaps (hazed by distance).
+    {
+      kind: "trees",
+      from: 0,
+      to: 360,
+      r0: 160,
+      r1: 215,
+      count: 230,
+      height: [13, 20],
+      kinds: ["oak", "elm", "elm", "gum"],
+      seed: 57,
+    },
   ],
   /** Where things will move later (TODO.md): the flags, the scoreboard's face, the crowd's layer. */
   life: { flags: ["pavilion", "scoreboard"], scoreboard: "scoreboard", crowd: "crowd" },

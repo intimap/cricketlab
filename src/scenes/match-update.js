@@ -7,8 +7,16 @@ import { act } from "./player-actions.js";
 import { updateForecast, updateFollowOn } from "./match-test.js";
 import { updateRain } from "./match-rain.js";
 
+/** Slow motion (G), for watching the bowler's action and the batter's strokes: this share of real speed. */
+const SLOW_MOTION = 0.25;
+
 /** One frame of the match scene: pause and camera keys, then whatever the current phase does. */
 export function updateMatch(scene, dt) {
+  if (keys.pressed("KeyG")) {
+    scene.slowMotion = !scene.slowMotion;
+    scene.flash(scene.slowMotion ? "SLOW MOTION" : "FULL SPEED");
+  }
+  if (scene.slowMotion && scene.phase !== "pause") dt *= SLOW_MOTION;
   scene.now += dt;
   const striker = scene.inn.bat[scene.inn.striker];
   stepFeedback(scene.juice, scene.now, dt, scene.human === "bat" && striker ? striker.eye : null, scene.inn.pressure);

@@ -33,6 +33,8 @@ import { drawWeatherTile, ICON } from "../render/weather-icon.js";
 import { statusLine } from "./match-test.js";
 import { raining } from "./match-light.js";
 import { drawRain, drawCovers } from "../render/rain.js";
+import { bowlerSkeleton } from "../render/bowler/bowler-skeleton.js";
+import { drawBowlerRig } from "../render/bowler/bowler-draw.js";
 
 /** The score box's left edge (render/hud.js drawScoreBox: 132 wide, 4 from the right). */
 const SCORE_BOX_LEFT = WIDTH - 4 - 132;
@@ -156,7 +158,10 @@ function drawClose(scene) {
   sprites.push({
     z: bowler.z,
     cast: { x: bowlerX, z: bowler.z, height: bowlerKit.height },
-    draw: () => figure(bowlerX, bowler.z, bowlerKit.height, { kit: bowlerKit, pose: bowler.pose, phase: bowler.phase }),
+    draw: () =>
+      bowler.rig
+        ? drawBowler(scene, bowler, bowlerKit, w)
+        : figure(bowlerX, bowler.z, bowlerKit.height, { kit: bowlerKit, pose: bowler.pose, phase: bowler.phase }),
   });
   sprites.push({ z: 1.25, cast: { striker: true }, draw: () => drawStriker(scene) });
   // The near stumps: the striker's, or the bowler's end when the camera is there.
@@ -246,6 +251,21 @@ function drawClose(scene) {
   const chirp = scene.chirp;
   if (chirp && scene.now >= chirp.t0 && scene.now - chirp.t0 < 2.2) drawSpeechBubble(chirp.text, 430, 150);
 }
+
+/** The bowler from his rig (render/bowler/): projected at his pelvis, held to the striker's size near the camera. */
+function drawBowler(scene, bowler, kit, w) {
+  const z = bowler.z;
+  if (closeDepth(z) < -1) return;
+  const root = projectClose(bowler.x * w, 0, z);
+  const ppm = Math.min(closePixelsPerMetre(z), NEAR_PIXELS_PER_METRE);
+  const sx = projectClose((bowler.x + 0.1) * w, 0, z).x > root.x ? 1 : -1;
+  const skeleton = bowlerSkeleton(bowler.rig.action, kit.height);
+  // The ball is in his hand until it's bowled.
+  const ball = scene.cur?.delivery ? null : BALL_IN_HAND[scene.ballKind];
+  drawBowlerRig(skeleton, kit, { root, ppm, line: bowler.rig.line, sx, away: closeFromBowlerEnd() ? -1 : 1 }, { ball });
+}
+
+const BALL_IN_HAND = { red: "#b3262b", pink: "#e86aa0", white: "#f4f2ea" };
 
 /** Footmarks: speckled, worn patches that grow as the pitch breaks up. */
 function drawRough(pitch, w) {

@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Bowler frames</title>
+    <style>
+      body {
+        margin: 0;
+        background: #0d2318;
+      }
+      canvas {
+        image-rendering: pixelated;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="sheet"></canvas>
+    <script type="module">
+      // A frame sheet of the bowler's action (render/bowler/): one row per style, frames left to right through
+      // the delivery, from the camera behind the striker (?end=striker) or from the bowler's end (?end=bowler).
+      import { drawInto } from "../../src/engine/screen.js";
+      import { drawText } from "../../src/engine/text.js";
+      import { bowlerAction, actionTimes } from "../../src/render/bowler/bowler-action.js";
+      import { bowlerSkeleton } from "../../src/render/bowler/bowler-skeleton.js";
+      import { drawBowlerRig } from "../../src/render/bowler/bowler-draw.js";
+      import { BOWLER_STYLES } from "../../src/render/bowler/bowler-styles.js";
+
+      const params = new URLSearchParams(location.search);
+      const away = params.get("end") === "bowler" ? -1 : 1;
+      const styles = (params.get("styles") ?? Object.keys(BOWLER_STYLES).join(",")).split(",");
+      const ppm = Number(params.get("ppm") ?? 44);
+      const W = Number(params.get("w") ?? 92);
+      const H = Number(params.get("h") ?? 128);
+      const kit = {
+        shirt: "#f7f2e2",
+        shade: "#cdc4a5",
+        pants: "#eee6cf",
+        skin: "#d8a27a",
+        hair: "#3b2a1e",
+        cap: "#172a50",
+        number: 8,
+      };
+
+      const frames = (id) => {
+        const t = actionTimes(id);
+        return [
+          ["RUN", t.takeoff - 0.3],
+          ["TAKE-OFF", t.takeoff],
+          ["GATHER", t.peak],
+          ["BACK FOOT", t.bfc],
+          ["MID", (t.bfc + t.ffc) / 2],
+          ["FRONT FOOT", t.ffc],
+          ["ARM UP", t.ffc / 2],
+          ["RELEASE", 0],
+          ["THROUGH", t.f1],
+          ["ACROSS", t.f2],
+          ["STEP", t.f3],
+          ["DONE", t.f4],
+        ];
+      };
+      const sheet = document.getElementById("sheet");
+      sheet.width = W * 12;
+      sheet.height = H * styles.length;
+      const g = sheet.getContext("2d");
+      g.imageSmoothingEnabled = false;
+      g.fillStyle = "#2f6b3e";
+      g.fillRect(0, 0, sheet.width, sheet.height);
+      drawInto(g, () => {
+        styles.forEach((id, row) => {
+          frames(id).forEach(([label, tr], col) => {
+            const x0 = col * W;
+            const y0 = row * H;
+            g.fillStyle = (row + col) % 2 ? "#2f6b3e" : "#2a6238";
+            g.fillRect(x0, y0, W, H);
+            const action = bowlerAction(id, tr, 1.8);
+            const skeleton = bowlerSkeleton(action, 1.85);
+            // Each frame centred on where his pelvis is: the sheet shows the shape, not the travel.
+            const root = { x: x0 + W / 2, y: y0 + H - 14 };
+            drawBowlerRig(skeleton, kit, { root, ppm, line: 0.55, sx: away, away }, { ball: tr < 0 ? "#b3262b" : null });
+            drawText(label, x0 + W / 2, y0 + H - 10, { align: "center", color: "#f4ecd0" });
+            if (col === 0) drawText(id.toUpperCase(), x0 + 3, y0 + 3, { color: "#e8b931" });
+          });
+        });
+      });
+      document.title = "ready";
+    </script>
+  </body>
+</html>

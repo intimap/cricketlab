@@ -40,7 +40,7 @@ To publish it, turn on GitHub Pages (Settings → Pages → Deploy from branch �
 | Between balls | **O** sim an over, **P** sim 5 overs, **V** view the field. In a Test: **L** sim to the next break (lunch, tea or stumps), and batting, **C** twice to declare                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | Test matches  | Five days of 90 overs, with lunch, tea and stumps. The box says when it's time to declare; after the first innings each, a lead of 200 lets the captain enforce the follow-on (arrows and Enter when it's yours, with the dressing room's advice shown)                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | Appeals       | **H** to appeal for LBW when bowling (appealing for nothing irritates the umpire). **R** to review a decision that goes against you, or **Space** to accept it; play stops for up to 10 seconds while you decide (two unsuccessful reviews per innings). The umpire gets one in seven or so wrong                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| Anytime       | **M** sound, **Esc** pause and scorecard (the camera follows the play on its own)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Anytime       | **M** sound, **G** slow motion (to watch the bowler's action and the strokes), **Esc** pause and scorecard (the camera follows the play on its own)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 
 Sound uses the built-in Web Audio engine: layered bat contact sounds, a stereo crowd and short broadcast
 cues. Esc → AUDIO MIX adjusts effects, crowd and broadcast volumes independently; arrows or tapping a bar
@@ -110,9 +110,8 @@ Each computer batter has a hidden weakness (loose outside off, a compulsive hook
 - **Memory:** bowl the same ball over and over and he lines it up. Break a pattern (three going away, then one back in; three short, then a full one) and he's more likely to edge or miss. Switch between over and around the wicket with **T** while aiming; the target stays fixed and the release angle changes.
 - **Pressure:** dots and maidens build the pressure meter (below EYE in their shared panel); boundaries release it. Under pressure batters get impatient: slogs, charges and bad calls for runs.
 - **Release timing:** the meter starts slowly and accelerates smoothly towards the gold zone. Release there for a perfect delivery. The zone shrinks as the bowler tires. A mistimed release is a loose ball (early drops it short, late drags it full, either drifts wide of off); only very late, in the red, is a no-ball, followed by a free hit.
-- **Fields:** a new bowler starts with the field his captain would set; change it with **F** or drag fielders with **V**.
 - **Variations:** quicks have bouncers (two an over that pass the batter above the shoulder; a third is a no-ball and a first and final warning, and the next time in the innings the bowler is taken off and someone else finishes the over), yorkers (overpitch it and it's a full toss), slower balls and cutters; spinners have an arm ball, a googly (leg-spinners), and flight (**E** cycles flighted, stock and flat). On a worn pitch, especially the dust bowl, footmarks appear outside leg (and off) and turn sharply.
-- **Fields:** **F** also cycles traps: bouncer trap, leg slip, ring field.
+- **Fields:** a new bowler starts with the field his captain would set. **F** cycles the presets and the traps (bouncer trap, leg slip, ring field); **V** lets you drag fielders.
 
 ## How the code is organised
 
@@ -215,7 +214,13 @@ src/
     figures.js        everyone else close up: bowler, keeper, fielders, umpires, runners
     figure-poses.js   where a close figure's feet and hands go for each pose
     tiny-figures.js   the wide view's tiny figures, and the pose a fielder's state shows
-    bowler-motion.js  run-up and follow-through on the chosen side
+    bowler-motion.js  where the bowler is through a ball, on the chosen side: his action for the close view, poses for the wide
+    keyframes.js      keyframed motion on smooth curves, shared by the batter's and bowler's rigs
+    bowler/           the bowler
+      bowler-styles.js  the five actions as data: timing, distances, angles from take-off to follow-through
+      bowler-action.js  his pose through a ball: the run-up's gait, the keyed delivery, standing
+      bowler-skeleton.js  joints from the pose: legs and arms solved, the bowling arm straight
+      bowler-draw.js    drawing him in pixel style from either end
     batter/           the striker
       batter-rig.js     pixel-art striker drawing; re-exports poses and the projected rig for older callers
       batter-poses.js   legacy stances, pose blending and whole-body reach
@@ -285,7 +290,7 @@ src/
 netlify/
   functions/scores.mjs  the shared high-score service on Netlify (/api/scores)
   score-table.mjs       its tables: checks scores, keeps each table's best 200, safe against saves at once
-tools/                balance reports (sim-report.mjs; bowling-report.mjs for the player's bowling, test-report.mjs for Tests, weather-report.mjs per weather), one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
+tools/                frame sheets (bowler-sheet.mjs, with tools/sheets/), balance reports (sim-report.mjs; bowling-report.mjs for the player's bowling, test-report.mjs for Tests, weather-report.mjs per weather), one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
 ```
 
 The rule of thumb: `sim/` knows nothing about the screen, `engine/` knows nothing about cricket, and
@@ -316,6 +321,9 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **Lighting and time of day:** each time's numbers, and its HD-2D look (`hd`), in `render/light.js`; how they're drawn in
   `render/lighting.js`. Floodlight heads are `lamps` on a ground's art layers in `render/grounds.js`. The menu's
   EFFECTS row picks AUTO, FULL, SIMPLE (grading and skies, round shadows) or OFF (the plain look).
+- **Bowler animation:** each style's action is data in `render/bowler/bowler-styles.js` (the event times, distances
+  and angles); `render/bowler/bowler-action.js` turns it into a pose. Review it with `node tools/bowler-sheet.mjs <dir>`
+  (with a local server running) and **G** for slow motion in a match.
 - **Batter animation:** which pose or stroke when, in `scenes/batter-pose.js`; the poses, skeleton and drawing in
   `render/batter/batter-poses.js`, `render/batter/batter-skeleton.js` and `render/batter/batter-rig.js`;
   the skeleton has X across the pitch, Y up and Z towards the bowler, in local rig units (94 units per 1.8 m).

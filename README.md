@@ -1,6 +1,6 @@
 # Cricket Lab
 
-A 16-bit style cricket game (Australia, England, New Zealand and South Africa) for the browser. Play a five-day
+A 16-bit style cricket game (Australia, England, New Zealand, South Africa, India, Pakistan and Sri Lanka) for the browser. Play a five-day
 Test, a limited-overs match or a Classic Match, or practise in the nets, on a green top, a dust bowl or a cracked
 pitch, with a physics-based ball, wearing pitch and ageing ball, the weather, AI field placings and ball-by-ball
 commentary.
@@ -116,7 +116,7 @@ Each computer batter has a hidden weakness (loose outside off, a compulsive hook
   word on how he read it (SURPRISE!, DIDN'T PICK IT, ON HIS WEAKNESS, HE'S LINED IT UP), and at the end of each
   over a summary: the balls, where they pitched, and a line on how it went. Batting, the delivery isn't on the
   score bar until he's played it; then the speed gun names it.
-- **The ring:** a half ring round the ball in flight: its colour is the length it's going to (purple a yorker,
+- **The ring:** a bold half ring round the ball in flight: its colour is the length it's going to (purple a yorker,
   green full, gold a good length, red short), its side the way it will move (both sides, fainter, when it's
   going straight on). Batting, it's your batter's read: it comes up once he's read the ball (earlier for a
   better batter with his eye in) and shows what he thinks, so a googly or slower ball he hasn't picked shows
@@ -124,8 +124,9 @@ Each computer batter has a hidden weakness (loose outside off, a compulsive hook
 - **Rhythm:** two taps on the bowler's last two footfalls before he leaps, then the release. An ordinary rhythm
   (about 60 ms off each beat) bowls the ball as it was; on the beat he's a touch quicker and tighter, and earns
   his aftertouch; off it he's slower and sprays it (`sim/rhythm.js`). Spinners' beats come slower.
-- **Left-armers:** Stork (Australia) and Janssen (South Africa) bowl left-arm fast, Ravindran, Santna (New
-  Zealand) and Maharajh (South Africa) left-arm spin, which turns away from a right-hander. They run in and
+- **Left-armers:** Stork (Australia), Janssen (South Africa), Afreedi (Pakistan) and Madushanko (Sri Lanka) bowl
+  left-arm fast; Ravindran, Santna (New Zealand), Maharajh (South Africa), Jadeya (India) and Jayasuria (Sri
+  Lanka) left-arm spin, which turns away from a right-hander. They run in and
   release from the other side of the stumps (the umpire stands on the other side too) and angle the ball across
   a right-hander, so aim a little straighter. Swing keeps its names by the batter: a left-armer's outswinger
   still goes away from a right-hander.
@@ -158,8 +159,8 @@ src/
     handedness.js     left-handers: the sim in the striker's frame, deliveries mirrored into it
     rng.js            seedable random numbers
     teams.js          squads and player ratings
-    team-list.js      every team the menu offers (Australia, England, New Zealand, South Africa)
-    squads/           the New Zealand and South Africa squads
+    team-list.js      every team the menu offers (Australia, England, New Zealand, South Africa, India, Pakistan, Sri Lanka)
+    squads/           the New Zealand, South Africa, India, Pakistan and Sri Lanka squads
     conditions.js     pitch types, pitch wear, ball wear (swing, reverse, grip)
     weather.js        the five weathers, what each does to the pitch and outfield, each ground's climate
     rain.js           rain stopping play: when, the overs lost, the revised target
@@ -219,7 +220,7 @@ src/
     field-reading.js  what the field says about the plan (slips, bat-pad, boundary riders, the ring)
     broadcast-context.js  broadcast pressure and tactics stories from the ball and the narrative
     broadcast-lines.js  each voice's broadcast and colour lines
-    field-chatter.js  fielders' send-offs and chirps
+    field-chatter.js  fielders' send-offs and chirps, in each side's own voice
     pack-voice.js     picks commentary-pack lines that are true of the ball, fresh each time
     commentary-pack/  the commentary pack (v1): its lines as JSON, with its own README, checks and integration notes
   render/             drawing, no game rules in here

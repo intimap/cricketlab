@@ -38,8 +38,9 @@ function drawGroundScoreboard(board, inn) {
 
 export function drawWide(scene) {
   ctx.drawImage(scene.groundArt.wide, 0, 0, WIDTH, HEIGHT);
-  // Under one sun the small figures' shadows lean its way; under floodlights all round they stay round.
-  const casts = scene.light.casts ?? [];
+  // Under one sun the small figures' shadows lean its way (a streak each is cheap, so at any effects level);
+  // under floodlights all round they stay round.
+  const casts = scene.light.casts?.length ? scene.light.casts : (scene.baseLight?.hd?.casts ?? []);
   // The non-striker, umpire and bowler (and the sun) are where they are in the world, whoever is batting.
   const w = viewFacing();
   setShadowCast(casts.length === 1 ? shadowSlope(projectWide, 0, MID_PITCH, 1.8, 13, { ...casts[0], x: casts[0].x * w }) : null);

@@ -32,6 +32,21 @@ export const TEAM_SKINS = {
     gloveTrim: "#f2b81c",
     odi: { shirt: "#128a48", shade: "#0b6436", pants: "#0b6b3a", pantsShade: "#064a28", numberColour: "#f2b81c" },
   },
+  IND: {
+    grip: "#1a3f8f",
+    gloveTrim: "#f28c28",
+    odi: { shirt: "#2563c9", shade: "#1a4a9c", pants: "#1a3f8f", pantsShade: "#122d68", numberColour: "#f28c28" },
+  },
+  PAK: {
+    grip: "#0b5d2a",
+    gloveTrim: "#f4f4f0",
+    odi: { shirt: "#1d8a4a", shade: "#146637", pants: "#0b5d2a", pantsShade: "#07401d", numberColour: "#f4f4f0" },
+  },
+  SL: {
+    grip: "#1c2f7a",
+    gloveTrim: "#f4c430",
+    odi: { shirt: "#2350a8", shade: "#193c82", pants: "#1c2f7a", pantsShade: "#132158", numberColour: "#f4c430" },
+  },
 };
 
 /** A team's kit: its colours as a plain kit, its skin laid over, and its coloured kit when `coloured`. */

@@ -1,4 +1,9 @@
-// Fielders' send-offs when a wicket falls ({N} = the batter).
+/**
+ * The fielders' chatter, in each side's own voice: send-offs when a wicket falls ({N} is the batter) and
+ * chirps from the close fielders when the bat is beaten. Good-natured, with each side's slang. Picked with
+ * presentation dice (Math.random): what's said never changes the match.
+ */
+
 const AUSSIE_SLEDGES = [
   "SEE YA, {N}! DON'T LET THE GATE HIT YA!",
   "WALK FASTER, YA FLAMIN' GALAH!",
@@ -51,27 +56,139 @@ const ENGLISH_SLEDGES = [
   "CHIN UP, {N}. TOMORROW'S ANOTHER DAY.",
 ];
 
-// Chirps from the close fielders when the bat is beaten.
-const AUSSIE_CHIRPS = [
-  "TRY HITTING IT, MATE!",
-  "IS THAT BAT FOR DECORATION?",
-  "NOT EVEN CLOSE, CHAMP!",
-  "HE'S GOT NO IDEA, BOYS!",
-  "KEEP SWINGING, WE'LL GET YA!",
+const KIWI_SLEDGES = [
+  "YEAH NAH, {N}. THAT'S OUT, BRO.",
+  "SWEET AS! CHEERS FOR COMING, {N}!",
+  "CHUR! GOOD AS GOLD, LADS!",
+  "OFF YOU POP, {N}. MIND THE CHILLY BIN.",
+  "HARD OUT! WHO'S NEXT?",
+  "SHE'LL BE RIGHT, {N}. JUST NOT TODAY.",
+  "BACK TO THE BACH, {N}!",
+  "THAT WAS CHOICE, BOWLER! CHOICE!",
+  "TOO EASY, BRO. TOO EASY.",
+  "BETTER LUCK NEXT TIME, EH {N}?",
+  "JANDALS ON, {N}. YOUR DAY'S DONE.",
+  "NICE ONE, BRO. NICE ONE.",
+  "STOKED, LADS! ABSOLUTELY STOKED!",
+  "{N}, YOU'VE GONE AND DONE IT NOW, EH.",
 ];
-const ENGLISH_CHIRPS = ["OH, WELL LEFT. SORT OF.", "BAD LUCK, OLD CHAP. MISSED AGAIN.", "STEADY ON, NEARLY HAD IT."];
 
+const SAFFA_SLEDGES = [
+  "LEKKER, BOYS! LEKKER!",
+  "EISH, {N}. TOUGH ONE, BRU.",
+  "SHARP SHARP, {N}! CHEERS!",
+  "JA-NEE, THAT'S OUT, BOET.",
+  "SHAME, {N}. SHAME, MAN.",
+  "SEE YOU AT THE BRAAI, {N}!",
+  "HOWZIT? OH. GONE ALREADY.",
+  "NEXT ONE'S COMING NOW NOW, BOYS!",
+  "AWE, BOWLER! AWE!",
+  "GO HAVE A ROOIBOS, {N}. CALM DOWN.",
+  "THAT WAS A PROPER JAFFA, BRU!",
+  "BOKKE SPIRIT, BOYS! WHO'S NEXT?",
+  "{N}, THAT SHOT WAS NOT LEKKER.",
+  "EISH! HE DIDN'T SEE THAT ONE COMING!",
+];
+
+const INDIAN_SLEDGES = [
+  "SHABAASH! WHAT A BALL!",
+  "CHALO, {N}. NEXT ONE IN!",
+  "ARRE {N}, WHERE ARE YOU GOING? OH. OUT!",
+  "KYA BAAT HAI! LOVELY!",
+  "BAHUT BADHIYA, BOYS!",
+  "BHAI, ONE MORE LIKE THAT!",
+  "FULL ENERGY, BOYS! FULL ENERGY!",
+  "GOOD WORK, GOOD WORK! KEEP IT GOING!",
+  "TATA, {N}! BYE BYE!",
+  "THAT WAS A DHAMAKA, YAAR!",
+  "{N} WILL NEED A CHAI AFTER THAT.",
+  "COME ON, BOYS! THE CROWD WANTS MORE!",
+  "SUPERB, BHAI! SUPERB!",
+  "ARRE WAAH! TEXTBOOK DISMISSAL!",
+];
+
+const PAKISTANI_SLEDGES = [
+  "ZABARDAST! WHAT A DELIVERY!",
+  "SHABASH, BOYS! SHABASH!",
+  "WAAH WAAH! LOVELY STUFF!",
+  "PHIR MILENGE, {N}!",
+  "KAMAAL KAR DIYA, BOWLER!",
+  "CHALO, NEXT BATTER! JALDI!",
+  "THAT'S PACE, {N}. PROPER PACE.",
+  "CORNERED TIGERS, BOYS! COME ON!",
+  "OUT! KHATAM! DONE!",
+  "BHAI, TOO QUICK FOR HIM!",
+  "ONE MORE, ONE MORE! LET'S GO!",
+  "{N} DIDN'T EVEN SEE THAT ONE!",
+  "WAAH, BOWLER! WHAT A SPELL!",
+  "HE'LL BE DREAMING OF THAT YORKER!",
+];
+
+const LANKAN_SLEDGES = [
+  "ELA, MACHAN! ELA!",
+  "PATTA BALL! PATTA!",
+  "AIYO, {N}. BAD LUCK, MACHAN.",
+  "HONDAI, HONDAI! KEEP GOING!",
+  "HARI, {N}. OFF YOU GO NOW.",
+  "SHOT, BOWLER! SHOT!",
+  "MACHAN, THAT WAS A BEAUTY!",
+  "BYE BYE, {N}! SEE YOU AT DINNER!",
+  "ONE MORE, MACHAN! ONE MORE!",
+  "HE DIDN'T READ THAT ONE, BOYS!",
+  "NICE AND EASY, BOYS. NICE AND EASY.",
+  "AIYO! {N} WAS ALL AT SEA!",
+  "ELA! SPIN DOES THE TALKING!",
+];
+
+/** Each side's send-offs, by its abbreviation (sim/team-list.js); anyone else's sound English. */
+const SLEDGES = {
+  AUS: AUSSIE_SLEDGES,
+  ENG: ENGLISH_SLEDGES,
+  NZ: KIWI_SLEDGES,
+  SA: SAFFA_SLEDGES,
+  IND: INDIAN_SLEDGES,
+  PAK: PAKISTANI_SLEDGES,
+  SL: LANKAN_SLEDGES,
+};
+
+/** Each side's chirps when the bat is beaten. */
+const CHIRPS = {
+  AUS: [
+    "TRY HITTING IT, MATE!",
+    "IS THAT BAT FOR DECORATION?",
+    "NOT EVEN CLOSE, CHAMP!",
+    "HE'S GOT NO IDEA, BOYS!",
+    "KEEP SWINGING, WE'LL GET YA!",
+  ],
+  ENG: ["OH, WELL LEFT. SORT OF.", "BAD LUCK, OLD CHAP. MISSED AGAIN.", "STEADY ON, NEARLY HAD IT."],
+  NZ: ["YEAH NAH, MISSED IT, BRO.", "SO CLOSE, EH?", "SWEET AS, BEATEN AGAIN!", "HARD OUT, BOWLER!", "KEEP TRYING, BRO."],
+  SA: [
+    "EISH! BEATEN, BRU!",
+    "JA, LEKKER BALL THAT.",
+    "HE'LL NICK ONE NOW NOW, BOYS.",
+    "AWE, KEEP IT THERE!",
+    "SHAME, MISSED IT AGAIN.",
+  ],
+  IND: ["ARRE, BEATEN!", "JUST MISSED, YAAR!", "SHABAASH, BOWLER!", "ONE MORE THERE, ONE MORE!", "BHAI, HE CAN'T SEE IT!"],
+  PAK: ["WAAH! BEATEN!", "TOO QUICK, BHAI!", "SHABASH, KEEP IT THERE!", "HE'S GUESSING, BOYS!", "ZABARDAST LINE!"],
+  SL: ["AIYO, MISSED IT!", "ELA BALL, MACHAN!", "HONDAI, KEEP IT THERE!", "HE CAN'T READ IT, BOYS!", "PATTA!"],
+};
+
+/** A chirp from the fielding side (by abbreviation) when the bat is beaten. */
 export function pickChirp(fieldingAbbr) {
-  const pool = fieldingAbbr === "AUS" ? AUSSIE_CHIRPS : ENGLISH_CHIRPS;
+  const pool = CHIRPS[fieldingAbbr] ?? CHIRPS.ENG;
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
 /** Up to `count` different send-offs from the fielding side. */
 export function pickSledges(fieldingAbbr, batterName, count) {
-  const pool = [...(fieldingAbbr === "AUS" ? AUSSIE_SLEDGES : ENGLISH_SLEDGES)];
+  const pool = [...(SLEDGES[fieldingAbbr] ?? SLEDGES.ENG)];
   const lines = [];
   while (lines.length < count && pool.length) {
     lines.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0].replace(/\{N\}/g, batterName.toUpperCase()));
   }
   return lines;
 }
+
+/** Every side's lines, for tests. */
+export const CHATTER = { SLEDGES, CHIRPS };

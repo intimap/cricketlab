@@ -220,7 +220,7 @@ src/
     field-reading.js  what the field says about the plan (slips, bat-pad, boundary riders, the ring)
     broadcast-context.js  broadcast pressure and tactics stories from the ball and the narrative
     broadcast-lines.js  each voice's broadcast and colour lines
-    field-chatter.js  fielders' send-offs and chirps
+    field-chatter.js  fielders' send-offs and chirps, in each side's own voice
     pack-voice.js     picks commentary-pack lines that are true of the ball, fresh each time
     commentary-pack/  the commentary pack (v1): its lines as JSON, with its own README, checks and integration notes
   render/             drawing, no game rules in here

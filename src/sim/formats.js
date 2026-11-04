@@ -1,5 +1,6 @@
 import { Match } from "./match.js";
 import { australia, england } from "./teams.js";
+import { TEAMS } from "./team-list.js";
 
 /**
  * How a game is played, as data:
@@ -115,7 +116,10 @@ export function createMatch(cfg, rng) {
     const [bat, bowl] = c.batting === "aus" ? [aus, eng] : [eng, aus];
     return new Match(bat, bowl, c.pitch, c.overs, rng, c.human, { start: c.start, target: c.target });
   }
-  const [bat, bowl] = cfg.mode === "bat" ? [aus, eng] : [eng, aus];
+  // The player's side (cfg.team) and the other (cfg.opponent), by abbreviation (sim/team-list.js).
+  const mine = (TEAMS[cfg.team] ?? australia)();
+  const theirs = (TEAMS[cfg.opponent] ?? england)();
+  const [bat, bowl] = cfg.mode === "bat" ? [mine, theirs] : [theirs, mine];
   if (cfg.format === "nets") return new Match(bat, bowl, cfg.pitch, NETS_OVERS, rng, cfg.mode, { nets: true });
   return new Match(bat, bowl, cfg.pitch, cfg.overs, rng, cfg.mode, { innings: FORMATS[cfg.format]?.innings ?? 1 });
 }

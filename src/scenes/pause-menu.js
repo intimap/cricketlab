@@ -52,7 +52,6 @@ const PAGES = [
     rows: [
       ["O", "SIMULATE THE OVER"],
       ["P", "SIMULATE FIVE OVERS"],
-      ["C", "CAMERA: AUTO / CLOSE / WIDE"],
       ["B", "CLOSE VIEW FROM BEHIND THE BATTER OR BOWLER"],
       ["V", "VIEW THE FIELD (BOWLING: DRAG FIELDERS)"],
       ["M", "SOUND ON / OFF"],

@@ -4,6 +4,7 @@ import { TRACKING_TIME } from "../render/match-broadcast.js";
 import { setupCall, deliveryCall, shotCall, outcomeCall, overIntroCall, fieldCall, PLAN_READS } from "../sim/booth-beats.js";
 import { COLORS } from "../engine/screen.js";
 import { venueCall } from "../sim/booth-venue-lines.js";
+import { wrapUpCall } from "../sim/booth-wrap-lines.js";
 import { onFieldCall, reviewCall, trackingCall, verdictCall } from "../sim/booth-drs-lines.js";
 import { activeWicketSide } from "./bowling-side.js";
 
@@ -38,6 +39,20 @@ function queue(scene, calls, at = scene.now + 0.2) {
   if (!calls.length) return;
   const after = scene.booth?.length ? Math.max(at, scene.boothEndsAt()) : at;
   scene.booth = [...(scene.booth ?? []).filter((c) => scene.now - c.t0 <= callDuration(c)), ...scheduleCalls(calls, after)];
+}
+
+/** The innings (or match) is over: the box wraps it up over the scorecard. */
+export function onInningsEnd(scene) {
+  if (!live(scene)) return;
+  const inn = scene.inn;
+  const match = scene.match;
+  const score = `${inn.runs}${inn.wkts >= 10 ? " ALL OUT" : `/${inn.wkts}`}`;
+  const facts = { team: inn.batTeam.name, score, chasers: inn.bowlTeam.name };
+  if (match.hasNextInnings) facts.need = inn.runs + 1;
+  else if (match.result) facts.result = match.result.text;
+  const who = lead(scene);
+  const text = wrapUpCall(who, facts, pick);
+  if (fitsBox(text)) queue(scene, [{ who, text }], scene.now + 0.6);
 }
 
 /** The next ball is being set up: at an innings' start, the ground and pitch; at an over's, the bowler. */

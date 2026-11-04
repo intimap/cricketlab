@@ -48,6 +48,9 @@ export function drawWide(scene) {
   const cur = scene.cur;
   const live = cur?.play?.live;
   const cap = scene.kitBowl.cap;
+  // Each side in its own kit (whites, or coloured for limited overs: render/skins.js).
+  const field = { shirt: scene.kitBowl.shirt, pants: scene.kitBowl.pants };
+  const batting = { bat: true, shirt: scene.kitBat.shirt, pants: scene.kitBat.pants };
   const nonStrikerX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).nonStrikerX * w;
   const sprites = [];
   const add = (x, y, z, draw) => {
@@ -64,7 +67,7 @@ export function drawWide(scene) {
   if (live && (scene.phase === "flight" || scene.phase === "after" || scene.phase === "return")) {
     for (const f of live.fielders) {
       const pose = fielderPose(f, live.t, scene.phase);
-      add(f.pos.x, 0, f.pos.z, (x, y, s) => drawTinyFigure(x, y, s, pose, cap, scene.now * 3 + f.idx));
+      add(f.pos.x, 0, f.pos.z, (x, y, s) => drawTinyFigure(x, y, s, pose, cap, scene.now * 3 + f.idx, field));
     }
     for (const r of live.runners) {
       const out = cur?.done?.rec.wicket?.batter === r.bat;
@@ -79,7 +82,7 @@ export function drawWide(scene) {
       const moving = r.target !== null || (out && scene.walkOff !== null);
       const phase = out && scene.walkOff ? scene.now * 1.4 : scene.now * 3.5;
       add(pos.x, 0, pos.z, (x, y, s) =>
-        drawTinyFigure(x, y, s, moving ? "run" : "batter", scene.kitBat.cap, phase + r.bat, { bat: true }),
+        drawTinyFigure(x, y, s, moving ? "run" : "batter", scene.kitBat.cap, phase + r.bat, batting),
       );
     }
     const ball = live.ball;
@@ -87,22 +90,22 @@ export function drawWide(scene) {
       const th = ball.throwing;
       const { ground, ball: p } = projectWideThrow(th.from, th.to, clamp((live.t - th.t0) / (th.t1 - th.t0)), ball.pos.y);
       sprites.push({ y: ground.y, draw: () => drawShadow(ground.x, ground.y, 1.2) });
-      sprites.push({ y: ground.y + 0.5, draw: () => drawBall(p.x, p.y - 1, 1.5, 1) });
+      sprites.push({ y: ground.y + 0.5, draw: () => drawBall(p.x, p.y - 1, 1.5, 1, scene.ballKind) });
     } else if (!(ball.held >= 0)) {
       add(ball.pos.x, 0, ball.pos.z, (x, y) => drawShadow(x, y, 1.2));
       const p = projectWide(ball.pos.x, ball.pos.y, ball.pos.z);
-      sprites.push({ y: p.y + ball.pos.y * 3 + 0.5, draw: () => drawBall(p.x, p.y - 1, 1.5, 1) });
+      sprites.push({ y: p.y + ball.pos.y * 3 + 0.5, draw: () => drawBall(p.x, p.y - 1, 1.5, 1, scene.ballKind) });
     }
   } else {
     const keeper = keeperSpot(scene.spinner);
-    add(keeper.x, 0, keeper.z, (x, y, s) => drawTinyFigure(x, y, s, "keeper", cap));
+    add(keeper.x, 0, keeper.z, (x, y, s) => drawTinyFigure(x, y, s, "keeper", cap, 0, field));
     const bowler = bowlerState(scene);
-    add(bowler.x * w, 0, bowler.z, (x, y, s) => drawTinyFigure(x, y, s, bowler.pose, cap, bowler.phase));
+    add(bowler.x * w, 0, bowler.z, (x, y, s) => drawTinyFigure(x, y, s, bowler.pose, cap, bowler.phase, field));
     const walk = walkInShare(scene);
     inn.placements.forEach((place, i) => {
       const at = walkInSpot(place.pos, walk);
       add(at.x, 0, at.z, (x, y, s) => {
-        drawTinyFigure(x, y, s, walk <= 0 ? "idle" : walk < 1 ? "run" : "keeper", cap, scene.now * 1.5 + i);
+        drawTinyFigure(x, y, s, walk <= 0 ? "idle" : walk < 1 ? "run" : "keeper", cap, scene.now * 1.5 + i, field);
         if (scene.phase === "fieldEdit") {
           drawText(place.name.toUpperCase(), x, y + 3, {
             align: "center",
@@ -112,10 +115,8 @@ export function drawWide(scene) {
         }
       });
     });
-    add(-0.6, 0, CREASE, (x, y, s) => drawTinyFigure(x, y, s, "batter", scene.kitBat.cap, 0, { bat: true }));
-    add(nonStrikerX, 0, nonStrikerDepth(scene), (x, y, s) =>
-      drawTinyFigure(x, y, s, "batter", scene.kitBat.cap, 0, { bat: true }),
-    );
+    add(-0.6, 0, CREASE, (x, y, s) => drawTinyFigure(x, y, s, "batter", scene.kitBat.cap, 0, batting));
+    add(nonStrikerX, 0, nonStrikerDepth(scene), (x, y, s) => drawTinyFigure(x, y, s, "batter", scene.kitBat.cap, 0, batting));
   }
 
   for (const bit of scene.particles) {

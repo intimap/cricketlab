@@ -58,9 +58,12 @@ export function drawMatch(scene) {
   drawScoreBar(scene.inn, scene.commentary.slice(0, Math.floor(scene.commT * 70)), label);
   // The score in the corner, except over the full scorecard and the pause menu.
   if (scene.phase !== "pause" && scene.phase !== "inningsEnd") drawScoreBox(scene.inn);
-  if (booth) drawBooth(scene.booth, scene.now, scene.commentary);
+  // At the end of an innings the commentators sit over the scorecard, so they can still be seen.
+  const over = scene.phase === "inningsEnd";
+  if (booth && !over) drawBooth(scene.booth, scene.now, scene.commentary);
   drawBanners(scene.banners, scene.now);
   drawPanels(scene);
+  if (booth && over) drawBooth(scene.booth, scene.now, scene.commentary);
   drawFeedback(scene);
   drawMatchBroadcast(scene);
 }
@@ -177,7 +180,7 @@ function drawClose(scene) {
           drawShadow(ground.x, ground.y, radius);
           const trail = ballTrail(scene);
           if (trail.length) drawBallTrail(trail, scene.spinner);
-          drawBall(p.x, p.y, radius, inn.ball.shine);
+          drawBall(p.x, p.y, radius, inn.ball.shine, scene.ballKind);
         }
       },
     });

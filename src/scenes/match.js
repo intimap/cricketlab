@@ -45,6 +45,7 @@ export class MatchScene {
   phaseT = 0;
   now = 0;
   /** Camera mode chosen by the player (auto/close/wide) and the view actually shown. */
+  /** The camera picks its own view (close for the delivery, wide when the ball's in the field). */
   cam = "auto";
   view = "close";
   /** State of the ball being bowled; null between balls when bowling. */
@@ -83,6 +84,8 @@ export class MatchScene {
     setWideCamera(this.ground.wide.camera);
     // The time of day, with the effects this machine is set to (render/lighting.js, effects-auto.js).
     this.baseLight = LIGHTS[cfg.light] ?? LIGHTS.midday;
+    /** A pink ball under lights, otherwise red (render/sprites.js drawBall). */
+    this.ballKind = cfg.light === "night" ? "pink" : "red";
     this.light = startLook(this.baseLight);
     this.buildGround();
     /** Nets: balls faced or bowled, and how many the coach rated good. */
@@ -90,8 +93,10 @@ export class MatchScene {
     /** Nets: the coach's verdict on the last ball. */
     this.feedback = null;
     const inn = this.match.inn;
-    this.kitBat = teamKit(inn.batTeam);
-    this.kitBowl = teamKit(inn.bowlTeam);
+    // Whites for a Test, coloured kits for everything else.
+    const coloured = cfg.format !== "test";
+    this.kitBat = teamKit(inn.batTeam, coloured);
+    this.kitBowl = teamKit(inn.bowlTeam, coloured);
     const pitch = inn.pitch.type;
     this.commentary = this.nets
       ? `Nets: ${this.human === "bat" ? "face as many as you like" : "bowl as many as you like"}. The coach rates every ball.`
@@ -108,6 +113,7 @@ export class MatchScene {
 
   endInnings() {
     this.setPhase("inningsEnd");
+    beats.onInningsEnd(this);
     if (this.ending.good === true && this.cfg.format === "classic") {
       save("classicsWon", { ...load("classicsWon", {}), [this.cfg.classic]: true });
     }

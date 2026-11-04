@@ -17,7 +17,7 @@ import {
   setFacing,
   viewFacing,
 } from "../render/camera.js";
-import { drawFigure, drawBall, drawShadow, setShadowStretch, playerKit } from "../render/sprites.js";
+import { drawFigure, drawBall, drawShadow, setShadowStretch, setShadowCast, playerKit } from "../render/sprites.js";
 import { drawBooth, boothShowing } from "../render/booth.js";
 import { drawBallTrail, drawPitchReticle } from "../render/ball-trail.js";
 import { shakeOffset } from "./match-feedback.js";
@@ -27,7 +27,7 @@ import { LEFT_CREASE, drawStriker } from "./match-striker.js";
 import { BACKED_UP_Z, NEAR_PIXELS_PER_METRE, nonStrikerDepth, bowlerState, walkInShare } from "./match-positions.js";
 import { drawWide } from "./match-wide.js";
 import { gradeFrame } from "../render/lighting.js";
-import { castShadows } from "./match-shadows.js";
+import { castShadows, closeStreak } from "./match-shadows.js";
 import { showingWide, SPEED_GUN_MAX_H, drawPanels, drawFeedback } from "./match-panels.js";
 import { drawWeatherTile, ICON } from "../render/weather-icon.js";
 import { statusLine } from "./match-test.js";
@@ -56,7 +56,12 @@ export function drawMatch(scene) {
     ctx.translate(shake.x, shake.y);
   }
   if (showingWide(scene)) drawWide(scene);
-  else drawClose(scene);
+  else {
+    // Without cast silhouettes (SIMPLE effects) the close figures' shadows streak away from the sun too.
+    setShadowCast(closeStreak(scene));
+    drawClose(scene);
+    setShadowCast(null);
+  }
   if (shake) ctx.restore();
   // The time of day's grade, over everything on the field (not the scoreboard and panels drawn after).
   gradeFrame(ctx, scene.light);

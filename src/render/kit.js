@@ -1,4 +1,4 @@
-import { ctx, fillEllipse } from "../engine/screen.js";
+import { ctx, fillEllipse, fillPolygon } from "../engine/screen.js";
 
 /**
  * What every player is drawn with: kit colours, a player's own looks (skin, hair, beard, height),
@@ -40,12 +40,32 @@ export function setShadowCast(cast) {
 /** A shadow on the ground round (x, y): drawn out long, towards the camera and to the right, when the sun is low. */
 export function groundShadow(x, y, rx, ry, alpha) {
   if (shadowCast) {
-    // A small figure stands about three of these radii tall: its shadow's middle is half that along the sun's line.
-    const reach = rx * 1.5;
-    const dx = shadowCast.gx * reach * (flipped ? -1 : 1);
-    const dy = shadowCast.gy * reach;
-    // Spread thinner, so a cluster of them (keeper and slips) doesn't pool into a blot.
-    fillEllipse(x + dx, y + dy, rx + Math.abs(dx), ry + Math.abs(dy) * 0.6, `rgba(0,0,0,${alpha * 0.75})`);
+    // A small figure stands about three of these radii tall, so it casts a streak that long times the sun's
+    // slope: a line from its feet away from the sun, tapering, in one fill so it never darkens over itself.
+    const tipX = shadowCast.gx * rx * 3 * (flipped ? -1 : 1);
+    const tipY = shadowCast.gy * rx * 3;
+    const len = Math.hypot(tipX, tipY);
+    const shade = `rgba(0,0,0,${alpha * 0.8})`;
+    if (len < rx) {
+      fillEllipse(x, y, rx, ry, shade);
+      return;
+    }
+    // Across the streak: half as wide as the figure at its feet, narrowing to a point's width at the tip.
+    const nx = -tipY / len;
+    const ny = tipX / len;
+    const foot = rx * 0.55;
+    const tip = Math.max(0.6, rx * 0.25);
+    fillPolygon(
+      [
+        { x: x + nx * foot, y: y + ny * foot },
+        { x: x + tipX + nx * tip, y: y + tipY + ny * tip },
+        { x: x + tipX - nx * tip, y: y + tipY - ny * tip },
+        { x: x - nx * foot, y: y - ny * foot },
+      ],
+      shade,
+    );
+    // Where his feet meet the ground.
+    fillEllipse(x, y, rx * 0.6, Math.max(0.6, ry * 0.8), `rgba(0,0,0,${alpha * 0.5})`);
     return;
   }
   const s = shadowStretch;

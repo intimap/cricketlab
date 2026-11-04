@@ -2,7 +2,7 @@ import { beginShadows, takeSilhouette, castSilhouette, endShadows } from "../eng
 import { projectClose, closePixelsPerMetre, closeDepth, viewFacing } from "../render/camera.js";
 import { shadowSlope } from "../render/lighting.js";
 import { NEAR_PIXELS_PER_METRE } from "./match-positions.js";
-import { CREASE } from "../sim/geometry.js";
+import { CREASE, MID_PITCH } from "../sim/geometry.js";
 import { strikerFeet } from "./match-striker.js";
 
 /**
@@ -41,4 +41,20 @@ function feetOf(scene, cast) {
   const p = projectClose(cast.x, 0, cast.z);
   const ppm = Math.min(closePixelsPerMetre(cast.z), NEAR_PIXELS_PER_METRE);
   return { x: p.x, y: p.y, heightPx: cast.height * ppm, heightM: cast.height, worldX: cast.x, worldZ: cast.z };
+}
+
+/**
+ * The close figures' shadow streak when there are no cast silhouettes: the one sun's slope at mid-pitch, in
+ * screen px per px of figure height, scaled for groundShadow's guess at a figure's height (render/kit.js).
+ */
+export function closeStreak(scene) {
+  if (scene.light.casts?.length) return null;
+  const casts = scene.baseLight?.hd?.casts ?? [];
+  if (casts.length !== 1) return null;
+  const slope = shadowSlope(projectClose, 0, MID_PITCH, 1.8, 1.8 * closePixelsPerMetre(MID_PITCH), {
+    ...casts[0],
+    x: casts[0].x * viewFacing(),
+  });
+  // groundShadow takes a figure as three of its radii tall; a close figure is 48 units to its 9.
+  return { gx: (slope.gx * 48) / 27, gy: (slope.gy * 48) / 27 };
 }

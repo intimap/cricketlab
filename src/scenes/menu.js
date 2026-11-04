@@ -7,6 +7,8 @@ import { PITCH_TYPES } from "../sim/conditions.js";
 import { FORMATS, CLASSICS, OVERS_CHOICES } from "../sim/formats.js";
 import { boardFor } from "../sim/leaderboard.js";
 import { GROUNDS, GROUND_CHOICES, DEFAULT_GROUND } from "../render/grounds.js";
+import { prepareVenue } from "../render/venue/venue-build.js";
+import { ballKindFor } from "./match-light.js";
 import { LIGHTS } from "../render/light.js";
 import { updateTeams, drawTeams } from "./menu-teams.js";
 import { endTime } from "./match-light.js";
@@ -135,6 +137,8 @@ export class Menu {
 
   update(dt) {
     this.t += dt;
+    // A ground built from a map draws its scenery while you choose, so the match starts straight away.
+    prepareVenue(GROUNDS[this.cfg.ground], ballKindFor(this.cfg), 4, this.game.images);
     if (this.page === "teams") return updateTeams(this);
     const rows = this.rows;
     if (keys.pressed("ArrowUp")) {

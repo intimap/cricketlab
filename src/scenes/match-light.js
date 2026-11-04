@@ -2,6 +2,8 @@ import { COLORS } from "../engine/screen.js";
 import { LIGHTS } from "../render/light.js";
 import { weatherLight } from "../render/weather-look.js";
 import { startLook } from "./effects-auto.js";
+import { turnLight } from "../render/venue/venue-light.js";
+import { bowlingEnd } from "./venue-view.js";
 
 /**
  * The light through the day in the match scene. The menu's TIME is when play starts; a Test moves on a
@@ -59,12 +61,15 @@ export function updateLight(scene) {
   const time = timeNow(scene);
   const weather = scene.match.weather?.id ?? "sunny";
   const wet = raining(scene);
-  const key = `${time}:${weather}:${wet}`;
+  // A ground built from a map keeps its sun when the ends change, so the players' shadows turn round.
+  const end = scene.ground?.venue ? bowlingEnd(scene) : 0;
+  const key = `${time}:${weather}:${wet}:${end}`;
   if (key === scene.lightKey) return;
   const before = scene.lightTime;
   scene.lightKey = key;
   scene.lightTime = time;
-  scene.baseLight = weatherLight(LIGHTS[time] ?? LIGHTS.midday, weather, wet);
+  scene.lightBase = weatherLight(LIGHTS[time] ?? LIGHTS.midday, weather, wet);
+  scene.baseLight = turnLight(scene.lightBase, end);
   scene.light = startLook(scene.baseLight);
   if (scene.groundArt) scene.buildGround();
   if (before && before !== time && time === "night") scene.flash("FLOODLIGHTS ON", COLORS.gold);

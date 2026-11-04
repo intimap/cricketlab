@@ -10,6 +10,7 @@ import { pickBowler } from "../sim/ai.js";
 import { callDuration } from "../render/booth.js";
 import { teamKit } from "../render/skins.js";
 import { buildGround } from "../render/ground.js";
+import { updateVenue, venueArt } from "./venue-view.js";
 import { GROUNDS, DEFAULT_GROUND } from "../render/grounds.js";
 import { setWideCamera } from "../render/camera.js";
 import { drawMatch } from "./match-view.js";
@@ -161,7 +162,7 @@ export class MatchScene {
   buildGround() {
     const pitch = this.inn.pitch;
     this.groundWear = Math.floor(pitch.wear * GROUND_WEAR_STEPS);
-    this.groundArt = buildGround(this.ground, this.game.images, pitch, 1, this.light);
+    this.groundArt = venueArt(this, pitch) ?? buildGround(this.ground, this.game.images, pitch, 1, this.light);
   }
 
   nextBall() {
@@ -202,6 +203,7 @@ export class MatchScene {
   }
 
   update(dt) {
+    updateVenue(this, dt);
     updateMatch(this, dt);
   }
 

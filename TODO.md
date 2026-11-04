@@ -171,6 +171,65 @@ Streams, in order, each ending in a play-test:
 6. Assists and scores.
 7. Left-arm bowlers.
 
+## Grounds: Parklands from the beginning (agreed November 2026, branch `parklands-new`)
+
+From a review and a grilling round, on Parklands only. What was wrong: the close and wide views showed two
+different grounds (pavilions and a picket fence close up, a concrete bowl from above); the close view's fence was
+painted 32 m from the striker though the camera puts the rope 76 m away, so deep fielders would stand in the
+seats; both ends showed the same backdrop; one pavilion was repeated five times; nothing moved; each view had its
+own hand-tuned camera.
+
+Decisions:
+
+- A leafy local ground, fictional, built as PARKLANDS (NEW) beside the old one until it's signed off, then it
+  replaces it. Other grounds (Parklands (Boards) included) stay as they are.
+- Layout: the pavilion end (two storeys, white weatherboard, a clock gable, members' seats either side), the
+  scoreboard end (a hand-turned board on a grass bank, showing the real score, banks and tents), the Old Stand
+  (covered, one tier) on one side, the Hill (a grass bank, picnic crowd) on the other; a picket fence, four
+  floodlight towers, trees behind, and a sightscreen at each end, white for the red ball and black for the white.
+- The boundary stays a 66 m circle (no sim change). The map can carry a shape for a later ground.
+- One map of the ground drives every view. The views turn with the bowling end each over, as the commentary
+  already does.
+- Close views: the camera stays exactly as it is; the far end is drawn at its true distance (rope at 76 m, row
+  72), so fielders at the rope stand at the fence.
+- Wide view: a TV camera far off and high (about 20 degrees down, long lens, nearly even scale), true perspective,
+  that turns and zooms from one spot: a window on one big picture. Zoom from the whole ground to 3x on the
+  square; the stands at 2x detail, the grass and pitch at 3x, past 2x only where no stands are in frame. It
+  directs itself (opens on the ball and batters, follows the ball out, the whole ground between overs) and eases
+  in on the square while you move a close fielder. Players switch from the block figures to the jointed figures
+  at about 14 px.
+- Art: pixel art at 640x360 (the wide picture at 1280x720 detail), drawn in the game from the map through the
+  game's own cameras at load. Any layer can be painted over: the template tool exports each layer with guides
+  (rope, horizon, HUD panels), a painted layer replaces the drawn one, and a stale one (the map changed under it)
+  is flagged.
+- Light: one daylight picture relit for afternoon, evening and night (masks for windows and floodlights), with
+  the buildings and trees casting shadows across the outfield from their heights on the map.
+- Life later: the crowd on its own layer, flag and scoreboard spots on the map; nothing moving yet.
+- Assumed: weather over the new art as now; SIMPLE effects look the same (the ground is drawn once); with the
+  camera locked to WIDE you watch the delivery zoomed in on the square; the HUD panels stay where they are.
+
+In place before a second ground: the map format, the parts kit, the template tool, the ground sheet, checks (the
+rope, fence and sightscreen land where the cameras say; stale paint flagged; drawing under 100 ms in the test
+browser; painted layers under 500 KB), and a "making a ground" section in the README.
+
+Stages (built together, reviewed in bulk at the end):
+
+1. The map and cameras: every view and both ends in plain shapes, the ground sheet, the position checks.
+2. The standard: the view from behind the striker at the pavilion end, midday, finished.
+3. The other end, the sides and the wide picture to that standard.
+4. Light and shadows: relighting, cast shadows, night, the sightscreen colour.
+5. The wide camera's director, the field-placing zoom, the jointed players.
+6. Paint-over templates, stale and size checks, the README section.
+7. Sign-off: PARKLANDS (NEW) replaces Parklands.
+
+Done and signed off (November 2026): all seven stages. Parklands is now the ground drawn from its map
+(`PARKLANDS_SIGNED_OFF` in render/grounds.js), and for now it's the only ground on the menu (`ON_MENU`); the
+others still work and come back as they're rebuilt the same way. After the review: while the ball's in play
+the wide camera always keeps the whole wicket in shot with the ball or the fielder who has it, and a run bar
+above the score bar shows each batter along the pitch, in or out of his ground. Still to come: painting over
+any layers (the tools are ready), life in the ground (the crowd, flags), the run bar's place in the close
+view (it covers the foot of the near stumps while it's up), and measuring on the Pi 5.
+
 ## Later
 
 - Fictional names and art before any pub install.

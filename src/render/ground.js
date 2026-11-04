@@ -43,6 +43,28 @@ export function buildClose(ground, images, pitch, seed = 1, sun = LIGHTS.midday)
   const light = rgb(ground.grass.light);
   const dark = rgb(ground.grass.dark);
   const haze = rgb(view.haze.colour);
+  paintCloseField(px, ground, pitch, seed, {
+    groundFrom: view.groundFrom,
+    // Each row's stripe, fading towards the haze by the fence.
+    grass: (y, z) => {
+      const grass = lightStripe(view.stripes, z) ? light : dark;
+      const fade = 1 - (y - view.groundFrom) / view.haze.rows;
+      return fade > 0 ? mix(grass, haze, view.haze.amount * fade) : grass;
+    },
+    afterGrass: () => castShade(px, view, images, sun),
+  });
+  return px.done();
+}
+
+/**
+ * The close view's field into `px` (anything with put and blend): the outfield, the worn surround, the
+ * pitch, cracks, scuffs, creases and the far stumps, from row `groundFrom` down, through the close camera
+ * (which widens the stumps, so this is drawn here rather than as scenery). `grass(y, z)` gives a row's
+ * colour, or a function of x giving each pixel's (null leaves it, past a ground's fence); `afterGrass`
+ * runs once the grass is down. Rows `groundFrom` to `to` only, and the marks (cracks, creases, stumps)
+ * unless `marks` is false, so it can be painted in slices.
+ */
+export function paintCloseField(px, ground, pitch, seed, { groundFrom, grass: grassOf, afterGrass, to = H - 1, marks = true }) {
   const surround = rgb(ground.surround.colour);
   const fleck = rgb(ground.surround.fleck);
   const edge = rgb(ground.surround.edge);
@@ -53,11 +75,9 @@ export function buildClose(ground, images, pitch, seed = 1, sun = LIGHTS.midday)
   const xAt = (wx, z) => projectFromStriker(wx, 0, z).x;
 
   // Outfield stripes, the worn surround and the pitch, row by row.
-  for (let y = view.groundFrom; y < H; y++) {
+  for (let y = groundFrom; y <= to; y++) {
     const z = closeRowDepth(y + CLOSE_Y_OFFSET);
-    let grass = lightStripe(view.stripes, z) ? light : dark;
-    const fade = 1 - (y - view.groundFrom) / view.haze.rows;
-    if (fade > 0) grass = mix(grass, haze, view.haze.amount * fade);
+    const grass = grassOf(y, z);
     const onPitch = z >= PITCH_FROM && z <= PITCH_TO;
     const onSurround = z >= PITCH_FROM - sw * 2 && z <= PITCH_TO + sw * 2;
     const pL = xAt(-PITCH_HALF, z);
@@ -72,11 +92,12 @@ export function buildClose(ground, images, pitch, seed = 1, sun = LIGHTS.midday)
       else if (onSurround && x >= sL && x < sR) {
         const outer = x < sL + edgeW || x >= sR - edgeW;
         c = outer ? texture(edge, x, y, seed + 5) : texture(surround, x, y, seed + 4, fleck);
-      } else c = texture(grass, x, y, seed);
-      px.put(x, y, c);
+      } else c = typeof grass === "function" ? grass(x) : texture(grass, x, y, seed);
+      if (c) px.put(x, y, c);
     }
   }
-  castShade(px, view, images, sun);
+  afterGrass?.();
+  if (!marks) return;
 
   // Fill a world-space rectangle on the ground (x1..x2 across, z1..z2 along); at least one pixel each way.
   const fillWorld = (x1, x2, z1, z2, colour, blend = 1) => {
@@ -145,8 +166,6 @@ export function buildClose(ground, images, pitch, seed = 1, sun = LIGHTS.midday)
   const bl = Math.round(projectFromStriker(STUMP_X[0], 0, PITCH_LENGTH).x);
   const br = Math.round(projectFromStriker(STUMP_X[2], 0, PITCH_LENGTH).x) + 1;
   for (let x = bl; x <= br; x++) px.put(x, top - 1, bail);
-
-  return px.done();
 }
 
 // --- Wide view -------------------------------------------------------------

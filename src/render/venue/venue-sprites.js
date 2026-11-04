@@ -1,0 +1,180 @@
+import { hash, noise, PAL } from "./venue-materials.js";
+
+/**
+ * Trees and people as pixel sprites (venue-raster.js drawSprite): drawn at the size the camera sees them,
+ * shaded in daylight from the upper left. A tree's crown is a few leaf clumps, each a dithered ball, so it
+ * reads as foliage at any size; its near side is brought forward so trees in front cover those behind.
+ */
+
+const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+
+/**
+ * Each kind of tree: five tones from deep shade to highlight, the trunk, and the crown's shape (how wide
+ * and tall for its height, how many leaf clumps, how open).
+ */
+export const TREES = {
+  oak: {
+    tones: ["#1c3a1a", "#26491f", "#325c27", "#437232", "#5c8c40"].map(hex),
+    trunk: hex("#5a4430"),
+    wide: 1,
+    tall: 0.82,
+    clumps: 13,
+  },
+  elm: {
+    tones: ["#20421f", "#2b5326", "#38682d", "#4c7f37", "#669844"].map(hex),
+    trunk: hex("#5e4a34"),
+    wide: 0.86,
+    tall: 1,
+    clumps: 12,
+  },
+  gum: {
+    tones: ["#30422a", "#405634", "#546b3f", "#6c8450", "#8aa064"].map(hex),
+    trunk: hex("#cfc6b2"),
+    wide: 0.8,
+    tall: 1.05,
+    clumps: 10,
+    open: 0.12,
+  },
+  // Shrubs and young trees along the foot of a belt: wide, low, no trunk to speak of.
+  bush: {
+    tones: ["#1a3519", "#23451f", "#2f5827", "#3f6d31", "#55853d"].map(hex),
+    trunk: hex("#4a3a28"),
+    wide: 1.5,
+    tall: 0.62,
+    clumps: 9,
+    low: true,
+  },
+  pine: {
+    tones: ["#172f1f", "#1f3e27", "#29502f", "#35623b", "#4a7a4c"].map(hex),
+    trunk: hex("#4a3828"),
+    wide: 0.5,
+    tall: 1.6,
+    clumps: 10,
+    cone: true,
+  },
+};
+
+const BAYER = [
+  [0, 8, 2, 10],
+  [12, 4, 14, 6],
+  [3, 11, 1, 9],
+  [15, 7, 13, 5],
+];
+
+/**
+ * A tree `height` m tall, seeded: a crown of leaf clumps (each a dithered ball, lit from the upper left,
+ * darker underneath) over a short trunk. Returns paint(put, x, y, ppm).
+ */
+export function treeSprite(kind, height, seed) {
+  const t = TREES[kind] ?? TREES.oak;
+  const crownR = height * 0.4 * t.wide;
+  const crownH = crownR * t.tall;
+  // The crown comes well down a mature tree (a shrub's sits on the ground).
+  const crownY = t.low ? crownH * 0.9 : height - crownH * 1.15;
+  const clumps = [];
+  for (let i = 0; i < t.clumps; i++) {
+    const a = hash(i, 1, seed) * Math.PI * 2;
+    const d = 0.35 + Math.sqrt(hash(i, 2, seed)) * 0.45;
+    let dx = Math.cos(a) * d * crownR * 0.75;
+    let dy = Math.sin(a) * d * crownH * 0.72;
+    // A flatter underside; a pine narrows to its point.
+    if (dy < 0) dy *= t.low ? 0.4 : 0.78;
+    if (t.cone) dx *= 0.9 - (dy / crownH) * 0.7;
+    const r = (0.34 + hash(i, 3, seed) * 0.2) * crownR * (t.cone ? 0.8 : 1);
+    clumps.push({ dx, dy, r, tone: (hash(i, 4, seed) - 0.5) * 0.7 });
+  }
+  clumps.push({ dx: 0, dy: crownH * 0.05, r: crownR * 0.62, tone: 0 });
+  // Back to front: the top and middle first, the lower clumps over them.
+  clumps.sort((a, b) => b.dy - a.dy);
+  return (put, x, y, ppm) => {
+    // The trunk, up into the crown, a darker right side.
+    const tw = Math.max(1, Math.round(height * 0.05 * ppm * (kind === "gum" ? 0.8 : 1)));
+    const top = Math.round(y - (crownY - crownH * 0.45) * ppm);
+    for (let py = top; py <= Math.round(y); py++)
+      for (let k = 0; k < tw; k++) put(x - (tw >> 1) + k, py, k === tw - 1 && tw > 1 ? shadeOf(t.trunk, -30) : t.trunk, 0.05);
+    const cx = x;
+    const cy = y - crownY * ppm;
+    const block = ppm > 5 ? 1 : 0;
+    for (const c of clumps) {
+      const rx = c.r * ppm;
+      if (rx < 0.5) continue;
+      const ox = cx + c.dx * ppm;
+      const oy = cy - c.dy * ppm;
+      const r2 = Math.ceil(rx);
+      // How high in the crown this clump sits: the top catches the light, the underside is in shade.
+      const height01 = (c.dy / crownH + 0.6) * 0.8;
+      for (let py = -r2; py <= r2; py++)
+        for (let px = -r2; px <= r2; px++) {
+          const nx = px / rx;
+          const ny = py / rx;
+          const rr = nx * nx + ny * ny;
+          if (rr > 1) continue;
+          const X = Math.round(ox + px);
+          const Y = Math.round(oy + py);
+          const nz = Math.sqrt(1 - rr);
+          const lift = (nz * c.r + 0.3 * crownR) * 0.6;
+          if (put.shows && !put.shows(X, Y, lift)) continue;
+          // Ragged edges in leafy tufts, and an open canopy for a gum.
+          const n = noise(X >> block, Y >> block, seed & 63);
+          if (rr > 0.62 && n < (rr - 0.62) * 2.4) continue;
+          if (t.open && n < t.open && rr < 0.85) continue;
+          const light = -0.5 * nx - 0.7 * ny + 0.45 * nz + height01 * 0.55 + c.tone * 0.5;
+          const k = light * 1.9 + 1.7 + (BAYER[Y & 3][X & 3] / 16 - 0.5) * 0.8 + (n - 0.5) * 0.9;
+          put(X, Y, t.tones[Math.max(0, Math.min(4, Math.floor(k)))], lift);
+        }
+    }
+  };
+}
+
+const shadeOf = (c, d) => [c[0] + d, c[1] + d, c[2] + d];
+
+/**
+ * A spectator: sitting (on a bank) or standing; seeded shirt, skin and hair, now and then a sun hat.
+ * Returns paint(put, x, y, ppm), standing at (x, y).
+ */
+export function personSprite(seed, standing = false) {
+  // A summer's day on the grass: brighter than the seats.
+  const shirt = PAL.brightShirts[Math.floor(hash(seed, 1) * PAL.brightShirts.length)];
+  const skin = PAL.skins[Math.floor(hash(seed, 2) * PAL.skins.length)];
+  const hair = PAL.hair[Math.floor(hash(seed, 3) * PAL.hair.length)];
+  const hat = hash(seed, 4) < 0.2 ? (hash(seed, 5) < 0.5 ? hex("#f4f0e0") : hex("#d8c088")) : null;
+  const legs = [hex("#3a4a6a"), hex("#d8d2c0"), hex("#4a3c30"), hex("#6a7a5a")][Math.floor(hash(seed, 6) * 4)];
+  return (put, x, y, ppm) => {
+    const head = Math.max(1, Math.round(0.22 * ppm));
+    const bodyW = Math.max(1, Math.round(0.42 * ppm));
+    const bodyH = Math.max(1, Math.round((standing ? 0.6 : 0.45) * ppm));
+    const legH = standing ? Math.max(1, Math.round(0.75 * ppm)) : Math.max(0, Math.round(0.12 * ppm));
+    const x0 = Math.round(x - bodyW / 2);
+    let py = Math.round(y);
+    for (let i = 0; i < legH; i++, py--)
+      for (let k = 0; k < bodyW; k++) if (!standing || bodyW < 3 || k !== bodyW >> 1) put(x0 + k, py, legs, 0.1);
+    for (let i = 0; i < bodyH; i++, py--)
+      for (let k = 0; k < bodyW; k++)
+        put(x0 + k, py, i === bodyH - 1 && bodyW > 2 && (k === 0 || k === bodyW - 1) ? skin : shirt, 0.1);
+    const hx = Math.round(x - head / 2);
+    for (let i = 0; i < head; i++, py--)
+      for (let k = 0; k < head; k++)
+        put(hx + k, py, hat && i === head - 1 ? hat : i === head - 1 && head > 1 ? hair : skin, 0.12);
+    if (hat && head > 1) for (let k = -1; k <= head; k++) put(hx + k, py + 1, hat, 0.13);
+  };
+}
+
+/** A beach umbrella: a coloured dome on a pole, `seed` picking the colour. */
+export function umbrellaSprite(seed) {
+  const colour = PAL.rugs[Math.floor(hash(seed, 7) * PAL.rugs.length)];
+  return (put, x, y, ppm) => {
+    const r = Math.max(2, Math.round(1.1 * ppm));
+    const top = Math.round(y - 1.9 * ppm);
+    for (let py = top; py <= Math.round(y); py++) put(Math.round(x), py, PAL.white, 0.2);
+    for (let py = 0; py <= Math.ceil(r * 0.55); py++) {
+      const half = Math.round(r * Math.sqrt(Math.max(0, 1 - (py / (r * 0.6)) ** 2)));
+      for (let k = -half; k <= half; k++)
+        put(
+          Math.round(x) + k,
+          top + py - Math.round(r * 0.5),
+          Math.floor((k + r) / Math.max(1, r / 2)) % 2 ? colour : PAL.canvas,
+          0.3,
+        );
+    }
+  };
+}

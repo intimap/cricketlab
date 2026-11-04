@@ -1,4 +1,6 @@
 import { MCG_CAMERA } from "./stadium-camera.js";
+import { PARKLANDS_MAP } from "./venue/parklands-map.js";
+import { tvWideCamera } from "./venue/venue-cameras.js";
 /**
  * Grounds as data. Each view is built from layers (see ground.js):
  *   - scenery: the hand-made parts (sky, clouds, trees, stands, fence) -
@@ -87,6 +89,32 @@ function parklands(name, fence) {
 }
 
 GROUNDS.parklands = parklands("PARKLANDS OVAL", "fence-picket");
+
+/**
+ * Parklands rebuilt from a map of the ground (render/venue/): both views drawn through their cameras from
+ * the same place, at true scale, turning with the bowling each over. Beside the old one until it's signed
+ * off (TODO.md, Grounds). Its colours for the pitch, creases and stumps are the Oval's.
+ */
+GROUNDS.parklandsNew = {
+  ...GROUNDS.oval,
+  hidden: false,
+  name: "PARKLANDS (NEW)",
+  ends: PARKLANDS_MAP.ends,
+  venue: PARKLANDS_MAP,
+  close: { ...GROUNDS.oval.close },
+  wide: { camera: tvWideCamera() },
+};
+
+/**
+ * Once Parklands (new) is signed off it replaces the old Parklands: the same id (so settings, high scores
+ * and the commentary carry on), the old name, and no second entry on the menu. Turn on PARKLANDS_SIGNED_OFF.
+ */
+export function signOffParklands(grounds) {
+  grounds.parklands = { ...grounds.parklandsNew, name: grounds.parklands.name, hidden: false };
+  grounds.parklandsNew = { ...grounds.parklandsNew, hidden: true };
+}
+const PARKLANDS_SIGNED_OFF = true;
+if (PARKLANDS_SIGNED_OFF) signOffParklands(GROUNDS);
 GROUNDS.parklandsBoards = parklands("PARKLANDS (BOARDS)", "fence-ads");
 
 /** The G: afternoon stadium composition in wide view; the close composition stays separate. */
@@ -273,8 +301,12 @@ GROUNDS.lakshmi = {
   },
 };
 
-/** The grounds the menu offers, the first being the default. */
-export const GROUND_CHOICES = Object.keys(GROUNDS).filter((id) => !GROUNDS[id].hidden);
+/**
+ * The grounds the menu offers, the first being the default. For now only Parklands, the ground built from
+ * a map (TODO.md, Grounds); the others are kept and still work, and come back by adding them to ON_MENU.
+ */
+const ON_MENU = ["parklands"];
+export const GROUND_CHOICES = Object.keys(GROUNDS).filter((id) => !GROUNDS[id].hidden && ON_MENU.includes(id));
 export const DEFAULT_GROUND = "parklands";
 
 /**

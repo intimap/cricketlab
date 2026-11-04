@@ -31,6 +31,8 @@ test("fielder placement round-trips through the resized camera within a centimet
 test("all playable venues have a perimeter without covering or moving their far landmarks", () => {
   for (const id of GROUND_CHOICES) {
     const wide = GROUNDS[id].wide;
+    // Grounds built from a map draw their own surroundings (tools/venue.test.mjs).
+    if (GROUNDS[id].venue) continue;
     if (wide.stadium) {
       assert.ok(wide.camera);
       assert.equal(wide.perimeter, null);

@@ -5,6 +5,7 @@ import { Match } from "../src/sim/match.js";
 import { Rng } from "../src/sim/rng.js";
 import { australia, england, isSpinner } from "../src/sim/teams.js";
 import { pickBowler, pickDeliveryPlan, pickFieldPreset } from "../src/sim/ai.js";
+import { rhythmOf } from "../src/sim/rhythm.js";
 
 const n = Number(process.argv[2] ?? 20);
 const pitches = ["green", "dust", "cracked"];
@@ -24,8 +25,11 @@ const PLANS = {
       : { type: "bouncer", line: 0, length: 11, effort: "high" },
 };
 
-/** The player's release: the share that lands in the gold zone (no error), and how far the rest miss. */
-const RELEASES = { perfect: [1, 0], good: [0.6, 0.05], average: [0.35, 0.08] };
+/**
+ * The player's run-up: the share of releases in the gold zone (no error), how far the rest miss, and how far
+ * his taps on the two beats miss (s, standard deviation; sim/rhythm.js grades them).
+ */
+const RELEASES = { perfect: [1, 0, 0], good: [0.6, 0.05, 0.035], average: [0.35, 0.08, 0.06] };
 
 const rows = [
   ["same", "perfect", "attacking"],
@@ -40,9 +44,11 @@ const rows = [
 const only = process.env.ROWS?.split(",").map(Number);
 for (const [planName, releaseName, field] of rows.filter((_, i) => !only || only.includes(i))) {
   const plan = PLANS[planName];
-  const [inZone, miss] = RELEASES[releaseName];
+  const [inZone, miss, beatMiss] = RELEASES[releaseName];
   const t = { runs: 0, legal: 0, wkts: 0, wd: 0, nb: 0, suspended: 0 };
-  for (let seed = 1; seed <= n; seed++) {
+  // FROM=61 starts at another seed, to run a long report in parallel halves.
+  const from = Number(process.env.FROM ?? 1);
+  for (let seed = from; seed < from + n; seed++) {
     const m = new Match(australia(), england(), pitches[seed % 3], 50, new Rng(seed), "bowl");
     const inn = m.inn;
     const hand = new Rng(seed * 7 + 1);
@@ -51,7 +57,9 @@ for (const [planName, releaseName, field] of rows.filter((_, i) => !only || only
         m.startOver(pickBowler(inn));
         inn.setPreset(field === "captain" ? pickFieldPreset(inn) : isSpinner(inn.bowler.p.bowl) ? "spin" : "attacking");
       }
-      const intent = { ...plan(inn, hand), wicketSide: "over" };
+      const planned = plan(inn, hand);
+      const rhythm = rhythmOf([hand.normal(0, beatMiss), hand.normal(0, beatMiss)], planned.effort);
+      const intent = { ...planned, wicketSide: "over", rhythm };
       const error = hand.chance(inZone) ? 0 : hand.normal(0, miss);
       const d = m.deliver(intent, error);
       const play = m.resolve(intent, d, m.aiShot(d), false);

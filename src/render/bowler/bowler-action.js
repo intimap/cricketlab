@@ -178,6 +178,22 @@ export function markZ(id, runTime) {
   return gait(id, keysOf(id), runTime, runTime).pelvis.z;
 }
 
+/**
+ * When his last two footfalls before the leap land (s from release), for a run-up of `runTime`: the beats the
+ * player taps (sim/rhythm.js). The take-off foot lands half a stride before he's over it, the foot before it
+ * a stride earlier still.
+ */
+export function rhythmBeats(id, runTime) {
+  const s = styleOf(id);
+  const keys = keysOf(id);
+  const { speed, stride } = s.run;
+  const a = 0.33 / Math.max(0.2, runTime);
+  // Time before take-off at which he has `dist` still to run (the gait's distance, solved for time).
+  const before = (dist) => (a > 0 ? (1 - Math.sqrt(Math.max(0, 1 - (4 * a * dist) / speed))) / (2 * a) : dist / speed);
+  const landing = (q) => keys.times[0] - before(q * stride + 0.15);
+  return [landing(1.5), landing(0.5)];
+}
+
 /** The style's event times (s from release), for frame sheets and tests. */
 export function actionTimes(id) {
   const keys = keysOf(id);

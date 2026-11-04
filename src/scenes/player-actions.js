@@ -13,7 +13,7 @@ import { pickFieldPreset } from "../sim/ai.js";
  * they set travels in the action that commits them.
  *
  *   swing { t, shot, power }     defend { t, foot }       leave {}          run { end }
- *   bowl { plan }                release { error }        appeal {}         review { side }   accept {}
+ *   bowl { plan }                beat { index, error }    release { error, rhythm }        appeal {}         review { side }   accept {}
  *   chooseBowler { bowler }      delivery { delivery }    effort { effort } field { preset }
  *   newBall {}                   wicketSide { side }      placeFielder { idx, pos }
  *   simulate { overs }           catchPress {}            throwCall { end }
@@ -34,8 +34,11 @@ export function act(scene, action) {
     case "bowl":
       scene.cur = scene.newBall(action.plan, 0);
       return scene.setPhase("runup");
+    case "beat":
+      scene.cur.beats[action.index].error = action.error;
+      return sfx.click();
     case "release":
-      return scene.release(action.error);
+      return scene.release(action.error, action.rhythm);
     case "appeal":
       return scene.appeal();
     case "review":

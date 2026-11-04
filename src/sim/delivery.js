@@ -2,6 +2,7 @@ import { bowlingGeometry } from "./bowling-side.js";
 import { clamp } from "../math.js";
 import { GRAVITY, CREASE, STUMPS_HALF_WIDTH, STUMPS_HEIGHT, BALL_RADIUS } from "./geometry.js";
 import { isSpinner, bowlingSpeed } from "./teams.js";
+import { rhythmEffect } from "./rhythm.js";
 
 export const EFFORTS = ["low", "med", "high"];
 const EFFORT_SPEED = { low: 0.93, med: 1, high: 1.055 };
@@ -76,12 +77,18 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
   const spinner = isSpinner(skills);
   const tiredness = 1 - stamina;
   const type = intent.type;
+  // The player's run-up rhythm (sim/rhythm.js): his pace, his line and the aftertouch he's earned.
+  const rhythm = typeof intent.rhythm === "number" ? rhythmEffect(intent.rhythm, intent.effort) : null;
   let speed = bowlingSpeed(skills) * EFFORT_SPEED[intent.effort] * (0.88 + 0.12 * stamina) * (SPEED_FACTOR[type] ?? 1);
-  speed *= 1 + rng.normal(0, 0.012);
+  speed *= (1 + rng.normal(0, 0.012)) * (rhythm?.speed ?? 1);
 
-  const touch = intent.aftertouch ?? 0;
+  const touch = (intent.aftertouch ?? 0) * (rhythm?.touch ?? 1);
   const spray =
-    (1.35 - skills.accuracy) * (1 + tiredness * 1.3) * EFFORT_SPRAY[intent.effort] * (1 + AFTERTOUCH_SPRAY * Math.abs(touch));
+    (1.35 - skills.accuracy) *
+    (1 + tiredness * 1.3) *
+    EFFORT_SPRAY[intent.effort] *
+    (1 + AFTERTOUCH_SPRAY * Math.abs(touch)) *
+    (rhythm?.spray ?? 1);
   // A mistimed release is a loose ball rather than a wild one: it drifts wide of off (there to be hit), and
   // a badly mistimed one sprays a little more.
   const badRelease = Math.abs(releaseError) > 0.1 ? 1.5 : 1;

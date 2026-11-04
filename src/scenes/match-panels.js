@@ -18,6 +18,7 @@ import { HUD_Y, staminaColor, drawScorecard } from "../render/hud.js";
 import { strikerPlace } from "./match-striker.js";
 import { drawWeatherReport, drawRainReport } from "../render/weather-report.js";
 import { declareAdvice } from "./match-test.js";
+import { gradeTap } from "../sim/rhythm.js";
 
 /**
  * The match's panels over the picture: the bowling setup and choice of bowler, the speed gun, the
@@ -63,7 +64,7 @@ export function drawPanels(scene) {
   }
 
   if (scene.phase === "runup" && scene.human === "bowl" && scene.cur && scene.cur.tRun < 0.6) {
-    drawText("SPACE TO RELEASE AT THE DELIVERY STRIDE  -  HOLD LEFT/RIGHT FOR AFTERTOUCH", WIDTH / 2, 6, {
+    drawText("SPACE ON HIS LAST TWO STRIDES, THEN AT THE DELIVERY STRIDE  -  HOLD LEFT/RIGHT FOR AFTERTOUCH", WIDTH / 2, 6, {
       ...PANEL_TEXT,
       color: COLORS.gold,
     });
@@ -263,6 +264,16 @@ function drawReleaseMeter(scene) {
   const zoneW = Math.max(3, Math.round(toX(1 + half)) - zoneL);
   fillRect(zoneL - 1, y - 1, zoneW + 2, 8, COLORS.black);
   fillRect(zoneL, y, zoneW, 6, RELEASE_GOLD);
+  // The two beats before the release: a notch each, lit by how well it was tapped.
+  for (const b of cur.beats ?? []) {
+    if (b.given) continue;
+    const bx = Math.round(toX(meterPos(r, b.at)));
+    const q = b.error === null ? null : gradeTap(b.error, cur.intent.effort);
+    const colour =
+      q === null ? (b.missed ? COLORS.red : COLORS.cream) : q > 0.95 ? RELEASE_GOLD : q > 0 ? COLORS.cream : COLORS.red;
+    fillRect(bx - 2, y - 2, 5, 10, COLORS.black);
+    fillRect(bx - 1, y - 1, 3, 8, colour);
+  }
   const at = cur.delivery ? cur.releaseMark : meterPos(r, cur.tRun);
   fillRect(clamp(toX(at), x0, x0 + w) - 1, y - 3, 3, 12, COLORS.white);
   // Aftertouch, shown the way it was pushed on screen.

@@ -15,6 +15,7 @@ import * as beats from "./booth-beats.js";
 import { onBallDone } from "./match-feedback.js";
 import { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
 import { forecastDue, openForecast, overEndBanner, simShouldStop } from "./match-test.js";
+import { rhythmBeats, actionTimes } from "../render/bowler/bowler-action.js";
 import { rainDue, openRain, stopForRain } from "./match-rain.js";
 import { updateLight } from "./match-light.js";
 
@@ -77,11 +78,17 @@ export function newBall(scene, intent, aiReleaseError) {
   const style = scene.inn.bowler.p.bowl.style;
   // The player's run-up varies ball to ball (see runup.js); the AI's is steady.
   const runup = scene.human === "bowl" ? planRunup(style, intent.effort, scene.inn.bowler.stamina) : null;
+  const runupDur = runup ? runup.dur : spinner ? 1.5 : style === "fast" ? 2.5 : 2.2;
   return {
     intent,
     aiReleaseError,
     runup,
-    runupDur: runup ? runup.dur : spinner ? 1.5 : style === "fast" ? 2.5 : 2.2,
+    runupDur,
+    /**
+     * The player's beats: his last two footfalls before the leap (run-up time, s), and how far off each tap
+     * was (null until tapped; `missed` once it's gone by untapped). sim/rhythm.js grades them.
+     */
+    beats: runup ? beatsFor(style, runupDur) : null,
     runupStartZ: spinner ? 25.5 : 33,
     /** Time since the run-up started. */
     tRun: 0,
@@ -108,9 +115,24 @@ export function newBall(scene, intent, aiReleaseError) {
   };
 }
 
-export function release(scene, releaseError) {
+/** The run-up's two beats in run-up time, from the bowler's action (a beat before he's started is given). */
+function beatsFor(style, runupDur) {
+  const runTime = Math.max(0.3, runupDur + actionTimes(style).takeoff);
+  return rhythmBeats(style, runTime).map((tr) => {
+    const at = runupDur + tr;
+    return at < 0.15 ? { at, error: 0, given: true } : { at, error: null, missed: false };
+  });
+}
+
+/** Release the ball: `rhythm` is the player's run-up rhythm (sim/rhythm.js), none for the computer. */
+export function release(scene, releaseError, rhythm) {
   const cur = scene.cur;
   if (cur.aftertouch) cur.intent = { ...cur.intent, aftertouch: cur.aftertouch };
+  if (typeof rhythm === "number") {
+    cur.intent = { ...cur.intent, rhythm };
+    if (rhythm >= 0.85) scene.banner("ON THE BEAT!", COLORS.gold, 1, 2, 54);
+    else if (rhythm < 0.35) scene.banner("OFF THE BEAT", COLORS.red, 1, 2, 54);
+  }
   cur.delivery = scene.match.deliver(cur.intent, releaseError);
   cur.t = 0;
   const atBat = crossingAtZ(cur.delivery.samples, CONTACT_Z_FRONT);

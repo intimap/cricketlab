@@ -259,8 +259,8 @@ export class MatchScene {
     return input.updateRunup(this, dt);
   }
 
-  release(releaseError) {
-    return ball.release(this, releaseError);
+  release(releaseError, rhythm) {
+    return ball.release(this, releaseError, rhythm);
   }
 
   /** Ball time at which the ball reaches the bat for a given shot (and, for defence, foot). */

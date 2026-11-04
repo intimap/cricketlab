@@ -33,7 +33,7 @@ export function rhythmOf(errors, effort, widen = 1, floor = 0) {
  * effort a poor rhythm costs the extra pace and a good one tightens the line he'd otherwise spray.
  */
 export function rhythmEffect(rhythm, effort) {
-  // A good player's rhythm bowls the ball as it always was; better is a bonus, worse a cost.
+  // An ordinary rhythm bowls the ball as it always was; better is a bonus, worse a cost.
   const off = GOOD_RHYTHM - rhythm;
   const high = effort === "high";
   return {
@@ -43,5 +43,8 @@ export function rhythmEffect(rhythm, effort) {
   };
 }
 
-/** The rhythm a good player taps (about 35 ms off each beat), at which a delivery is as it was before rhythm. */
-export const GOOD_RHYTHM = 0.75;
+/**
+ * The rhythm at which a delivery is as it was before rhythm: an ordinary player's (about 60 ms off each beat).
+ * A good one (about 35 ms) is a touch quicker and tighter.
+ */
+export const GOOD_RHYTHM = 0.6;

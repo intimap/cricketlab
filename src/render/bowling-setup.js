@@ -1,7 +1,7 @@
 import { COLORS, drawPanel, drawBar } from "../engine/screen.js";
 import { drawText } from "../engine/text.js";
-import { isSpinner } from "../sim/teams.js";
-import { DELIVERY_NAMES, SPIN_EFFORT_NAMES, lengthName, lineName } from "../sim/delivery.js";
+import { isSpinner, styleName } from "../sim/teams.js";
+import { deliveryName, SPIN_EFFORT_NAMES, lengthName, lineName } from "../sim/delivery.js";
 import { PRESET_LABELS } from "../sim/field.js";
 import { staminaColor } from "./hud.js";
 import { drawPitchMap } from "./pitch-map.js";
@@ -17,7 +17,7 @@ export function drawSetupPanel(scene, wicketSide = "over") {
   const advice = scene.advice;
   drawPanel(4, 4, 240, advice ? 166 : 140, "rgba(13,35,24,0.92)");
   drawText(`${bowler.p.name.toUpperCase()}`, 10, 10, { color: COLORS.gold });
-  drawText(`${skills.style.toUpperCase()}  ${inn.bowlerOvers(bowler)} OV  ${inn.bowlerFigures(bowler)}`, 10, 20, {
+  drawText(`${styleName(skills)}  ${inn.bowlerOvers(bowler)} OV  ${inn.bowlerFigures(bowler)}`, 10, 20, {
     color: COLORS.dim,
   });
   drawText("STAMINA", 10, 31, { color: COLORS.dim });
@@ -26,7 +26,7 @@ export function drawSetupPanel(scene, wicketSide = "over") {
   skills.repertoire.forEach((type, i) => {
     const x = 10 + (i % 3) * 78;
     const y = 43 + Math.floor(i / 3) * 10;
-    drawText(`${i + 1}.${DELIVERY_NAMES[type]}`, x, y, { color: type === scene.deliveryType ? COLORS.gold : COLORS.grey });
+    drawText(`${i + 1}.${deliveryName(type, skills)}`, x, y, { color: type === scene.deliveryType ? COLORS.gold : COLORS.grey });
   });
   const effort = spinner ? `FLIGHT (E): ${SPIN_EFFORT_NAMES[scene.effort]}` : `EFFORT (E): ${scene.effort.toUpperCase()}`;
   drawText(effort, 10, 65, { color: COLORS.cream });

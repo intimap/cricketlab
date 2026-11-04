@@ -1,7 +1,9 @@
 import { Rng } from "../sim/rng.js";
 import { pickDeliveryPlan } from "../sim/ai.js";
 import { isSpinner } from "../sim/teams.js";
-import { DELIVERY_NAMES, expectedTurnAtBat, lengthName, lineName } from "../sim/delivery.js";
+import { deliveryName, aimAllowance, lengthName, lineName } from "../sim/delivery.js";
+import { armOf } from "../sim/bowling-side.js";
+import { selectedWicketSide } from "./bowling-side.js";
 
 /**
  * The keeper's word in the setup panel while the player bowls: the ball the computer's own plan for the over
@@ -26,8 +28,9 @@ export function suggestBall(scene) {
   const rng = new Rng(Math.floor(Math.random() * 2 ** 31));
   const { intent } = pickDeliveryPlan(inn, rng);
   const skills = inn.bowler.p.bowl;
-  // The computer's lines are for a right-hander; against a left-hander a spinner aims off for the turn.
-  const allow = scene.match.facing < 0 ? 2 * expectedTurnAtBat(intent, skills, inn.ball, inn.pitch) : 0;
+  // The computer's lines are for a right-armer over the wicket to a right-hander: allow for the angle and turn.
+  const flip = scene.match.facing * armOf(skills);
+  const allow = aimAllowance(intent, skills, inn.ball, inn.pitch, flip, selectedWicketSide(scene));
   const plan = { ...intent, line: intent.line + allow };
   const spinner = isSpinner(skills);
   // A yorker or a bouncer says its own length.
@@ -35,7 +38,7 @@ export function suggestBall(scene) {
   const where = `${length}${lineName(intent.line)}`.toUpperCase();
   return {
     intent: plan,
-    lines: [`KEEPER: ${PLAN_WORDS[inn.overPlan] ?? "KEEP IT TIGHT"}.`, `${DELIVERY_NAMES[plan.type]}, ${where}`],
+    lines: [`KEEPER: ${PLAN_WORDS[inn.overPlan] ?? "KEEP IT TIGHT"}.`, `${deliveryName(plan.type, skills)}, ${where}`],
   };
 }
 

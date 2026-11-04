@@ -57,14 +57,14 @@ export function southAfrica() {
       nick: "Marco",
       role: "allround",
       flair: 0.15,
-      bowl: bowler("fast", 0.82, { pace: 0.86, seam: 0.88 }),
+      bowl: bowler("fast", 0.82, { pace: 0.86, seam: 0.88, arm: "left" }),
     },
     {
       name: "Keshav Maharajh",
       look: look(1.67, "brown", "black", "short", "full", 16),
       nick: "Kesh",
       role: "tail",
-      bowl: bowler("offspin", 0.8, { accuracy: 0.84 }),
+      bowl: bowler("offspin", 0.8, { accuracy: 0.84, arm: "left" }),
     },
     {
       name: "Kagiso Rabado",

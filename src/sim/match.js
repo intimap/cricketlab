@@ -1,4 +1,4 @@
-import { bowlerFieldingHome } from "./bowling-side.js";
+import { bowlerFieldingHome, armOf } from "./bowling-side.js";
 import { facingOf, mirrorDelivery, toStriker } from "./handedness.js";
 import { scout } from "./scouting.js";
 import { PITCH_TYPES, Pitch } from "./conditions.js";
@@ -7,7 +7,7 @@ import { Commentary } from "./commentary.js";
 import { Rng } from "./rng.js";
 import { MomentTracker } from "./moments.js";
 import { isSpinner } from "./teams.js";
-import { bowlDelivery, expectedTurnAtBat, movementOf } from "./delivery.js";
+import { bowlDelivery, aimAllowance, movementOf } from "./delivery.js";
 import { resolveDelivery } from "./batting.js";
 import { plainCall } from "./call.js";
 import { nextEye, offStrikeEye, eyeMultiplier } from "./eye.js";
@@ -152,10 +152,16 @@ export class Match {
     // Aimed relative to the striker (+ line is his off side), bowled in the world, then seen from his end.
     // Turn that comes into a right-hander goes away from a left-hander, so the computer's lines (set for
     // right-handers) aim off for twice it: the ball then arrives where it would against a right-hander.
+    // A left-armer is bowled as a right-armer in a mirrored world (swing named by the batter), then turned back.
     const facing = this.facing;
-    const allow = facing < 0 && intent.byComputer ? 2 * expectedTurnAtBat(intent, bowler.p.bowl, inn.ball, inn.pitch) : 0;
+    const arm = armOf(bowler.p.bowl);
+    const flip = facing * arm;
+    const allow = intent.byComputer
+      ? aimAllowance(intent, bowler.p.bowl, inn.ball, inn.pitch, flip, intent.wicketSide, "leftArm")
+      : 0;
+    const swung = arm < 0 ? { outswing: "inswing", inswing: "outswing" }[intent.type] : null;
     const world = bowlDelivery(
-      { ...intent, line: (intent.line + allow) * facing },
+      { ...intent, type: swung ?? intent.type, line: (intent.line + allow) * flip },
       bowler.p.bowl,
       bowler.stamina,
       inn.ball,
@@ -163,7 +169,7 @@ export class Match {
       releaseError,
       this.rng,
     );
-    const d = { ...(facing < 0 ? { ...mirrorDelivery(world), intent } : world), facing };
+    const d = { ...(flip < 0 ? mirrorDelivery(world) : world), intent, facing, arm };
     inn.spendStamina(intent.effort, releaseError);
     // Too many bouncers (sim/bouncer-law.js).
     callBouncer(inn, bowler, d);
@@ -207,7 +213,7 @@ export class Match {
       fielders: this.fieldersFor(),
       keeper: inn.keeper,
       bowler: inn.bowler.p,
-      bowlerHome: toStriker(bowlerFieldingHome(this.spinner, intent.wicketSide), this.facing),
+      bowlerHome: toStriker(bowlerFieldingHome(this.spinner, intent.wicketSide, armOf(inn.bowler.p.bowl)), this.facing),
       spinner: this.spinner,
       outfield: inn.pitch.outfield,
       noBall: delivery.noBall,

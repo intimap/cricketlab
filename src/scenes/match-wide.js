@@ -1,5 +1,5 @@
 import { activeWicketSide } from "./bowling-side.js";
-import { bowlingGeometry } from "../sim/bowling-side.js";
+import { bowlingGeometry, armOf } from "../sim/bowling-side.js";
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect } from "../engine/screen.js";
 import { drawText, textWidth } from "../engine/text.js";
 import { clamp } from "../math.js";
@@ -51,7 +51,7 @@ export function drawWide(scene) {
   // Each side in its own kit (whites, or coloured for limited overs: render/skins.js).
   const field = { shirt: scene.kitBowl.shirt, pants: scene.kitBowl.pants };
   const batting = { bat: true, shirt: scene.kitBat.shirt, pants: scene.kitBat.pants };
-  const nonStrikerX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).nonStrikerX * w;
+  const nonStrikerX = bowlingGeometry(scene.spinner, activeWicketSide(scene), armOf(scene.inn.bowler?.p.bowl)).nonStrikerX * w;
   const sprites = [];
   const add = (x, y, z, draw) => {
     const p = projectWide(x, y, z);

@@ -1,5 +1,5 @@
 import { activeWicketSide } from "./bowling-side.js";
-import { bowlingGeometry } from "../sim/bowling-side.js";
+import { bowlingGeometry, armOf } from "../sim/bowling-side.js";
 import { playBroadcast } from "./match-audio.js";
 import { COLORS } from "../engine/screen.js";
 import { keys } from "../engine/input.js";
@@ -140,8 +140,8 @@ export function release(scene, releaseError, rhythm) {
   if (cur.aftertouch) cur.intent = { ...cur.intent, aftertouch: cur.aftertouch };
   if (typeof rhythm === "number") {
     cur.intent = { ...cur.intent, rhythm };
-    if (rhythm >= 0.85) scene.banner("ON THE BEAT!", COLORS.gold, 1, 2, 54);
-    else if (rhythm < 0.35) scene.banner("OFF THE BEAT", COLORS.red, 1, 2, 54);
+    if (rhythm >= 0.85) scene.banner("ON THE BEAT!", COLORS.gold, 1, 2, 60);
+    else if (rhythm < 0.35) scene.banner("OFF THE BEAT", COLORS.red, 1, 2, 60);
   }
   cur.delivery = scene.match.deliver(cur.intent, releaseError);
   cur.t = 0;
@@ -292,7 +292,9 @@ export function updateReturn(scene, dt) {
     if (f.state === "celebrate" && scene.phaseT < 0.6) continue;
     f.state = "idle";
     const home =
-      f.role === "bowler" ? { x: bowlingGeometry(scene.spinner, activeWicketSide(scene)).startX * 0.8, z: 24 } : f.home;
+      f.role === "bowler"
+        ? { x: bowlingGeometry(scene.spinner, activeWicketSide(scene), armOf(scene.inn.bowler.p.bowl)).startX * 0.8, z: 24 }
+        : f.home;
     const dx = home.x - f.pos.x;
     const dz = home.z - f.pos.z;
     const dist = Math.hypot(dx, dz);

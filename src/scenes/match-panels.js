@@ -6,7 +6,8 @@ import { WIDTH, COLORS, fillRect, drawPanel, drawBar } from "../engine/screen.js
 import { drawText, wrapText } from "../engine/text.js";
 import { clamp } from "../math.js";
 import { CREASE } from "../sim/geometry.js";
-import { movementParts, DELIVERY_NAMES } from "../sim/delivery.js";
+import { movementParts, deliveryName } from "../sim/delivery.js";
+import { styleName } from "../sim/teams.js";
 import { PRESET_LABELS } from "../sim/field.js";
 import { closeFromBowlerEnd, projectWide } from "../render/camera.js";
 import { playerKit } from "../render/sprites.js";
@@ -102,7 +103,7 @@ export function drawPanels(scene) {
       const available = inn.canBowl(i);
       if (i === scene.selBowler) fillRect(156, y - 3, 328, 20, "#24563a");
       drawText(`${i + 1}. ${b.p.name.toUpperCase()}`, 162, y, { color: available ? COLORS.cream : COLORS.grey });
-      drawText(`${b.p.bowl.style.toUpperCase()}  ${inn.bowlerOvers(b)}-${b.maidens}-${b.runs}-${b.wkts}`, 162, y + 9, {
+      drawText(`${styleName(b.p.bowl)}  ${inn.bowlerOvers(b)}-${b.maidens}-${b.runs}-${b.wkts}`, 162, y + 9, {
         color: COLORS.dim,
       });
       drawBar(400, y + 2, 60, 5, b.stamina, staminaColor(b.stamina));
@@ -180,7 +181,7 @@ function drawSpeedGun(scene) {
   const parts = played ? movementParts(d) : [];
   const shown = played ? (parts.length ? parts : ["STRAIGHT ON"]) : [];
   // Batting, what he bowled, once it's been played (it isn't on the score bar before).
-  if (played && scene.human === "bat") shown.unshift(DELIVERY_NAMES[scene.cur.intent.type] ?? "");
+  if (played && scene.human === "bat") shown.unshift(deliveryName(scene.cur.intent.type, scene.inn.bowler?.p.bowl));
   const w = 108;
   const h = 24 + shown.length * 9;
   const x = WIDTH - w - 4;

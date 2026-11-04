@@ -16,8 +16,22 @@ export const WEAKNESS_NAMES = {
 /** A ball must go at the weakness this squarely (0..1, plans.js exploits) to count as a clue. */
 const AT_IT = 0.6;
 
-/** After ball `rec`: a hint, the weakness given away, or null. Counts the striker's clues as it goes. */
+/** Once he's faced this many balls the fielding side has worked him out anyway (as the computer's captain has). */
+export const WORKED_OUT_BALLS = 24;
+
+/**
+ * After ball `rec`: a hint, the weakness given away (or worked out, once he's been in a while), or null. Counts
+ * the striker's clues as it goes.
+ */
 export function scout(inn, rec) {
+  const striker = inn.bat[rec.striker];
+  if (striker?.p.weakness && !striker.weaknessShown && striker.balls >= WORKED_OUT_BALLS) {
+    const names = WEAKNESS_NAMES[striker.p.weakness];
+    if (names) {
+      striker.weaknessShown = true;
+      return { kind: "weaknessWorkedOut", how: names.how, tag: names.tag };
+    }
+  }
   if ((rec.battle?.weak ?? 0) < AT_IT) return null;
   const troubled =
     rec.wicket?.batter === rec.striker || rec.beatBat || /edge|gloved/i.test(rec.contact ?? "") || !!rec.padVerdict;

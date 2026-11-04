@@ -1,10 +1,10 @@
 import { activeWicketSide } from "./bowling-side.js";
-import { bowlingGeometry } from "../sim/bowling-side.js";
+import { bowlingGeometry, armOf } from "../sim/bowling-side.js";
 import { drawMatchBroadcast } from "../render/match-broadcast.js";
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect, drawLine } from "../engine/screen.js";
 import { clamp } from "../math.js";
 import { CREASE, PITCH_LENGTH, MID_PITCH } from "../sim/geometry.js";
-import { DELIVERY_NAMES, SPIN_EFFORT_NAMES, sampleAtTime } from "../sim/delivery.js";
+import { deliveryName, SPIN_EFFORT_NAMES, sampleAtTime } from "../sim/delivery.js";
 import { keeperSpot } from "../sim/field.js";
 import { walkInSpot } from "../sim/fielder-motion.js";
 import {
@@ -66,7 +66,7 @@ export function drawMatch(scene) {
   const played = !!scene.cur && (scene.cur.contactDone || scene.cur.t > 1.2);
   const label =
     scene.inn.bowler && (scene.human === "bowl" || played)
-      ? `${DELIVERY_NAMES[scene.cur?.intent.type ?? scene.deliveryType]} ${scene.spinner ? SPIN_EFFORT_NAMES[effort] : effort.toUpperCase()}`
+      ? `${deliveryName(scene.cur?.intent.type ?? scene.deliveryType, scene.inn.bowler.p.bowl)} ${scene.spinner ? SPIN_EFFORT_NAMES[effort] : effort.toUpperCase()}`
       : "";
   // The call types itself out, and stays up while the box talks.
   const booth = boothShowing(scene.booth, scene.now);
@@ -96,7 +96,8 @@ function drawClose(scene) {
   const inn = scene.inn;
   // The non-striker, umpire, bowler and footmarks are where they are in the world, whoever is batting.
   const w = viewFacing();
-  const nonStrikerX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).nonStrikerX * w;
+  const arm = armOf(inn.bowler?.p.bowl);
+  const nonStrikerX = bowlingGeometry(scene.spinner, activeWicketSide(scene), arm).nonStrikerX * w;
   const live = cur?.play?.live;
   drawRough(inn.pitch, w);
   const sprites = [];
@@ -114,7 +115,7 @@ function drawClose(scene) {
     (scene.phase === "decision" && cur?.onField)
       ? "outFinger"
       : "stand";
-  const umpireX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).umpireX * w;
+  const umpireX = bowlingGeometry(scene.spinner, activeWicketSide(scene), arm).umpireX * w;
   sprites.push({
     z: 22.6,
     cast: { x: umpireX, z: 22.6, height: 1.78 },
@@ -278,7 +279,8 @@ function drawBowler(scene, bowler, kit, w) {
   const skeleton = bowlerSkeleton(bowler.rig.action, kit.height);
   // The ball is in his hand until it's bowled.
   const ball = scene.cur?.delivery ? null : BALL_IN_HAND[scene.ballKind];
-  drawBowlerRig(skeleton, kit, { root, ppm, line: bowler.rig.line, sx, away: closeFromBowlerEnd() ? -1 : 1 }, { ball });
+  const view = { root, ppm, line: bowler.rig.line, sx, away: closeFromBowlerEnd() ? -1 : 1, mirror: bowler.rig.arm };
+  drawBowlerRig(skeleton, kit, view, { ball });
 }
 
 const BALL_IN_HAND = { red: "#b3262b", pink: "#e86aa0", white: "#f4f2ea" };

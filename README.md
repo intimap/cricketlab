@@ -106,7 +106,7 @@ built and lost by the same rules, so a set batter is harder to bowl to. The numb
 
 ## Bowling: the battle
 
-Each computer batter has a hidden weakness (loose outside off, a compulsive hooker, hates the short ball, shaky against spin early on, or late on the full inswinger). Watch for plays and misses: the commentators will hint at it, then call it, and it's tagged under his panel once it's plain. Batting, they read the bowler's plan for each new over (READ: SHORT BALL COMING).
+Each computer batter has a hidden weakness (loose outside off, a compulsive hooker, hates the short ball, shaky against spin early on, or late on the full inswinger). Watch for plays and misses: the commentators will hint at it, then call it, and it's tagged under his panel once it's plain (or once he's faced 24 balls: by then your side has worked him out). Batting, they read the bowler's plan for each new over (READ: SHORT BALL COMING).
 
 - **Memory:** bowl the same ball over and over and he lines it up. Break a pattern (three going away, then one back in; three short, then a full one) and he's more likely to edge or miss. Switch between over and around the wicket with **T** while aiming; the target stays fixed and the release angle changes.
 - **Pressure:** dots and maidens build the pressure meter (below EYE in their shared panel); boundaries release it. Under pressure batters get impatient: slogs, charges and bad calls for runs.
@@ -121,9 +121,14 @@ Each computer batter has a hidden weakness (loose outside off, a compulsive hook
   going straight on). Batting, it's your batter's read: it comes up once he's read the ball (earlier for a
   better batter with his eye in) and shows what he thinks, so a googly or slower ball he hasn't picked shows
   the decoy. Bowling, it's the truth from release.
-- **Rhythm:** two taps on the bowler's last two footfalls before he leaps, then the release. A good rhythm (about
-  35 ms off each beat) bowls the ball as it was; on the beat he's a touch quicker and tighter, and earns his
-  aftertouch; off it he's slower and sprays it (`sim/rhythm.js`). Spinners' beats come slower.
+- **Rhythm:** two taps on the bowler's last two footfalls before he leaps, then the release. An ordinary rhythm
+  (about 60 ms off each beat) bowls the ball as it was; on the beat he's a touch quicker and tighter, and earns
+  his aftertouch; off it he's slower and sprays it (`sim/rhythm.js`). Spinners' beats come slower.
+- **Left-armers:** Stork (Australia) and Janssen (South Africa) bowl left-arm fast, Ravindran, Santna (New
+  Zealand) and Maharajh (South Africa) left-arm spin, which turns away from a right-hander. They run in and
+  release from the other side of the stumps (the umpire stands on the other side too) and angle the ball across
+  a right-hander, so aim a little straighter. Swing keeps its names by the batter: a left-armer's outswinger
+  still goes away from a right-hander.
 - **Release timing:** the meter starts slowly and accelerates smoothly towards the gold zone. Release there for a perfect delivery. The zone shrinks as the bowler tires. A mistimed release is a loose ball (early drops it short, late drags it full, either drifts wide of off); only very late, in the red, is a no-ball, followed by a free hit.
 - **Variations:** quicks have bouncers (two an over that pass the batter above the shoulder; a third is a no-ball and a first and final warning, and the next time in the innings the bowler is taken off and someone else finishes the over), yorkers (overpitch it and it's a full toss), slower balls and cutters; spinners have an arm ball, a googly (leg-spinners), and flight (**E** cycles flighted, stock and flat). On a worn pitch, especially the dust bowl, footmarks appear outside leg (and off) and turn sharply.
 - **Fields:** a new bowler starts with the field his captain would set. **F** cycles the presets and the traps (bouncer trap, leg slip, ring field); **V** lets you drag fielders.

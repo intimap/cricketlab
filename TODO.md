@@ -149,6 +149,18 @@ Decisions:
 
   High-score entries show the easiest level used in the match.
 
+Done (first pass, branch `bowling`): all seven streams below. Balance after them, a good player bowling
+sensible plans against the computer's batting (tools/bowling-report.mjs, 120 innings of 50 overs): 4.76 rpo and
+34.5 balls a wicket, inside the target; the computer's own bowling unchanged at 4.68 rpo (sim-report).
+
+Found on the way, for a decision: the computer's right-arm bowlers bowl their right-hander's lines to
+left-handers, which the angle carries well wide (a planned off-stump ball crosses the crease 0.46 m outside off
+to a left-hander, 0.11 m to a right-hander). Allowing for it (as left-armers and the keeper's advice now do,
+`aimAllowance` in sim/delivery.js) takes the computer's bowling from 4.68 to 4.45 rpo and 37.9 to 27.8 balls a
+wicket in sim-report, because Australia's top order has several left-handers: a big change to everyone's batting,
+so it's left for you to choose. Still to come: around-the-wicket choices for the computer, a left-armer's own
+footmarks, per-player quirks in the action (data hooks), drawn celebrations and appeals on the new rig.
+
 Streams, in order, each ending in a play-test:
 
 1. Fixes: the bouncer law, misses giving loose balls, balance to the target.

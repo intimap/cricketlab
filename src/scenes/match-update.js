@@ -6,6 +6,7 @@ import { stepFeedback } from "./match-feedback.js";
 import { act } from "./player-actions.js";
 import { updateForecast, updateFollowOn } from "./match-test.js";
 import { updateRain } from "./match-rain.js";
+import { ASSISTS, setAssist } from "./assists.js";
 
 /** How long the over's summary stays up while bowling, unless Space moves on (s). */
 const OVER_SUMMARY_TIME = 8;
@@ -28,6 +29,7 @@ export function updateMatch(scene, dt) {
   if (scene.phase === "pause") {
     const action = scene.pauseMenu.update();
     if (action === "view") scene.toggleCloseEnd();
+    if (action === "assist") setAssist(scene, ASSISTS[(ASSISTS.indexOf(scene.assist) + 1) % ASSISTS.length]);
     if (action === "resume") scene.setPhase(scene.pausedFrom);
     else if (action === "quit") scene.game.toMenu();
     return;

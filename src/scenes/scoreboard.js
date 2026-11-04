@@ -137,6 +137,7 @@ export class ScoreboardScene {
       at: Date.now(),
       text: e.text,
       score: e.score,
+      assist: e.assist,
     });
     this.mineId = id;
     this.savedShared = shared;
@@ -188,7 +189,8 @@ export class ScoreboardScene {
       },
     );
     drawText(e.text, WIDTH / 2, 112, { align: "center", color: COLORS.cream });
-    drawText(e.score, WIDTH / 2, 124, { align: "center", color: COLORS.dim });
+    const played = e.assist && e.assist !== "normal" ? `   (${e.assist.toUpperCase()})` : "";
+    drawText(`${e.score}${played}`, WIDTH / 2, 124, { align: "center", color: COLORS.dim });
     drawText("ENTER YOUR NAME", WIDTH / 2, 146, { align: "center", color: COLORS.gold });
 
     // One box per letter, arcade style, with a blinking cursor on the next one.
@@ -230,7 +232,10 @@ export class ScoreboardScene {
       if (me) fillRect(46, y - 4, 548, ROW_H - 1, Math.floor(this.t * 3) % 2 ? "#24563a" : "#1b4630");
       const color = me ? COLORS.gold : i < 3 ? COLORS.cream : COLORS.dim;
       drawText(`${i + 1}`, cols.rank, y, { align: "right", color });
-      drawText(r.name, cols.name, y, { color });
+      const w = drawText(r.name, cols.name, y, { color });
+      // Played on EASY or HARD: a tag after the name (NORMAL has none).
+      if (r.assist === "easy" || r.assist === "hard")
+        drawText(r.assist.toUpperCase(), cols.name + w + 4, y, { color: COLORS.dim });
       drawText(r.text, cols.result, y, { color });
       drawText(r.score, cols.score, y, { color });
     });

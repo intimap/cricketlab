@@ -34,6 +34,7 @@ import { statusLine } from "./match-test.js";
 import { raining } from "./match-light.js";
 import { drawRain, drawCovers } from "../render/rain.js";
 import { drawBallRing } from "../render/ball-ring.js";
+import { assistOf } from "./assists.js";
 import { bowlerSkeleton } from "../render/bowler/bowler-skeleton.js";
 import { drawBowlerRig } from "../render/bowler/bowler-draw.js";
 
@@ -229,7 +230,13 @@ function drawClose(scene) {
   if (scene.phase === "rain") return drawCovers(projectClose);
   // Far to near.
   sprites.sort((a, b) => closeDepth(b.z) - closeDepth(a.z));
-  if (scene.phase === "setup") drawTarget(scene);
+  // The aim: while setting up, and on into the run-up unless the assist is HARD; on EASY the landing spot too.
+  const aim = scene.human === "bowl" ? assistOf(scene).aim : "none";
+  if (scene.phase === "setup" || (scene.phase === "runup" && aim !== "none")) drawTarget(scene);
+  if (scene.phase === "runup" && aim === "marker") {
+    const p = projectClose(scene.target.line, 0, scene.target.length);
+    drawPitchReticle(p, 1, 0.5 + 0.5 * Math.sin(scene.now * 8), p.s / projectClose(0, 0, PITCH_LENGTH / 2).s);
+  }
   castShadows(scene, sprites);
   for (const s of sprites) s.draw();
 

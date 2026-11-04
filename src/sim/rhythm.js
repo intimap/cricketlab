@@ -12,16 +12,19 @@ import { clamp } from "../math.js";
 export const BEAT_WINDOW = { low: 0.09, med: 0.07, high: 0.05 };
 const PERFECT_SHARE = 0.4;
 
-/** How good one tap was, 0..1, for an error of `error` seconds against a beat (null: no tap). */
-export function gradeTap(error, effort, widen = 1) {
-  if (error === null || error === undefined) return 0;
+/**
+ * How good one tap was, 0..1, for an error of `error` seconds against a beat (null: no tap). `widen` scales
+ * the window and `floor` is the least a tap (or a miss) is worth: the player's assist level (scenes/assists.js).
+ */
+export function gradeTap(error, effort, widen = 1, floor = 0) {
+  if (error === null || error === undefined) return floor;
   const w = BEAT_WINDOW[effort] * widen;
-  return clamp(1 - Math.max(0, Math.abs(error) - PERFECT_SHARE * w) / ((1 - PERFECT_SHARE) * w));
+  return Math.max(floor, clamp(1 - Math.max(0, Math.abs(error) - PERFECT_SHARE * w) / ((1 - PERFECT_SHARE) * w)));
 }
 
 /** The run-up's rhythm from its two taps' errors (s, or null for a beat missed). */
-export function rhythmOf(errors, effort, widen = 1) {
-  return (gradeTap(errors[0], effort, widen) + gradeTap(errors[1], effort, widen)) / 2;
+export function rhythmOf(errors, effort, widen = 1, floor = 0) {
+  return (gradeTap(errors[0], effort, widen, floor) + gradeTap(errors[1], effort, widen, floor)) / 2;
 }
 
 /**

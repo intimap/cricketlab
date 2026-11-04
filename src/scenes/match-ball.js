@@ -18,6 +18,8 @@ import { forecastDue, openForecast, overEndBanner, simShouldStop } from "./match
 import { rhythmBeats, actionTimes } from "../render/bowler/bowler-action.js";
 import { suggestBall } from "./bowling-advice.js";
 import { ballRing } from "./ball-ring.js";
+import { assistOf } from "./assists.js";
+import { act } from "./player-actions.js";
 import { readWord } from "../sim/plans.js";
 import { rainDue, openRain, stopForRain } from "./match-rain.js";
 import { updateLight } from "./match-light.js";
@@ -73,6 +75,8 @@ export function nextBall(scene) {
     scene.cur = null;
     scene.setPhase("setup");
     scene.advice = suggestBall(scene);
+    // On EASY the keeper's ball is already chosen.
+    if (assistOf(scene).advice === "selected") act(scene, { type: "takeAdvice", plan: scene.advice.intent });
   }
   beats.onNextBall(scene);
 }
@@ -82,6 +86,8 @@ export function newBall(scene, intent, aiReleaseError) {
   const style = scene.inn.bowler.p.bowl.style;
   // The player's run-up varies ball to ball (see runup.js); the AI's is steady.
   const runup = scene.human === "bowl" ? planRunup(style, intent.effort, scene.inn.bowler.stamina) : null;
+  // The gold zone is wider on EASY and narrower on HARD (scenes/assists.js).
+  if (runup) runup.zone *= assistOf(scene).zone;
   const runupDur = runup ? runup.dur : spinner ? 1.5 : style === "fast" ? 2.5 : 2.2;
   return {
     intent,

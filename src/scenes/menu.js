@@ -10,6 +10,7 @@ import { GROUNDS, GROUND_CHOICES, DEFAULT_GROUND } from "../render/grounds.js";
 import { LIGHTS } from "../render/light.js";
 import { updateTeams, drawTeams } from "./menu-teams.js";
 import { endTime } from "./match-light.js";
+import { ASSISTS, ASSIST_NAMES, assistSetting } from "./assists.js";
 import { EFFECTS, EFFECT_NAMES } from "../render/lighting.js";
 
 const MODES = ["bat", "bowl"];
@@ -113,6 +114,7 @@ export class Menu {
         ["pitch", "PITCH", PITCH_TYPES[cfg.pitch].name],
         ["ground", "GROUND", GROUNDS[cfg.ground].name],
         ["light", "TIME", time],
+        ["assist", "ASSIST", ASSIST_NAMES[assistSetting()]],
         this.effectsRow,
         ["start", "", "START  >"],
         ["back", "", "<  BACK"],
@@ -164,6 +166,7 @@ export class Menu {
         if (GROUNDS[cfg.ground].light) cfg.light = GROUNDS[cfg.ground].light;
       }
       if (key === "light") cfg.light = cycle(LIGHT_IDS, cfg.light, dir);
+      if (key === "assist") save("assist", cycle(ASSISTS, assistSetting(), dir));
       if (key === "effects") {
         save("effects", cycle(EFFECTS, load("effects", "auto"), dir));
         // Choosing AUTO again lets it try full effects afresh.

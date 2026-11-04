@@ -7,6 +7,7 @@ import { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
 export { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
 import { meterPos, releaseError, METER_FROM } from "../sim/runup.js";
 import { rhythmOf } from "../sim/rhythm.js";
+import { assistOf } from "./assists.js";
 import { LEAVE_LIFT } from "./batter-pose.js";
 import { act } from "./player-actions.js";
 
@@ -141,11 +142,13 @@ function nextBeat(cur) {
   return -1;
 }
 
-/** The rhythm so far (sim/rhythm.js): beats tapped, missed ones counting as off the beat. */
-export function runupRhythm(cur) {
+/** The rhythm so far (sim/rhythm.js): beats tapped, missed ones counting as off the beat (or less, on EASY). */
+export function runupRhythm(cur, assist) {
   return rhythmOf(
     (cur.beats ?? []).map((b) => b.error),
     cur.intent.effort,
+    assist.beatWiden,
+    assist.missedBeat,
   );
 }
 
@@ -182,11 +185,11 @@ export function updateRunup(scene, dt) {
         err *= 1.3 - 0.3 * stamina;
       }
       for (const b of cur.beats ?? []) if (b.error === null) b.missed = true;
-      act(scene, { type: "release", error: clamp(err, -0.35, 0.3), rhythm: runupRhythm(cur) });
+      act(scene, { type: "release", error: clamp(err, -0.35, 0.3), rhythm: runupRhythm(cur, assistOf(scene)) });
     } else if (releaseError(r, pos) > 0.17) {
       cur.releaseMark = pos;
       // Held on too long: dragged full, by the match's dice.
-      act(scene, { type: "release", error: scene.match.rng.range(0.17, 0.2), rhythm: runupRhythm(cur) });
+      act(scene, { type: "release", error: scene.match.rng.range(0.17, 0.2), rhythm: runupRhythm(cur, assistOf(scene)) });
     }
   } else if (cur.tRun >= cur.runupDur + clamp(cur.aiReleaseError, -0.08, 0.08)) {
     scene.release(cur.aiReleaseError);

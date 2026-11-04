@@ -1,5 +1,6 @@
 import { movementOf, lengthName } from "../sim/delivery.js";
 import { isSpinner } from "../sim/teams.js";
+import { ASSIST } from "./assists.js";
 
 /**
  * The ring round the ball in flight (render/ball-ring.js): its colour is the length, its side which way the
@@ -24,16 +25,16 @@ const LENGTH_COLOURS = {
 
 /** The ring for this ball, or null for none: { length (colour key), side (-1, 0 or +1 on screen), showAt, hideAt }. */
 export function ballRing(scene, d) {
-  const assist = scene.assist ?? "normal";
+  const shows = (ASSIST[scene.assist] ?? ASSIST.normal).ring;
   const batting = scene.human === "bat";
-  if (batting && assist === "hard") return null;
+  if (batting && shows === "none") return null;
   const spinner = isSpinner(scene.inn.bowler.p.bowl);
   const pitchZ = d.pitchedAt?.z ?? 0;
   const tAir = Math.max(0.05, (d.release.z - pitchZ) / d.speed);
   const tAfter = pitchZ / Math.max(1, d.speed * d.paceKept);
   let move;
   let showAt = 0.04;
-  if (batting && assist !== "easy") {
+  if (batting && shows === "read") {
     // What he reads: the swing he expects, and the turn he expects (the decoy's if he hasn't picked it).
     move = 0.5 * d.expectedSwingAcc * tAir * tAir + d.expectedSpinKick * tAfter;
     const striker = scene.inn.bat[scene.inn.striker];

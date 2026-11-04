@@ -19,6 +19,7 @@ import { strikerPlace } from "./match-striker.js";
 import { drawWeatherReport, drawRainReport } from "../render/weather-report.js";
 import { declareAdvice } from "./match-test.js";
 import { gradeTap } from "../sim/rhythm.js";
+import { assistOf, ASSIST_NAMES } from "./assists.js";
 import { overReview } from "../sim/over-review.js";
 import { drawOverSummary } from "../render/over-summary.js";
 
@@ -146,7 +147,7 @@ export function drawPanels(scene) {
   if (scene.feedback && (scene.phase === "after" || scene.phase === "return")) drawCoachCard(scene);
   if (!scene.nets && SPEED_GUN_PHASES.has(scene.phase)) drawSpeedGun(scene);
   if (METER_PHASES.has(scene.phase)) drawBatterPanel(scene);
-  if (scene.phase === "pause") scene.pauseMenu.draw(inn, scene.closeEnd);
+  if (scene.phase === "pause") scene.pauseMenu.draw(inn, scene.closeEnd, ASSIST_NAMES[scene.assist]);
 
   if (scene.phase === "inningsEnd") {
     const ending = scene.ending;
@@ -280,7 +281,8 @@ function drawReleaseMeter(scene) {
   for (const b of cur.beats ?? []) {
     if (b.given) continue;
     const bx = Math.round(toX(meterPos(r, b.at)));
-    const q = b.error === null ? null : gradeTap(b.error, cur.intent.effort);
+    const help = assistOf(scene);
+    const q = b.error === null ? null : gradeTap(b.error, cur.intent.effort, help.beatWiden, help.missedBeat);
     const colour =
       q === null ? (b.missed ? COLORS.red : COLORS.cream) : q > 0.95 ? RELEASE_GOLD : q > 0 ? COLORS.cream : COLORS.red;
     fillRect(bx - 2, y - 2, 5, 10, COLORS.black);

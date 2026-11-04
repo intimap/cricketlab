@@ -1,8 +1,9 @@
 # Cricket Lab
 
-A 16-bit style Test cricket game (Australia v England) for the browser. Bat or bowl through a spell on a
-green top, a dust bowl or a cracked pitch, with a physics-based ball, wearing pitch and ageing ball,
-AI field placings and ball-by-ball commentary.
+A 16-bit style cricket game (Australia, England, New Zealand and South Africa) for the browser. Play a five-day
+Test, a limited-overs match or a Classic Match, or practise in the nets, on a green top, a dust bowl or a cracked
+pitch, with a physics-based ball, wearing pitch and ageing ball, the weather, AI field placings and ball-by-ball
+commentary.
 
 Plain JavaScript modules and some images: no build step, and the game itself has no dependencies (`package.json`
 is only for the Netlify score service).
@@ -21,8 +22,9 @@ npx serve .
 Then open http://localhost:8000. It plays with a keyboard, or with on-screen buttons on a phone or tablet. On a touch screen POWER is a
 tap rather than a hold: it lights up and stays on for that ball, then switches off.
 
-It opens on the menu with a 10-over match at Parklands Oval chosen, so Enter goes straight into it; the menu also
-has Nets, Classic Matches, a single spell and longer or shorter matches.
+It opens on the menu with a 10-over match chosen, so Enter goes on to choosing the teams, pitch, ground and time,
+and Enter again starts it. The menu also has Test matches, longer or shorter matches, Classic Matches and
+practice in the nets.
 
 To publish it, turn on GitHub Pages (Settings → Pages → Deploy from branch → `main`, `/ (root)`).
 
@@ -30,12 +32,13 @@ To publish it, turn on GitHub Pages (Settings → Pages → Deploy from branch �
 
 |               |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Menu          | Arrows to change, Enter to start                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| Menu          | First what to play (a match, and which kind, or practice), then the teams (your side on the left, the computer's on the right: Up/Down picks a side, Left/Right its team), then where and when. Arrows to change, Enter to go on, Esc to go back                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | Batting       | Space to face up. Front foot: **S** drive, **W** loft, **A** forward defence. Back foot: **Q** attack (cut, punch, pull, hook or glance, as the ball dictates), **D** defence. No key = leave. Hold **←**/**→** before playing to step 10 cm across the crease (back to guard when let go), to reach a wide one (his pads move too). The ball's line sets the direction; play late to go finer, early to go squarer. Hold **↓** with **W** to ramp over the keeper, or **↓** + **←**/**→** with **Q** to sweep / reverse sweep. Trigger attacks early to lift and load the bat (140 ms preparation, then the downswing). Hold **Shift** for a power shot (260 ms preparation; trigger earlier). **↑** / **↓** to run or turn back |
 | Bowling       | Arrows set line and length (Shift = fine), number keys pick the delivery, **E** effort, **T** over/around the wicket, **F** field preset, **V** drag fielders with the mouse, **N** new ball (after 80 overs). Space to run in, Space again to release at the delivery stride: early pitches it shorter, late fuller, very late is a no-ball                                                                                                                                                                                                                                                                                                                                                                                      |
 | Fielding      | While the ball is live (when bowling): **Space** as a catch arrives (well timed it helps, mistimed it hurts, no press leaves it to the fielder); **Z** / **X** call the throw to the keeper's or the bowler's end                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Celebrations  | Space, Enter or tap the game to skip a boundary or wicket celebration                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| Between balls | **O** sim an over, **P** sim 5 overs, **V** view the field                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Between balls | **O** sim an over, **P** sim 5 overs, **V** view the field. In a Test: **L** sim to the next break (lunch, tea or stumps), and batting, **C** twice to declare                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Test matches  | Five days of 90 overs, with lunch, tea and stumps. The box says when it's time to declare; after the first innings each, a lead of 200 lets the captain enforce the follow-on (arrows and Enter when it's yours, with the dressing room's advice shown)                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | Appeals       | **H** to appeal for LBW when bowling (appealing for nothing irritates the umpire). **R** to review a decision that goes against you, or **Space** to accept it; play stops for up to 10 seconds while you decide (two unsuccessful reviews per innings). The umpire gets one in seven or so wrong                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Anytime       | **M** sound, **Esc** pause and scorecard (the camera follows the play on its own)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
@@ -45,15 +48,16 @@ change its level, and settings are kept on this device. M still mutes everything
 
 ## High scores
 
-Every finished match and Classic Match ends on an arcade high-score screen: the result (won or lost by so many
+Every finished match, Test and Classic Match ends on an arcade high-score screen: the result (won or lost by so many
 runs or wickets), a name of up to 15 letters (type it, or Up/Down to change a letter, Right for the next, Left to
 take one back; on a phone, KEYBOARD opens the phone's own keyboard), then the table. Nets and single spells have no
-table. Each kind of game has its own table (`match-10`, `match-20`, `classic-lastOver`...); the menu's HIGH SCORES
+table. Each kind of game has its own table (`match-10`, `match-20`, `test`, `classic-lastOver`...); the menu's HIGH SCORES
 row shows the one for the game chosen.
 
 Ranking: wins above ties above losses. Wins by wickets (you chased it down) come first, more wickets in hand then
 more balls to spare; then wins by runs, biggest margin first. Losses by runs (you fell short chasing) rank above
-losses by wickets, narrowest first. Equal results keep the order they were set in.
+losses by wickets, narrowest first. In Tests, wins by an innings come top and innings defeats bottom, and draws
+sit between ties and losses. Equal results keep the order they were set in.
 
 The tables are shared by everyone playing the same copy of the game, kept in the first of these that works:
 
@@ -67,6 +71,26 @@ The tables are shared by everyone playing the same copy of the game, kept in the
 The score service checks what it's sent (known table names, a name the font can draw, a possible rank) and stamps
 each score with its own clock, but anyone who can reach the site can post a score, so treat the table as a game
 between friends rather than a record.
+
+## The weather
+
+Every match (not the nets or Classic Matches) starts with a weather report, and a Test has one each morning:
+sunny, overcast, humid, hot and dry, or showers, with the commentators' take and an icon by the score. Cloud and
+humidity help the ball swing; heat dries the pitch so it cracks and turns sooner, and quickens the outfield; rain
+leaves a damp, seaming pitch and a slow outfield, and costs overs (a limited-overs game is cut short before the
+start, down to no fewer than 5 overs a side). Each ground has its own climate, and a day's weather often carries
+into the next. Cloud greys the light and fills the sky, humidity hazes it, heat sharpens it, and rain darkens it.
+
+Rain can also stop play. The covers come on, a panel says what it cost, and Space carries on. In a Test the overs
+come off the day, and a long enough stoppage ends it. In a limited-overs game both sides' overs are cut and the
+side chasing gets a revised target, in proportion to the batting each side had left to use (the game's own rule
+in `sim/rain.js`, not the official DLS tables).
+
+The light changes through the day. TIME on the menu is when play starts: a Test moves on a time each session
+(MIDDAY, then AFTERNOON after lunch and EVENING after tea; starting in the AFTERNOON it ends under floodlights),
+back to the start each morning. A game of 20 overs a side or more plays its first innings in the starting light
+and its chase in the next two. The nets, short games and Classic Matches keep the time chosen. Tests are played
+with a red ball (pink if the day goes on under lights), limited-overs games with a white one and coloured kit.
 
 ## Batting: your eye
 
@@ -117,6 +141,8 @@ src/
     team-list.js      every team the menu offers (Australia, England, New Zealand, South Africa)
     squads/           the New Zealand and South Africa squads
     conditions.js     pitch types, pitch wear, ball wear (swing, reverse, grip)
+    weather.js        the five weathers, what each does to the pitch and outfield, each ground's climate
+    rain.js           rain stopping play: when, the overs lost, the revised target
     bowling-side.js   over/around release geometry and follow-through position
     delivery.js       bowling: release, swing, seam, spin, bounce, flight
     runup.js          the player's run-up and release meter: rhythm, ramp, stride surges
@@ -142,6 +168,7 @@ src/
     innings.js        scorebook, cards, strike, bowler fatigue
     match.js          plays innings ball by ball, swaps sides, works out the result
     formats.js        game formats and Classic Match challenges (data)
+    test-match.js     Tests: the five-day clock, declarations, the follow-on, the result or draw
     coach.js          the nets coach: a verdict on every ball faced or bowled
     leaderboard.js    high-score entries from a result, and how they rank
     call.js           the score bar's plain call: what was bowled, the shot, the result
@@ -164,6 +191,7 @@ src/
     booth-drs-lines.js  the LBW decision and the review in stages: given, reviewed, tracking, verdict
     booth-venue-lines.js  scene-setting: each ground, and the pitch report at the start
     booth-wrap-lines.js the box's wrap-up over the scorecard at the end of an innings or match
+    booth-weather-lines.js the box on the weather, lunch, tea and stumps, and the call to declare
     field-reading.js  what the field says about the plan (slips, bat-pad, boundary riders, the ring)
     broadcast-context.js  broadcast pressure and tactics stories from the ball and the narrative
     broadcast-lines.js  each voice's broadcast and colour lines
@@ -212,8 +240,14 @@ src/
     ball-trail.js     the delivery's fading trail and the pitch-map landing reticle (close view)
     feedback.js       arcade feedback drawn: timing meter and callout, floating words, eased bars
     booth.js          commentator portraits and the commentary popup
+    weather-icon.js   pixel weather icons (the HUD's beside the score box, and the report's)
+    weather-report.js the weather report panel before play and each Test morning, and the rain stoppage's
+    weather-look.js   the weather laid over a time of day: tint, sky, clouds, shadows, haze
+    rain.js           rain falling, and the covers on the pitch
+    team-sheet.js     a team's flag and XI on the team-selection screen
   scenes/
     menu.js           title screen
+    menu-teams.js     the menu's team-selection page: your side and the computer's
     match.js          the match scene: state, phases, camera, banners
     match-update.js   one frame of the match scene: pause and camera keys, then the phase's update
     match-shadows.js  the close view's cast shadows, laid before anyone is drawn
@@ -224,6 +258,10 @@ src/
     match-setup.js    between balls: bowling setup, choosing a bowler, field editing
     match-input.js    the player's controls: shots, defence, leaving, footwork, aiming, the run-up
     match-decisions.js  LBW appeals, the umpire's decision and DRS reviews
+    match-test.js     Tests and the weather in the scene: the report, breaks, declaring, the follow-on choice
+    match-ending.js   the end of an innings: the end screen's words, the wrap-up, a Classic won
+    match-light.js    the light through the day, with the weather over it; the ball's colour
+    match-rain.js     rain stopping play in the scene: the covers, the panel, carrying on
     match-feedback.js what feedback to show and when: shot words, +/-EYE and PRESSURE, hit-stop, shake
     match-audio.js    contact timbres and broadcast sound cues
     strike-presentation.js  full-pace launch after contact and the close-to-wide broadcast cut
@@ -245,7 +283,7 @@ src/
 netlify/
   functions/scores.mjs  the shared high-score service on Netlify (/api/scores)
   score-table.mjs       its tables: checks scores, keeps each table's best 200, safe against saves at once
-tools/                balance report, one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
+tools/                balance report (sim-report.mjs; test-report.mjs for Tests, weather-report.mjs per weather), one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
 ```
 
 The rule of thumb: `sim/` knows nothing about the screen, `engine/` knows nothing about cricket, and
@@ -288,7 +326,12 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   the expanded sampler in `render/batter/batter-motion-all.js` and poses in `render/batter/batter-shots/`;
   stroke selection and timing in `scenes/batter-stroke.js`, with routes in `render/batter/batter-catalog.js`.
 - **Game modes and Classic Matches:** `sim/formats.js` (challenges are plain data). AI chase and
-  limited-overs tempo constants are at the top of `sim/ai.js`.
+  limited-overs tempo constants are at the top of `sim/ai.js`, with the Test-batting ones.
+- **Tests and the weather:** the clock, declarations, follow-on and result in `sim/test-match.js` (check balance with
+  `node tools/test-report.mjs`); each weather's effects and each ground's climate in `sim/weather.js`
+  (`node tools/weather-report.mjs`); the scene's side in `scenes/match-test.js`. Rain stopping play in `sim/rain.js`
+  and `scenes/match-rain.js`; how each weather looks in `render/weather-look.js`; when the light changes in
+  `scenes/match-light.js`.
 - **Ground art:** images live in `assets/` (layer art in `assets/close/`), listed by id in `src/assets.js`;
   grounds pick their layers in `src/render/grounds.js` (`hidden: true` keeps a ground off the menu; The Oval is
   hidden for now). `tools/art/make_scenery.py` regenerates the

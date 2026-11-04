@@ -10,6 +10,8 @@
  *   4. losses by runs (the player fell short in a chase): the narrowest first;
  *   5. losses by wickets (the player's total was chased): the fewest wickets
  *      and balls to spare first.
+ * Tests rank the same way, with wins by an innings above everything (the bigger margin first), draws
+ * between ties and losses, and innings defeats at the bottom.
  * Equal entries keep the order they were set in (the earlier one stays above).
  * Each kind of game has its own table, its "board" (see boardFor).
  */
@@ -19,7 +21,7 @@ export const NAME_MAX = 15;
 export const NAME_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 .-'!&";
 
 /** Table names (boardFor) and entry ids, as anything that stores scores accepts them. */
-export const BOARD_PATTERN = /^(match-\d{1,2}|classic-[A-Za-z0-9]{1,24})$/;
+export const BOARD_PATTERN = /^(match-\d{1,2}|classic-[A-Za-z0-9]{1,24}|test)$/;
 export const ID_PATTERN = /^[a-z0-9-]{1,40}$/;
 
 /** Uppercase, drop anything the font can't draw, at most NAME_MAX characters. */
@@ -34,6 +36,7 @@ export function cleanName(text) {
 export function boardFor(cfg) {
   if (cfg.format === "match") return `match-${cfg.overs}`;
   if (cfg.format === "classic") return `classic-${cfg.classic}`;
+  if (cfg.format === "test") return "test";
   return null;
 }
 
@@ -41,6 +44,8 @@ export function boardFor(cfg) {
 function rankOf(won, kind, margin, ballsLeft) {
   const balls = Math.min(999, Math.max(0, ballsLeft));
   if (kind === "tie") return 3_000_000;
+  if (kind === "draw") return 2_500_000;
+  if (kind === "innings") return won ? 6_000_000 + margin : 500_000 - margin;
   if (won) return kind === "wkts" ? 5_000_000 + margin * 1000 + balls : 4_000_000 + margin;
   return kind === "runs" ? 2_000_000 - margin : 1_000_000 - margin * 1000 - balls;
 }
@@ -50,6 +55,7 @@ function rankOf(won, kind, margin, ballsLeft) {
  * { won, kind ("wkts" | "runs" | "tie"), margin, ballsLeft, rank, text, score }.
  */
 export function resultEntry(match) {
+  if (match.clock) return testEntry(match);
   const inn = match.inn;
   const chasing = match.human === "bat";
   const ballsLeft = inn.ballsLeft;
@@ -75,6 +81,31 @@ export function resultEntry(match) {
   const total = (i) => `${i.batTeam.abbr} ${i.runs}${i.wkts === 10 ? "" : `/${i.wkts}`}`;
   const first = match.innings.length > 1 ? total(match.innings[0]) : `${inn.bowlTeam.abbr} ${inn.target - 1}`;
   const score = inn.target === null ? total(inn) : `${first}  ${total(inn)}`;
+  return { won, kind, margin, ballsLeft, rank: rankOf(won, kind, margin, ballsLeft), text, score };
+}
+
+const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "S"}`;
+
+/** A Test's entry: as resultEntry, from the player's side (match.humanTeam). */
+function testEntry(match) {
+  const r = match.result;
+  const won = r.winner === match.humanTeam;
+  const { kind, margin } = r;
+  const ballsLeft = kind === "wkts" ? match.inn.ballsLeft : 0;
+  const by = { innings: `AN INNINGS AND ${plural(margin, "RUN")}`, wkts: plural(margin, "WICKET"), runs: plural(margin, "RUN") };
+  const text = kind === "draw" ? "MATCH DRAWN" : kind === "tie" ? "MATCH TIED" : `${won ? "WON" : "LOST"} BY ${by[kind]}`;
+  // Each side's innings, batting first first; just the totals if that won't fit.
+  const teams = [...new Set(match.innings.map((i) => i.batTeam))];
+  const of = (team) => match.innings.filter((i) => i.batTeam === team);
+  let score = teams
+    .map(
+      (t) =>
+        `${t.abbr} ${of(t)
+          .map((i) => i.runs)
+          .join("&")}`,
+    )
+    .join(" ");
+  if (score.length > 22) score = teams.map((t) => `${t.abbr} ${of(t).reduce((n, i) => n + i.runs, 0)}`).join(" ");
   return { won, kind, margin, ballsLeft, rank: rankOf(won, kind, margin, ballsLeft), text, score };
 }
 

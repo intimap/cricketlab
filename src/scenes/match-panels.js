@@ -16,6 +16,8 @@ import { STRIKER_X, footworkOf } from "./batter-pose.js";
 import { METER_TRACK_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import { HUD_Y, staminaColor, drawScorecard } from "../render/hud.js";
 import { strikerPlace } from "./match-striker.js";
+import { drawWeatherReport, drawRainReport } from "../render/weather-report.js";
+import { declareAdvice } from "./match-test.js";
 
 /**
  * The match's panels over the picture: the bowling setup and choice of bowler, the speed gun, the
@@ -43,7 +45,12 @@ export function drawPanels(scene) {
       drawText("PRESS SPACE TO FACE UP", WIDTH / 2, 6, { ...PANEL_TEXT, color: COLORS.gold, scale: 2 });
     }
     drawText("ESC = MENU & INSTRUCTIONS", WIDTH / 2, 24, { ...PANEL_TEXT, color: COLORS.dim });
+    if (declareAdvice(scene)) {
+      drawText("THE DRESSING ROOM SAYS DECLARE: PRESS C TWICE", WIDTH / 2, 36, { ...PANEL_TEXT, color: COLORS.gold });
+    }
   }
+  if (scene.phase === "forecast" && scene.report) drawWeatherReport(scene.report, scene.now);
+  if (scene.phase === "rain" && scene.rainReport) drawRainReport(scene.rainReport, scene.now);
 
   if (scene.phase === "flight" && scene.human === "bat" && scene.cur?.contactDone && scene.cur.play) {
     const live = scene.cur.play.live;
@@ -132,13 +139,21 @@ export function drawPanels(scene) {
     const ending = scene.ending;
     drawScorecard(inn, 20, 18, 600, 290, ending.title);
     drawText(ending.sub, WIDTH / 2, 284, { align: "center", color: COLORS.cream });
-    drawText(
-      ending.next ? "ENTER = START THE CHASE" : scene.hasScoreboard ? "ENTER = HIGH SCORES" : "ENTER = MENU",
-      WIDTH / 2,
-      296,
-      { align: "center", color: COLORS.gold },
-    );
+    if (ending.followOn) drawFollowOnChoice(scene.followOn.enforce, 296);
+    else {
+      const prompt = ending.prompt ?? (scene.hasScoreboard ? "ENTER = HIGH SCORES" : "ENTER = MENU");
+      drawText(prompt, WIDTH / 2, 296, { align: "center", color: COLORS.gold });
+    }
   }
+}
+
+/** The player's follow-on call (a Test): the chosen option bright, arrows to change it. */
+function drawFollowOnChoice(enforce, y) {
+  drawText(enforce ? "> ENFORCE THE FOLLOW-ON <" : "ENFORCE THE FOLLOW-ON", WIDTH / 2 - 8, y, {
+    align: "right",
+    color: enforce ? COLORS.gold : COLORS.dim,
+  });
+  drawText(enforce ? "BAT AGAIN" : "> BAT AGAIN <", WIDTH / 2 + 8, y, { color: enforce ? COLORS.dim : COLORS.gold });
 }
 
 const SPEED_GUN_PHASES = new Set(["flight", "after", "return", "appeal", "decision"]);

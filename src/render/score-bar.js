@@ -23,8 +23,11 @@ function playerLabel(player, figures, width) {
   return name ? `${name} ${figures}` : figures;
 }
 
-/** Two information lines framed by the batting and bowling flags; commentary below. */
-export function drawScoreBar(inn, commentary, deliveryLabel) {
+/**
+ * Two information lines framed by the batting and bowling flags; commentary below. `status` replaces the
+ * chase on the lower line (a Test's day and lead).
+ */
+export function drawScoreBar(inn, commentary, deliveryLabel, status = null) {
   fillRect(0, HUD_Y, WIDTH, HEIGHT - HUD_Y, COLORS.green);
   fillRect(0, HUD_Y, WIDTH, 1, COLORS.gold2);
   fillRect(0, HUD_Y + 1, WIDTH, 1, "#2c6b45");
@@ -41,7 +44,7 @@ export function drawScoreBar(inn, commentary, deliveryLabel) {
   const otherScore = `${other.runs}(${other.balls})`;
   // The partnership, labelled: an unlabelled third score read as a mystery.
   const partnership = `STAND ${inn.partnership.runs}(${inn.partnership.balls})`;
-  const chase = inn.target !== null ? `NEED ${inn.runsNeeded} OFF ${inn.ballsLeft}` : "";
+  const chase = status ?? (inn.target !== null ? `NEED ${inn.runsNeeded} OFF ${inn.ballsLeft}` : "");
   const figures = bowler ? `${inn.bowlerFigures(bowler)} (${inn.bowlerOvers(bowler)})` : "";
   const staminaWidth = textWidth("STA") + 3 + 28;
   const fullBowlerWidth = bowler ? textWidth(`${bowler.p.short.toUpperCase()} ${figures}`) : 0;

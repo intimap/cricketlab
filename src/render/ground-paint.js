@@ -88,7 +88,7 @@ export function sceneryCanvas(scenery, images, seed, light) {
   for (const layer of layers) {
     const target = front && !layer.sky ? front.getContext("2d") : ctx;
     if (layer.image) target.drawImage(images[layer.image], layer.x ?? 0, layer.y ?? 0);
-    if (layer.clouds) scatterClouds(target, images[layer.clouds], layer, seed);
+    if (layer.clouds) scatterClouds(target, images[layer.clouds], layer, seed, light.clouds);
     for (const [x, y, w, h] of layer.lamps ?? []) lamps.push([x + (layer.x ?? 0), y + (layer.y ?? 0), w, h]);
     if (!layer.sky) continue;
     const top = layer.y ?? 0;
@@ -196,18 +196,38 @@ export function sheetSprites(img) {
 }
 
 /** Clouds from a sheet, spread across the sky without piling on top of each other. */
-export function scatterClouds(ctx, sheet, layer, seed) {
+/**
+ * The layer's clouds from the sheet, scattered by seed. `weather` (render/weather-look.js) changes how many
+ * (a cloudy day's pile up and overlap) and greys them.
+ */
+export function scatterClouds(ctx, sheet, layer, seed, weather = null) {
   const sprites = sheetSprites(sheet);
   if (!sprites.length) return;
+  const count = Math.round(layer.count * (weather?.count ?? 1));
+  const overlap = (weather?.count ?? 1) > 2;
+  let target = ctx;
+  if (weather?.amount) {
+    target = document.createElement("canvas").getContext("2d");
+    target.canvas.width = W;
+    target.canvas.height = H;
+  }
   const placed = [];
-  for (let i = 0, tries = 0; placed.length < layer.count && tries < 200; tries++, i++) {
+  for (let i = 0, tries = 0; placed.length < count && tries < 300; tries++, i++) {
     const s = sprites[Math.floor(hash(i, 1, seed) * sprites.length)];
     const x = Math.round(hash(i, 2, seed) * (W + s.w) - s.w);
     const y = Math.round(layer.top + hash(i, 3, seed) * Math.max(0, layer.bottom - layer.top - s.h));
-    if (placed.some((p) => x < p.x + p.w + 8 && x + s.w + 8 > p.x && y < p.y + p.h && y + s.h > p.y)) continue;
+    const clash = placed.some((p) => x < p.x + p.w + 8 && x + s.w + 8 > p.x && y < p.y + p.h && y + s.h > p.y);
+    if (clash && !overlap) continue;
     placed.push({ x, y, w: s.w, h: s.h });
-    ctx.drawImage(sheet, s.x, s.y, s.w, s.h, x, y, s.w, s.h);
+    target.drawImage(sheet, s.x, s.y, s.w, s.h, x, y, s.w, s.h);
   }
+  if (target === ctx) return;
+  // Greyed for the weather, then laid on the sky.
+  target.globalCompositeOperation = "source-atop";
+  target.globalAlpha = weather.amount;
+  target.fillStyle = weather.colour;
+  target.fillRect(0, 0, W, H);
+  ctx.drawImage(target.canvas, 0, 0);
 }
 
 /** Is a distance down the ground in a light stripe? `edges` are where light and dark swap. */

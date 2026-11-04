@@ -29,10 +29,17 @@ import { drawWide } from "./match-wide.js";
 import { gradeFrame } from "../render/lighting.js";
 import { castShadows } from "./match-shadows.js";
 import { showingWide, SPEED_GUN_MAX_H, drawPanels, drawFeedback } from "./match-panels.js";
+import { drawWeatherTile, ICON } from "../render/weather-icon.js";
+import { statusLine } from "./match-test.js";
+import { raining } from "./match-light.js";
+import { drawRain, drawCovers } from "../render/rain.js";
 
+/** The score box's left edge (render/hud.js drawScoreBox: 132 wide, 4 from the right). */
+const SCORE_BOX_LEFT = WIDTH - 4 - 132;
 /** The close view's mini-map, on the right just above where the speed gun pops up. */
 const MINI_MAP = { left: 552, top: HUD_Y - 3 - SPEED_GUN_MAX_H - 66 };
-const miniMapShown = (scene) => !showingWide(scene) && scene.phase !== "setup" && scene.phase !== "chooseBowler";
+const miniMapShown = (scene) =>
+  !showingWide(scene) && scene.phase !== "setup" && scene.phase !== "chooseBowler" && scene.phase !== "rain";
 
 export function drawMatch(scene) {
   setShadowStretch(scene.light.shadow.stretch);
@@ -49,17 +56,21 @@ export function drawMatch(scene) {
   if (shake) ctx.restore();
   // The time of day's grade, over everything on the field (not the scoreboard and panels drawn after).
   gradeFrame(ctx, scene.light);
+  if (raining(scene)) drawRain(scene.now);
   const effort = scene.cur?.intent.effort ?? scene.effort;
   const label = scene.inn.bowler
     ? `${DELIVERY_NAMES[scene.cur?.intent.type ?? scene.deliveryType]} ${scene.spinner ? SPIN_EFFORT_NAMES[effort] : effort.toUpperCase()}`
     : "";
   // The call types itself out, and stays up while the box talks.
   const booth = boothShowing(scene.booth, scene.now);
-  drawScoreBar(scene.inn, scene.commentary.slice(0, Math.floor(scene.commT * 70)), label);
-  // The score in the corner, except over the full scorecard and the pause menu.
-  if (scene.phase !== "pause" && scene.phase !== "inningsEnd") drawScoreBox(scene.inn);
-  // At the end of an innings the commentators sit over the scorecard, so they can still be seen.
-  const over = scene.phase === "inningsEnd";
+  drawScoreBar(scene.inn, scene.commentary.slice(0, Math.floor(scene.commT * 70)), label, statusLine(scene));
+  // The score in the corner (and the weather beside it), except over the full scorecard and the pause menu.
+  if (scene.phase !== "pause" && scene.phase !== "inningsEnd") {
+    drawScoreBox(scene.inn);
+    if (scene.match.weather) drawWeatherTile(scene.match.weather.id, SCORE_BOX_LEFT - ICON.w - 8, 4);
+  }
+  // At the end of an innings (and over the weather report) the commentators sit on top, so they can be seen.
+  const over = scene.phase === "inningsEnd" || scene.phase === "forecast" || scene.phase === "rain";
   if (booth && !over) drawBooth(scene.booth, scene.now, scene.commentary);
   drawBanners(scene.banners, scene.now);
   drawPanels(scene);
@@ -200,6 +211,8 @@ function drawClose(scene) {
   const landing = landingMarker(scene);
   if (landing) drawPitchReticle(landing.p, landing.k, landing.flash, landing.scale);
 
+  // Rain has stopped play: the covers are on and everyone is off.
+  if (scene.phase === "rain") return drawCovers(projectClose);
   // Far to near.
   sprites.sort((a, b) => closeDepth(b.z) - closeDepth(a.z));
   if (scene.phase === "setup") drawTarget(scene);

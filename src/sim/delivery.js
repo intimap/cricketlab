@@ -107,8 +107,8 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
     const drift = { offspin: 0.9, legspin: -0.9, googly: -0.9, armBall: -0.6 }[type] ?? 0;
     swingAcc = drift * skills.spin * ball.grip * 0.6 * (intent.effort === "low" ? 1.3 : 1);
   } else {
-    const conventional = ball.swing * pitch.type.swingAir;
-    const reverse = speed > 32.5 ? ball.reverse * pitch.type.swingAir : 0;
+    const conventional = ball.swing * pitch.swingAir;
+    const reverse = speed > 32.5 ? ball.reverse * pitch.swingAir : 0;
     if (reverse > conventional * 0.8 && reverse > 0.12) {
       reversing = true;
       swingAcc = -swingDir * 9.5 * skills.swing * reverse;

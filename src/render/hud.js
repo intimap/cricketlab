@@ -84,9 +84,15 @@ export function drawScorecard(inn, x, y, w, h, title) {
   drawPanel(x, y, w, h);
   drawText(title, x + w / 2, y + 7, { align: "center", color: COLORS.gold, scale: 2 });
   let row = y + 26;
-  drawText(`${inn.batTeam.name} ${inn.runs}/${inn.wkts}  (${inn.oversText} OV, RR ${inn.runRate.toFixed(2)})`, x + 10, row, {
-    color: COLORS.white,
-  });
+  const dec = inn.declared ? " DEC" : "";
+  drawText(
+    `${inn.batTeam.name} ${inn.runs}/${inn.wkts}${dec}  (${inn.oversText} OV, RR ${inn.runRate.toFixed(2)})`,
+    x + 10,
+    row,
+    {
+      color: COLORS.white,
+    },
+  );
   row += 12;
   const dim = { color: COLORS.dim };
   const dimRight = { color: COLORS.dim, align: "right" };

@@ -16,6 +16,8 @@ import { pickBowler, pickOverPlan, pickFieldPreset, pickDeliveryPlan, pickShot, 
 import { describeBall } from "./plans.js";
 import { clamp } from "../math.js";
 import { bearingOf } from "./geometry.js";
+import { TestClock, TEST_WEAR, testOverEnded, testNextInnings, testResult } from "./test-match.js";
+import { showerComes, limitedRain, revisedTarget } from "./rain.js";
 
 /** How often the on-field umpire gets an LBW wrong, either way. */
 const UMPIRE_ERROR = 0.15;
@@ -25,7 +27,8 @@ const UMPIRE_ERROR = 0.15;
  * the player takes part in; simBall() plays a whole ball with both sides on the AI.
  *
  * human: "bat" or "bowl" (the side the player controls in the current innings).
- * opts:  { innings: 1 or 2, start: { overs, runs, wkts }, target, nets } - see formats.js.
+ * opts:  { innings: 1 or 2, start: { overs, runs, wkts }, target, nets, test, ground, weather } - see formats.js.
+ *        A Test (opts.test) plays to a clock (sim/test-match.js): each innings lasts as long as the time left.
  */
 export class Match {
   needOver = true;
@@ -37,12 +40,21 @@ export class Match {
     this.bowlTeam = bowlTeam;
     this.rng = rng;
     this.human = human;
+    /** The player's side, whichever end it's at: roles follow it from innings to innings. */
+    this.humanTeam = human === "bat" ? batTeam : bowlTeam;
     this.overs = overs;
-    this.totalInnings = opts.innings ?? 1;
     this.nets = !!opts.nets;
+    /** A Test's clock: the day, the overs left and each day's weather (null in limited-overs games). */
+    this.clock = opts.test ? new TestClock(rng, opts.ground) : null;
+    this.totalInnings = this.clock ? 4 : (opts.innings ?? 1);
     // Limited-overs games (anything with a target to set or chase) are played in a hurry, more so the shorter they are.
-    this.tempo = this.totalInnings > 1 || opts.target ? clamp((60 - overs) / 55, 0.15, 1) : 0;
+    const limited = !this.clock && (this.totalInnings > 1 || opts.target);
+    this.tempo = limited ? clamp((60 - overs) / 55, 0.15, 1) : 0;
     this.pitch = new Pitch(PITCH_TYPES[pitchId]);
+    if (this.clock) this.pitch.wearScale = TEST_WEAR;
+    /** The weather (sim/weather.js): a Test's changes day by day. */
+    this.weather = this.clock?.weather ?? opts.weather ?? null;
+    if (this.weather) this.pitch.weather = this.weather;
     // The commentary has its own dice (seeded from the match's), so what's said never changes what happens.
     this.comm = new Commentary(new Rng(rng.state ^ 0x5bd1e995));
     this.overCommentary = this.comm;
@@ -54,7 +66,9 @@ export class Match {
 
   beginInnings(batTeam, bowlTeam, target) {
     // Same pitch throughout, so it keeps wearing; a new ball each innings.
-    this.inn = new Innings(batTeam, bowlTeam, this.pitch, this.overs, this.rng);
+    // A Test innings lasts as long as there's time left in the match.
+    this.inn = new Innings(batTeam, bowlTeam, this.pitch, this.clock ? this.clock.oversLeft : this.overs, this.rng);
+    this.inn.test = !!this.clock;
     this.inn.target = target;
     this.inn.tempo = this.tempo;
     this.inn.nets = this.nets;
@@ -66,18 +80,32 @@ export class Match {
 
   /** Is there another innings to play once this one is over? */
   get hasNextInnings() {
-    return this.inn.isOver && this.innings.length < this.totalInnings;
+    return this.inn.isOver && this.innings.length < this.totalInnings && !this.result;
   }
 
-  /** Swap sides: the team that bowled now chases one more than the total. */
-  nextInnings() {
+  /**
+   * Swap sides: the team that bowled now chases one more than the total. In a Test, `enforce` is the
+   * player's follow-on call (sim/test-match.js).
+   */
+  nextInnings(enforce) {
+    if (this.clock) return testNextInnings(this, enforce);
     const first = this.inn;
     this.human = this.human === "bat" ? "bowl" : "bat";
-    this.beginInnings(first.bowlTeam, first.batTeam, first.runs + 1);
+    // One more than their total, or the revised target if rain has cut the game (sim/rain.js).
+    this.beginInnings(first.bowlTeam, first.batTeam, revisedTarget(this, first.runs));
   }
 
-  /** Once a chase is over: { winner (team or null for a tie), text }. Null before then. */
+  /** The batting side calls its innings closed (a Test only). */
+  declare() {
+    if (this.clock && !this.inn.isOver) this.inn.declared = true;
+  }
+
+  /**
+   * Once a chase is over (or a Test is decided): { winner (team or null for a tie or draw), text, draw }.
+   * Null before then.
+   */
   get result() {
+    if (this.clock) return testResult(this);
     const inn = this.inn;
     if (inn.target === null || !inn.isOver) return null;
     if (inn.chaseWon) {
@@ -181,7 +209,7 @@ export class Match {
       bowler: inn.bowler.p,
       bowlerHome: toStriker(bowlerFieldingHome(this.spinner, intent.wicketSide), this.facing),
       spinner: this.spinner,
-      outfield: inn.pitch.type.outfield,
+      outfield: inn.pitch.outfield,
       noBall: delivery.noBall,
       freeHit: inn.freeHit,
       wide: res.wide,
@@ -337,6 +365,12 @@ export class Match {
     const applied = inn.apply(rec);
     this.comm.remember(rec, inn);
     if (applied.overEnded) this.needOver = true;
+    if (applied.overEnded && this.clock) testOverEnded(this, applied);
+    else if (applied.overEnded && !(this.innings.length > 1 && inn.isOver) && showerComes(this)) {
+      // Rain stops a limited-overs game: overs cut and the chase revised.
+      applied.rain = limitedRain(this);
+      applied.inningsOver = inn.isOver;
+    }
     return { rec, applied };
   }
 

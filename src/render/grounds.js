@@ -104,6 +104,17 @@ GROUNDS.parklandsNew = {
   close: { ...GROUNDS.oval.close },
   wide: { camera: tvWideCamera() },
 };
+
+/**
+ * Once Parklands (new) is signed off it replaces the old Parklands: the same id (so settings, high scores
+ * and the commentary carry on), the old name, and no second entry on the menu. Turn on PARKLANDS_SIGNED_OFF.
+ */
+export function signOffParklands(grounds) {
+  grounds.parklands = { ...grounds.parklandsNew, name: grounds.parklands.name };
+  grounds.parklandsNew = { ...grounds.parklandsNew, hidden: true };
+}
+const PARKLANDS_SIGNED_OFF = false;
+if (PARKLANDS_SIGNED_OFF) signOffParklands(GROUNDS);
 GROUNDS.parklandsBoards = parklands("PARKLANDS (BOARDS)", "fence-ads");
 
 /** The G: afternoon stadium composition in wide view; the close composition stays separate. */

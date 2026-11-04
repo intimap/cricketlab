@@ -100,7 +100,11 @@ export function drawGroundScoreboard(board, inn) {
     drawText(figures, left + textWidth(name) + 3, y, { color, shadow: null });
   };
   if (board.h < 18) {
-    line(inn.batTeam.abbr, `${inn.runs}/${inn.wkts}`, Math.round(board.y + board.h / 2 - 4), board.top);
+    // A small face: the score alone if the side's name doesn't fit beside it.
+    const score = `${inn.runs}/${inn.wkts}`;
+    const y = Math.round(board.y + board.h / 2 - 4);
+    if (textWidth(inn.batTeam.abbr) + 3 + textWidth(score) <= board.w - 2) line(inn.batTeam.abbr, score, y, board.top);
+    else drawText(score, Math.round(mid - textWidth(score) / 2), y, { color: board.top, shadow: null });
     return;
   }
   // A bigger face (a venue's, close up) spaces its two lines out; the painted ones keep theirs.

@@ -196,3 +196,15 @@ test("the grounds' painted layers exist, fit their maps, and stay under 500 KB a
     assert.ok(bytes <= 500 * 1024, `${id}: ${Math.round(bytes / 1024)} KB of painted layers`);
   }
 });
+
+test("signing off: Parklands (new) takes over the old Parklands' id and name, and leaves the menu once", async () => {
+  const { signOffParklands } = await import("../src/render/grounds.js");
+  const grounds = { ...GROUNDS };
+  signOffParklands(grounds);
+  assert.equal(grounds.parklands.venue, PARKLANDS_MAP);
+  assert.equal(grounds.parklands.name, GROUNDS.parklands.name);
+  assert.ok(grounds.parklandsNew.hidden);
+  assert.ok(!grounds.parklands.hidden);
+  // Until then both are on the menu, and the old one is still the paintings.
+  assert.ok(!GROUNDS.parklands.venue && !GROUNDS.parklandsNew.hidden);
+});

@@ -39,6 +39,11 @@ const AFTERTOUCH_SPRAY = 0.6;
 
 const SPEED_FACTOR = { slower: 0.78, cutter: 0.9, armBall: 1.06 };
 
+/** A mistimed release moves the line this far (m) per second of error, mostly wide of off. */
+const LOOSE_LINE = 1.2;
+/** Released this late (s) or later, the bowler has overstepped: a no-ball (sim/runup.js shows it in red). */
+export const NO_BALL_LATE = 0.14;
+
 /** Half-width (seconds) of the perfect-release window at the delivery stride; shrinks as the bowler tires. */
 export const releaseSweetSpot = (stamina) => 0.03 * (0.5 + stamina);
 
@@ -77,9 +82,11 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
   const touch = intent.aftertouch ?? 0;
   const spray =
     (1.35 - skills.accuracy) * (1 + tiredness * 1.3) * EFFORT_SPRAY[intent.effort] * (1 + AFTERTOUCH_SPRAY * Math.abs(touch));
-  const badRelease = Math.abs(releaseError) > 0.1 ? 2.2 : 1;
+  // A mistimed release is a loose ball rather than a wild one: it drifts wide of off (there to be hit), and
+  // a badly mistimed one sprays a little more.
+  const badRelease = Math.abs(releaseError) > 0.1 ? 1.5 : 1;
   const line =
-    intent.line + rng.normal(0, 0.075 * spray * badRelease) + Math.abs(releaseError) * 1.6 * (rng.next() < 0.5 ? -1 : 1);
+    intent.line + rng.normal(0, 0.075 * spray * badRelease) + Math.abs(releaseError) * LOOSE_LINE * (rng.chance(0.8) ? 1 : -1);
   // A bouncer is banged in short; a yorker is aimed at the toes and is easy to over-pitch.
   let target = intent.length;
   if (type === "bouncer") target = Math.max(target, 11);
@@ -89,10 +96,11 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
   let length = target + rng.normal(0, 0.55 * spray * badRelease * lengthSpray) - releaseError * 26;
   length = clamp(length, -1.5, 15);
 
+  // Only a very late release oversteps; a late one is dragged full (a full toss, there to be hit).
   const noBall =
-    releaseError > 0.11 ||
-    (intent.effort === "high" && releaseError > 0.075 && rng.chance(0.5)) ||
-    rng.chance(0.004 + tiredness * 0.006);
+    releaseError > NO_BALL_LATE ||
+    (intent.effort === "high" && releaseError > NO_BALL_LATE - 0.02 && rng.chance(0.5)) ||
+    rng.chance(0.002 + tiredness * 0.004);
 
   let swingDir = 0;
   if (intent.type === "outswing") swingDir = 1;

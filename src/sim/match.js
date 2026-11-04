@@ -19,6 +19,8 @@ import { bearingOf } from "./geometry.js";
 import { TestClock, TEST_WEAR, testOverEnded, testNextInnings, testResult } from "./test-match.js";
 import { showerComes, limitedRain, revisedTarget } from "./rain.js";
 
+/** A ball passing the batter higher than this (m, about his shoulder) counts as a bouncer (Law 41.6). */
+const BOUNCER_HEIGHT = 1.3;
 /** How often the on-field umpire gets an LBW wrong, either way. */
 const UMPIRE_ERROR = 0.15;
 
@@ -125,6 +127,8 @@ export class Match {
     const inn = this.inn;
     this.needOver = false;
     inn.setBowler(bowlerIdx ?? pickBowler(inn));
+    // A new bowler mid-over (the last one taken off) starts the bouncer count afresh.
+    inn.overBouncers = 0;
     inn.overPlan = pickOverPlan(inn, this.rng);
     if (this.human !== "bowl" && !inn.customField) inn.setPreset(pickFieldPreset(inn));
     if (inn.newBallAvailable && this.human !== "bowl") inn.takeNewBall();
@@ -160,12 +164,17 @@ export class Match {
     );
     const d = { ...(facing < 0 ? { ...mirrorDelivery(world), intent } : world), facing };
     inn.spendStamina(intent.effort, releaseError);
-    // More than two bouncers in an over is a no-ball.
-    if (intent.type === "bouncer" || (!isSpinner(bowler.p.bowl) && (d.pitchedAt?.z ?? 0) > 10)) {
+    // More than two bouncers in an over is a no-ball and a first and final warning; the next time in the
+    // innings, the bowler is taken off (Law 41.6).
+    // A bouncer, for the law, is one that passes him above the shoulder, whatever it was meant to be.
+    if (!isSpinner(bowler.p.bowl) && (d.atCrease?.y ?? 0) > BOUNCER_HEIGHT) {
       inn.overBouncers++;
       if (inn.overBouncers > 2) {
         d.noBall = true;
         d.bouncerNoBall = true;
+        bowler.bouncerWarnings = (bowler.bouncerWarnings ?? 0) + 1;
+        d.bouncerWarning = bowler.bouncerWarnings === 1 ? "warning" : "suspended";
+        if (d.bouncerWarning === "suspended") bowler.suspended = true;
       }
     }
     // Disguised deliveries: does the striker pick it out of the hand?
@@ -322,6 +331,8 @@ export class Match {
       battle: shot.battle ?? null,
       freeHit: inn.freeHit,
       bouncerNoBall: !!delivery.bouncerNoBall,
+      /** The umpire's word on too many bouncers: "warning" (first and final) or "suspended" (taken off). */
+      bouncerWarning: delivery.bouncerWarning ?? null,
       over: inn.overNo,
       ball: inn.ballInOver + 1,
       legal: !wide && !noBall,
@@ -365,6 +376,8 @@ export class Match {
     const applied = inn.apply(rec);
     this.comm.remember(rec, inn);
     if (applied.overEnded) this.needOver = true;
+    // A bowler taken off mid-over: another finishes it.
+    if (rec.bouncerWarning === "suspended" && !applied.overEnded && !inn.isOver) this.needOver = true;
     if (applied.overEnded && this.clock) testOverEnded(this, applied);
     else if (applied.overEnded && !(this.innings.length > 1 && inn.isOver) && showerComes(this)) {
       // Rain stops a limited-overs game: overs cut and the chase revised.

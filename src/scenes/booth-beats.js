@@ -7,6 +7,7 @@ import { venueCall } from "../sim/booth-venue-lines.js";
 import { wrapUpCall } from "../sim/booth-wrap-lines.js";
 import { weatherCall, breakCall, declareCall, rainStopCall, rainCostCall } from "../sim/booth-weather-lines.js";
 import { leadOf } from "../sim/test-match.js";
+import { warningCall } from "../sim/booth-law-lines.js";
 import { onFieldCall, reviewCall, trackingCall, verdictCall } from "../sim/booth-drs-lines.js";
 import { activeWicketSide } from "./bowling-side.js";
 
@@ -101,6 +102,14 @@ export function onRain(scene, facts) {
     calls.filter((c) => c.text && fitsBox(c.text)),
     scene.now + 0.5,
   );
+}
+
+/** The umpire has warned the bowler for too many bouncers, or taken him off: the box says so after the ball. */
+export function onWarning(scene, kind, bowler) {
+  if (scene.nets) return;
+  const who = lead(scene);
+  const text = warningCall(who, kind, { w: bowler.short }, pick);
+  if (fitsBox(text)) queue(scene, [{ who, text }], scene.now + 0.8);
 }
 
 /** Batting in a Test: the box reckons it's time to declare. */

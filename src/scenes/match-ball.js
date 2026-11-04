@@ -218,6 +218,14 @@ export function completeBall(scene) {
     }
   }
   for (const m of done.applied.milestones) scene.banner(m, COLORS.gold, 2.2, 2, 150, scene.now + 0.4);
+  // Too many bouncers (Law 41.6): the umpire's warning, or the bowler taken off.
+  const warning = done.rec.bouncerWarning;
+  if (warning) {
+    const bowler = scene.inn.bowl[done.rec.bowler].p;
+    const sub = warning === "suspended" ? `${bowler.short.toUpperCase()} TAKEN OFF FOR THE INNINGS` : "FIRST AND FINAL WARNING";
+    scene.big("NO BALL", COLORS.red, sub, 2.6);
+    beats.onWarning(scene, warning, bowler);
+  }
   // Beat the bat and the close fielders let him know about it, which gets under his skin.
   if (done.rec.beatBat && Math.random() < 0.35) {
     scene.chirp = { text: pickChirp(scene.inn.bowlTeam.abbr), t0: scene.now + 0.3 };

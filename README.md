@@ -109,8 +109,9 @@ Each computer batter has a hidden weakness (loose outside off, a compulsive hook
 
 - **Memory:** bowl the same ball over and over and he lines it up. Break a pattern (three going away, then one back in; three short, then a full one) and he's more likely to edge or miss. Switch between over and around the wicket with **T** while aiming; the target stays fixed and the release angle changes.
 - **Pressure:** dots and maidens build the pressure meter (below EYE in their shared panel); boundaries release it. Under pressure batters get impatient: slogs, charges and bad calls for runs.
-- **Release timing:** the meter starts slowly and accelerates smoothly towards the gold zone. Release there for a perfect delivery. The zone shrinks as the bowler tires; too late is a no-ball, followed by a free hit.
-- **Variations:** quicks have bouncers (two an over, a third is a no-ball), yorkers (overpitch it and it's a full toss), slower balls and cutters; spinners have an arm ball, a googly (leg-spinners), and flight (**E** cycles flighted, stock and flat). On a worn pitch, especially the dust bowl, footmarks appear outside leg (and off) and turn sharply.
+- **Release timing:** the meter starts slowly and accelerates smoothly towards the gold zone. Release there for a perfect delivery. The zone shrinks as the bowler tires. A mistimed release is a loose ball (early drops it short, late drags it full, either drifts wide of off); only very late, in the red, is a no-ball, followed by a free hit.
+- **Fields:** a new bowler starts with the field his captain would set; change it with **F** or drag fielders with **V**.
+- **Variations:** quicks have bouncers (two an over that pass the batter above the shoulder; a third is a no-ball and a first and final warning, and the next time in the innings the bowler is taken off and someone else finishes the over), yorkers (overpitch it and it's a full toss), slower balls and cutters; spinners have an arm ball, a googly (leg-spinners), and flight (**E** cycles flighted, stock and flat). On a worn pitch, especially the dust bowl, footmarks appear outside leg (and off) and turn sharply.
 - **Fields:** **F** also cycles traps: bouncer trap, leg slip, ring field.
 
 ## How the code is organised
@@ -190,6 +191,7 @@ src/
     booth-moment-lines.js  lines for moments.js's ducks, maidens, big overs, jaffas, the equation...
     booth-drs-lines.js  the LBW decision and the review in stages: given, reviewed, tracking, verdict
     booth-venue-lines.js  scene-setting: each ground, and the pitch report at the start
+    booth-law-lines.js the umpire's bouncer warnings and a bowler taken off
     booth-wrap-lines.js the box's wrap-up over the scorecard at the end of an innings or match
     booth-weather-lines.js the box on the weather, lunch, tea and stumps, and the call to declare
     field-reading.js  what the field says about the plan (slips, bat-pad, boundary riders, the ring)
@@ -283,7 +285,7 @@ src/
 netlify/
   functions/scores.mjs  the shared high-score service on Netlify (/api/scores)
   score-table.mjs       its tables: checks scores, keeps each table's best 200, safe against saves at once
-tools/                balance report (sim-report.mjs; test-report.mjs for Tests, weather-report.mjs per weather), one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
+tools/                balance reports (sim-report.mjs; bowling-report.mjs for the player's bowling, test-report.mjs for Tests, weather-report.mjs per weather), one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
 ```
 
 The rule of thumb: `sim/` knows nothing about the screen, `engine/` knows nothing about cricket, and

@@ -34,7 +34,7 @@ export function drawSetupPanel(scene, wicketSide = "over") {
   drawText(`FIELD (F): ${inn.customField ? "CUSTOM" : PRESET_LABELS[inn.preset]}   V = EDIT`, 10, 87, { color: COLORS.cream });
   drawText(`SIDE (T): ${wicketSide === "around" ? "AROUND" : "OVER"} THE WICKET`, 10, 98, { color: COLORS.gold });
   let notes = [];
-  if (!spinner) notes.push(`BOUNCERS ${inn.overBouncers}/2`);
+  if (!spinner) notes.push(`BOUNCERS ${inn.overBouncers}/2${bowler.bouncerWarnings ? " (WARNED)" : ""}`);
   if (inn.freeHit) notes.push("FREE HIT");
   drawText(notes.join("   "), 10, 109, { color: inn.freeHit ? COLORS.gold : COLORS.dim });
   drawText("ARROWS AIM  SHIFT = FINE", 10, 120, { color: COLORS.dim });

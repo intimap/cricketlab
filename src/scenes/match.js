@@ -105,7 +105,6 @@ export class MatchScene {
       : inn.target !== null
         ? `${inn.batTeam.name} need ${inn.runsNeeded} to win off ${inn.ballsLeft} balls.`
         : `${inn.batTeam.name} to bat on a ${pitch.name.toLowerCase()}. ${pitch.blurb}`;
-    if (this.human === "bowl") this.match.inn.setPreset("attacking");
     // The weather report first, then the first ball (or the choice of bowler).
     this.nextBall();
   }

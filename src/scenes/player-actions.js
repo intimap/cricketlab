@@ -2,6 +2,7 @@ import { COLORS } from "../engine/screen.js";
 import { sfx } from "../engine/audio.js";
 import { isSpinner } from "../sim/teams.js";
 import { PRESET_LABELS, positionName } from "../sim/field.js";
+import { pickFieldPreset } from "../sim/ai.js";
 
 /**
  * Every player decision that can change the match, as a plain message: { type, ...details }. The scene's
@@ -79,18 +80,16 @@ export function act(scene, action) {
   }
 }
 
-/** A new over from `bowler`: his first delivery and a crosshair (and field) to suit his style. */
+/**
+ * A new over from `bowler`: his first delivery and a crosshair to suit his style, and the field the captain
+ * would set for him (unless the player has placed his own).
+ */
 function chooseBowler(scene, bowler) {
   const inn = scene.inn;
   scene.match.startOver(bowler);
   const skills = inn.bowler.p.bowl;
   scene.deliveryType = skills.repertoire[0];
-  if (isSpinner(skills)) {
-    scene.target = { line: 0.25, length: 5.4 };
-    if (!inn.customField) inn.setPreset("spin");
-  } else {
-    scene.target = { line: 0.22, length: 6.4 };
-    if (inn.preset === "spin" && !inn.customField) inn.setPreset("attacking");
-  }
+  scene.target = isSpinner(skills) ? { line: 0.25, length: 5.4 } : { line: 0.22, length: 6.4 };
+  if (!inn.customField) inn.setPreset(pickFieldPreset(inn));
   scene.nextBall();
 }

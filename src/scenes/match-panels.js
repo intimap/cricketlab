@@ -84,7 +84,8 @@ export function drawPanels(scene) {
 
   if (scene.phase === "chooseBowler") {
     drawPanel(150, 60, 340, 40 + inn.bowl.length * 22);
-    drawText(`OVER ${inn.overNo + 1}: CHOOSE YOUR BOWLER`, WIDTH / 2, 68, { align: "center", color: COLORS.gold });
+    const title = inn.midOver ? `FINISH OVER ${inn.overNo + 1}: CHOOSE A BOWLER` : `OVER ${inn.overNo + 1}: CHOOSE YOUR BOWLER`;
+    drawText(title, WIDTH / 2, 68, { align: "center", color: COLORS.gold });
     inn.bowl.forEach((b, i) => {
       const y = 84 + i * 22;
       const available = inn.canBowl(i);
@@ -94,7 +95,9 @@ export function drawPanels(scene) {
         color: COLORS.dim,
       });
       drawBar(400, y + 2, 60, 5, b.stamina, staminaColor(b.stamina));
-      if (!available) drawText("BOWLED LAST OVER", 400, y + 10, { color: COLORS.grey });
+      if (b.suspended) drawText("TAKEN OFF", 400, y + 10, { color: COLORS.red });
+      else if (!available) drawText("BOWLED LAST OVER", 400, y + 10, { color: COLORS.grey });
+      else if (b.bouncerWarnings) drawText("WARNED: BOUNCERS", 400, y + 10, { color: COLORS.gold });
       else if (b.spell >= 5) drawText(`SPELL ${b.spell} OV`, 400, y + 10, { color: COLORS.dim });
     });
     drawText(`ARROWS/1-${inn.bowl.length} + ENTER.  STAMINA RECOVERS WHEN RESTED.`, WIDTH / 2, 92 + inn.bowl.length * 22, {

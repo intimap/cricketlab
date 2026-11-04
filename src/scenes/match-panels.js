@@ -16,7 +16,7 @@ import { STRIKER_X, footworkOf } from "./batter-pose.js";
 import { METER_TRACK_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import { HUD_Y, staminaColor, drawScorecard } from "../render/hud.js";
 import { strikerPlace } from "./match-striker.js";
-import { drawWeatherReport } from "../render/weather-report.js";
+import { drawWeatherReport, drawRainReport } from "../render/weather-report.js";
 import { declareAdvice } from "./match-test.js";
 
 /**
@@ -50,6 +50,7 @@ export function drawPanels(scene) {
     }
   }
   if (scene.phase === "forecast" && scene.report) drawWeatherReport(scene.report, scene.now);
+  if (scene.phase === "rain" && scene.rainReport) drawRainReport(scene.rainReport, scene.now);
 
   if (scene.phase === "flight" && scene.human === "bat" && scene.cur?.contactDone && scene.cur.play) {
     const live = scene.cur.play.live;

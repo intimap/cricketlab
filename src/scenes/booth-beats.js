@@ -5,7 +5,7 @@ import { setupCall, deliveryCall, shotCall, outcomeCall, overIntroCall, fieldCal
 import { COLORS } from "../engine/screen.js";
 import { venueCall } from "../sim/booth-venue-lines.js";
 import { wrapUpCall } from "../sim/booth-wrap-lines.js";
-import { weatherCall, breakCall, declareCall } from "../sim/booth-weather-lines.js";
+import { weatherCall, breakCall, declareCall, rainStopCall, rainCostCall } from "../sim/booth-weather-lines.js";
 import { leadOf } from "../sim/test-match.js";
 import { onFieldCall, reviewCall, trackingCall, verdictCall } from "../sim/booth-drs-lines.js";
 import { activeWicketSide } from "./bowling-side.js";
@@ -85,6 +85,22 @@ export function onBreak(scene, brk, day) {
   const who = lead(scene);
   const text = breakCall(who, brk, { team: inn.batTeam.name, score: `${inn.runs}/${inn.wkts}`, day }, pick);
   if (fitsBox(text)) queue(scene, [{ who, text }], scene.now + 0.6);
+}
+
+/** Rain has stopped play: the lead voice says so, the next what it has cost. */
+export function onRain(scene, facts) {
+  if (scene.nets) return;
+  const who = lead(scene);
+  const next = (who + 1) % 3;
+  const calls = [
+    { who, text: rainStopCall(who, pick) },
+    { who: next, text: rainCostCall(next, facts, pick) },
+  ];
+  queue(
+    scene,
+    calls.filter((c) => c.text && fitsBox(c.text)),
+    scene.now + 0.5,
+  );
 }
 
 /** Batting in a Test: the box reckons it's time to declare. */

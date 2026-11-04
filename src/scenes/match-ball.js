@@ -15,6 +15,8 @@ import * as beats from "./booth-beats.js";
 import { onBallDone } from "./match-feedback.js";
 import { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
 import { forecastDue, openForecast, overEndBanner, simShouldStop } from "./match-test.js";
+import { rainDue, openRain, stopForRain } from "./match-rain.js";
+import { updateLight } from "./match-light.js";
 
 /**
  * A ball's life in the match scene, around the delivery itself: setting up the next ball, the
@@ -33,6 +35,9 @@ const SLEDGE_GAP = 1.5;
 export function nextBall(scene) {
   const inn = scene.inn;
   scene.touchEpoch++;
+  // Rain first: it may have ended the innings or the day.
+  if (rainDue(scene)) return openRain(scene);
+  updateLight(scene);
   if (Math.floor(inn.pitch.wear * GROUND_WEAR_STEPS) !== scene.groundWear) scene.buildGround();
   if (inn.isOver) {
     scene.endInnings();
@@ -256,6 +261,11 @@ export function updateReturn(scene, dt) {
   }
   if ((!moving && scene.phaseT > 0.5) || scene.phaseT > (scene.view === "wide" ? 1.8 : 0.6) || keys.pressed("Space")) {
     const applied = scene.cur.done.applied;
+    if (applied.rain) {
+      stopForRain(scene, applied.rain);
+      scene.nextBall();
+      return;
+    }
     if (applied.inningsOver) {
       scene.endInnings();
       return;
@@ -288,6 +298,11 @@ export function simulate(scene, overs) {
       if (applied.overEnded) line += `  | END OF OVER ${inn.overNo}: ${inn.runs}/${inn.wkts}`;
       if (applied.testBreak) line += `  ${applied.testBreak.toUpperCase()}`;
       scene.simLines.push(line);
+    }
+    if (applied.rain) {
+      scene.simLines.push("RAIN STOPS PLAY");
+      stopForRain(scene, applied.rain);
+      break;
     }
     if ((toBreak && applied.testBreak) || simShouldStop(scene, applied)) break;
   }

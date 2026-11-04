@@ -1,5 +1,6 @@
 import { rollWeather } from "./weather.js";
 import { clamp } from "../math.js";
+import { showerComes, testOversLost } from "./rain.js";
 
 /**
  * Test cricket: five days of 90 overs, two innings a side, the follow-on, declarations and the draw. The
@@ -35,6 +36,8 @@ export class TestClock {
     this.weather = rollWeather(this.rng, this.ground, yesterday);
     this.lostToday = Math.round(this.weather.lost * DAY_OVERS);
     this.quota = DAY_OVERS - this.lostToday;
+    this.lunch = false;
+    this.tea = false;
   }
 
   /** Overs still to come in the match, if no more are lost. */
@@ -47,9 +50,9 @@ export class TestClock {
     return this.day >= TEST_DAYS && this.today >= this.quota;
   }
 
-  /** Which session it is: 0 morning, 1 afternoon, 2 evening (lunch and tea split the day's overs in three). */
+  /** Which session it is: 0 morning, 1 afternoon (after lunch), 2 evening (after tea). */
   get session() {
-    return Math.min(2, Math.floor((this.today * 3) / Math.max(1, this.quota)));
+    return this.tea ? 2 : this.lunch ? 1 : 0;
   }
 
   /**
@@ -65,23 +68,46 @@ export class TestClock {
       this.startDay(this.weather);
       return "stumps";
     }
-    const third = this.quota / 3;
-    if (this.today === Math.round(third)) return "lunch";
-    if (this.today === Math.round(2 * third)) return "tea";
+    // Lunch and tea split the day's overs in three (later, if rain has cut the day short).
+    if (!this.lunch && this.today >= Math.round(this.quota / 3)) {
+      this.lunch = true;
+      return "lunch";
+    }
+    if (!this.tea && this.today >= Math.round((2 * this.quota) / 3)) {
+      this.tea = true;
+      return "tea";
+    }
     return null;
+  }
+
+  /** Rain stops play: up to `overs` come off today. { lost, dayOver }: a long enough stoppage ends the day. */
+  loseOvers(overs) {
+    const lost = Math.max(0, Math.min(overs, this.quota - this.today));
+    this.quota -= lost;
+    this.lostToday += lost;
+    const dayOver = this.today >= this.quota;
+    if (dayOver && this.day < TEST_DAYS) {
+      this.day++;
+      this.today = 0;
+      this.startDay(this.weather);
+    }
+    return { lost, dayOver };
   }
 }
 
 /**
- * An over has ended in a Test: tick the clock, rest the bowlers over a break, bring in the new day's weather,
- * shorten the innings to the time that's left, and let a computer side batting declare. Sets
- * `applied.testBreak` ("lunch", "tea", "stumps" or null).
+ * An over has ended in a Test: tick the clock, perhaps stop for rain, rest the bowlers over a break, bring
+ * in the new day's weather, shorten the innings to the time that's left, and let a computer side batting
+ * declare. Sets `applied.testBreak` ("lunch", "tea", "stumps" or null) and `applied.rain` ({ lost, dayOver }).
  */
 export function testOverEnded(match, applied) {
   const { clock, inn } = match;
   const brk = clock.overBowled();
-  if (brk) restBowlers(inn, brk === "stumps" ? 1 : 0.4);
-  if (brk === "stumps" && !clock.finished) match.pitch.weather = match.weather = clock.weather;
+  const day = clock.day;
+  if (brk !== "stumps" && !clock.finished && showerComes(match)) applied.rain = clock.loseOvers(testOversLost(match.rng));
+  const newDay = clock.day !== day || brk === "stumps";
+  if (brk || applied.rain) restBowlers(inn, newDay ? 1 : 0.4);
+  if (newDay && !clock.finished) match.pitch.weather = match.weather = clock.weather;
   inn.oversLimit = Math.floor(inn.legal / 6) + clock.oversLeft;
   if (!inn.isOver && match.human !== "bat" && declareAdvised(match)) inn.declared = true;
   applied.testBreak = brk;

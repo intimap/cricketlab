@@ -32,7 +32,7 @@ To publish it, turn on GitHub Pages (Settings → Pages → Deploy from branch �
 
 |               |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Menu          | First what to play (a match, and which kind, or practice), then who, where and when. Arrows to change, Enter to go on, Esc to go back                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Menu          | First what to play (a match, and which kind, or practice), then the teams (your side on the left, the computer's on the right: Up/Down picks a side, Left/Right its team), then where and when. Arrows to change, Enter to go on, Esc to go back                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | Batting       | Space to face up. Front foot: **S** drive, **W** loft, **A** forward defence. Back foot: **Q** attack (cut, punch, pull, hook or glance, as the ball dictates), **D** defence. No key = leave. Hold **←**/**→** before playing to step 10 cm across the crease (back to guard when let go), to reach a wide one (his pads move too). The ball's line sets the direction; play late to go finer, early to go squarer. Hold **↓** with **W** to ramp over the keeper, or **↓** + **←**/**→** with **Q** to sweep / reverse sweep. Trigger attacks early to lift and load the bat (140 ms preparation, then the downswing). Hold **Shift** for a power shot (260 ms preparation; trigger earlier). **↑** / **↓** to run or turn back |
 | Bowling       | Arrows set line and length (Shift = fine), number keys pick the delivery, **E** effort, **T** over/around the wicket, **F** field preset, **V** drag fielders with the mouse, **N** new ball (after 80 overs). Space to run in, Space again to release at the delivery stride: early pitches it shorter, late fuller, very late is a no-ball                                                                                                                                                                                                                                                                                                                                                                                      |
 | Fielding      | While the ball is live (when bowling): **Space** as a catch arrives (well timed it helps, mistimed it hurts, no press leaves it to the fielder); **Z** / **X** call the throw to the keeper's or the bowler's end                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
@@ -79,8 +79,18 @@ sunny, overcast, humid, hot and dry, or showers, with the commentators' take and
 humidity help the ball swing; heat dries the pitch so it cracks and turns sooner, and quickens the outfield; rain
 leaves a damp, seaming pitch and a slow outfield, and costs overs (a limited-overs game is cut short before the
 start, down to no fewer than 5 overs a side). Each ground has its own climate, and a day's weather often carries
-into the next. Tests are played with a red ball (pink under lights), limited-overs games with a white one and
-coloured kit.
+into the next. Cloud greys the light and fills the sky, humidity hazes it, heat sharpens it, and rain darkens it.
+
+Rain can also stop play. The covers come on, a panel says what it cost, and Space carries on. In a Test the overs
+come off the day, and a long enough stoppage ends it. In a limited-overs game both sides' overs are cut and the
+side chasing gets a revised target, in proportion to the batting each side had left to use (the game's own rule
+in `sim/rain.js`, not the official DLS tables).
+
+The light changes through the day. TIME on the menu is when play starts: a Test moves on a time each session
+(MIDDAY, then AFTERNOON after lunch and EVENING after tea; starting in the AFTERNOON it ends under floodlights),
+back to the start each morning. A game of 20 overs a side or more plays its first innings in the starting light
+and its chase in the next two. The nets, short games and Classic Matches keep the time chosen. Tests are played
+with a red ball (pink if the day goes on under lights), limited-overs games with a white one and coloured kit.
 
 ## Batting: your eye
 
@@ -132,6 +142,7 @@ src/
     squads/           the New Zealand and South Africa squads
     conditions.js     pitch types, pitch wear, ball wear (swing, reverse, grip)
     weather.js        the five weathers, what each does to the pitch and outfield, each ground's climate
+    rain.js           rain stopping play: when, the overs lost, the revised target
     bowling-side.js   over/around release geometry and follow-through position
     delivery.js       bowling: release, swing, seam, spin, bounce, flight
     runup.js          the player's run-up and release meter: rhythm, ramp, stride surges
@@ -230,9 +241,13 @@ src/
     feedback.js       arcade feedback drawn: timing meter and callout, floating words, eased bars
     booth.js          commentator portraits and the commentary popup
     weather-icon.js   pixel weather icons (the HUD's beside the score box, and the report's)
-    weather-report.js the weather report panel before play and each Test morning
+    weather-report.js the weather report panel before play and each Test morning, and the rain stoppage's
+    weather-look.js   the weather laid over a time of day: tint, sky, clouds, shadows, haze
+    rain.js           rain falling, and the covers on the pitch
+    team-sheet.js     a team's flag and XI on the team-selection screen
   scenes/
     menu.js           title screen
+    menu-teams.js     the menu's team-selection page: your side and the computer's
     match.js          the match scene: state, phases, camera, banners
     match-update.js   one frame of the match scene: pause and camera keys, then the phase's update
     match-shadows.js  the close view's cast shadows, laid before anyone is drawn
@@ -245,6 +260,8 @@ src/
     match-decisions.js  LBW appeals, the umpire's decision and DRS reviews
     match-test.js     Tests and the weather in the scene: the report, breaks, declaring, the follow-on choice
     match-ending.js   the end of an innings: the end screen's words, the wrap-up, a Classic won
+    match-light.js    the light through the day, with the weather over it; the ball's colour
+    match-rain.js     rain stopping play in the scene: the covers, the panel, carrying on
     match-feedback.js what feedback to show and when: shot words, +/-EYE and PRESSURE, hit-stop, shake
     match-audio.js    contact timbres and broadcast sound cues
     strike-presentation.js  full-pace launch after contact and the close-to-wide broadcast cut
@@ -312,7 +329,9 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   limited-overs tempo constants are at the top of `sim/ai.js`, with the Test-batting ones.
 - **Tests and the weather:** the clock, declarations, follow-on and result in `sim/test-match.js` (check balance with
   `node tools/test-report.mjs`); each weather's effects and each ground's climate in `sim/weather.js`
-  (`node tools/weather-report.mjs`); the scene's side in `scenes/match-test.js`.
+  (`node tools/weather-report.mjs`); the scene's side in `scenes/match-test.js`. Rain stopping play in `sim/rain.js`
+  and `scenes/match-rain.js`; how each weather looks in `render/weather-look.js`; when the light changes in
+  `scenes/match-light.js`.
 - **Ground art:** images live in `assets/` (layer art in `assets/close/`), listed by id in `src/assets.js`;
   grounds pick their layers in `src/render/grounds.js` (`hidden: true` keeps a ground off the menu; The Oval is
   hidden for now). `tools/art/make_scenery.py` regenerates the

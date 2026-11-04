@@ -5,6 +5,7 @@ import { skipCelebration } from "./celebrations.js";
 import { stepFeedback } from "./match-feedback.js";
 import { act } from "./player-actions.js";
 import { updateForecast, updateFollowOn } from "./match-test.js";
+import { updateRain } from "./match-rain.js";
 
 /** One frame of the match scene: pause and camera keys, then whatever the current phase does. */
 export function updateMatch(scene, dt) {
@@ -91,6 +92,9 @@ export function updateMatch(scene, dt) {
       break;
     case "forecast":
       updateForecast(scene);
+      break;
+    case "rain":
+      updateRain(scene);
       break;
     case "inningsEnd":
       if (updateFollowOn(scene)) break;

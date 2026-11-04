@@ -17,6 +17,7 @@ import { describeBall } from "./plans.js";
 import { clamp } from "../math.js";
 import { bearingOf } from "./geometry.js";
 import { TestClock, TEST_WEAR, testOverEnded, testNextInnings, testResult } from "./test-match.js";
+import { showerComes, limitedRain, revisedTarget } from "./rain.js";
 
 /** How often the on-field umpire gets an LBW wrong, either way. */
 const UMPIRE_ERROR = 0.15;
@@ -90,7 +91,8 @@ export class Match {
     if (this.clock) return testNextInnings(this, enforce);
     const first = this.inn;
     this.human = this.human === "bat" ? "bowl" : "bat";
-    this.beginInnings(first.bowlTeam, first.batTeam, first.runs + 1);
+    // One more than their total, or the revised target if rain has cut the game (sim/rain.js).
+    this.beginInnings(first.bowlTeam, first.batTeam, revisedTarget(this, first.runs));
   }
 
   /** The batting side calls its innings closed (a Test only). */
@@ -364,6 +366,11 @@ export class Match {
     this.comm.remember(rec, inn);
     if (applied.overEnded) this.needOver = true;
     if (applied.overEnded && this.clock) testOverEnded(this, applied);
+    else if (applied.overEnded && !(this.innings.length > 1 && inn.isOver) && showerComes(this)) {
+      // Rain stops a limited-overs game: overs cut and the chase revised.
+      applied.rain = limitedRain(this);
+      applied.inningsOver = inn.isOver;
+    }
     return { rec, applied };
   }
 

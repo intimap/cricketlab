@@ -8,11 +8,10 @@ import { FORMATS, CLASSICS, OVERS_CHOICES } from "../sim/formats.js";
 import { boardFor } from "../sim/leaderboard.js";
 import { GROUNDS, GROUND_CHOICES, DEFAULT_GROUND } from "../render/grounds.js";
 import { LIGHTS } from "../render/light.js";
-import { TEAMS, TEAM_IDS } from "../sim/team-list.js";
+import { updateTeams, drawTeams } from "./menu-teams.js";
+import { endTime } from "./match-light.js";
 import { EFFECTS, EFFECT_NAMES } from "../render/lighting.js";
 
-/** Every match-up: [your team, theirs], your side changing slowest. */
-const PAIRINGS = TEAM_IDS.flatMap((a) => TEAM_IDS.filter((b) => b !== a).map((b) => [a, b]));
 const MODES = ["bat", "bowl"];
 const PITCHES = ["green", "dust", "cracked"];
 const CLASSIC_IDS = CLASSICS.map((c) => c.id);
@@ -51,7 +50,7 @@ const BOWL_HELP = [
 
 export class Menu {
   sel = 0;
-  /** "game" (what to play) or "setup" (who, where and when). */
+  /** "game" (what to play), "teams" (who: scenes/menu-teams.js) or "setup" (where and when). */
   page = "game";
   /** The last game chosen is remembered, except that each visit starts on a 10-over match (see the constructor). */
   cfg = {
@@ -90,12 +89,6 @@ export class Menu {
     return this.cfg.format === "nets";
   }
 
-  /** Who plays whom: your side first. Left and right go through every pairing (sim/team-list.js). */
-  get teamsRow() {
-    const name = (id) => (TEAMS[id] ?? TEAMS.AUS)().name;
-    return ["teams", "TEAMS", `${name(this.cfg.team)} V ${name(this.cfg.opponent)}`];
-  }
-
   /** Lighting effects: this machine's setting, kept apart from the match choices (render/lighting.js). */
   get effectsRow() {
     const setting = load("effects", "auto");
@@ -106,9 +99,12 @@ export class Menu {
   /** The rows on the current page: [key, label, value]. */
   get rows() {
     const cfg = this.cfg;
+    if (this.page === "teams") return [];
     if (this.page === "setup") {
+      // When play starts, and (in a Test or a long game) the time it goes on to.
+      const end = endTime(cfg);
+      const time = `${LIGHTS[cfg.light].name}${end !== cfg.light ? ` TO ${LIGHTS[end].name}` : ""}`;
       return [
-        this.teamsRow,
         [
           "mode",
           this.practice ? "PRACTISE" : "YOU",
@@ -116,7 +112,7 @@ export class Menu {
         ],
         ["pitch", "PITCH", PITCH_TYPES[cfg.pitch].name],
         ["ground", "GROUND", GROUNDS[cfg.ground].name],
-        ["light", "TIME", LIGHTS[cfg.light].name],
+        ["light", "TIME", time],
         this.effectsRow,
         ["start", "", "START  >"],
         ["back", "", "<  BACK"],
@@ -137,6 +133,7 @@ export class Menu {
 
   update(dt) {
     this.t += dt;
+    if (this.page === "teams") return updateTeams(this);
     const rows = this.rows;
     if (keys.pressed("ArrowUp")) {
       this.sel = (this.sel + rows.length - 1) % rows.length;
@@ -158,12 +155,6 @@ export class Menu {
         if (type.overs) cfg.overs = type.overs;
       }
       if (key === "mode") cfg.mode = cycle(MODES, cfg.mode, dir);
-      if (key === "teams")
-        [cfg.team, cfg.opponent] = cycle(
-          PAIRINGS,
-          PAIRINGS.find((p) => p[0] === cfg.team && p[1] === cfg.opponent) ?? PAIRINGS[0],
-          dir,
-        );
       if (key === "pitch") cfg.pitch = cycle(PITCHES, cfg.pitch, dir);
       if (key === "ground") {
         cfg.ground = cycle(GROUND_IDS, cfg.ground, dir);
@@ -181,13 +172,13 @@ export class Menu {
       if (key === "classic") cfg.classic = cycle(CLASSIC_IDS, cfg.classic, dir);
     }
     const go = keys.pressed("Enter") || keys.pressed("Space");
-    if (keys.pressed("Escape") && this.page === "setup") return this.turn("game", "next");
+    if (keys.pressed("Escape") && this.page === "setup") return this.turn("teams");
     if (!go) return;
     save("menu", cfg);
     sfx.click();
     if (key === "scores") this.game.showScores({ ...cfg });
-    else if (key === "next") this.turn("setup", "start");
-    else if (key === "back") this.turn("game", "next");
+    else if (key === "next") this.turn("teams");
+    else if (key === "back") this.turn("teams");
     else if (key === "start" || keys.pressed("Enter")) this.game.startMatch({ ...cfg });
   }
 
@@ -207,11 +198,12 @@ export class Menu {
     drawText("CRICKET LAB", WIDTH / 2 + 3, 26 + bob + 3, { scale: 6, color: COLORS.black, align: "center", shadow: null });
     drawText("CRICKET LAB", WIDTH / 2, 26 + bob, { scale: 6, color: COLORS.gold, align: "center", outline: "#3a2a08" });
     const cfg = this.cfg;
+    const what = this.practice ? "PRACTICE" : typeOf(cfg).name;
     const heading =
-      this.page === "setup"
-        ? `${this.practice ? "PRACTICE" : typeOf(cfg).name}: WHO, WHERE AND WHEN`
-        : "16-BIT TEST CRICKET  -  PROTOTYPE V0.1";
+      { teams: `${what}: CHOOSE THE TEAMS`, setup: `${what}: WHERE AND WHEN` }[this.page] ??
+      "16-BIT TEST CRICKET  -  PROTOTYPE V0.1";
     drawText(heading, WIDTH / 2, 78, { align: "center", color: COLORS.cream });
+    if (this.page === "teams") return drawTeams(this);
 
     const rows = this.rows;
     if (this.sel >= rows.length) this.sel = rows.length - 1;

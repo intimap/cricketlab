@@ -33,4 +33,17 @@ export function drawWeatherReport(report, now) {
   if (Math.floor(now * 2) % 2 === 0) drawText("SPACE TO PLAY", mid, y + h - 14, { align: "center", color: COLORS.gold });
 }
 
+/** Rain has stopped play: what it has cost (scenes/match-rain.js), at the top, clear of the commentators. */
+export function drawRainReport(report, now) {
+  const w = 316;
+  const h = 34 + report.lines.length * 12 + 16;
+  const x = (WIDTH - w) / 2;
+  const y = 30;
+  drawPanel(x, y, w, h, "rgba(10,20,28,0.92)", "#6cb6ff");
+  drawWeatherIcon("rain", x + 10, y + 8, 1);
+  drawText("RAIN STOPS PLAY", WIDTH / 2, y + 8, { align: "center", color: COLORS.white, scale: 2 });
+  report.lines.forEach((line, i) => drawText(line, WIDTH / 2, y + 30 + i * 12, { align: "center", color: COLORS.cream }));
+  if (Math.floor(now * 2) % 2 === 0) drawText(report.prompt, WIDTH / 2, y + h - 12, { align: "center", color: COLORS.gold });
+}
+
 export { PANEL as WEATHER_REPORT_PANEL };

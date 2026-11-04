@@ -11,11 +11,10 @@ import { callDuration } from "../render/booth.js";
 import { teamKit } from "../render/skins.js";
 import { buildGround } from "../render/ground.js";
 import { GROUNDS, DEFAULT_GROUND } from "../render/grounds.js";
-import { LIGHTS } from "../render/light.js";
 import { setWideCamera } from "../render/camera.js";
 import { drawMatch } from "./match-view.js";
 import { updateMatch } from "./match-update.js";
-import { startLook, drawTimed } from "./effects-auto.js";
+import { drawTimed } from "./effects-auto.js";
 import * as decisions from "./match-decisions.js";
 import * as beats from "./booth-beats.js";
 import { createFeedback } from "./match-feedback.js";
@@ -29,6 +28,7 @@ import { ScoreboardScene } from "./scoreboard.js";
 import { resultEntry } from "../sim/leaderboard.js";
 import * as ending from "./match-ending.js";
 import * as test from "./match-test.js";
+import { updateLight, ballKindFor } from "./match-light.js";
 
 /**
  * One innings, played ball by ball. Phases:
@@ -41,6 +41,7 @@ import * as test from "./match-test.js";
  *   return       fielders walking back
  *   overEnd, simSummary, fieldEdit, pause, inningsEnd
  *   forecast     the weather report before play (and each morning of a Test): scenes/match-test.js
+ *   rain         play stopped for rain: scenes/match-rain.js
  */
 export class MatchScene {
   phase = "ready";
@@ -84,11 +85,10 @@ export class MatchScene {
     /** The ground's backgrounds, built from its data and the pitch (and rebuilt as it wears). */
     this.ground = GROUNDS[cfg.ground] ?? GROUNDS[DEFAULT_GROUND];
     setWideCamera(this.ground.wide.camera);
-    // The time of day, with the effects this machine is set to (render/lighting.js, effects-auto.js).
-    this.baseLight = LIGHTS[cfg.light] ?? LIGHTS.midday;
-    /** A Test's red ball (pink under lights), limited overs' white one (render/sprites.js drawBall). */
-    this.ballKind = cfg.format === "test" ? (cfg.light === "night" ? "pink" : "red") : "white";
-    this.light = startLook(this.baseLight);
+    // The time of day and the weather, with the effects this machine is set to (scenes/match-light.js).
+    updateLight(this);
+    /** A Test's red ball (pink if it goes on under lights), limited overs' white one (render/sprites.js drawBall). */
+    this.ballKind = ballKindFor(cfg);
     this.buildGround();
     /** Nets: balls faced or bowled, and how many the coach rated good. */
     this.netsTally = { balls: 0, good: 0 };

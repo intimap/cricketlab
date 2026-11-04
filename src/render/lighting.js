@@ -165,6 +165,10 @@ export function gradeFrame(ctx, look) {
       ctx.globalCompositeOperation = "soft-light";
       ctx.drawImage(layers.warm, 0, 0);
     }
+    if (layers.haze) {
+      ctx.globalCompositeOperation = "source-over";
+      ctx.drawImage(layers.haze, 0, 0);
+    }
     if (layers.vignette) {
       ctx.globalCompositeOperation = "source-over";
       ctx.drawImage(layers.vignette, 0, 0);
@@ -173,7 +177,7 @@ export function gradeFrame(ctx, look) {
   ctx.restore();
 }
 
-/** Each look's grade, drawn once into canvases: { warm?, vignette? }. */
+/** Each look's grade, drawn once into canvases: { warm?, haze?, vignette? }. */
 const gradeLayers = new Map();
 
 function buildGradeLayers(grade) {
@@ -195,6 +199,15 @@ function buildGradeLayers(grade) {
         warm.addColorStop(0.7, rgba(grade.warm.colour, grade.warm.amount * 0.25));
         warm.addColorStop(1, rgba(grade.warm.colour, 0));
         return warm;
+      }),
+    // Humid haze: a pale wash, thickest towards the horizon at the top of the picture.
+    haze:
+      grade.haze &&
+      layer((g) => {
+        const haze = g.createLinearGradient(0, 0, 0, HEIGHT);
+        haze.addColorStop(0, rgba(grade.haze.colour, grade.haze.amount));
+        haze.addColorStop(1, rgba(grade.haze.colour, grade.haze.amount * 0.3));
+        return haze;
       }),
     vignette:
       grade.vignette &&

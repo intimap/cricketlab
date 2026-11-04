@@ -5,6 +5,7 @@ import { weatherEffects } from "../sim/weather.js";
 import { declareAdvised, followOnOption, aiEnforces, leadOf, testStatus } from "../sim/test-match.js";
 import * as beats from "./booth-beats.js";
 import { act } from "./player-actions.js";
+import { updateLight } from "./match-light.js";
 
 /**
  * Test cricket and the weather in the match scene: the weather report before play (and each morning of a
@@ -27,11 +28,15 @@ export function openForecast(scene) {
   scene.report = forecastReport(scene);
   scene.view = "close";
   scene.setPhase("forecast");
+  updateLight(scene);
   beats.onForecast(scene);
 }
 
 export function updateForecast(scene) {
-  if (scene.phaseT > 0.5 && (keys.pressed("Space") || keys.pressed("Enter"))) scene.nextBall();
+  if (scene.phaseT <= 0.5 || !(keys.pressed("Space") || keys.pressed("Enter"))) return;
+  // Off the report before the next ball, so a delayed start's rain stops falling.
+  scene.setPhase("resume");
+  scene.nextBall();
 }
 
 /** What the weather report shows (render/weather-report.js). */

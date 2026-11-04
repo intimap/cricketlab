@@ -14,6 +14,8 @@ let days = 0;
 let legal = 0;
 let runs = 0;
 let wickets = 0;
+let stoppages = 0;
+let rainLost = 0;
 for (let seed = 1; seed <= n; seed++) {
   const m = new Match(australia(), england(), pitches[seed % 3], 0, new Rng(seed), "bat", {
     test: true,
@@ -25,6 +27,10 @@ for (let seed = 1; seed <= n; seed++) {
       if (rec.legal) legal++;
       runs += rec.total;
       if (rec.wicket) wickets++;
+      if (applied.rain) {
+        stoppages++;
+        rainLost += applied.rain.lost;
+      }
       // The player batting takes the computer's advice.
       if (applied.overEnded && m.human === "bat" && declareAdvised(m)) m.declare();
     }
@@ -54,6 +60,7 @@ console.log(
   `\n${n} Tests: ${tally.draw} drawn, ${tally.innings} innings wins, ${tally.runs} by runs, ${tally.wkts} by wickets, ${tally.tie} tied`,
 );
 console.log(`${tally.declared} declarations, ${tally.followOn} follow-ons, finished on day ${(days / n).toFixed(1)} on average`);
+console.log(`${stoppages} rain stoppages costing ${rainLost} overs (${(rainLost / n).toFixed(0)} a Test)`);
 console.log(
   `innings averages: ${scores.map(avg).join(" / ")}; ${((6 * runs) / legal).toFixed(2)} rpo, ${(legal / wickets).toFixed(1)} balls/wkt`,
 );

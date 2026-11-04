@@ -70,6 +70,38 @@ const DECLARE = [
   ["THE LEAD IS BIG ENOUGH. DECLARE AND GIVE THE BOWLERS TIME TO WIN IT.", "TIME MATTERS NOW MORE THAN RUNS. I'D DECLARE."],
 ];
 
+const RAIN_STOPS = [
+  ["RAIN STOPS PLAY. ON COME THE COVERS.", "HERE COMES THE RAIN. OFF THEY GO."],
+  ["IT'S POURING! EVERYONE OFF! COVERS ON!", "OH NO, THE RAIN! JUST AS IT WAS GETTING GOOD!"],
+  [
+    "RAIN. THE BOWLERS GET A REST AND THE BALL GETS WET. THAT CHANGES THINGS.",
+    "A BREAK FOR RAIN. THE BATTERS WILL HAVE TO START AGAIN.",
+  ],
+];
+const STOP_LOST = [
+  ["{lost} OVERS LOST TO IT.", "THAT'S COST US {lost} OVERS."],
+  ["{lost} OVERS GONE!", "WE'VE LOST {lost} OVERS!"],
+  ["{lost} OVERS LOST. THE CAPTAINS WILL BE DOING THEIR SUMS.", "{lost} OVERS OFF THE DAY. TIME IS RUNNING SHORT."],
+];
+const RAIN_DAY = [
+  ["NO MORE PLAY TODAY.", "THAT'S IT FOR THE DAY, I'M AFRAID."],
+  ["THEY'VE CALLED IT OFF FOR THE DAY!", "NO MORE CRICKET TODAY!"],
+  ["PLAY ABANDONED FOR THE DAY. THAT HELPS THE SIDE HOPING FOR A DRAW.", "NO MORE TODAY. A DAY LOST IS A DAY LESS TO WIN IT."],
+];
+const RAIN_TARGET = [
+  ["{target} OFF {overs} OVERS NOW.", "THE TARGET IS {target} OFF {overs}."],
+  ["NEW TARGET: {target} OFF {overs} OVERS!", "{target} TO WIN OFF {overs}! GAME ON!"],
+  [
+    "REVISED: {target} OFF {overs} OVERS. WICKETS IN HAND MATTER MORE NOW.",
+    "{target} OFF {overs}. A SHORTER CHASE SUITS THE HITTERS.",
+  ],
+];
+const RAIN_OVERS = [
+  ["{overs} OVERS A SIDE NOW.", "DOWN TO {overs} OVERS A SIDE."],
+  ["{overs} OVERS A SIDE!", "IT'S {overs} OVERS A SIDE NOW!"],
+  ["{overs} OVERS A SIDE. THE BATTERS WILL HAVE TO GO SOONER.", "CUT TO {overs} OVERS A SIDE."],
+];
+
 const fill = (text, facts) => text.replace(/\{(\w+)\}/g, (_, k) => String(facts[k] ?? "")).toUpperCase();
 
 /**
@@ -93,4 +125,19 @@ export function breakCall(who, brk, facts, pick) {
 /** The dressing room (through the box) says it's time to declare. */
 export function declareCall(who, pick) {
   return pick(DECLARE[who]);
+}
+
+/** Rain has stopped play: the voice's first word on it. */
+export function rainStopCall(who, pick) {
+  return pick(RAIN_STOPS[who]);
+}
+
+/** What the rain has cost. facts: { lost, dayOver, overs (a side, limited overs), target (the revised chase) }. */
+export function rainCostCall(who, facts, pick) {
+  const parts = [];
+  if (facts.dayOver) parts.push(pick(RAIN_DAY[who]));
+  else if (facts.lost) parts.push(pick(STOP_LOST[who]));
+  if (facts.target) parts.push(pick(RAIN_TARGET[who]));
+  else if (facts.overs) parts.push(pick(RAIN_OVERS[who]));
+  return fill(parts.join(" "), facts);
 }

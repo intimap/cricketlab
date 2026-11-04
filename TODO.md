@@ -95,7 +95,10 @@ from them rather than re-asking.
 - Done: five-day Tests (90 overs a day, lunch, tea and stumps, the draw), declarations and the follow-on (the
   computer captain decides; the player is advised and chooses), the weather (five kinds, by ground, rolled each
   Test morning) on the pitch, the swing and the outfield, a weather report before play, rain costing overs.
-- Still to come: rain interruptions during play, the light changing by session, an overcast look, bad light,
+- Then: rain stopping play (overs off a Test day, cut overs and a revised target in limited overs), the light
+  changing through the day (by session in a Test, by innings in a long game), each weather's own light and sky,
+  and a team-selection screen (your side and the computer's, with flags and XIs).
+- Still to come: bad light, light rain while play goes on, a gloomier painting for each ground under cloud,
   around-the-wicket and field changes for the Test situation (attacking fields for a declaration, saving the draw).
 - AI-vs-AI Tests (`tools/test-report.mjs`, 20 Tests): 20% drawn, over on day 3.8 on average, 2.86 rpo, 54.5 balls
   a wicket. England's batting is weaker than Australia's (3.5 vs 4.6 rpo in sim-report-style innings): worth a look.

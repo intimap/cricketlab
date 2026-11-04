@@ -110,10 +110,10 @@ GROUNDS.parklandsNew = {
  * and the commentary carry on), the old name, and no second entry on the menu. Turn on PARKLANDS_SIGNED_OFF.
  */
 export function signOffParklands(grounds) {
-  grounds.parklands = { ...grounds.parklandsNew, name: grounds.parklands.name };
+  grounds.parklands = { ...grounds.parklandsNew, name: grounds.parklands.name, hidden: false };
   grounds.parklandsNew = { ...grounds.parklandsNew, hidden: true };
 }
-const PARKLANDS_SIGNED_OFF = false;
+const PARKLANDS_SIGNED_OFF = true;
 if (PARKLANDS_SIGNED_OFF) signOffParklands(GROUNDS);
 GROUNDS.parklandsBoards = parklands("PARKLANDS (BOARDS)", "fence-ads");
 
@@ -301,8 +301,12 @@ GROUNDS.lakshmi = {
   },
 };
 
-/** The grounds the menu offers, the first being the default. */
-export const GROUND_CHOICES = Object.keys(GROUNDS).filter((id) => !GROUNDS[id].hidden);
+/**
+ * The grounds the menu offers, the first being the default. For now only Parklands, the ground built from
+ * a map (TODO.md, Grounds); the others are kept and still work, and come back by adding them to ON_MENU.
+ */
+const ON_MENU = ["parklands"];
+export const GROUND_CHOICES = Object.keys(GROUNDS).filter((id) => !GROUNDS[id].hidden && ON_MENU.includes(id));
 export const DEFAULT_GROUND = "parklands";
 
 /**

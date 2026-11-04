@@ -230,7 +230,7 @@ src/
     ground.js         the layer compositor: builds each view's background from a ground's data
     ground-paint.js   the compositor's kit: pitch sizes, colour helpers, noise, scenery layers, cracks
     stadium-ground.js a ground built round a stadium image (the MCG's wide view)
-    venue/            grounds built from a map of the ground, drawn through the game's cameras (Parklands (new))
+    venue/            grounds built from a map of the ground, drawn through the game's cameras (Parklands)
       venue-map.js      the map's format: its frame, bearings, the ends turning with the bowling, fingerprints
       parklands-map.js  Parklands as a map: pavilion, terrace, stands, banks, scoreboard, trees, lights
       venue-cameras.js  the close camera and the wide TV camera as pinholes in the map's frame
@@ -391,8 +391,9 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   (`node tools/weather-report.mjs`); the scene's side in `scenes/match-test.js`. Rain stopping play in `sim/rain.js`
   and `scenes/match-rain.js`; how each weather looks in `render/weather-look.js`; when the light changes in
   `scenes/match-light.js`.
-- **Ground art:** Parklands (new) has no images: it's drawn from a map (see "Making a ground from a map"
-  below). The other grounds' images live in `assets/` (layer art in `assets/close/`), listed by id in `src/assets.js`;
+- **Ground art:** Parklands has no images: it's drawn from a map (see "Making a ground from a map"
+  below), and for now it's the only ground on the menu (`ON_MENU` in `src/render/grounds.js`; the others
+  still work and come back by adding them there). The other grounds' images live in `assets/` (layer art in `assets/close/`), listed by id in `src/assets.js`;
   grounds pick their layers in `src/render/grounds.js` (`hidden: true` keeps a ground off the menu; The Oval is
   hidden for now). `tools/art/make_scenery.py` regenerates the
   Parklands close-view layers. `python3 tools/art/make_lords.py` regenerates Lord's six close/wide scenery layers
@@ -457,7 +458,7 @@ Run `node tools/bowling-side.test.mjs` to check the side geometry, delivery angl
 
 ### Making a ground from a map
 
-Parklands (new) is drawn from a map of the ground (`src/render/venue/`) rather than paintings, so every
+Parklands is drawn from a map of the ground (`src/render/venue/`) rather than paintings, so every
 view shows the same place at true scale, both ends look like their own ends, and the views turn round with
 the bowling each over. To make another ground this way:
 
@@ -467,9 +468,10 @@ the bowling each over. To make another ground this way:
    `floodlight`, `sightscreen`, `trees` (`bush` for shrubs), `carpark`, `nets`, `shed`, `path`
    (`venue-parts.js` lists what each takes). A new kind goes in `venue-parts.js`, and in `venue-light.js`
    `castersOf` if it should throw a shadow.
-2. **Add the ground** to `src/render/grounds.js` as Parklands (new) is: `venue: <MAP>`, its `ends`, and
-   `wide: { camera: tvWideCamera() }`; its commentary lines in `sim/booth-venue-lines.js` and its weather in
-   `sim/weather.js` if it has its own.
+2. **Add the ground** to `src/render/grounds.js` as Parklands (new) is (`parklandsNew`, which signing off
+   copies over Parklands): `venue: <MAP>`, its `ends`, and
+   `wide: { camera: tvWideCamera() }`, and put it in `ON_MENU`; its commentary lines in
+   `sim/booth-venue-lines.js` and its weather in `sim/weather.js` if it has its own.
 3. **Look at it**: `node tools/ground-sheet.mjs <dir> <ground> [white|red] [weather] [lights]` (with the
    page served on port 8000) draws every view, end and time of day on one sheet, and says how long each
    light took. Things to know about the cameras:

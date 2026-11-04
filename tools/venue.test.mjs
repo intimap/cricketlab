@@ -197,7 +197,7 @@ test("the grounds' painted layers exist, fit their maps, and stay under 500 KB a
   }
 });
 
-test("signing off: Parklands (new) takes over the old Parklands' id and name, and leaves the menu once", async () => {
+test("signed off: Parklands (new) has taken over the old Parklands' id and name, alone on the menu", async () => {
   const { signOffParklands } = await import("../src/render/grounds.js");
   const grounds = { ...GROUNDS };
   signOffParklands(grounds);
@@ -205,6 +205,10 @@ test("signing off: Parklands (new) takes over the old Parklands' id and name, an
   assert.equal(grounds.parklands.name, GROUNDS.parklands.name);
   assert.ok(grounds.parklandsNew.hidden);
   assert.ok(!grounds.parklands.hidden);
-  // Until then both are on the menu, and the old one is still the paintings.
-  assert.ok(!GROUNDS.parklands.venue && !GROUNDS.parklandsNew.hidden);
+  // Signed off: Parklands is the one built from the map, and the menu offers it alone for now.
+  const { GROUND_CHOICES, DEFAULT_GROUND } = await import("../src/render/grounds.js");
+  assert.equal(GROUNDS.parklands.venue, PARKLANDS_MAP);
+  assert.equal(GROUNDS.parklands.name, "PARKLANDS OVAL");
+  assert.deepEqual(GROUND_CHOICES, ["parklands"]);
+  assert.equal(DEFAULT_GROUND, "parklands");
 });

@@ -222,6 +222,14 @@ Stages (built together, reviewed in bulk at the end):
 6. Paint-over templates, stale and size checks, the README section.
 7. Sign-off: PARKLANDS (NEW) replaces Parklands.
 
+Done and signed off (November 2026): all seven stages. Parklands is now the ground drawn from its map
+(`PARKLANDS_SIGNED_OFF` in render/grounds.js), and for now it's the only ground on the menu (`ON_MENU`); the
+others still work and come back as they're rebuilt the same way. After the review: while the ball's in play
+the wide camera always keeps the whole wicket in shot with the ball or the fielder who has it, and a run bar
+above the score bar shows each batter along the pitch, in or out of his ground. Still to come: painting over
+any layers (the tools are ready), life in the ground (the crowd, flags), the run bar's place in the close
+view (it covers the foot of the near stumps while it's up), and measuring on the Pi 5.
+
 ## Later
 
 - Fictional names and art before any pub install.

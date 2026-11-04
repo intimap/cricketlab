@@ -1,10 +1,10 @@
 import { activeWicketSide } from "./bowling-side.js";
-import { bowlingGeometry } from "../sim/bowling-side.js";
+import { bowlingGeometry, armOf } from "../sim/bowling-side.js";
 import { drawMatchBroadcast } from "../render/match-broadcast.js";
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect, drawLine } from "../engine/screen.js";
 import { clamp } from "../math.js";
 import { CREASE, PITCH_LENGTH, MID_PITCH } from "../sim/geometry.js";
-import { DELIVERY_NAMES, SPIN_EFFORT_NAMES, sampleAtTime } from "../sim/delivery.js";
+import { deliveryName, SPIN_EFFORT_NAMES, sampleAtTime } from "../sim/delivery.js";
 import { keeperSpot } from "../sim/field.js";
 import { walkInSpot } from "../sim/fielder-motion.js";
 import {
@@ -33,6 +33,10 @@ import { drawWeatherTile, ICON } from "../render/weather-icon.js";
 import { statusLine } from "./match-test.js";
 import { raining } from "./match-light.js";
 import { drawRain, drawCovers } from "../render/rain.js";
+import { drawBallRing } from "../render/ball-ring.js";
+import { assistOf } from "./assists.js";
+import { bowlerSkeleton } from "../render/bowler/bowler-skeleton.js";
+import { drawBowlerRig } from "../render/bowler/bowler-draw.js";
 
 /** The score box's left edge (render/hud.js drawScoreBox: 132 wide, 4 from the right). */
 const SCORE_BOX_LEFT = WIDTH - 4 - 132;
@@ -58,9 +62,12 @@ export function drawMatch(scene) {
   gradeFrame(ctx, scene.light);
   if (raining(scene)) drawRain(scene.now);
   const effort = scene.cur?.intent.effort ?? scene.effort;
-  const label = scene.inn.bowler
-    ? `${DELIVERY_NAMES[scene.cur?.intent.type ?? scene.deliveryType]} ${scene.spinner ? SPIN_EFFORT_NAMES[effort] : effort.toUpperCase()}`
-    : "";
+  // Batting, what's coming isn't given away: the delivery shows once he's played it (with the speed gun).
+  const played = !!scene.cur && (scene.cur.contactDone || scene.cur.t > 1.2);
+  const label =
+    scene.inn.bowler && (scene.human === "bowl" || played)
+      ? `${deliveryName(scene.cur?.intent.type ?? scene.deliveryType, scene.inn.bowler.p.bowl)} ${scene.spinner ? SPIN_EFFORT_NAMES[effort] : effort.toUpperCase()}`
+      : "";
   // The call types itself out, and stays up while the box talks.
   const booth = boothShowing(scene.booth, scene.now);
   drawScoreBar(scene.inn, scene.commentary.slice(0, Math.floor(scene.commT * 70)), label, statusLine(scene));
@@ -89,7 +96,8 @@ function drawClose(scene) {
   const inn = scene.inn;
   // The non-striker, umpire, bowler and footmarks are where they are in the world, whoever is batting.
   const w = viewFacing();
-  const nonStrikerX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).nonStrikerX * w;
+  const arm = armOf(inn.bowler?.p.bowl);
+  const nonStrikerX = bowlingGeometry(scene.spinner, activeWicketSide(scene), arm).nonStrikerX * w;
   const live = cur?.play?.live;
   drawRough(inn.pitch, w);
   const sprites = [];
@@ -107,7 +115,7 @@ function drawClose(scene) {
     (scene.phase === "decision" && cur?.onField)
       ? "outFinger"
       : "stand";
-  const umpireX = bowlingGeometry(scene.spinner, activeWicketSide(scene)).umpireX * w;
+  const umpireX = bowlingGeometry(scene.spinner, activeWicketSide(scene), arm).umpireX * w;
   sprites.push({
     z: 22.6,
     cast: { x: umpireX, z: 22.6, height: 1.78 },
@@ -156,7 +164,10 @@ function drawClose(scene) {
   sprites.push({
     z: bowler.z,
     cast: { x: bowlerX, z: bowler.z, height: bowlerKit.height },
-    draw: () => figure(bowlerX, bowler.z, bowlerKit.height, { kit: bowlerKit, pose: bowler.pose, phase: bowler.phase }),
+    draw: () =>
+      bowler.rig
+        ? drawBowler(scene, bowler, bowlerKit, w)
+        : figure(bowlerX, bowler.z, bowlerKit.height, { kit: bowlerKit, pose: bowler.pose, phase: bowler.phase }),
   });
   sprites.push({ z: 1.25, cast: { striker: true }, draw: () => drawStriker(scene) });
   // The near stumps: the striker's, or the bowler's end when the camera is there.
@@ -192,6 +203,11 @@ function drawClose(scene) {
           const trail = ballTrail(scene);
           if (trail.length) drawBallTrail(trail, scene.spinner);
           drawBall(p.x, p.y, radius, inn.ball.shine, scene.ballKind);
+          // The ring: length and movement, as read or as it is (scenes/ball-ring.js).
+          const ring = cur?.ring;
+          if (ring && cur.t >= ring.showAt && cur.t < ring.hideAt + 0.15) {
+            drawBallRing(p.x, p.y, radius, ring, cur.t > ring.hideAt ? 1 - (cur.t - ring.hideAt) / 0.15 : 1);
+          }
         }
       },
     });
@@ -215,7 +231,13 @@ function drawClose(scene) {
   if (scene.phase === "rain") return drawCovers(projectClose);
   // Far to near.
   sprites.sort((a, b) => closeDepth(b.z) - closeDepth(a.z));
-  if (scene.phase === "setup") drawTarget(scene);
+  // The aim: while setting up, and on into the run-up unless the assist is HARD; on EASY the landing spot too.
+  const aim = scene.human === "bowl" ? assistOf(scene).aim : "none";
+  if (scene.phase === "setup" || (scene.phase === "runup" && aim !== "none")) drawTarget(scene);
+  if (scene.phase === "runup" && aim === "marker") {
+    const p = projectClose(scene.target.line, 0, scene.target.length);
+    drawPitchReticle(p, 1, 0.5 + 0.5 * Math.sin(scene.now * 8), p.s / projectClose(0, 0, PITCH_LENGTH / 2).s);
+  }
   castShadows(scene, sprites);
   for (const s of sprites) s.draw();
 
@@ -246,6 +268,22 @@ function drawClose(scene) {
   const chirp = scene.chirp;
   if (chirp && scene.now >= chirp.t0 && scene.now - chirp.t0 < 2.2) drawSpeechBubble(chirp.text, 430, 150);
 }
+
+/** The bowler from his rig (render/bowler/): projected at his pelvis, held to the striker's size near the camera. */
+function drawBowler(scene, bowler, kit, w) {
+  const z = bowler.z;
+  if (closeDepth(z) < -1) return;
+  const root = projectClose(bowler.x * w, 0, z);
+  const ppm = Math.min(closePixelsPerMetre(z), NEAR_PIXELS_PER_METRE);
+  const sx = projectClose((bowler.x + 0.1) * w, 0, z).x > root.x ? 1 : -1;
+  const skeleton = bowlerSkeleton(bowler.rig.action, kit.height);
+  // The ball is in his hand until it's bowled.
+  const ball = scene.cur?.delivery ? null : BALL_IN_HAND[scene.ballKind];
+  const view = { root, ppm, line: bowler.rig.line, sx, away: closeFromBowlerEnd() ? -1 : 1, mirror: bowler.rig.arm };
+  drawBowlerRig(skeleton, kit, view, { ball });
+}
+
+const BALL_IN_HAND = { red: "#b3262b", pink: "#e86aa0", white: "#f4f2ea" };
 
 /** Footmarks: speckled, worn patches that grow as the pitch breaks up. */
 function drawRough(pitch, w) {

@@ -1,7 +1,8 @@
-import { bowlingGeometry } from "./bowling-side.js";
+import { bowlingGeometry, armOf } from "./bowling-side.js";
 import { clamp } from "../math.js";
 import { GRAVITY, CREASE, STUMPS_HALF_WIDTH, STUMPS_HEIGHT, BALL_RADIUS } from "./geometry.js";
 import { isSpinner, bowlingSpeed } from "./teams.js";
+import { rhythmEffect } from "./rhythm.js";
 
 export const EFFORTS = ["low", "med", "high"];
 const EFFORT_SPEED = { low: 0.93, med: 1, high: 1.055 };
@@ -22,6 +23,12 @@ export const DELIVERY_NAMES = {
   googly: "GOOGLY",
 };
 
+/** A delivery's name for this bowler: a left-armer's finger-spinner is LEFT-ARM SPIN, not OFFSPIN. */
+export function deliveryName(type, skills) {
+  if (type === "offspin" && skills?.arm === "left") return "LEFT-ARM SPIN";
+  return DELIVERY_NAMES[type] ?? "";
+}
+
 /** Spinners use effort as flight: tossed up, stock, or fired in flat. */
 export const SPIN_EFFORT_NAMES = { low: "FLIGHTED", med: "STOCK", high: "FLAT" };
 const SPIN_EFFORT_TURN = { low: 1.15, med: 1, high: 0.85 };
@@ -38,6 +45,11 @@ const AFTERTOUCH_SPIN = 0.8;
 const AFTERTOUCH_SPRAY = 0.6;
 
 const SPEED_FACTOR = { slower: 0.78, cutter: 0.9, armBall: 1.06 };
+
+/** A mistimed release moves the line this far (m) per second of error, mostly wide of off. */
+const LOOSE_LINE = 1.2;
+/** Released this late (s) or later, the bowler has overstepped: a no-ball (sim/runup.js shows it in red). */
+export const NO_BALL_LATE = 0.14;
 
 /** Half-width (seconds) of the perfect-release window at the delivery stride; shrinks as the bowler tires. */
 export const releaseSweetSpot = (stamina) => 0.03 * (0.5 + stamina);
@@ -67,19 +79,48 @@ export function expectedTurnAtBat(intent, skills, ball, pitch) {
   return (turn * Math.max(0, intent.length - CREASE)) / (speed * paceKept);
 }
 
+/**
+ * How far (m, striker's frame) to move a line set for a right-armer over the wicket to a right-hander, so the
+ * ball still arrives where it was meant to when the angle or the turn is the other way: a left-armer, a
+ * left-hander, or around the wicket. `flip` is -1 when the bowler and batter are opposite-handed (the world
+ * is mirrored for him: sim/match.js), `side` "over" or "around". The keeper's advice allows for every angle
+ * (`angles` "all"); the computer, so far, only for a left-armer's ("leftArm"): its right-armers have always
+ * bowled their right-hander's lines to left-handers, and the game's balance is set with that (see TODO.md).
+ */
+export function aimAllowance(intent, skills, ball, pitch, flip, side = "over", angles = "all") {
+  const spinner = isSpinner(skills);
+  const turn = flip < 0 ? 2 * expectedTurnAtBat(intent, skills, ball, pitch) : 0;
+  if (angles === "leftArm" && armOf(skills) > 0) return turn;
+  // The angle: from a release on the other side of the stumps, a ball pitched on the same spot carries on
+  // further across him. Aim straighter by as much as keeps its line at the crease.
+  const usual = bowlingGeometry(spinner, "over").releaseX;
+  const actual = bowlingGeometry(spinner, side).releaseX * flip;
+  const pitchZ = Math.min(14, Math.max(CREASE + 0.5, intent.length));
+  const r = (pitchZ - CREASE) / (18.7 - pitchZ);
+  return turn + ((actual - usual) * r) / (1 + r);
+}
+
 export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError, rng) {
   const spinner = isSpinner(skills);
   const tiredness = 1 - stamina;
   const type = intent.type;
+  // The player's run-up rhythm (sim/rhythm.js): his pace, his line and the aftertouch he's earned.
+  const rhythm = typeof intent.rhythm === "number" ? rhythmEffect(intent.rhythm, intent.effort) : null;
   let speed = bowlingSpeed(skills) * EFFORT_SPEED[intent.effort] * (0.88 + 0.12 * stamina) * (SPEED_FACTOR[type] ?? 1);
-  speed *= 1 + rng.normal(0, 0.012);
+  speed *= (1 + rng.normal(0, 0.012)) * (rhythm?.speed ?? 1);
 
-  const touch = intent.aftertouch ?? 0;
+  const touch = (intent.aftertouch ?? 0) * (rhythm?.touch ?? 1);
   const spray =
-    (1.35 - skills.accuracy) * (1 + tiredness * 1.3) * EFFORT_SPRAY[intent.effort] * (1 + AFTERTOUCH_SPRAY * Math.abs(touch));
-  const badRelease = Math.abs(releaseError) > 0.1 ? 2.2 : 1;
+    (1.35 - skills.accuracy) *
+    (1 + tiredness * 1.3) *
+    EFFORT_SPRAY[intent.effort] *
+    (1 + AFTERTOUCH_SPRAY * Math.abs(touch)) *
+    (rhythm?.spray ?? 1);
+  // A mistimed release is a loose ball rather than a wild one: it drifts wide of off (there to be hit), and
+  // a badly mistimed one sprays a little more.
+  const badRelease = Math.abs(releaseError) > 0.1 ? 1.5 : 1;
   const line =
-    intent.line + rng.normal(0, 0.075 * spray * badRelease) + Math.abs(releaseError) * 1.6 * (rng.next() < 0.5 ? -1 : 1);
+    intent.line + rng.normal(0, 0.075 * spray * badRelease) + Math.abs(releaseError) * LOOSE_LINE * (rng.chance(0.8) ? 1 : -1);
   // A bouncer is banged in short; a yorker is aimed at the toes and is easy to over-pitch.
   let target = intent.length;
   if (type === "bouncer") target = Math.max(target, 11);
@@ -89,10 +130,11 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
   let length = target + rng.normal(0, 0.55 * spray * badRelease * lengthSpray) - releaseError * 26;
   length = clamp(length, -1.5, 15);
 
+  // Only a very late release oversteps; a late one is dragged full (a full toss, there to be hit).
   const noBall =
-    releaseError > 0.11 ||
-    (intent.effort === "high" && releaseError > 0.075 && rng.chance(0.5)) ||
-    rng.chance(0.004 + tiredness * 0.006);
+    releaseError > NO_BALL_LATE ||
+    (intent.effort === "high" && releaseError > NO_BALL_LATE - 0.02 && rng.chance(0.5)) ||
+    rng.chance(0.002 + tiredness * 0.004);
 
   let swingDir = 0;
   if (intent.type === "outswing") swingDir = 1;

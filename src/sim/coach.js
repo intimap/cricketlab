@@ -1,4 +1,4 @@
-import { DELIVERY_NAMES, crossingAtZ, lengthName, lineName, movementText } from "./delivery.js";
+import { deliveryName, crossingAtZ, lengthName, lineName, movementText } from "./delivery.js";
 import { shotSuitability, CONTACT_Z_FRONT } from "./batting.js";
 
 /**
@@ -38,7 +38,7 @@ export function describeDelivery(d, spinner) {
   const at = d.atCrease;
   const length = lengthName(d.pitchedAt?.z ?? 0, spinner).toUpperCase();
   const line = lineName(at ? at.x : d.intent.line).toUpperCase();
-  return `${kmh(d)} KM/H ${DELIVERY_NAMES[d.intent.type]}, ${length}, ${line}`;
+  return `${kmh(d)} KM/H ${deliveryName(d.intent.type, d.arm < 0 ? { arm: "left" } : null)}, ${length}, ${line}`;
 }
 
 function resultText(rec) {

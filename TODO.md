@@ -103,6 +103,74 @@ from them rather than re-asking.
 - AI-vs-AI Tests (`tools/test-report.mjs`, 20 Tests): 20% drawn, over on day 3.8 on average, 2.86 rpo, 54.5 balls
   a wicket. England's batting is weaker than Australia's (3.5 vs 4.6 rpo in sim-report-style innings): worth a look.
 
+## Bowling (agreed November 2026, branch `bowling`)
+
+From a review and a grilling round. What bothers most: the bowler's run-up and action look wrong (big); the
+release meter is the only skill (moderate); setting up every ball is slow; you can't tell why a ball worked.
+Measured before (20 computer innings of 50 overs each, player bowling): perfect releases with the same ball
+5.40 rpo and 64.6 balls a wicket; mixing it up 5.30 rpo, 33.2 balls a wicket; human-like misses 29 extras an
+innings (18 wides, 11 no-balls); all bouncers never finished an over. The computer's own bowling: 4.72 rpo,
+37.3 balls a wicket.
+
+Decisions:
+
+- Target: a good player who mixes it up does about what the computer's bowlers do (4.5-4.8 rpo, a wicket every
+  30-35 balls over 50 overs). A missed release gives a loose ball (short and wide, there to be hit) more than
+  extras: about a third of the extras.
+- The bouncer law (Law 41.6): a third bouncer in an over is a no-ball and a warning; after a final warning the
+  bowler is taken off for the innings. Warnings on screen and from the box.
+- Keyboard only for now.
+- The bowler gets a 3D skeleton like the batter's (shared rig maths, pixel-art drawing, outline, both ends), one
+  action per style (fast, swing, medium, off-spin, leg-spin), reviewed on frame sheets and in slow motion.
+- Left-arm bowlers: left-arm fast/swing and orthodox spin. Stork (AUS) and Janssen (SA) left-arm fast;
+  Ravindran, Santna (NZ) and Maharajh (SA) orthodox. England none for now.
+- The run-up is three taps: two on the last two strides set the rhythm (on the beat gives full pace and a
+  tighter line), the third at the delivery stride is the release (length, no-ball). High effort tightens the
+  beats but rewards more. Spinners tap on a slower beat. Aftertouch is earned: only after on-beat taps.
+- The keeper or captain suggests the next ball in the setup panel, from the computer's own plan, using only
+  what you know (a weakness once given away, the balls he's seen); Enter accepts.
+- Seeing the battle: a pitch map of the last 12 balls to this batter in the setup panel, a word after each ball
+  on how he read it (SURPRISE!, LINED IT UP, ON HIS WEAKNESS, DIDN'T PICK IT), and an end-of-over summary when
+  bowling (Space skips).
+- The ring around the ball in flight: its colour is the length (purple yorker, green full, gold good, red
+  short), its side the swing or turn. Batting, it shows your batter's read from when he reads it (the decoy if
+  he doesn't pick it); bowling, the truth after release. The delivery label leaves the score bar while you bat
+  and appears after he's played it, with the speed gun.
+- Assists, EASY / NORMAL / HARD (default NORMAL), on the where-and-when page and in the pause menu:
+
+  |                      | EASY                            | NORMAL              | HARD                |
+  | -------------------- | ------------------------------- | ------------------- | ------------------- |
+  | Rhythm taps          | wide beats, a miss costs little | as designed         | narrow beats        |
+  | Gold zone            | wider                           | as now              | narrower            |
+  | Aim after running in | landing marker stays            | crosshair stays     | crosshair hides     |
+  | Ring batting         | true path from release          | your batter's read  | off                 |
+  | Ring bowling         | truth after release             | truth after release | truth after release |
+  | Suggestion           | shown and selected              | shown               | shown               |
+
+  High-score entries show the easiest level used in the match.
+
+Done (first pass, branch `bowling`): all seven streams below. Balance after them, a good player bowling
+sensible plans against the computer's batting (tools/bowling-report.mjs, 120 innings of 50 overs): 4.76 rpo and
+34.5 balls a wicket, inside the target; the computer's own bowling unchanged at 4.68 rpo (sim-report).
+
+Found on the way, for a decision: the computer's right-arm bowlers bowl their right-hander's lines to
+left-handers, which the angle carries well wide (a planned off-stump ball crosses the crease 0.46 m outside off
+to a left-hander, 0.11 m to a right-hander). Allowing for it (as left-armers and the keeper's advice now do,
+`aimAllowance` in sim/delivery.js) takes the computer's bowling from 4.68 to 4.45 rpo and 37.9 to 27.8 balls a
+wicket in sim-report, because Australia's top order has several left-handers: a big change to everyone's batting,
+so it's left for you to choose. Still to come: around-the-wicket choices for the computer, a left-armer's own
+footmarks, per-player quirks in the action (data hooks), drawn celebrations and appeals on the new rig.
+
+Streams, in order, each ending in a play-test:
+
+1. Fixes: the bouncer law, misses giving loose balls, balance to the target.
+2. The bowler's 3D action, five styles.
+3. The three-tap run-up, synced to the action, with earned aftertouch.
+4. Seeing the battle: the suggestion, the pitch map, the read words, the over summary, the label.
+5. The ring around the ball.
+6. Assists and scores.
+7. Left-arm bowlers.
+
 ## Later
 
 - Fictional names and art before any pub install.

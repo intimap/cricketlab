@@ -39,7 +39,7 @@ export function boothContext(rec, inn, memory, beforePressure, { narrative, ligh
   }
   if (rec.wicket && inn && !inn.isOver) add("wicket", 80);
   // A weakness showing: worth the box's while, more so once it's plain (sim/scouting.js).
-  if (rec.scout) add(rec.scout.kind, rec.scout.kind === "weaknessShown" ? 93 : 73, { how: rec.scout.how });
+  if (rec.scout) add(rec.scout.kind, rec.scout.kind === "weaknessHint" ? 73 : 93, { how: rec.scout.how });
   const validDrop = rec.dropped && !rec.freeHit && rec.extra?.type !== "nb";
   if (validDrop) add("drop", 90);
   if (rec.nearRunout) add("nearRunout", 85);

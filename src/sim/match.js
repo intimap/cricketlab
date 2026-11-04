@@ -1,4 +1,4 @@
-import { bowlerFieldingHome } from "./bowling-side.js";
+import { bowlerFieldingHome, armOf } from "./bowling-side.js";
 import { facingOf, mirrorDelivery, toStriker } from "./handedness.js";
 import { scout } from "./scouting.js";
 import { PITCH_TYPES, Pitch } from "./conditions.js";
@@ -7,7 +7,7 @@ import { Commentary } from "./commentary.js";
 import { Rng } from "./rng.js";
 import { MomentTracker } from "./moments.js";
 import { isSpinner } from "./teams.js";
-import { bowlDelivery, expectedTurnAtBat, movementOf } from "./delivery.js";
+import { bowlDelivery, aimAllowance, movementOf } from "./delivery.js";
 import { resolveDelivery } from "./batting.js";
 import { plainCall } from "./call.js";
 import { nextEye, offStrikeEye, eyeMultiplier } from "./eye.js";
@@ -18,6 +18,7 @@ import { clamp } from "../math.js";
 import { bearingOf } from "./geometry.js";
 import { TestClock, TEST_WEAR, testOverEnded, testNextInnings, testResult } from "./test-match.js";
 import { showerComes, limitedRain, revisedTarget } from "./rain.js";
+import { callBouncer } from "./bouncer-law.js";
 
 /** How often the on-field umpire gets an LBW wrong, either way. */
 const UMPIRE_ERROR = 0.15;
@@ -125,7 +126,11 @@ export class Match {
     const inn = this.inn;
     this.needOver = false;
     inn.setBowler(bowlerIdx ?? pickBowler(inn));
-    inn.overPlan = pickOverPlan(inn, this.rng);
+    // A new bowler mid-over (the last one taken off) starts the bouncer count afresh.
+    inn.overBouncers = 0;
+    // Bowling, the player's captain plans with only what the player has seen given away (sim/scouting.js).
+    const known = this.human === "bowl" ? !!inn.bat[inn.striker].weaknessShown : undefined;
+    inn.overPlan = pickOverPlan(inn, this.rng, known);
     if (this.human !== "bowl" && !inn.customField) inn.setPreset(pickFieldPreset(inn));
     if (inn.newBallAvailable && this.human !== "bowl") inn.takeNewBall();
   }
@@ -147,10 +152,16 @@ export class Match {
     // Aimed relative to the striker (+ line is his off side), bowled in the world, then seen from his end.
     // Turn that comes into a right-hander goes away from a left-hander, so the computer's lines (set for
     // right-handers) aim off for twice it: the ball then arrives where it would against a right-hander.
+    // A left-armer is bowled as a right-armer in a mirrored world (swing named by the batter), then turned back.
     const facing = this.facing;
-    const allow = facing < 0 && intent.byComputer ? 2 * expectedTurnAtBat(intent, bowler.p.bowl, inn.ball, inn.pitch) : 0;
+    const arm = armOf(bowler.p.bowl);
+    const flip = facing * arm;
+    const allow = intent.byComputer
+      ? aimAllowance(intent, bowler.p.bowl, inn.ball, inn.pitch, flip, intent.wicketSide, "leftArm")
+      : 0;
+    const swung = arm < 0 ? { outswing: "inswing", inswing: "outswing" }[intent.type] : null;
     const world = bowlDelivery(
-      { ...intent, line: (intent.line + allow) * facing },
+      { ...intent, type: swung ?? intent.type, line: (intent.line + allow) * flip },
       bowler.p.bowl,
       bowler.stamina,
       inn.ball,
@@ -158,21 +169,16 @@ export class Match {
       releaseError,
       this.rng,
     );
-    const d = { ...(facing < 0 ? { ...mirrorDelivery(world), intent } : world), facing };
+    const d = { ...(flip < 0 ? mirrorDelivery(world) : world), intent, facing, arm };
     inn.spendStamina(intent.effort, releaseError);
-    // More than two bouncers in an over is a no-ball.
-    if (intent.type === "bouncer" || (!isSpinner(bowler.p.bowl) && (d.pitchedAt?.z ?? 0) > 10)) {
-      inn.overBouncers++;
-      if (inn.overBouncers > 2) {
-        d.noBall = true;
-        d.bouncerNoBall = true;
-      }
-    }
+    // Too many bouncers (sim/bouncer-law.js).
+    callBouncer(inn, bowler, d);
     // Disguised deliveries: does the striker pick it out of the hand?
     if (d.disguised) {
       const bat = inn.bat[inn.striker].p.bat;
       const picks = this.rng.chance(intent.type === "slower" ? 0.3 + 0.4 * bat.vsPace : 0.25 + 0.45 * bat.vsSpin);
       if (!picks) {
+        d.notPicked = true;
         d.expectedSpinKick = d.decoySpinKick;
         if (intent.type === "slower") d.paceMisread = true;
       }
@@ -207,7 +213,7 @@ export class Match {
       fielders: this.fieldersFor(),
       keeper: inn.keeper,
       bowler: inn.bowler.p,
-      bowlerHome: toStriker(bowlerFieldingHome(this.spinner, intent.wicketSide), this.facing),
+      bowlerHome: toStriker(bowlerFieldingHome(this.spinner, intent.wicketSide, armOf(inn.bowler.p.bowl)), this.facing),
       spinner: this.spinner,
       outfield: inn.pitch.outfield,
       noBall: delivery.noBall,
@@ -322,6 +328,10 @@ export class Match {
       battle: shot.battle ?? null,
       freeHit: inn.freeHit,
       bouncerNoBall: !!delivery.bouncerNoBall,
+      /** A disguised ball (googly, arm ball, slower ball) he didn't pick out of the hand. */
+      notPicked: !!delivery.notPicked,
+      /** The umpire's word on too many bouncers: "warning" (first and final) or "suspended" (taken off). */
+      bouncerWarning: delivery.bouncerWarning ?? null,
       over: inn.overNo,
       ball: inn.ballInOver + 1,
       legal: !wide && !noBall,
@@ -365,6 +375,8 @@ export class Match {
     const applied = inn.apply(rec);
     this.comm.remember(rec, inn);
     if (applied.overEnded) this.needOver = true;
+    // A bowler taken off mid-over: another finishes it.
+    if (rec.bouncerWarning === "suspended" && !applied.overEnded && !inn.isOver) this.needOver = true;
     if (applied.overEnded && this.clock) testOverEnded(this, applied);
     else if (applied.overEnded && !(this.innings.length > 1 && inn.isOver) && showerComes(this)) {
       // Rain stops a limited-overs game: overs cut and the chase revised.

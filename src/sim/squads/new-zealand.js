@@ -32,7 +32,7 @@ export function newZealand() {
       nick: "Rach",
       role: "top",
       flair: 0.15,
-      bowl: bowler("offspin", 0.45, { accuracy: 0.7 }),
+      bowl: bowler("offspin", 0.45, { accuracy: 0.7, arm: "left" }),
     },
     {
       name: "Darryl Mitchum",
@@ -62,7 +62,7 @@ export function newZealand() {
       look: look(1.82, "fair", "lightBrown", "short", "full", 74),
       nick: "Santa",
       role: "allround",
-      bowl: bowler("offspin", 0.65, { accuracy: 0.8 }),
+      bowl: bowler("offspin", 0.65, { accuracy: 0.8, arm: "left" }),
     },
     {
       name: "Tim Southey",

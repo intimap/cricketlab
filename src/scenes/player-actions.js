@@ -2,6 +2,8 @@ import { COLORS } from "../engine/screen.js";
 import { sfx } from "../engine/audio.js";
 import { isSpinner } from "../sim/teams.js";
 import { PRESET_LABELS, positionName } from "../sim/field.js";
+import { pickFieldPreset } from "../sim/ai.js";
+import { takeAdvice } from "./bowling-advice.js";
 
 /**
  * Every player decision that can change the match, as a plain message: { type, ...details }. The scene's
@@ -12,11 +14,12 @@ import { PRESET_LABELS, positionName } from "../sim/field.js";
  * they set travels in the action that commits them.
  *
  *   swing { t, shot, power }     defend { t, foot }       leave {}          run { end }
- *   bowl { plan }                release { error }        appeal {}         review { side }   accept {}
+ *   bowl { plan }                beat { index, error }    release { error, rhythm }        appeal {}         review { side }   accept {}
  *   chooseBowler { bowler }      delivery { delivery }    effort { effort } field { preset }
  *   newBall {}                   wicketSide { side }      placeFielder { idx, pos }
  *   simulate { overs }           catchPress {}            throwCall { end }
  *   declare {}                   followOn { enforce }     (a Test: scenes/match-test.js)
+ *   takeAdvice { plan }          (the keeper's suggested ball: scenes/bowling-advice.js)
  */
 export function act(scene, action) {
   (scene.actions ??= []).push({ ...action, at: scene.now, ball: scene.inn.legal });
@@ -33,8 +36,14 @@ export function act(scene, action) {
     case "bowl":
       scene.cur = scene.newBall(action.plan, 0);
       return scene.setPhase("runup");
+    case "takeAdvice":
+      takeAdvice(scene, action.plan);
+      return scene.flash("THE KEEPER'S BALL", "#9fd0ff");
+    case "beat":
+      scene.cur.beats[action.index].error = action.error;
+      return sfx.click();
     case "release":
-      return scene.release(action.error);
+      return scene.release(action.error, action.rhythm);
     case "appeal":
       return scene.appeal();
     case "review":
@@ -79,18 +88,16 @@ export function act(scene, action) {
   }
 }
 
-/** A new over from `bowler`: his first delivery and a crosshair (and field) to suit his style. */
+/**
+ * A new over from `bowler`: his first delivery and a crosshair to suit his style, and the field the captain
+ * would set for him (unless the player has placed his own).
+ */
 function chooseBowler(scene, bowler) {
   const inn = scene.inn;
   scene.match.startOver(bowler);
   const skills = inn.bowler.p.bowl;
   scene.deliveryType = skills.repertoire[0];
-  if (isSpinner(skills)) {
-    scene.target = { line: 0.25, length: 5.4 };
-    if (!inn.customField) inn.setPreset("spin");
-  } else {
-    scene.target = { line: 0.22, length: 6.4 };
-    if (inn.preset === "spin" && !inn.customField) inn.setPreset("attacking");
-  }
+  scene.target = isSpinner(skills) ? { line: 0.25, length: 5.4 } : { line: 0.22, length: 6.4 };
+  if (!inn.customField) inn.setPreset(pickFieldPreset(inn));
   scene.nextBall();
 }

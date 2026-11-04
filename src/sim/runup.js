@@ -1,5 +1,5 @@
 import { clamp } from "../math.js";
-import { releaseSweetSpot } from "./delivery.js";
+import { releaseSweetSpot, NO_BALL_LATE } from "./delivery.js";
 
 /**
  * The player's run-up and the release meter it drives. Each ball gets its own
@@ -28,7 +28,7 @@ const EFFORT_ZONE = { low: 1.5, med: 1.2, high: 0.85 };
 /** The gold zone never passes in less than this (seconds), however tired and hard-running the bowler. */
 const MIN_GOLD_WINDOW = 0.04;
 /** Releasing this late (seconds-equivalent) or later is a no-ball on the meter. */
-export const METER_NO_BALL = 0.11;
+export const METER_NO_BALL = NO_BALL_LATE;
 /** Earliest releasable meter position; retain the existing release gate. */
 export const METER_FROM = 0.4;
 /** Show the full slow approach instead of pinning the first 40% to the left edge. */

@@ -6,9 +6,20 @@ import { stepFeedback } from "./match-feedback.js";
 import { act } from "./player-actions.js";
 import { updateForecast, updateFollowOn } from "./match-test.js";
 import { updateRain } from "./match-rain.js";
+import { ASSISTS, setAssist } from "./assists.js";
+
+/** How long the over's summary stays up while bowling, unless Space moves on (s). */
+const OVER_SUMMARY_TIME = 8;
+/** Slow motion (G), for watching the bowler's action and the batter's strokes: this share of real speed. */
+const SLOW_MOTION = 0.25;
 
 /** One frame of the match scene: pause and camera keys, then whatever the current phase does. */
 export function updateMatch(scene, dt) {
+  if (keys.pressed("KeyG")) {
+    scene.slowMotion = !scene.slowMotion;
+    scene.flash(scene.slowMotion ? "SLOW MOTION" : "FULL SPEED");
+  }
+  if (scene.slowMotion && scene.phase !== "pause") dt *= SLOW_MOTION;
   scene.now += dt;
   const striker = scene.inn.bat[scene.inn.striker];
   stepFeedback(scene.juice, scene.now, dt, scene.human === "bat" && striker ? striker.eye : null, scene.inn.pressure);
@@ -18,6 +29,7 @@ export function updateMatch(scene, dt) {
   if (scene.phase === "pause") {
     const action = scene.pauseMenu.update();
     if (action === "view") scene.toggleCloseEnd();
+    if (action === "assist") setAssist(scene, ASSISTS[(ASSISTS.indexOf(scene.assist) + 1) % ASSISTS.length]);
     if (action === "resume") scene.setPhase(scene.pausedFrom);
     else if (action === "quit") scene.game.toMenu();
     return;
@@ -76,11 +88,13 @@ export function updateMatch(scene, dt) {
     case "return":
       scene.updateReturn(dt);
       break;
-    case "overEnd":
-      // Finish the recap before changing ends, unless the player moves on.
-      if ((scene.phaseT > 2.4 && scene.now >= scene.boothEndsAt()) || keys.pressed("Space") || keys.pressed("Enter"))
-        scene.nextBall();
+    case "overEnd": {
+      // Finish the recap before changing ends, unless the player moves on (bowling, he reads his over's summary).
+      const hold = scene.human === "bowl" ? OVER_SUMMARY_TIME : 2.4;
+      const skip = scene.phaseT > 0.4 && (keys.pressed("Space") || keys.pressed("Enter"));
+      if ((scene.phaseT > hold && scene.now >= scene.boothEndsAt()) || skip) scene.nextBall();
       break;
+    }
     case "chooseBowler":
       scene.updateChooseBowler();
       break;

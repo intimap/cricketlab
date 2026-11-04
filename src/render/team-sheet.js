@@ -1,6 +1,7 @@
 import { COLORS, fillRect, drawPanel } from "../engine/screen.js";
 import { drawText } from "../engine/text.js";
 import { drawTeamFlag, FLAG_SIZE } from "./team-flag.js";
+import { styleName } from "../sim/teams.js";
 
 /** A team sheet's size on the team-selection screen (scenes/menu-teams.js). */
 export const SHEET = { w: 290, h: 216 };
@@ -10,7 +11,7 @@ const ROW = 14;
 /** A player's job on the sheet: keeper, his bowling, or batter. */
 function roleOf(p) {
   if (p.keeper) return "KEEPER";
-  if (p.bowl) return p.bowl.style.toUpperCase();
+  if (p.bowl) return styleName(p.bowl);
   return "BATTER";
 }
 

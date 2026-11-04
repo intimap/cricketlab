@@ -53,6 +53,7 @@ export function updateSetup(scene) {
   if (keys.pressed("KeyE")) act(scene, { type: "effort", effort: EFFORTS[(EFFORTS.indexOf(scene.effort) + 1) % 3] });
   if (keys.pressed("KeyF")) scene.cyclePreset();
   if (keys.pressed("KeyN") && scene.inn.newBallAvailable) act(scene, { type: "newBall" });
+  if (keys.pressed("Enter") && scene.advice) act(scene, { type: "takeAdvice", plan: scene.advice.intent });
   if (keys.pressed("Space")) {
     const plan = {
       type: scene.deliveryType,

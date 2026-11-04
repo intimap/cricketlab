@@ -6,7 +6,8 @@ import { WIDTH, COLORS, fillRect, drawPanel, drawBar } from "../engine/screen.js
 import { drawText, wrapText } from "../engine/text.js";
 import { clamp } from "../math.js";
 import { CREASE } from "../sim/geometry.js";
-import { movementParts } from "../sim/delivery.js";
+import { movementParts, deliveryName } from "../sim/delivery.js";
+import { styleName } from "../sim/teams.js";
 import { PRESET_LABELS } from "../sim/field.js";
 import { closeFromBowlerEnd, projectWide } from "../render/camera.js";
 import { playerKit } from "../render/sprites.js";
@@ -18,6 +19,10 @@ import { HUD_Y, staminaColor, drawScorecard } from "../render/hud.js";
 import { strikerPlace } from "./match-striker.js";
 import { drawWeatherReport, drawRainReport } from "../render/weather-report.js";
 import { declareAdvice } from "./match-test.js";
+import { gradeTap } from "../sim/rhythm.js";
+import { assistOf, ASSIST_NAMES } from "./assists.js";
+import { overReview } from "../sim/over-review.js";
+import { drawOverSummary } from "../render/over-summary.js";
 
 /**
  * The match's panels over the picture: the bowling setup and choice of bowler, the speed gun, the
@@ -51,6 +56,13 @@ export function drawPanels(scene) {
   }
   if (scene.phase === "forecast" && scene.report) drawWeatherReport(scene.report, scene.now);
   if (scene.phase === "rain" && scene.rainReport) drawRainReport(scene.rainReport, scene.now);
+  if (scene.phase === "overEnd" && scene.human === "bowl" && inn.lastOverPitches.length) {
+    const dots = inn.lastOverPitches;
+    const review = overReview(dots);
+    const wkts = review.wickets ? `, ${review.wickets} WICKET${review.wickets > 1 ? "S" : ""}` : "";
+    const title = `OVER ${inn.overNo}: ${review.runs} RUN${review.runs === 1 ? "" : "S"}${wkts}`;
+    drawOverSummary({ title, dots, line: review.line, facing: scene.screenTurn }, scene.now);
+  }
 
   if (scene.phase === "flight" && scene.human === "bat" && scene.cur?.contactDone && scene.cur.play) {
     const live = scene.cur.play.live;
@@ -63,7 +75,7 @@ export function drawPanels(scene) {
   }
 
   if (scene.phase === "runup" && scene.human === "bowl" && scene.cur && scene.cur.tRun < 0.6) {
-    drawText("SPACE TO RELEASE AT THE DELIVERY STRIDE  -  HOLD LEFT/RIGHT FOR AFTERTOUCH", WIDTH / 2, 6, {
+    drawText("SPACE ON HIS LAST TWO STRIDES, THEN AT THE DELIVERY STRIDE  -  HOLD LEFT/RIGHT FOR AFTERTOUCH", WIDTH / 2, 6, {
       ...PANEL_TEXT,
       color: COLORS.gold,
     });
@@ -84,17 +96,20 @@ export function drawPanels(scene) {
 
   if (scene.phase === "chooseBowler") {
     drawPanel(150, 60, 340, 40 + inn.bowl.length * 22);
-    drawText(`OVER ${inn.overNo + 1}: CHOOSE YOUR BOWLER`, WIDTH / 2, 68, { align: "center", color: COLORS.gold });
+    const title = inn.midOver ? `FINISH OVER ${inn.overNo + 1}: CHOOSE A BOWLER` : `OVER ${inn.overNo + 1}: CHOOSE YOUR BOWLER`;
+    drawText(title, WIDTH / 2, 68, { align: "center", color: COLORS.gold });
     inn.bowl.forEach((b, i) => {
       const y = 84 + i * 22;
       const available = inn.canBowl(i);
       if (i === scene.selBowler) fillRect(156, y - 3, 328, 20, "#24563a");
       drawText(`${i + 1}. ${b.p.name.toUpperCase()}`, 162, y, { color: available ? COLORS.cream : COLORS.grey });
-      drawText(`${b.p.bowl.style.toUpperCase()}  ${inn.bowlerOvers(b)}-${b.maidens}-${b.runs}-${b.wkts}`, 162, y + 9, {
+      drawText(`${styleName(b.p.bowl)}  ${inn.bowlerOvers(b)}-${b.maidens}-${b.runs}-${b.wkts}`, 162, y + 9, {
         color: COLORS.dim,
       });
       drawBar(400, y + 2, 60, 5, b.stamina, staminaColor(b.stamina));
-      if (!available) drawText("BOWLED LAST OVER", 400, y + 10, { color: COLORS.grey });
+      if (b.suspended) drawText("TAKEN OFF", 400, y + 10, { color: COLORS.red });
+      else if (!available) drawText("BOWLED LAST OVER", 400, y + 10, { color: COLORS.grey });
+      else if (b.bouncerWarnings) drawText("WARNED: BOUNCERS", 400, y + 10, { color: COLORS.gold });
       else if (b.spell >= 5) drawText(`SPELL ${b.spell} OV`, 400, y + 10, { color: COLORS.dim });
     });
     drawText(`ARROWS/1-${inn.bowl.length} + ENTER.  STAMINA RECOVERS WHEN RESTED.`, WIDTH / 2, 92 + inn.bowl.length * 22, {
@@ -133,7 +148,7 @@ export function drawPanels(scene) {
   if (scene.feedback && (scene.phase === "after" || scene.phase === "return")) drawCoachCard(scene);
   if (!scene.nets && SPEED_GUN_PHASES.has(scene.phase)) drawSpeedGun(scene);
   if (METER_PHASES.has(scene.phase)) drawBatterPanel(scene);
-  if (scene.phase === "pause") scene.pauseMenu.draw(inn, scene.closeEnd);
+  if (scene.phase === "pause") scene.pauseMenu.draw(inn, scene.closeEnd, ASSIST_NAMES[scene.assist]);
 
   if (scene.phase === "inningsEnd") {
     const ending = scene.ending;
@@ -162,8 +177,11 @@ const SPEED_GUN_PHASES = new Set(["flight", "after", "return", "appeal", "decisi
 function drawSpeedGun(scene) {
   const d = scene.cur?.delivery;
   if (!d) return;
-  const parts = scene.cur.contactDone || scene.cur.t > 1.2 ? movementParts(d) : [];
-  const shown = scene.cur.contactDone || scene.cur.t > 1.2 ? (parts.length ? parts : ["STRAIGHT ON"]) : [];
+  const played = scene.cur.contactDone || scene.cur.t > 1.2;
+  const parts = played ? movementParts(d) : [];
+  const shown = played ? (parts.length ? parts : ["STRAIGHT ON"]) : [];
+  // Batting, what he bowled, once it's been played (it isn't on the score bar before).
+  if (played && scene.human === "bat") shown.unshift(deliveryName(scene.cur.intent.type, scene.inn.bowler?.p.bowl));
   const w = 108;
   const h = 24 + shown.length * 9;
   const x = WIDTH - w - 4;
@@ -260,6 +278,17 @@ function drawReleaseMeter(scene) {
   const zoneW = Math.max(3, Math.round(toX(1 + half)) - zoneL);
   fillRect(zoneL - 1, y - 1, zoneW + 2, 8, COLORS.black);
   fillRect(zoneL, y, zoneW, 6, RELEASE_GOLD);
+  // The two beats before the release: a notch each, lit by how well it was tapped.
+  for (const b of cur.beats ?? []) {
+    if (b.given) continue;
+    const bx = Math.round(toX(meterPos(r, b.at)));
+    const help = assistOf(scene);
+    const q = b.error === null ? null : gradeTap(b.error, cur.intent.effort, help.beatWiden, help.missedBeat);
+    const colour =
+      q === null ? (b.missed ? COLORS.red : COLORS.cream) : q > 0.95 ? RELEASE_GOLD : q > 0 ? COLORS.cream : COLORS.red;
+    fillRect(bx - 2, y - 2, 5, 10, COLORS.black);
+    fillRect(bx - 1, y - 1, 3, 8, colour);
+  }
   const at = cur.delivery ? cur.releaseMark : meterPos(r, cur.tRun);
   fillRect(clamp(toX(at), x0, x0 + w) - 1, y - 3, 3, 12, COLORS.white);
   // Aftertouch, shown the way it was pushed on screen.

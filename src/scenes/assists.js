@@ -1,0 +1,41 @@
+import { load, save } from "../engine/storage.js";
+
+/**
+ * The assist level, EASY, NORMAL or HARD: how much help the player gets. Set on the menu's where-and-when page
+ * and in the pause menu, remembered on this device. A match keeps the easiest level it was played at, for its
+ * high-score entry.
+ *   beatWiden, missedBeat  the run-up's beats (sim/rhythm.js): wider windows, and what a miss is still worth
+ *   zone                   the release meter's gold zone, as a share of its width
+ *   aim                    after running in: "marker" (the landing spot stays up), "crosshair", or "none"
+ *   ring                   batting, the ring round the ball (scenes/ball-ring.js): "truth", "read", or "none"
+ *   advice                 the keeper's ball: "selected" (already chosen), or "shown"
+ */
+export const ASSISTS = ["easy", "normal", "hard"];
+export const ASSIST_NAMES = { easy: "EASY", normal: "NORMAL", hard: "HARD" };
+export const ASSIST = {
+  easy: { beatWiden: 1.8, missedBeat: 0.5, zone: 1.6, aim: "marker", ring: "truth", advice: "selected" },
+  normal: { beatWiden: 1, missedBeat: 0, zone: 1, aim: "crosshair", ring: "read", advice: "shown" },
+  hard: { beatWiden: 0.75, missedBeat: 0, zone: 0.7, aim: "none", ring: "none", advice: "shown" },
+};
+
+/** This device's assist level. */
+export function assistSetting() {
+  const level = load("assist", "normal");
+  return ASSISTS.includes(level) ? level : "normal";
+}
+
+/** What the scene's level gives (the table above). */
+export const assistOf = (scene) => ASSIST[scene.assist] ?? ASSIST.normal;
+
+/** Change the level mid-match (the pause menu): remembered, and the match notes it if it's easier. */
+export function setAssist(scene, level) {
+  save("assist", level);
+  scene.assist = level;
+  noteAssist(scene.match, level);
+}
+
+/** The match keeps the easiest level it has been played at. */
+export function noteAssist(match, level) {
+  const easiest = match.easiestAssist ?? level;
+  match.easiestAssist = ASSISTS.indexOf(level) < ASSISTS.indexOf(easiest) ? level : easiest;
+}

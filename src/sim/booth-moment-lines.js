@@ -185,6 +185,14 @@ export const MOMENT_STORIES = {
       ["WATCH {b} {how}. THERE MIGHT BE SOMETHING IN THAT.", "{w} WILL HAVE NOTICED THAT. {b} {how}."],
     ],
   },
+  weaknessWorkedOut: {
+    rest: 0,
+    lines: [
+      ["WE'VE SEEN ENOUGH OF {b} NOW. HE'S NOT HAPPY {how}.", "{b} HAS BEEN IN A WHILE. THEY'LL HAVE NOTICED HIM {how}."],
+      ["THEY'VE WORKED {b} OUT! HE'S NOT SURE {how}!", "I'VE SEEN IT TOO! {b} IS SHAKY {how}!"],
+      ["FOUR OVERS IN, THE PLAN WRITES ITSELF: AT {b} {how}.", "THEY'VE HAD A GOOD LOOK AT {b}. ATTACK HIM {how}."],
+    ],
+  },
   weaknessShown: {
     rest: 0,
     lines: [

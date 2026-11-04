@@ -5,7 +5,7 @@ import { keys, mouse } from "../engine/input.js";
 import { toggleMute, isMuted } from "../engine/audio.js";
 import { drawScorecard } from "../render/hud.js";
 
-const ITEMS = ["RESUME", "SCORECARD", "INSTRUCTIONS", "VIEW", "SOUND", "AUDIO MIX", "QUIT TO MENU"];
+const ITEMS = ["RESUME", "SCORECARD", "INSTRUCTIONS", "VIEW", "ASSIST", "SOUND", "AUDIO MIX", "QUIT TO MENU"];
 const MENU_X = 220;
 const MENU_W = 200;
 const MENU_TOP = 92;
@@ -37,9 +37,11 @@ const PAGES = [
       ["T", "OVER / AROUND THE WICKET (BEFORE RUN-UP)"],
       ["F", "FIELD PRESET"],
       ["V", "DRAG FIELDERS WITH THE MOUSE"],
+      ["ENTER", "TAKE THE KEEPER'S SUGGESTED BALL"],
       ["SPACE", "RUN IN"],
+      ["SPACE, SPACE", "ON HIS LAST TWO STRIDES (THE NOTCHES): RHYTHM"],
       ["SPACE AGAIN", "RELEASE IN THE GOLD ZONE OF THE METER"],
-      ["HOLD LEFT/RIGHT", "AFTERTOUCH IN THE RUN-UP: EXTRA SWING OR SPIN"],
+      ["HOLD LEFT/RIGHT", "AFTERTOUCH, IF THE RHYTHM EARNED IT"],
       ["H", "APPEAL"],
       ["R", "REVIEW A DECISION (2 PER INNINGS)"],
       ["", ""],
@@ -54,6 +56,8 @@ const PAGES = [
       ["P", "SIMULATE FIVE OVERS"],
       ["B", "CLOSE VIEW FROM BEHIND THE BATTER OR BOWLER"],
       ["V", "VIEW THE FIELD (BOWLING: DRAG FIELDERS)"],
+      ["L / C C", "A TEST: SIM TO THE BREAK / DECLARE"],
+      ["G", "SLOW MOTION"],
       ["M", "SOUND ON / OFF"],
       ["ESC", "THIS MENU"],
     ],
@@ -79,7 +83,7 @@ export class PauseMenu {
     this.lastMouse = { x: mouse.x, y: mouse.y };
   }
 
-  /** Handle input; returns "resume", "view" (swap the close camera's end), "quit" or null. */
+  /** Handle input; returns "resume", "view" (swap the close camera's end), "assist" (the next level), "quit" or null. */
   update() {
     if (this.screen === "mix") {
       updateAudioMix(this);
@@ -123,6 +127,8 @@ export class PauseMenu {
         return null;
       case "VIEW":
         return "view";
+      case "ASSIST":
+        return "assist";
       case "AUDIO MIX":
         this.screen = "mix";
         return null;
@@ -134,8 +140,8 @@ export class PauseMenu {
     }
   }
 
-  /** `closeEnd`: which end the close camera is at ("bat" or "bowl"), for the VIEW label. */
-  draw(inn, closeEnd) {
+  /** `closeEnd`: which end the close camera is at ("bat" or "bowl"), for the VIEW label; `assist` its level's name. */
+  draw(inn, closeEnd, assist = "NORMAL") {
     if (this.screen === "mix") {
       drawAudioMix(this);
       return;
@@ -161,7 +167,9 @@ export class PauseMenu {
           ? `SOUND: ${isMuted() ? "OFF" : "ON"}`
           : item === "VIEW"
             ? `VIEW: BEHIND ${closeEnd === "bowl" ? "BOWLER" : "BATTER"}`
-            : item;
+            : item === "ASSIST"
+              ? `ASSIST: ${assist}`
+              : item;
       drawText(label, WIDTH / 2, y, { align: "center", color: selected ? COLORS.gold : COLORS.cream });
     });
   }

@@ -1,5 +1,5 @@
 import { activeWicketSide } from "./bowling-side.js";
-import { bowlingGeometry } from "../sim/bowling-side.js";
+import { bowlingGeometry, armOf } from "../sim/bowling-side.js";
 import { playBroadcast } from "./match-audio.js";
 import { COLORS } from "../engine/screen.js";
 import { keys } from "../engine/input.js";
@@ -15,6 +15,12 @@ import * as beats from "./booth-beats.js";
 import { onBallDone } from "./match-feedback.js";
 import { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
 import { forecastDue, openForecast, overEndBanner, simShouldStop } from "./match-test.js";
+import { rhythmBeats, actionTimes } from "../render/bowler/bowler-action.js";
+import { suggestBall } from "./bowling-advice.js";
+import { ballRing } from "./ball-ring.js";
+import { assistOf } from "./assists.js";
+import { act } from "./player-actions.js";
+import { readWord } from "../sim/plans.js";
 import { rainDue, openRain, stopForRain } from "./match-rain.js";
 import { updateLight } from "./match-light.js";
 
@@ -68,6 +74,9 @@ export function nextBall(scene) {
     if (!skills.repertoire.includes(scene.deliveryType)) scene.deliveryType = skills.repertoire[0];
     scene.cur = null;
     scene.setPhase("setup");
+    scene.advice = suggestBall(scene);
+    // On EASY the keeper's ball is already chosen.
+    if (assistOf(scene).advice === "selected") act(scene, { type: "takeAdvice", plan: scene.advice.intent });
   }
   beats.onNextBall(scene);
 }
@@ -77,11 +86,19 @@ export function newBall(scene, intent, aiReleaseError) {
   const style = scene.inn.bowler.p.bowl.style;
   // The player's run-up varies ball to ball (see runup.js); the AI's is steady.
   const runup = scene.human === "bowl" ? planRunup(style, intent.effort, scene.inn.bowler.stamina) : null;
+  // The gold zone is wider on EASY and narrower on HARD (scenes/assists.js).
+  if (runup) runup.zone *= assistOf(scene).zone;
+  const runupDur = runup ? runup.dur : spinner ? 1.5 : style === "fast" ? 2.5 : 2.2;
   return {
     intent,
     aiReleaseError,
     runup,
-    runupDur: runup ? runup.dur : spinner ? 1.5 : style === "fast" ? 2.5 : 2.2,
+    runupDur,
+    /**
+     * The player's beats: his last two footfalls before the leap (run-up time, s), and how far off each tap
+     * was (null until tapped; `missed` once it's gone by untapped). sim/rhythm.js grades them.
+     */
+    beats: runup ? beatsFor(style, runupDur) : null,
     runupStartZ: spinner ? 25.5 : 33,
     /** Time since the run-up started. */
     tRun: 0,
@@ -108,11 +125,27 @@ export function newBall(scene, intent, aiReleaseError) {
   };
 }
 
-export function release(scene, releaseError) {
+/** The run-up's two beats in run-up time, from the bowler's action (a beat before he's started is given). */
+function beatsFor(style, runupDur) {
+  const runTime = Math.max(0.3, runupDur + actionTimes(style).takeoff);
+  return rhythmBeats(style, runTime).map((tr) => {
+    const at = runupDur + tr;
+    return at < 0.15 ? { at, error: 0, given: true } : { at, error: null, missed: false };
+  });
+}
+
+/** Release the ball: `rhythm` is the player's run-up rhythm (sim/rhythm.js), none for the computer. */
+export function release(scene, releaseError, rhythm) {
   const cur = scene.cur;
   if (cur.aftertouch) cur.intent = { ...cur.intent, aftertouch: cur.aftertouch };
+  if (typeof rhythm === "number") {
+    cur.intent = { ...cur.intent, rhythm };
+    if (rhythm >= 0.85) scene.banner("ON THE BEAT!", COLORS.gold, 1, 2, 60);
+    else if (rhythm < 0.35) scene.banner("OFF THE BEAT", COLORS.red, 1, 2, 60);
+  }
   cur.delivery = scene.match.deliver(cur.intent, releaseError);
   cur.t = 0;
+  cur.ring = ballRing(scene, cur.delivery);
   const atBat = crossingAtZ(cur.delivery.samples, CONTACT_Z_FRONT);
   cur.lineAtBat = atBat ? atBat.x : 0;
   if (scene.human === "bowl") {
@@ -162,6 +195,9 @@ export function completeBall(scene) {
     after: scene.inn.pressure,
   });
   if (scene.human === "bat") scene.flashEye(done.rec.eye);
+  // Bowling: how he read it, in a word (sim/plans.js).
+  const read = scene.human === "bowl" ? readWord(done.rec, scene.inn.bat[done.rec.striker].weaknessShown) : null;
+  if (read) scene.banner(read, read === "HE'S LINED IT UP" ? COLORS.red : "#9fd0ff", 1.8, 2, 132, scene.now + 0.5);
   // Bowling, and he's given his weakness away: say so on screen too (the box says it in words).
   if (scene.human === "bowl" && done.rec.scout?.tag)
     scene.banner(`WEAKNESS: ${done.rec.scout.tag}`, COLORS.gold, 2.2, 2, 150, scene.now + 0.6);
@@ -218,6 +254,14 @@ export function completeBall(scene) {
     }
   }
   for (const m of done.applied.milestones) scene.banner(m, COLORS.gold, 2.2, 2, 150, scene.now + 0.4);
+  // Too many bouncers (Law 41.6): the umpire's warning, or the bowler taken off.
+  const warning = done.rec.bouncerWarning;
+  if (warning) {
+    const bowler = scene.inn.bowl[done.rec.bowler].p;
+    const sub = warning === "suspended" ? `${bowler.short.toUpperCase()} TAKEN OFF FOR THE INNINGS` : "FIRST AND FINAL WARNING";
+    scene.big("NO BALL", COLORS.red, sub, 2.6);
+    beats.onWarning(scene, warning, bowler);
+  }
   // Beat the bat and the close fielders let him know about it, which gets under his skin.
   if (done.rec.beatBat && Math.random() < 0.35) {
     scene.chirp = { text: pickChirp(scene.inn.bowlTeam.abbr), t0: scene.now + 0.3 };
@@ -248,7 +292,9 @@ export function updateReturn(scene, dt) {
     if (f.state === "celebrate" && scene.phaseT < 0.6) continue;
     f.state = "idle";
     const home =
-      f.role === "bowler" ? { x: bowlingGeometry(scene.spinner, activeWicketSide(scene)).startX * 0.8, z: 24 } : f.home;
+      f.role === "bowler"
+        ? { x: bowlingGeometry(scene.spinner, activeWicketSide(scene), armOf(scene.inn.bowler.p.bowl)).startX * 0.8, z: 24 }
+        : f.home;
     const dx = home.x - f.pos.x;
     const dz = home.z - f.pos.z;
     const dist = Math.hypot(dx, dz);

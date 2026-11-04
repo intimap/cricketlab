@@ -131,6 +131,15 @@ export function look(height, skin, hair, hairStyle, beard, number, extras = [], 
 const DEFAULT_LOOK = look(1.82, "light", "brown", "short", "none", 0);
 
 /** Bowling skills from a style template, scaled by `quality` (0..1) and then overridden. */
+/**
+ * A bowler's style as it's said: "FAST", "LEFT-ARM FAST"; a left-armer's finger spin is "LEFT-ARM SPIN"
+ * (orthodox: it turns away from a right-hander).
+ */
+export function styleName(skills) {
+  if (skills?.arm !== "left") return (skills?.style ?? "").toUpperCase();
+  return skills.style === "offspin" ? "LEFT-ARM SPIN" : `LEFT-ARM ${skills.style.toUpperCase()}`;
+}
+
 export function bowler(style, quality, overrides = {}) {
   const s = { style, ...BOWLING_STYLES[style], ...overrides };
   const scale = (v) => clamp(v * (0.85 + 0.3 * quality), 0.05, 0.98);
@@ -222,7 +231,7 @@ export function australia() {
       nick: "Storky",
       role: "tail",
       flair: 0.15,
-      bowl: bowler("fast", 0.8, { pace: 0.93 }),
+      bowl: bowler("fast", 0.8, { pace: 0.93, arm: "left" }),
     },
     {
       name: "Nate Lewins",

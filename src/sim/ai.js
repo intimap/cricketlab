@@ -72,10 +72,10 @@ export function pickBowler(inn) {
  *   rough    - spinner into the footmarks
  *   flight   - spinner tossing it up to a nervous starter
  */
-export function pickOverPlan(inn, rng) {
+export function pickOverPlan(inn, rng, known) {
   const skills = inn.bowler.p.bowl;
   const batter = inn.bat[inn.striker];
-  const knows = batter.balls > 24 || rng.chance(0.25);
+  const knows = known ?? (batter.balls > 24 || rng.chance(0.25)); // the player's captain: only what's given away
   const weakness = knows ? batter.p.weakness : null;
   if (isSpinner(skills)) {
     if (weakness === "earlySpin" && inn.batterState(inn.striker).settled < 0.5) return "flight";

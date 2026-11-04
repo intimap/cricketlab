@@ -6,6 +6,8 @@ import { CONTACT_Z_FRONT, SWING_TIME, NORMAL_CHARGE, FOOTWORK_MIN, FOOTWORK_MAX 
 import { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
 export { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
 import { meterPos, releaseError, METER_FROM } from "../sim/runup.js";
+import { rhythmOf } from "../sim/rhythm.js";
+import { assistOf } from "./assists.js";
 import { LEAVE_LIFT } from "./batter-pose.js";
 import { act } from "./player-actions.js";
 
@@ -123,11 +125,46 @@ export function aimTarget(scene) {
 /** Seconds of holding left/right in the run-up for full aftertouch. */
 const AFTERTOUCH_BUILD = 0.5;
 
-/** The bowler running in: aftertouch from the arrows, release on Space (or a late one if the player waits too long). */
+/** A tap this late after a beat (s) still counts for it; any later and the beat has gone by. */
+const BEAT_LATE = 0.16;
+
+/** The next beat still to tap (index), or -1 once both are tapped or gone by. Beats gone by are marked missed. */
+function nextBeat(cur) {
+  const beats = cur.beats ?? [];
+  for (const [i, b] of beats.entries()) {
+    if (b.error !== null || b.missed) continue;
+    if (cur.tRun > b.at + BEAT_LATE) {
+      b.missed = true;
+      continue;
+    }
+    return i;
+  }
+  return -1;
+}
+
+/** The rhythm so far (sim/rhythm.js): beats tapped, missed ones counting as off the beat (or less, on EASY). */
+export function runupRhythm(cur, assist) {
+  return rhythmOf(
+    (cur.beats ?? []).map((b) => b.error),
+    cur.intent.effort,
+    assist.beatWiden,
+    assist.missedBeat,
+  );
+}
+
+/**
+ * The bowler running in: Space on his last two footfalls (the beats), then Space at the delivery stride to
+ * release (or a late one if the player waits too long); arrows for aftertouch, earned by the rhythm.
+ */
 export function updateRunup(scene, dt) {
   const cur = scene.cur;
   cur.tRun += dt;
   if (scene.human === "bowl") {
+    const beat = nextBeat(cur);
+    if (keys.pressed("Space") && beat >= 0 && cur.tRun > cur.beats[beat].at - BEAT_LATE * 2) {
+      act(scene, { type: "beat", index: beat, error: cur.tRun - cur.beats[beat].at });
+      return;
+    }
     // Aftertouch: hold left or right through the run-up for extra swing or spin that way.
     const held = (keys.down("ArrowRight") ? 1 : 0) - (keys.down("ArrowLeft") ? 1 : 0);
     if (held && cur.tRun > cur.runupDur * 0.3) {
@@ -147,11 +184,12 @@ export function updateRunup(scene, dt) {
       } else {
         err *= 1.3 - 0.3 * stamina;
       }
-      act(scene, { type: "release", error: clamp(err, -0.35, 0.3) });
+      for (const b of cur.beats ?? []) if (b.error === null) b.missed = true;
+      act(scene, { type: "release", error: clamp(err, -0.35, 0.3), rhythm: runupRhythm(cur, assistOf(scene)) });
     } else if (releaseError(r, pos) > 0.17) {
       cur.releaseMark = pos;
       // Held on too long: dragged full, by the match's dice.
-      act(scene, { type: "release", error: scene.match.rng.range(0.17, 0.2) });
+      act(scene, { type: "release", error: scene.match.rng.range(0.17, 0.2), rhythm: runupRhythm(cur, assistOf(scene)) });
     }
   } else if (cur.tRun >= cur.runupDur + clamp(cur.aiReleaseError, -0.08, 0.08)) {
     scene.release(cur.aiReleaseError);

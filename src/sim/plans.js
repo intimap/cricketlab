@@ -75,6 +75,20 @@ export function readAgainst(seen, ball) {
   return { familiar, surprise };
 }
 
+/**
+ * How the batter read the ball, in a word for the player bowling at him: he didn't pick the variation, the
+ * change surprised him, it was on his weakness (only once that's been given away), or he'd lined it up from
+ * the balls before. Null when there's nothing to say.
+ */
+export function readWord(rec, weaknessShown) {
+  const battle = rec.battle;
+  if (rec.notPicked) return "DIDN'T PICK IT";
+  if (battle?.surprise) return "SURPRISE!";
+  if (weaknessShown && battle?.weak > 0.5) return "ON HIS WEAKNESS";
+  if (battle?.familiar >= 2) return "HE'S LINED IT UP";
+  return null;
+}
+
 /** 0..1: how squarely this ball targets the batter's weakness. */
 export function exploits(weakness, ball, ctx) {
   switch (weakness) {

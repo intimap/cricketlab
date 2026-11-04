@@ -81,7 +81,7 @@ export function resultEntry(match) {
   const total = (i) => `${i.batTeam.abbr} ${i.runs}${i.wkts === 10 ? "" : `/${i.wkts}`}`;
   const first = match.innings.length > 1 ? total(match.innings[0]) : `${inn.bowlTeam.abbr} ${inn.target - 1}`;
   const score = inn.target === null ? total(inn) : `${first}  ${total(inn)}`;
-  return { won, kind, margin, ballsLeft, rank: rankOf(won, kind, margin, ballsLeft), text, score };
+  return { won, kind, margin, ballsLeft, rank: rankOf(won, kind, margin, ballsLeft), text, score, assist: assistOf(match) };
 }
 
 const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "S"}`;
@@ -106,8 +106,11 @@ function testEntry(match) {
     )
     .join(" ");
   if (score.length > 22) score = teams.map((t) => `${t.abbr} ${of(t).reduce((n, i) => n + i.runs, 0)}`).join(" ");
-  return { won, kind, margin, ballsLeft, rank: rankOf(won, kind, margin, ballsLeft), text, score };
+  return { won, kind, margin, ballsLeft, rank: rankOf(won, kind, margin, ballsLeft), text, score, assist: assistOf(match) };
 }
+
+/** The easiest assist level the match was played at (scenes/assists.js), shown with its entry. */
+const assistOf = (match) => match.easiestAssist ?? "normal";
 
 /** Best first; equal ranks keep the order they were set in. */
 export function sortEntries(entries) {
@@ -126,7 +129,8 @@ export function validEntry(raw) {
   if (!name || !Number.isFinite(rank) || !Number.isFinite(at) || typeof raw.board !== "string") return null;
   const short = (s, n) => cleanText(s).slice(0, n);
   const id = typeof raw.id === "string" && ID_PATTERN.test(raw.id) ? raw.id : null;
-  return { board: raw.board, name, rank, at, text: short(raw.text, 36), score: short(raw.score, 22), id };
+  const assist = ["easy", "normal", "hard"].includes(raw.assist) ? raw.assist : null;
+  return { board: raw.board, name, rank, at, text: short(raw.text, 36), score: short(raw.score, 22), id, assist };
 }
 
 function cleanText(s) {

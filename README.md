@@ -34,13 +34,14 @@ To publish it, turn on GitHub Pages (Settings → Pages → Deploy from branch �
 | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Menu          | First what to play (a match, and which kind, or practice), then the teams (your side on the left, the computer's on the right: Up/Down picks a side, Left/Right its team), then where and when. Arrows to change, Enter to go on, Esc to go back                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | Batting       | Space to face up. Front foot: **S** drive, **W** loft, **A** forward defence. Back foot: **Q** attack (cut, punch, pull, hook or glance, as the ball dictates), **D** defence. No key = leave. Hold **←**/**→** before playing to step 10 cm across the crease (back to guard when let go), to reach a wide one (his pads move too). The ball's line sets the direction; play late to go finer, early to go squarer. Hold **↓** with **W** to ramp over the keeper, or **↓** + **←**/**→** with **Q** to sweep / reverse sweep. Trigger attacks early to lift and load the bat (140 ms preparation, then the downswing). Hold **Shift** for a power shot (260 ms preparation; trigger earlier). **↑** / **↓** to run or turn back |
-| Bowling       | Arrows set line and length (Shift = fine), number keys pick the delivery, **E** effort, **T** over/around the wicket, **F** field preset, **V** drag fielders with the mouse, **N** new ball (after 80 overs). Space to run in, Space again to release at the delivery stride: early pitches it shorter, late fuller, very late is a no-ball                                                                                                                                                                                                                                                                                                                                                                                      |
+| Bowling       | Arrows set line and length (Shift = fine), number keys pick the delivery, **E** effort, **T** over/around the wicket, **F** field preset, **V** drag fielders with the mouse, **N** new ball (after 80 overs), **Enter** takes the keeper's suggested ball (shown under the setup panel). Space to run in, then Space on his last two footfalls before he leaps (the two notches on the meter: on the beat gives full pace and a tight line, off it slower and wilder; high effort tightens the beats and rewards them more) and Space at the delivery stride to release: early pitches it shorter, late fuller, very late is a no-ball. Holding ←/→ adds aftertouch only if the rhythm earned it                                 |
 | Fielding      | While the ball is live (when bowling): **Space** as a catch arrives (well timed it helps, mistimed it hurts, no press leaves it to the fielder); **Z** / **X** call the throw to the keeper's or the bowler's end                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | Celebrations  | Space, Enter or tap the game to skip a boundary or wicket celebration                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | Between balls | **O** sim an over, **P** sim 5 overs, **V** view the field. In a Test: **L** sim to the next break (lunch, tea or stumps), and batting, **C** twice to declare                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Assist        | **EASY**, **NORMAL** or **HARD** on the where-and-when page (or in the Esc menu). EASY widens the beats (a miss costs little) and the gold zone, keeps the landing spot up as you run in, shows the ring's true path when batting and picks the keeper's ball for you; HARD narrows the beats and zone, hides the aim once you run in and turns the ring off when batting. Scores show the easiest level the match was played at                                                                                                                                                                                                                                                                                                  |
 | Test matches  | Five days of 90 overs, with lunch, tea and stumps. The box says when it's time to declare; after the first innings each, a lead of 200 lets the captain enforce the follow-on (arrows and Enter when it's yours, with the dressing room's advice shown)                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | Appeals       | **H** to appeal for LBW when bowling (appealing for nothing irritates the umpire). **R** to review a decision that goes against you, or **Space** to accept it; play stops for up to 10 seconds while you decide (two unsuccessful reviews per innings). The umpire gets one in seven or so wrong                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| Anytime       | **M** sound, **Esc** pause and scorecard (the camera follows the play on its own)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Anytime       | **M** sound, **G** slow motion (to watch the bowler's action and the strokes), **Esc** pause and scorecard (the camera follows the play on its own)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 
 Sound uses the built-in Web Audio engine: layered bat contact sounds, a stereo crowd and short broadcast
 cues. Esc → AUDIO MIX adjusts effects, crowd and broadcast volumes independently; arrows or tapping a bar
@@ -105,13 +106,32 @@ built and lost by the same rules, so a set batter is harder to bowl to. The numb
 
 ## Bowling: the battle
 
-Each computer batter has a hidden weakness (loose outside off, a compulsive hooker, hates the short ball, shaky against spin early on, or late on the full inswinger). Watch for plays and misses: the commentators will hint at it, then call it, and it's tagged under his panel once it's plain. Batting, they read the bowler's plan for each new over (READ: SHORT BALL COMING).
+Each computer batter has a hidden weakness (loose outside off, a compulsive hooker, hates the short ball, shaky against spin early on, or late on the full inswinger). Watch for plays and misses: the commentators will hint at it, then call it, and it's tagged under his panel once it's plain (or once he's faced 24 balls: by then your side has worked him out). Batting, they read the bowler's plan for each new over (READ: SHORT BALL COMING).
 
 - **Memory:** bowl the same ball over and over and he lines it up. Break a pattern (three going away, then one back in; three short, then a full one) and he's more likely to edge or miss. Switch between over and around the wicket with **T** while aiming; the target stays fixed and the release angle changes.
 - **Pressure:** dots and maidens build the pressure meter (below EYE in their shared panel); boundaries release it. Under pressure batters get impatient: slogs, charges and bad calls for runs.
-- **Release timing:** the meter starts slowly and accelerates smoothly towards the gold zone. Release there for a perfect delivery. The zone shrinks as the bowler tires; too late is a no-ball, followed by a free hit.
-- **Variations:** quicks have bouncers (two an over, a third is a no-ball), yorkers (overpitch it and it's a full toss), slower balls and cutters; spinners have an arm ball, a googly (leg-spinners), and flight (**E** cycles flighted, stock and flat). On a worn pitch, especially the dust bowl, footmarks appear outside leg (and off) and turn sharply.
-- **Fields:** **F** also cycles traps: bouncer trap, leg slip, ring field.
+- **Seeing the battle:** the keeper suggests each ball from the computer's own plan for the over (using his
+  weakness only once it's been given away); **Enter** takes it. Under the setup panel, a pitch map of the last 12
+  balls to this batter (a wicket red, a boundary gold, beaten blue, runs cream, a dot green). After each ball a
+  word on how he read it (SURPRISE!, DIDN'T PICK IT, ON HIS WEAKNESS, HE'S LINED IT UP), and at the end of each
+  over a summary: the balls, where they pitched, and a line on how it went. Batting, the delivery isn't on the
+  score bar until he's played it; then the speed gun names it.
+- **The ring:** a half ring round the ball in flight: its colour is the length it's going to (purple a yorker,
+  green full, gold a good length, red short), its side the way it will move (both sides, fainter, when it's
+  going straight on). Batting, it's your batter's read: it comes up once he's read the ball (earlier for a
+  better batter with his eye in) and shows what he thinks, so a googly or slower ball he hasn't picked shows
+  the decoy. Bowling, it's the truth from release.
+- **Rhythm:** two taps on the bowler's last two footfalls before he leaps, then the release. An ordinary rhythm
+  (about 60 ms off each beat) bowls the ball as it was; on the beat he's a touch quicker and tighter, and earns
+  his aftertouch; off it he's slower and sprays it (`sim/rhythm.js`). Spinners' beats come slower.
+- **Left-armers:** Stork (Australia) and Janssen (South Africa) bowl left-arm fast, Ravindran, Santna (New
+  Zealand) and Maharajh (South Africa) left-arm spin, which turns away from a right-hander. They run in and
+  release from the other side of the stumps (the umpire stands on the other side too) and angle the ball across
+  a right-hander, so aim a little straighter. Swing keeps its names by the batter: a left-armer's outswinger
+  still goes away from a right-hander.
+- **Release timing:** the meter starts slowly and accelerates smoothly towards the gold zone. Release there for a perfect delivery. The zone shrinks as the bowler tires. A mistimed release is a loose ball (early drops it short, late drags it full, either drifts wide of off); only very late, in the red, is a no-ball, followed by a free hit.
+- **Variations:** quicks have bouncers (two an over that pass the batter above the shoulder; a third is a no-ball and a first and final warning, and the next time in the innings the bowler is taken off and someone else finishes the over), yorkers (overpitch it and it's a full toss), slower balls and cutters; spinners have an arm ball, a googly (leg-spinners), and flight (**E** cycles flighted, stock and flat). On a worn pitch, especially the dust bowl, footmarks appear outside leg (and off) and turn sharply.
+- **Fields:** a new bowler starts with the field his captain would set. **F** cycles the presets and the traps (bouncer trap, leg slip, ring field); **V** lets you drag fielders.
 
 ## How the code is organised
 
@@ -152,6 +172,9 @@ src/
     shot-choice.js    which shot suits which ball: front or back foot, the back-foot shot
     shot-direction.js where a shot goes and what it's called, finding the gap
     describe.js       where a shot went, as commentators say it, and its scoring zone
+    over-review.js    a line on how an over went, from where it pitched and how he read it
+    bouncer-law.js    too many bouncers: the no-ball, the warning, taking the bowler off
+    rhythm.js         the player's run-up rhythm: the beats graded, and what it does to the ball
     eye.js            every batter's eye: built by well-timed shots, dented by misses and edges
     plans.js          the battle with the bowler: hidden weaknesses, memory of recent balls
     scouting.js       reading a batter's weakness from how he plays it: a hint, then given away
@@ -190,6 +213,7 @@ src/
     booth-moment-lines.js  lines for moments.js's ducks, maidens, big overs, jaffas, the equation...
     booth-drs-lines.js  the LBW decision and the review in stages: given, reviewed, tracking, verdict
     booth-venue-lines.js  scene-setting: each ground, and the pitch report at the start
+    booth-law-lines.js the umpire's bouncer warnings and a bowler taken off
     booth-wrap-lines.js the box's wrap-up over the scorecard at the end of an innings or match
     booth-weather-lines.js the box on the weather, lunch, tea and stumps, and the call to declare
     field-reading.js  what the field says about the plan (slips, bat-pad, boundary riders, the ring)
@@ -213,7 +237,13 @@ src/
     figures.js        everyone else close up: bowler, keeper, fielders, umpires, runners
     figure-poses.js   where a close figure's feet and hands go for each pose
     tiny-figures.js   the wide view's tiny figures, and the pose a fielder's state shows
-    bowler-motion.js  run-up and follow-through on the chosen side
+    bowler-motion.js  where the bowler is through a ball, on the chosen side: his action for the close view, poses for the wide
+    keyframes.js      keyframed motion on smooth curves, shared by the batter's and bowler's rigs
+    bowler/           the bowler
+      bowler-styles.js  the five actions as data: timing, distances, angles from take-off to follow-through
+      bowler-action.js  his pose through a ball: the run-up's gait, the keyed delivery, standing
+      bowler-skeleton.js  joints from the pose: legs and arms solved, the bowling arm straight
+      bowler-draw.js    drawing him in pixel style from either end
     batter/           the striker
       batter-rig.js     pixel-art striker drawing; re-exports poses and the projected rig for older callers
       batter-poses.js   legacy stances, pose blending and whole-body reach
@@ -240,6 +270,9 @@ src/
     ball-trail.js     the delivery's fading trail and the pitch-map landing reticle (close view)
     feedback.js       arcade feedback drawn: timing meter and callout, floating words, eased bars
     booth.js          commentator portraits and the commentary popup
+    ball-ring.js      the ring round the ball in flight: length and movement
+    pitch-map.js      a pitch map: where balls pitched, by what came of them
+    over-summary.js   the end-of-over summary while the player bowls
     weather-icon.js   pixel weather icons (the HUD's beside the score box, and the report's)
     weather-report.js the weather report panel before play and each Test morning, and the rain stoppage's
     weather-look.js   the weather laid over a time of day: tint, sky, clouds, shadows, haze
@@ -259,8 +292,11 @@ src/
     match-input.js    the player's controls: shots, defence, leaving, footwork, aiming, the run-up
     match-decisions.js  LBW appeals, the umpire's decision and DRS reviews
     match-test.js     Tests and the weather in the scene: the report, breaks, declaring, the follow-on choice
+    bowling-advice.js the keeper's suggested ball while the player bowls
+    ball-ring.js      what the ring round the ball shows: the batter's read, or the truth
     match-ending.js   the end of an innings: the end screen's words, the wrap-up, a Classic won
     match-light.js    the light through the day, with the weather over it; the ball's colour
+    assists.js        the assist level (EASY, NORMAL, HARD) and what each changes
     match-rain.js     rain stopping play in the scene: the covers, the panel, carrying on
     match-feedback.js what feedback to show and when: shot words, +/-EYE and PRESSURE, hit-stop, shake
     match-audio.js    contact timbres and broadcast sound cues
@@ -283,7 +319,7 @@ src/
 netlify/
   functions/scores.mjs  the shared high-score service on Netlify (/api/scores)
   score-table.mjs       its tables: checks scores, keeps each table's best 200, safe against saves at once
-tools/                balance report (sim-report.mjs; test-report.mjs for Tests, weather-report.mjs per weather), one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
+tools/                frame sheets (bowler-sheet.mjs, with tools/sheets/), balance reports (sim-report.mjs; bowling-report.mjs for the player's bowling, test-report.mjs for Tests, weather-report.mjs per weather), one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
 ```
 
 The rule of thumb: `sim/` knows nothing about the screen, `engine/` knows nothing about cricket, and
@@ -314,6 +350,9 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **Lighting and time of day:** each time's numbers, and its HD-2D look (`hd`), in `render/light.js`; how they're drawn in
   `render/lighting.js`. Floodlight heads are `lamps` on a ground's art layers in `render/grounds.js`. The menu's
   EFFECTS row picks AUTO, FULL, SIMPLE (grading and skies, round shadows) or OFF (the plain look).
+- **Bowler animation:** each style's action is data in `render/bowler/bowler-styles.js` (the event times, distances
+  and angles); `render/bowler/bowler-action.js` turns it into a pose. Review it with `node tools/bowler-sheet.mjs <dir>`
+  (with a local server running) and **G** for slow motion in a match.
 - **Batter animation:** which pose or stroke when, in `scenes/batter-pose.js`; the poses, skeleton and drawing in
   `render/batter/batter-poses.js`, `render/batter/batter-skeleton.js` and `render/batter/batter-rig.js`;
   the skeleton has X across the pitch, Y up and Z towards the bowler, in local rig units (94 units per 1.8 m).

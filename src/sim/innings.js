@@ -5,6 +5,9 @@ import { isSpinner } from "./teams.js";
 import { EFFORT_STAMINA } from "./delivery.js";
 
 /** Score, batting and bowling cards, field and ball state for one innings. */
+/** How many balls to each batter the pitch map keeps. */
+export const PITCH_MAP_BALLS = 12;
+
 export class Innings {
   runs = 0;
   wkts = 0;
@@ -173,8 +176,42 @@ export class Innings {
     return { settled, concentration: clamp(concentration, 0.4, 1), fatigue: clamp(b.balls / 420) };
   }
 
+  /**
+   * Not the bowler of the last over, nor one taken off for too many bouncers (Law 41.6). Should a side run
+   * out of bowlers that way, the rules give way rather than stop the game.
+   */
   canBowl(index) {
-    return this.nets || index !== this.lastOverBowler;
+    if (this.nets) return true;
+    const levels = [(i) => i !== this.lastOverBowler && !this.bowl[i].suspended, (i) => !this.bowl[i].suspended, () => true];
+    const rule = levels.find((ok) => this.bowl.some((_, i) => ok(i)));
+    return rule(index);
+  }
+
+  /** Where each ball pitched and what came of it: the last PITCH_MAP_BALLS to each batter, and this over's. */
+  overPitches = [];
+  lastOverPitches = [];
+  notePitch(batter, rec) {
+    if (!rec.pitched) return;
+    const dot = {
+      x: rec.pitched.x,
+      z: rec.pitched.z,
+      runs: rec.total,
+      wicket: !!rec.wicket,
+      beaten: !!rec.beatBat,
+      extra: !rec.legal,
+      striker: rec.striker,
+      // How he read it (sim/plans.js readWord), for the over's review.
+      surprise: !!rec.battle?.surprise,
+      familiar: rec.battle?.familiar ?? 0,
+      notPicked: !!rec.notPicked,
+    };
+    batter.pitches = [...(batter.pitches ?? []), dot].slice(-PITCH_MAP_BALLS);
+    this.overPitches.push(dot);
+  }
+
+  /** Is an over part-way through (a bowler taken off mid-over)? */
+  get midOver() {
+    return this.legal % 6 !== 0 || this.overBalls.length > 0;
   }
 
   setBowler(index) {
@@ -207,6 +244,7 @@ export class Innings {
     const result = { overEnded: false, wicket: false, inningsOver: false, milestones: [] };
     const batter = this.bat[rec.striker];
     const bowler = this.bowl[rec.bowler];
+    this.notePitch(batter, rec);
     const before = { bat: batter.runs, part: this.partnership.runs };
 
     this.runs += rec.total;
@@ -308,6 +346,8 @@ export class Innings {
       if (bowler.overRuns === 0) this.pressure = clamp(this.pressure + 0.1);
       [this.striker, this.nonStriker] = [this.nonStriker, this.striker];
       this.overBalls = [];
+      this.lastOverPitches = this.overPitches;
+      this.overPitches = [];
       if (this.ball.overs >= 80 && this.ball.number === 1) this.newBallAvailable = true;
     }
 

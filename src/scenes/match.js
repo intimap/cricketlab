@@ -29,6 +29,7 @@ import { resultEntry } from "../sim/leaderboard.js";
 import * as ending from "./match-ending.js";
 import * as test from "./match-test.js";
 import { updateLight, ballKindFor } from "./match-light.js";
+import { assistSetting, noteAssist } from "./assists.js";
 
 /**
  * One innings, played ball by ball. Phases:
@@ -81,6 +82,9 @@ export class MatchScene {
     this.cfg = cfg;
     this.match = match ?? createMatch(cfg, new Rng());
     this.human = this.match.human;
+    /** How much help the player gets (scenes/assists.js); the match keeps the easiest level used. */
+    this.assist = assistSetting();
+    noteAssist(this.match, this.assist);
     this.nets = this.match.nets;
     /** The ground's backgrounds, built from its data and the pitch (and rebuilt as it wears). */
     this.ground = GROUNDS[cfg.ground] ?? GROUNDS[DEFAULT_GROUND];
@@ -105,7 +109,6 @@ export class MatchScene {
       : inn.target !== null
         ? `${inn.batTeam.name} need ${inn.runsNeeded} to win off ${inn.ballsLeft} balls.`
         : `${inn.batTeam.name} to bat on a ${pitch.name.toLowerCase()}. ${pitch.blurb}`;
-    if (this.human === "bowl") this.match.inn.setPreset("attacking");
     // The weather report first, then the first ball (or the choice of bowler).
     this.nextBall();
   }
@@ -260,8 +263,8 @@ export class MatchScene {
     return input.updateRunup(this, dt);
   }
 
-  release(releaseError) {
-    return ball.release(this, releaseError);
+  release(releaseError, rhythm) {
+    return ball.release(this, releaseError, rhythm);
   }
 
   /** Ball time at which the ball reaches the bat for a given shot (and, for defence, foot). */

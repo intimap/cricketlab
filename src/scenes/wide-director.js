@@ -1,12 +1,13 @@
 import { mouse } from "../engine/input.js";
-import { MID_PITCH } from "../sim/geometry.js";
+import { MID_PITCH, PITCH_LENGTH } from "../sim/geometry.js";
 import { setWideView, viewFacing } from "../render/camera.js";
 
 /**
  * The wide view's TV camera, directing itself (TODO.md, Grounds): it turns and zooms from one spot, a
  * window on the whole-ground picture (render/camera.js setWideView).
- *   - Cutting to it after a shot, it opens on the ball and the batters, then follows the ball, easing out
- *     as it goes so the ball, the fielder going for it and the batters stay in shot.
+ *   - Cutting to it after a shot, it opens on the wicket and the ball, and keeps both in shot all the way:
+ *     the whole pitch (so you can judge the running) with the ball, or the fielder going for it, holding it
+ *     or throwing it, easing out as they go.
  *   - Once the ball's dead it holds a moment, then pulls back to the whole ground (as it is between overs).
  *   - Placing the field, it eases in on the square while you move a fielder inside the circle, keeping the
  *     spot under the pointer still, and back out when you put him down.
@@ -57,13 +58,28 @@ function target(scene, cam, state) {
   }
   const cur = scene.cur;
   const live = cur?.play?.live;
+  // A new ball: forget the last one's framing and when it died (the close view may have been up between).
+  if (state.cur !== cur) {
+    state.cur = cur;
+    state.deadAt = undefined;
+    state.held = null;
+  }
   if (live && cur.contactDone) {
     if (live.dead) state.deadAt ??= scene.now;
     if (state.deadAt !== undefined && scene.now - state.deadAt > HOLD) return WHOLE;
     if (state.deadAt !== undefined && state.held) return state.held;
-    const points = [at(live.ball.pos, live.ball.pos.y), ...live.runners.map((r) => at(live.runnerPos(r)))];
-    const chasing = live.plan?.fielder;
-    if (chasing !== undefined && live.fielders[chasing]) points.push(at(live.fielders[chasing].pos));
+    // The whole wicket (both sets of stumps, so the running can be judged) and the ball, and the fielder
+    // who matters: throwing it, holding it, or going for it.
+    const points = [
+      at({ x: -2, z: -1 }),
+      at({ x: 2, z: -1 }),
+      at({ x: -2, z: PITCH_LENGTH + 1 }),
+      at({ x: 2, z: PITCH_LENGTH + 1 }),
+    ];
+    const ball = live.ball;
+    if (!(ball.held >= 0)) points.push(at(ball.pos, ball.pos.y));
+    const who = ball.throwing ? ball.throwing.fielder : ball.held >= 0 ? ball.held : live.plan?.fielder;
+    if (who !== undefined && live.fielders[who]) points.push(at(live.fielders[who].pos));
     state.held = frameAround(points);
     return state.held;
   }

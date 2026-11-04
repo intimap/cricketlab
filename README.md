@@ -287,6 +287,7 @@ src/
     feedback.js       arcade feedback drawn: timing meter and callout, floating words, eased bars
     booth.js          commentator portraits and the commentary popup
     ball-ring.js      the ring round the ball in flight: length and movement
+    run-bar.js        the run bar above the score bar: the pitch on its side, each batter along it, in or out of his ground
     pitch-map.js      a pitch map: where balls pitched, by what came of them
     over-summary.js   the end-of-over summary while the player bowls
     weather-icon.js   pixel weather icons (the HUD's beside the score box, and the report's)
@@ -327,7 +328,8 @@ src/
     match-view.js     drawing for the match scene: the close and wide views
     match-wide.js     the wide view: the whole ground with everyone as small figures
     venue-view.js     a map-built ground in the match: the bowling end, each view's picture, the live scoreboard
-    wide-director.js  the wide view's TV camera directing itself: framing the play, zooming while placing the field
+    wide-director.js  the wide view's TV camera directing itself: the wicket and the ball or fielder, zooming while placing the field
+    run-bar.js        when the run bar shows and what's on it (render/run-bar.js draws it)
     match-positions.js where the non-striker and bowler are, shared by both views
     match-striker.js  where the striker is drawn, and the blade onto the ball at contact
     match-panels.js   the panels over the picture: setup, speed gun, meters, coach card, release meter, feedback

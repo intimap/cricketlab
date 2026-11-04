@@ -38,6 +38,8 @@ import { assistOf } from "./assists.js";
 import { bowlerSkeleton } from "../render/bowler/bowler-skeleton.js";
 import { drawBowlerRig } from "../render/bowler/bowler-draw.js";
 import { closeArt, drawCloseBoard } from "./venue-view.js";
+import { runBarOf } from "./run-bar.js";
+import { drawRunBar } from "../render/run-bar.js";
 
 /** The score box's left edge (render/hud.js drawScoreBox: 132 wide, 4 from the right). */
 const SCORE_BOX_LEFT = WIDTH - 4 - 132;
@@ -87,6 +89,9 @@ export function drawMatch(scene) {
   if (booth && !over) drawBooth(scene.booth, scene.now, scene.commentary);
   drawBanners(scene.banners, scene.now);
   drawPanels(scene);
+  // Where the batters are along the pitch while the ball's in play.
+  const runBar = runBarOf(scene);
+  if (runBar) drawRunBar(runBar, scene.now);
   if (booth && over) drawBooth(scene.booth, scene.now, scene.commentary);
   drawFeedback(scene);
   drawMatchBroadcast(scene);

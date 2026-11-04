@@ -128,3 +128,66 @@ test("grounds without a TV camera keep their fixed wide view", () => {
   const s = scene({ ground: { wide: {} }, phase: "flight", cur: inPlay({ x: 5, y: 0, z: 12 }, { x: 8, z: 14 }) });
   assert.equal(run(s, 1).zoom, 1);
 });
+
+test("while the ball's in play, the whole wicket stays in shot with the ball or the fielder with it", () => {
+  setWideCamera(camera);
+  const stumps = [
+    { x: 0, z: 0 },
+    { x: 0, z: 20.12 },
+  ];
+  const inShot = (p) => {
+    const q = projectWide(p.x, 0, p.z);
+    return q.x > 0 && q.x < 640 && q.y > 0 && q.y < 360;
+  };
+  // The ball out at deep square leg, a fielder there with it in his hands.
+  const held = scene({ phase: "flight", cur: inPlay({ x: -55, y: 0, z: 8 }, { x: -55, z: 8 }) });
+  held.cur.play.live.ball.held = 0;
+  run(held, 2);
+  for (const p of [...stumps, { x: -55, z: 8 }]) assert.ok(inShot(p), `(${p.x}, ${p.z}) in shot`);
+  // Thrown in from long-on: the thrower and the wicket.
+  const thrown = scene({ phase: "flight", cur: inPlay({ x: 20, y: 2, z: 40 }, { x: 30, z: 62 }) });
+  thrown.cur.play.live.ball.throwing = { fielder: 0, end: 1 };
+  run(thrown, 2);
+  for (const p of [...stumps, { x: 30, z: 62 }, { x: 20, z: 40 }]) assert.ok(inShot(p), `(${p.x}, ${p.z}) in shot`);
+  setWideCamera();
+});
+
+test("the run bar: up from the moment it's played until just after it's dead, the batters along the pitch", async () => {
+  const { runBarOf } = await import("../src/scenes/run-bar.js");
+  const live = {
+    t: 2,
+    ball: { throwing: { end: 1 } },
+    runners: [
+      { bat: 0, progress: 0.4, target: 1, startAt: 1 },
+      { bat: 1, progress: 0.6, target: 0, startAt: 1 },
+    ],
+  };
+  const s = { phase: "flight", phaseT: 0, kitBat: { shirt: "#fff", cap: "#123" }, inn: { bat: [{ p: {} }, { p: {} }] } };
+  assert.equal(runBarOf({ ...s, cur: { contactDone: false, play: { live } } }), null);
+  const bar = runBarOf({ ...s, cur: { contactDone: true, play: { live } } });
+  assert.deepEqual(
+    bar.runners.map((r) => [r.progress, r.dir]),
+    [
+      [0.4, 1],
+      [0.6, -1],
+    ],
+  );
+  assert.equal(bar.throwTo, 1);
+  assert.ok(runBarOf({ ...s, phase: "after", phaseT: 0.5, cur: { contactDone: true, play: { live } } }));
+  assert.equal(runBarOf({ ...s, phase: "after", phaseT: 3, cur: { contactDone: true, play: { live } } }), null);
+});
+
+test("each new ball starts afresh: the last one's 'dead' doesn't hold the camera out", () => {
+  setWideCamera(camera);
+  const s = scene({ phase: "flight", cur: inPlay({ x: 5, y: 0.5, z: 12 }, { x: 8, z: 14 }) });
+  run(s, 0.5);
+  s.cur.play.live.dead = true;
+  assert.ok(run(s, 3).zoom < 1.05);
+  // The close view in between, then the next ball's played.
+  s.view = "close";
+  run(s, 1);
+  s.cur = inPlay({ x: 5, y: 0.5, z: 12 }, { x: 8, z: 14 });
+  s.view = "wide";
+  assert.ok(run(s, 1 / 60).zoom > 2);
+  setWideCamera();
+});

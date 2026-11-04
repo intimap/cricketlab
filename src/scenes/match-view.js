@@ -33,6 +33,7 @@ import { drawWeatherTile, ICON } from "../render/weather-icon.js";
 import { statusLine } from "./match-test.js";
 import { raining } from "./match-light.js";
 import { drawRain, drawCovers } from "../render/rain.js";
+import { drawBallRing } from "../render/ball-ring.js";
 import { bowlerSkeleton } from "../render/bowler/bowler-skeleton.js";
 import { drawBowlerRig } from "../render/bowler/bowler-draw.js";
 
@@ -200,6 +201,11 @@ function drawClose(scene) {
           const trail = ballTrail(scene);
           if (trail.length) drawBallTrail(trail, scene.spinner);
           drawBall(p.x, p.y, radius, inn.ball.shine, scene.ballKind);
+          // The ring: length and movement, as read or as it is (scenes/ball-ring.js).
+          const ring = cur?.ring;
+          if (ring && cur.t >= ring.showAt && cur.t < ring.hideAt + 0.15) {
+            drawBallRing(p.x, p.y, radius, ring, cur.t > ring.hideAt ? 1 - (cur.t - ring.hideAt) / 0.15 : 1);
+          }
         }
       },
     });

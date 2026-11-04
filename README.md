@@ -115,6 +115,11 @@ Each computer batter has a hidden weakness (loose outside off, a compulsive hook
   word on how he read it (SURPRISE!, DIDN'T PICK IT, ON HIS WEAKNESS, HE'S LINED IT UP), and at the end of each
   over a summary: the balls, where they pitched, and a line on how it went. Batting, the delivery isn't on the
   score bar until he's played it; then the speed gun names it.
+- **The ring:** a half ring round the ball in flight: its colour is the length it's going to (purple a yorker,
+  green full, gold a good length, red short), its side the way it will move (both sides, fainter, when it's
+  going straight on). Batting, it's your batter's read: it comes up once he's read the ball (earlier for a
+  better batter with his eye in) and shows what he thinks, so a googly or slower ball he hasn't picked shows
+  the decoy. Bowling, it's the truth from release.
 - **Rhythm:** two taps on the bowler's last two footfalls before he leaps, then the release. A good rhythm (about
   35 ms off each beat) bowls the ball as it was; on the beat he's a touch quicker and tighter, and earns his
   aftertouch; off it he's slower and sprays it (`sim/rhythm.js`). Spinners' beats come slower.
@@ -259,6 +264,7 @@ src/
     ball-trail.js     the delivery's fading trail and the pitch-map landing reticle (close view)
     feedback.js       arcade feedback drawn: timing meter and callout, floating words, eased bars
     booth.js          commentator portraits and the commentary popup
+    ball-ring.js      the ring round the ball in flight: length and movement
     pitch-map.js      a pitch map: where balls pitched, by what came of them
     over-summary.js   the end-of-over summary while the player bowls
     weather-icon.js   pixel weather icons (the HUD's beside the score box, and the report's)
@@ -281,6 +287,7 @@ src/
     match-decisions.js  LBW appeals, the umpire's decision and DRS reviews
     match-test.js     Tests and the weather in the scene: the report, breaks, declaring, the follow-on choice
     bowling-advice.js the keeper's suggested ball while the player bowls
+    ball-ring.js      what the ring round the ball shows: the batter's read, or the truth
     match-ending.js   the end of an innings: the end screen's words, the wrap-up, a Classic won
     match-light.js    the light through the day, with the weather over it; the ball's colour
     match-rain.js     rain stopping play in the scene: the covers, the panel, carrying on

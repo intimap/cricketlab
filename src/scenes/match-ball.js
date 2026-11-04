@@ -17,6 +17,7 @@ import { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
 import { forecastDue, openForecast, overEndBanner, simShouldStop } from "./match-test.js";
 import { rhythmBeats, actionTimes } from "../render/bowler/bowler-action.js";
 import { suggestBall } from "./bowling-advice.js";
+import { ballRing } from "./ball-ring.js";
 import { readWord } from "../sim/plans.js";
 import { rainDue, openRain, stopForRain } from "./match-rain.js";
 import { updateLight } from "./match-light.js";
@@ -138,6 +139,7 @@ export function release(scene, releaseError, rhythm) {
   }
   cur.delivery = scene.match.deliver(cur.intent, releaseError);
   cur.t = 0;
+  cur.ring = ballRing(scene, cur.delivery);
   const atBat = crossingAtZ(cur.delivery.samples, CONTACT_Z_FRONT);
   cur.lineAtBat = atBat ? atBat.x : 0;
   if (scene.human === "bowl") {

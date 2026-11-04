@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Ground sheet</title>
+    <style>
+      body {
+        margin: 0;
+        background: #0d2318;
+      }
+      canvas {
+        image-rendering: pixelated;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="sheet"></canvas>
+    <script type="module">
+      // Every view of a ground built from a map (render/venue/), at each time of day: the close view at both
+      // ends, the wide view from both ends, and the wide camera zoomed in on the square. ?ground=parklandsNew
+      // &lights=midday,evening &ball=white|red. The game's own builder, so it's what the match shows.
+      import { drawInto } from "../../src/engine/screen.js";
+      import { drawText } from "../../src/engine/text.js";
+      import { loadAssets } from "../../src/assets.js";
+      import { GROUNDS } from "../../src/render/grounds.js";
+      import { LIGHTS } from "../../src/render/light.js";
+      import { weatherLight } from "../../src/render/weather-look.js";
+      import { venueGround, prepareVenue, HI_REGION } from "../../src/render/venue/venue-build.js";
+
+      const params = new URLSearchParams(location.search);
+      const ground = GROUNDS[params.get("ground") ?? "parklandsNew"];
+      const lights = (params.get("lights") ?? "midday,afternoon,evening,night").split(",");
+      const weather = params.get("weather") ?? "sunny";
+      const ball = params.get("ball") ?? "white";
+      const loadImage = (url) =>
+        new Promise((done, fail) => {
+          const img = new Image();
+          img.onload = () => done(img);
+          img.onerror = fail;
+          img.src = url;
+        });
+      const images = await loadAssets(loadImage);
+      const pitch = { type: { id: params.get("pitch") ?? "green" }, wear: 0, roughPatches: [] };
+      const cols = [
+        ["CLOSE: PAVILION END", (a) => a.closeFor(0), 24],
+        ["CLOSE: SCOREBOARD END", (a) => a.closeFor(1), 24],
+        ["WIDE: BOWLING FROM THE PAVILION END", (a) => a.wideFor(0), 0],
+        ["WIDE: BOWLING FROM THE SCOREBOARD END", (a) => a.wideFor(1), 0],
+        ["WIDE 3X ON THE SQUARE", (a) => a.nearFor(0), 0],
+      ];
+      const W = 640;
+      const H = 360;
+      const LABEL = 14;
+      const sheet = document.getElementById("sheet");
+      sheet.width = W * cols.length;
+      sheet.height = (H + LABEL) * lights.length;
+      const g = sheet.getContext("2d");
+      g.imageSmoothingEnabled = true;
+      while (!prepareVenue(ground, ball, 1000));
+      const times = {};
+      lights.forEach((id, row) => {
+        const look = weatherLight(LIGHTS[id], weather, false);
+        const art = venueGround(ground, images, pitch, look, { ballKind: ball });
+        const t0 = performance.now();
+        // Draw everything for this light (as the match does, a slice at a time, but all at once here).
+        art.work(1e6, [["close", 0], ["close", 1], ["wide", 0], ["wide", 1], ["near", 0]]);
+        times[id] = Math.round(performance.now() - t0);
+        cols.forEach(([name, get, up], col) => {
+          const x = col * W;
+          const y = row * (H + LABEL) + LABEL;
+          const pic = get(art);
+          if (!pic) return;
+          if (col === 4) {
+            // The 3x picture's middle: the square as the camera sees it fully zoomed.
+            const w = W / 3;
+            const h = H / 3;
+            const cx = 320 - HI_REGION.x;
+            const cy = 196 - HI_REGION.y;
+            g.drawImage(pic, (cx - w / 2) * 3, (cy - h / 2) * 3, W, H, x, y, W, H);
+          } else if (up) g.drawImage(pic, 0, up, W, H - up, x, y, W, H - up);
+          else g.drawImage(pic, 0, 0, pic.width, pic.height, x, y, W, H);
+          drawInto(g, () => drawText(`${name}, ${LIGHTS[id].name}`, x + 4, y - 11, { color: "#f4ecd0" }));
+        });
+      });
+      window.venueTimes = times;
+      document.title = "ready";
+    </script>
+  </body>
+</html>

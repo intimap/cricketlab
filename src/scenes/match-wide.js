@@ -1,7 +1,7 @@
 import { activeWicketSide } from "./bowling-side.js";
 import { bowlingGeometry, armOf } from "../sim/bowling-side.js";
-import { WIDTH, HEIGHT, COLORS, ctx, fillRect } from "../engine/screen.js";
-import { drawText, textWidth } from "../engine/text.js";
+import { COLORS, fillRect } from "../engine/screen.js";
+import { drawText } from "../engine/text.js";
 import { clamp } from "../math.js";
 import { CREASE, PITCH_LENGTH, MID_PITCH } from "../sim/geometry.js";
 import { keeperSpot } from "../sim/field.js";
@@ -12,32 +12,15 @@ import { drawSpeechBubble } from "../render/hud.js";
 import { nonStrikerDepth, bowlerState, walkInShare } from "./match-positions.js";
 import { setShadowCast } from "../render/sprites.js";
 import { shadowSlope } from "../render/lighting.js";
+import { drawWideArt, drawWideBoard, drawGroundScoreboard } from "./venue-view.js";
 
 /** The wide view: the whole ground from the stands, with everyone on it as small figures. */
 
 const WALK_OFF_TIME = 8;
 const SLEDGE_TIME = 2.4;
 
-/**
- * The ground's scoreboard, showing the real score: the batting side, then the side they're chasing
- * (or the overs, in the first innings).
- */
-function drawGroundScoreboard(board, inn) {
-  fillRect(board.x, board.y, board.w, board.h, board.colour);
-  const mid = board.x + board.w / 2;
-  // A narrow gap after the team, so even "AUS 487/10" fits the face.
-  const line = (name, figures, y, color) => {
-    const left = Math.round(mid - (textWidth(name) + 3 + textWidth(figures)) / 2);
-    drawText(name, left, y, { color, shadow: null });
-    drawText(figures, left + textWidth(name) + 3, y, { color, shadow: null });
-  };
-  line(inn.batTeam.abbr, `${inn.runs}/${inn.wkts}`, board.y + 1, board.top);
-  if (inn.target !== null) line(inn.bowlTeam.abbr, String(inn.target - 1), board.y + 11, board.bottom);
-  else line("OV", inn.oversText, board.y + 11, board.bottom);
-}
-
 export function drawWide(scene) {
-  ctx.drawImage(scene.groundArt.wide, 0, 0, WIDTH, HEIGHT);
+  drawWideArt(scene);
   // Under one sun the small figures' shadows lean its way (a streak each is cheap, so at any effects level);
   // under floodlights all round they stay round.
   const casts = scene.light.casts?.length ? scene.light.casts : (scene.baseLight?.hd?.casts ?? []);
@@ -46,6 +29,7 @@ export function drawWide(scene) {
   setShadowCast(casts.length === 1 ? shadowSlope(projectWide, 0, MID_PITCH, 1.8, 13, { ...casts[0], x: casts[0].x * w }) : null);
   const inn = scene.inn;
   if (scene.ground.wide.scoreboard) drawGroundScoreboard(scene.ground.wide.scoreboard, inn);
+  drawWideBoard(scene);
   const cur = scene.cur;
   const live = cur?.play?.live;
   const cap = scene.kitBowl.cap;

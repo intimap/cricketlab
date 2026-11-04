@@ -15,6 +15,18 @@ const CAMERA_Z = 8.53;
 const LATERAL_GAIN = 880;
 const HEIGHT_GAIN = 700;
 
+/**
+ * The close camera's numbers, for drawing scenery through it (render/venue/venue-cameras.js): the horizon
+ * row in the background's own rows, and the gains above. It's a pinhole 3.2 m up, 8.53 m behind the stumps.
+ */
+export const CLOSE_CAMERA = Object.freeze({
+  horizonY: HORIZON_Y,
+  depthGain: DEPTH_GAIN,
+  cameraZ: CAMERA_Z,
+  lateralGain: LATERAL_GAIN,
+  heightGain: HEIGHT_GAIN,
+});
+
 // Widen the stumps a little so the ball's line against them reads clearly.
 function warpLateral(x) {
   const a = Math.abs(x);
@@ -79,9 +91,34 @@ export function closePixelsPerMetre(z) {
 }
 
 let wideCamera = null;
+/** Whole frame: the window a turning, zooming wide camera shows of its whole-ground picture. */
+const WHOLE = Object.freeze({ zoom: 1, cx: 320, cy: 180 });
+let wideView = WHOLE;
+
+/**
+ * The wide view's camera for a ground: null for the original mapping, a measured stadium camera
+ * (render/stadium-camera.js), or one with project(x, y, z) and unproject(sx, sy) of its own
+ * (render/venue/venue-cameras.js), which can also turn and zoom (setWideView).
+ */
 export function setWideCamera(camera = null) {
   wideCamera = camera;
+  wideView = WHOLE;
 }
+
+/** The part of the whole-ground frame on screen: zoom about (cx, cy). Only cameras with their own projection use it. */
+export function setWideView(view = WHOLE) {
+  wideView = view;
+}
+
+export const wideViewNow = () => wideView;
+
+/** The whole-ground frame's point (x, y) on screen through the window, and back. */
+const toWindow = (p) => ({
+  x: (p.x - wideView.cx) * wideView.zoom + 320,
+  y: (p.y - wideView.cy) * wideView.zoom + 180,
+  s: p.s * wideView.zoom,
+});
+const fromWindow = (sx, sy) => ({ x: (sx - 320) / wideView.zoom + wideView.cx, y: (sy - 180) / wideView.zoom + wideView.cy });
 
 // --- Wide camera: high behind the bowler's end, whole ground in view. ---
 // Piecewise linear: the pitch gets more room than the outfield.
@@ -171,6 +208,7 @@ function ropeCorrection(x, z) {
 /** World point to screen: { x, y, s } where s scales sprites (smaller further away). */
 export function projectWide(strikerX, y, z) {
   const x = strikerX * facing;
+  if (wideCamera?.project) return toWindow(wideCamera.project(x, y, z));
   if (wideCamera) return projectStadium(x, y, z, wideCamera);
   const raw = rawWide(x, z);
   const k = ropeCorrection(x, z);
@@ -203,6 +241,10 @@ export function unprojectWide(sx, sy) {
 }
 
 function unprojectWorld(sx, sy) {
+  if (wideCamera?.unproject) {
+    const p = fromWindow(sx, sy);
+    return wideCamera.unproject(p.x, p.y);
+  }
   if (wideCamera) return unprojectStadium(sx, sy, wideCamera);
   // Undo the rope correction by fixed-point iteration; it changes slowly, so this converges fast.
   let k = 1;

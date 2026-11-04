@@ -230,6 +230,19 @@ src/
     ground.js         the layer compositor: builds each view's background from a ground's data
     ground-paint.js   the compositor's kit: pitch sizes, colour helpers, noise, scenery layers, cracks
     stadium-ground.js a ground built round a stadium image (the MCG's wide view)
+    venue/            grounds built from a map of the ground, drawn through the game's cameras (Parklands (new))
+      venue-map.js      the map's format: its frame, bearings, the ends turning with the bowling, fingerprints
+      parklands-map.js  Parklands as a map: pavilion, terrace, stands, banks, scoreboard, trees, lights
+      venue-cameras.js  the close camera and the wide TV camera as pinholes in the map's frame
+      venue-raster.js   the small renderer: faces with a depth test, sprites, the ground; per-pixel normals and layers
+      venue-geometry.js walls, slopes, boxes, roofs and arcs from plan points
+      venue-parts.js    the parts kit: each kind of thing round a ground, drawn from its map entry
+      venue-materials.js the surfaces: weatherboard, brick, iron, windows, seating and crowd, pickets, boards
+      venue-sprites.js  trees and spectators as pixel sprites
+      venue-field.js    the outfield, rope, circle, pitch and creases at true size, in the map's frame
+      venue-light.js    relighting for the time and weather, the sun's shadows from the map, night windows
+      venue-build.js    builds and caches each view's picture, a slice a frame; the scoreboard's face
+      venue-paint-over.js layers painted over the drawn ones
     light.js          times of day: tint, sky glow, stand shadows, shadow length, and each one's HD-2D look
     skins.js          skins as data: each team's kit beyond its colours, and player builds
     lighting.js       the HD-2D look: frame grading, dusk and night skies, dimmed scenery, floodlights, shadow direction
@@ -311,6 +324,7 @@ src/
     batter-stroke.js  presentation-only selection and the existing attack/block/leave clocks
     match-view.js     drawing for the match scene: the close and wide views
     match-wide.js     the wide view: the whole ground with everyone as small figures
+    venue-view.js     a map-built ground in the match: the bowling end, each view's picture, the live scoreboard
     match-positions.js where the non-striker and bowler are, shared by both views
     match-striker.js  where the striker is drawn, and the blade onto the ball at contact
     match-panels.js   the panels over the picture: setup, speed gun, meters, coach card, release meter, feedback
@@ -320,7 +334,7 @@ src/
 netlify/
   functions/scores.mjs  the shared high-score service on Netlify (/api/scores)
   score-table.mjs       its tables: checks scores, keeps each table's best 200, safe against saves at once
-tools/                frame sheets (bowler-sheet.mjs, with tools/sheets/), balance reports (sim-report.mjs; bowling-report.mjs for the player's bowling, test-report.mjs for Tests, weather-report.mjs per weather), one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
+tools/                frame sheets (bowler-sheet.mjs, ground-sheet.mjs for every view of a map-built ground, with tools/sheets/), balance reports (sim-report.mjs; bowling-report.mjs for the player's bowling, test-report.mjs for Tests, weather-report.mjs per weather), one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
 ```
 
 The rule of thumb: `sim/` knows nothing about the screen, `engine/` knows nothing about cricket, and

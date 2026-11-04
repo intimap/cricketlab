@@ -1,4 +1,6 @@
 import { MCG_CAMERA } from "./stadium-camera.js";
+import { PARKLANDS_MAP } from "./venue/parklands-map.js";
+import { tvWideCamera } from "./venue/venue-cameras.js";
 /**
  * Grounds as data. Each view is built from layers (see ground.js):
  *   - scenery: the hand-made parts (sky, clouds, trees, stands, fence) -
@@ -87,6 +89,21 @@ function parklands(name, fence) {
 }
 
 GROUNDS.parklands = parklands("PARKLANDS OVAL", "fence-picket");
+
+/**
+ * Parklands rebuilt from a map of the ground (render/venue/): both views drawn through their cameras from
+ * the same place, at true scale, turning with the bowling each over. Beside the old one until it's signed
+ * off (TODO.md, Grounds). Its colours for the pitch, creases and stumps are the Oval's.
+ */
+GROUNDS.parklandsNew = {
+  ...GROUNDS.oval,
+  hidden: false,
+  name: "PARKLANDS (NEW)",
+  ends: PARKLANDS_MAP.ends,
+  venue: PARKLANDS_MAP,
+  close: { ...GROUNDS.oval.close },
+  wide: { camera: tvWideCamera() },
+};
 GROUNDS.parklandsBoards = parklands("PARKLANDS (BOARDS)", "fence-ads");
 
 /** The G: afternoon stadium composition in wide view; the close composition stays separate. */

@@ -37,6 +37,7 @@ import { drawBallRing } from "../render/ball-ring.js";
 import { assistOf } from "./assists.js";
 import { bowlerSkeleton } from "../render/bowler/bowler-skeleton.js";
 import { drawBowlerRig } from "../render/bowler/bowler-draw.js";
+import { closeArt, drawCloseBoard } from "./venue-view.js";
 
 /** The score box's left edge (render/hud.js drawScoreBox: 132 wide, 4 from the right). */
 const SCORE_BOX_LEFT = WIDTH - 4 - 132;
@@ -96,7 +97,8 @@ export function drawMatch(scene) {
 function drawClose(scene) {
   setCloseEnd(scene.closeEnd === "bowl");
   const fromBowler = closeFromBowlerEnd();
-  ctx.drawImage(scene.groundArt.close, 0, CLOSE_Y_OFFSET, WIDTH, HEIGHT);
+  ctx.drawImage(closeArt(scene), 0, CLOSE_Y_OFFSET, WIDTH, HEIGHT);
+  drawCloseBoard(scene);
   const cur = scene.cur;
   const inn = scene.inn;
   // The non-striker, umpire, bowler and footmarks are where they are in the world, whoever is batting.

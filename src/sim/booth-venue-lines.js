@@ -31,6 +31,7 @@ const VENUE = {
   ],
 };
 VENUE.parklandsBoards = VENUE.parklands;
+VENUE.parklandsNew = VENUE.parklands;
 
 const PITCH = {
   green: ["A BIT OF GREEN IN THIS PITCH -- THE SEAMERS WILL LOVE IT.", "GRASS ON THE SURFACE. EXPECT SEAM AND SWING EARLY."],

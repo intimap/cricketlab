@@ -7,7 +7,8 @@ import { CREASE, PITCH_LENGTH, MID_PITCH } from "../sim/geometry.js";
 import { keeperSpot } from "../sim/field.js";
 import { walkInSpot } from "../sim/fielder-motion.js";
 import { projectWide, projectWideThrow, viewFacing } from "../render/camera.js";
-import { drawTinyFigure, fielderPose, drawBall, drawShadow } from "../render/sprites.js";
+import { drawTinyFigure, fielderPose, drawBall, drawShadow, drawFigure, playerKit } from "../render/sprites.js";
+import { wideViewNow } from "../render/camera.js";
 import { drawSpeechBubble } from "../render/hud.js";
 import { nonStrikerDepth, bowlerState, walkInShare } from "./match-positions.js";
 import { setShadowCast } from "../render/sprites.js";
@@ -17,6 +18,21 @@ import { drawWideArt, drawWideBoard, drawGroundScoreboard } from "./venue-view.j
 /** The wide view: the whole ground from the stands, with everyone on it as small figures. */
 
 const WALK_OFF_TIME = 8;
+
+/** The close view's poses for the small figures' (dives and falls stay small figures). */
+const CLOSE_POSE = { idle: "stand", run: "run", keeper: "stand", batter: "stand", celebrate: "celebrate", throw: "release" };
+/** How tall (px) a player has to be on screen, zoomed in, to be drawn as the close view's jointed figure. */
+const JOINTED_FROM = 14;
+
+/**
+ * A player in the wide view: the small block figure, or once the camera's in close enough to see him
+ * properly (render/camera.js, scenes/wide-director.js), the jointed one in his own kit.
+ */
+function wideFigure(x, y, s, pose, cap, phase, opts = {}, kit = null) {
+  const height = s * 11.6;
+  if (!kit || height < JOINTED_FROM || !CLOSE_POSE[pose]) return drawTinyFigure(x, y, s, pose, cap, phase, opts);
+  drawFigure(x, y, height, { kit, pose: CLOSE_POSE[pose], phase, bat: opts.bat, umpire: opts.umpire });
+}
 const SLEDGE_TIME = 2.4;
 
 export function drawWide(scene) {
@@ -44,15 +60,17 @@ export function drawWide(scene) {
   };
 
   // Umpires.
+  const umpire = { ...scene.kitBowl, cap: "#f4f4f0" };
   add((activeWicketSide(scene) === "around" ? 1.2 : -1.2) * w, 0, PITCH_LENGTH + 2.4, (x, y, s) =>
-    drawTinyFigure(x, y, s, "idle", "#f4f4f0"),
+    wideFigure(x, y, s, "idle", "#f4f4f0", 0, { umpire: true }, umpire),
   );
-  add(-26, 0, 1, (x, y, s) => drawTinyFigure(x, y, s, "idle", "#f4f4f0"));
+  add(-26, 0, 1, (x, y, s) => wideFigure(x, y, s, "idle", "#f4f4f0", 0, { umpire: true }, umpire));
 
   if (live && (scene.phase === "flight" || scene.phase === "after" || scene.phase === "return")) {
     for (const f of live.fielders) {
       const pose = fielderPose(f, live.t, scene.phase);
-      add(f.pos.x, 0, f.pos.z, (x, y, s) => drawTinyFigure(x, y, s, pose, cap, scene.now * 3 + f.idx, field));
+      const kit = playerKit(scene.kitBowl, f.player);
+      add(f.pos.x, 0, f.pos.z, (x, y, s) => wideFigure(x, y, s, pose, cap, scene.now * 3 + f.idx, field, kit));
     }
     for (const r of live.runners) {
       const out = cur?.done?.rec.wicket?.batter === r.bat;
@@ -66,31 +84,35 @@ export function drawWide(scene) {
       }
       const moving = r.target !== null || (out && scene.walkOff !== null);
       const phase = out && scene.walkOff ? scene.now * 1.4 : scene.now * 3.5;
+      const kit = playerKit(scene.kitBat, inn.bat[r.bat]?.p);
       add(pos.x, 0, pos.z, (x, y, s) =>
-        drawTinyFigure(x, y, s, moving ? "run" : "batter", scene.kitBat.cap, phase + r.bat, batting),
+        wideFigure(x, y, s, moving ? "run" : "batter", scene.kitBat.cap, phase + r.bat, batting, kit),
       );
     }
     const ball = live.ball;
+    // Zoomed in, the ball and its shadow grow a little (so it can still be followed).
+    const ballR = 1.5 * Math.max(1, wideViewNow().zoom * 0.6);
     if (ball.throwing) {
       const th = ball.throwing;
       const { ground, ball: p } = projectWideThrow(th.from, th.to, clamp((live.t - th.t0) / (th.t1 - th.t0)), ball.pos.y);
-      sprites.push({ y: ground.y, draw: () => drawShadow(ground.x, ground.y, 1.2) });
-      sprites.push({ y: ground.y + 0.5, draw: () => drawBall(p.x, p.y - 1, 1.5, 1, scene.ballKind) });
+      sprites.push({ y: ground.y, draw: () => drawShadow(ground.x, ground.y, ballR * 0.8) });
+      sprites.push({ y: ground.y + 0.5, draw: () => drawBall(p.x, p.y - 1, ballR, 1, scene.ballKind) });
     } else if (!(ball.held >= 0)) {
-      add(ball.pos.x, 0, ball.pos.z, (x, y) => drawShadow(x, y, 1.2));
+      add(ball.pos.x, 0, ball.pos.z, (x, y) => drawShadow(x, y, ballR * 0.8));
       const p = projectWide(ball.pos.x, ball.pos.y, ball.pos.z);
-      sprites.push({ y: p.y + ball.pos.y * 3 + 0.5, draw: () => drawBall(p.x, p.y - 1, 1.5, 1, scene.ballKind) });
+      sprites.push({ y: p.y + ball.pos.y * 3 + 0.5, draw: () => drawBall(p.x, p.y - 1, ballR, 1, scene.ballKind) });
     }
   } else {
     const keeper = keeperSpot(scene.spinner);
-    add(keeper.x, 0, keeper.z, (x, y, s) => drawTinyFigure(x, y, s, "keeper", cap, 0, field));
+    add(keeper.x, 0, keeper.z, (x, y, s) => wideFigure(x, y, s, "keeper", cap, 0, field, scene.kitBowl));
     const bowler = bowlerState(scene);
-    add(bowler.x * w, 0, bowler.z, (x, y, s) => drawTinyFigure(x, y, s, bowler.pose, cap, bowler.phase, field));
+    const bowlerKit = playerKit(scene.kitBowl, inn.bowler?.p);
+    add(bowler.x * w, 0, bowler.z, (x, y, s) => wideFigure(x, y, s, bowler.pose, cap, bowler.phase, field, bowlerKit));
     const walk = walkInShare(scene);
     inn.placements.forEach((place, i) => {
       const at = walkInSpot(place.pos, walk);
       add(at.x, 0, at.z, (x, y, s) => {
-        drawTinyFigure(x, y, s, walk <= 0 ? "idle" : walk < 1 ? "run" : "keeper", cap, scene.now * 1.5 + i, field);
+        wideFigure(x, y, s, walk <= 0 ? "idle" : walk < 1 ? "run" : "keeper", cap, scene.now * 1.5 + i, field, scene.kitBowl);
         if (scene.phase === "fieldEdit") {
           drawText(place.name.toUpperCase(), x, y + 3, {
             align: "center",
@@ -100,8 +122,12 @@ export function drawWide(scene) {
         }
       });
     });
-    add(-0.6, 0, CREASE, (x, y, s) => drawTinyFigure(x, y, s, "batter", scene.kitBat.cap, 0, batting));
-    add(nonStrikerX, 0, nonStrikerDepth(scene), (x, y, s) => drawTinyFigure(x, y, s, "batter", scene.kitBat.cap, 0, batting));
+    const striker = playerKit(scene.kitBat, inn.bat[inn.striker]?.p);
+    const nonStriker = playerKit(scene.kitBat, inn.bat[inn.nonStriker]?.p);
+    add(-0.6, 0, CREASE, (x, y, s) => wideFigure(x, y, s, "batter", scene.kitBat.cap, 0, batting, striker));
+    add(nonStrikerX, 0, nonStrikerDepth(scene), (x, y, s) =>
+      wideFigure(x, y, s, "batter", scene.kitBat.cap, 0, batting, nonStriker),
+    );
   }
 
   for (const bit of scene.particles) {

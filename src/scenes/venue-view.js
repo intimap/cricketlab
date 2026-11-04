@@ -2,13 +2,32 @@ import { WIDTH, HEIGHT, ctx, fillRect } from "../engine/screen.js";
 import { drawText, textWidth } from "../engine/text.js";
 import { wideViewNow } from "../render/camera.js";
 import { bowlingEndOf } from "../render/venue/venue-map.js";
-import { HI_REGION } from "../render/venue/venue-build.js";
+import { HI_REGION, venueGround } from "../render/venue/venue-build.js";
+import { directWide } from "./wide-director.js";
 
 /**
  * The match scene's side of a ground built from a map (render/venue/): which end the bowling is from (the
  * views turn with it each over), the close and wide backgrounds for the moment, and the live score on the
  * ground's scoreboard. Grounds made from paintings fall straight through to their single pictures.
  */
+
+/** Milliseconds a frame spent drawing a venue's views ahead of need (render/venue/venue-build.js). */
+const WORK_MS = 6;
+
+/** A ground built from a map's art for the scene, relit from its own light (the same at every effects level). */
+export function venueArt(scene, pitch) {
+  const ground = scene.ground;
+  return ground.venue ? venueGround(ground, scene.game.images, pitch, scene.lightBase, { ballKind: scene.ballKind }) : null;
+}
+
+/**
+ * Each frame, before the match moves on: draw a slice of the views it'll need next, and move the TV
+ * camera before anything reads the wide view's projection (field placing, the drawing).
+ */
+export function updateVenue(scene, dt) {
+  scene.groundArt?.work?.(WORK_MS, venueWants(scene));
+  directWide(scene, dt);
+}
 
 /** The end the bowler bowls from: 0 or 1, changing each over (end 0 all through the nets). */
 export function bowlingEnd(scene) {

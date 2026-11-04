@@ -325,6 +325,7 @@ src/
     match-view.js     drawing for the match scene: the close and wide views
     match-wide.js     the wide view: the whole ground with everyone as small figures
     venue-view.js     a map-built ground in the match: the bowling end, each view's picture, the live scoreboard
+    wide-director.js  the wide view's TV camera directing itself: framing the play, zooming while placing the field
     match-positions.js where the non-striker and bowler are, shared by both views
     match-striker.js  where the striker is drawn, and the blade onto the ball at contact
     match-panels.js   the panels over the picture: setup, speed gun, meters, coach card, release meter, feedback

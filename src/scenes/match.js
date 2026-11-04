@@ -10,8 +10,7 @@ import { pickBowler } from "../sim/ai.js";
 import { callDuration } from "../render/booth.js";
 import { teamKit } from "../render/skins.js";
 import { buildGround } from "../render/ground.js";
-import { venueGround } from "../render/venue/venue-build.js";
-import { venueWants } from "./venue-view.js";
+import { updateVenue, venueArt } from "./venue-view.js";
 import { GROUNDS, DEFAULT_GROUND } from "../render/grounds.js";
 import { setWideCamera } from "../render/camera.js";
 import { drawMatch } from "./match-view.js";
@@ -32,9 +31,6 @@ import * as ending from "./match-ending.js";
 import * as test from "./match-test.js";
 import { updateLight, ballKindFor } from "./match-light.js";
 import { assistSetting, noteAssist } from "./assists.js";
-
-/** Milliseconds a frame spent drawing a venue's views ahead of need (render/venue/venue-build.js). */
-const VENUE_WORK_MS = 6;
 
 /**
  * One innings, played ball by ball. Phases:
@@ -166,10 +162,7 @@ export class MatchScene {
   buildGround() {
     const pitch = this.inn.pitch;
     this.groundWear = Math.floor(pitch.wear * GROUND_WEAR_STEPS);
-    // A ground from a map is relit from its own light (the same at every effects level: it's drawn once).
-    this.groundArt = this.ground.venue
-      ? venueGround(this.ground, this.game.images, pitch, this.lightBase, { ballKind: this.ballKind })
-      : buildGround(this.ground, this.game.images, pitch, 1, this.light);
+    this.groundArt = venueArt(this, pitch) ?? buildGround(this.ground, this.game.images, pitch, 1, this.light);
   }
 
   nextBall() {
@@ -210,8 +203,7 @@ export class MatchScene {
   }
 
   update(dt) {
-    // A ground built from a map draws the views it'll need next a few milliseconds at a time.
-    this.groundArt?.work?.(VENUE_WORK_MS, venueWants(this));
+    updateVenue(this, dt);
     updateMatch(this, dt);
   }
 

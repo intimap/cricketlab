@@ -237,12 +237,14 @@ src/
       venue-raster.js   the small renderer: faces with a depth test, sprites, the ground; per-pixel normals and layers
       venue-geometry.js walls, slopes, boxes, roofs and arcs from plan points
       venue-parts.js    the parts kit: each kind of thing round a ground, drawn from its map entry
+      venue-pavilion.js the pavilion: two storeys, verandah and balcony, clock gable, flag
       venue-materials.js the surfaces: weatherboard, brick, iron, windows, seating and crowd, pickets, boards
       venue-sprites.js  trees and spectators as pixel sprites
       venue-field.js    the outfield, rope, circle, pitch and creases at true size, in the map's frame
       venue-light.js    relighting for the time and weather, the sun's shadows from the map, night windows
       venue-build.js    builds and caches each view's picture, a slice a frame; the scoreboard's face
-      venue-paint-over.js layers painted over the drawn ones
+      venue-sky.js      the sky behind a picture and the floodlights' glow over it
+      venue-paint-over.js layers painted over the drawn ones: laid in before relighting, stale ones left out
     light.js          times of day: tint, sky glow, stand shadows, shadow length, and each one's HD-2D look
     skins.js          skins as data: each team's kit beyond its colours, and player builds
     lighting.js       the HD-2D look: frame grading, dusk and night skies, dimmed scenery, floodlights, shadow direction
@@ -335,7 +337,7 @@ src/
 netlify/
   functions/scores.mjs  the shared high-score service on Netlify (/api/scores)
   score-table.mjs       its tables: checks scores, keeps each table's best 200, safe against saves at once
-tools/                frame sheets (bowler-sheet.mjs, ground-sheet.mjs for every view of a map-built ground, with tools/sheets/), balance reports (sim-report.mjs; bowling-report.mjs for the player's bowling, test-report.mjs for Tests, weather-report.mjs per weather), one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
+tools/                frame sheets (bowler-sheet.mjs, ground-sheet.mjs for every view of a map-built ground, with tools/sheets/; ground-templates.mjs for painting over one), balance reports (sim-report.mjs; bowling-report.mjs for the player's bowling, test-report.mjs for Tests, weather-report.mjs per weather), one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
 ```
 
 The rule of thumb: `sim/` knows nothing about the screen, `engine/` knows nothing about cricket, and
@@ -387,7 +389,8 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   (`node tools/weather-report.mjs`); the scene's side in `scenes/match-test.js`. Rain stopping play in `sim/rain.js`
   and `scenes/match-rain.js`; how each weather looks in `render/weather-look.js`; when the light changes in
   `scenes/match-light.js`.
-- **Ground art:** images live in `assets/` (layer art in `assets/close/`), listed by id in `src/assets.js`;
+- **Ground art:** Parklands (new) has no images: it's drawn from a map (see "Making a ground from a map"
+  below). The other grounds' images live in `assets/` (layer art in `assets/close/`), listed by id in `src/assets.js`;
   grounds pick their layers in `src/render/grounds.js` (`hidden: true` keeps a ground off the menu; The Oval is
   hidden for now). `tools/art/make_scenery.py` regenerates the
   Parklands close-view layers. `python3 tools/art/make_lords.py` regenerates Lord's six close/wide scenery layers
@@ -449,6 +452,39 @@ is right-arm; changing sides moves the release, run-up and follow-through rather
 The non-striker automatically stands on the opposite side of the run-up when the side is changed.
 The eye/pressure panel is hidden during bowling setup and returns for the run-up.
 Run `node tools/bowling-side.test.mjs` to check the side geometry, delivery angles and selection controls.
+
+### Making a ground from a map
+
+Parklands (new) is drawn from a map of the ground (`src/render/venue/`) rather than paintings, so every
+view shows the same place at true scale, both ends look like their own ends, and the views turn round with
+the bowling each over. To make another ground this way:
+
+1. **Write its map** (`src/render/venue/<name>-map.js`, the format in `venue-map.js`): the rope and fence,
+   the grass, the two ends' names (end 0 is bearing 0), and its parts by bearing and radius from the middle
+   of the pitch: `pavilion`, `terrace`, `stand`, `bank` (with spectators), `scoreboard`, `tents`,
+   `floodlight`, `sightscreen`, `trees` (`bush` for shrubs), `carpark`, `nets`, `shed`, `path`
+   (`venue-parts.js` lists what each takes). A new kind goes in `venue-parts.js`, and in `venue-light.js`
+   `castersOf` if it should throw a shadow.
+2. **Add the ground** to `src/render/grounds.js` as Parklands (new) is: `venue: <MAP>`, its `ends`, and
+   `wide: { camera: tvWideCamera() }`; its commentary lines in `sim/booth-venue-lines.js` and its weather in
+   `sim/weather.js` if it has its own.
+3. **Look at it**: `node tools/ground-sheet.mjs <dir> <ground> [white|red] [weather] [lights]` (with the
+   page served on port 8000) draws every view, end and time of day on one sheet, and says how long each
+   light took. Things to know about the cameras:
+   - The close camera sees about 60 m across at the far rope (76 m from the striker, screen row 72). Things
+     taller than about 10 m at 100 m from the middle run off the top; the sightscreen hides what's straight
+     behind it up to about 14 px above the horizon.
+   - The TV camera is 1.1 km off and 20 degrees up, with the whole ground in its 640 x 360 frame. It zooms
+     in to 3x on the square, where the middle of the frame (`HI_REGION`) is drawn at 3x detail.
+4. **Check it**: `npm test` (`tools/venue.test.mjs`) checks the rope, fence and sightscreen land where the
+   cameras put them at both ends, each end shows its own end, the TV camera has the whole ground in shot,
+   painted layers fit, and drawing stays quick. In the game the menu draws the scenery while the teams are
+   picked. The first view at the start of a match takes about 60-100 ms in the test browser; the rest is
+   drawn a few milliseconds a frame (`venue-build.js` `work`).
+5. **Paint over it** (optional): `node tools/ground-templates.mjs <dir> <ground>` exports every view, end and
+   layer as the code draws it, with a guide showing what's off screen, the rope, fence, horizon and panels.
+   Its `PAINTING.txt` says how to put a painted layer in. Painted layers are relit with the rest; one
+   painted before the map changed is left out until it's repainted. Keep them under 500 KB a ground.
 
 ### MCG wide-view prototype
 

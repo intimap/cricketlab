@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Ground templates</title>
+  </head>
+  <body>
+    <script type="module">
+      // Templates for painting over a ground built from a map (render/venue/venue-paint-over.js): each view
+      // and end's layers as the code draws them (midday light, transparent elsewhere), and a guide for each
+      // view: what's off screen, the horizon, the rope and fence, and where the game's panels sit over it.
+      import { GROUNDS } from "../../src/render/grounds.js";
+      import { venuePicture, clearVenueCache } from "../../src/render/venue/venue-build.js";
+      import { PAINTABLE, VIEWS, layerKey, viewFingerprint } from "../../src/render/venue/venue-paint-over.js";
+      import { LAYER } from "../../src/render/venue/venue-raster.js";
+      import { closeCamera, tvCamera, HI_REGION } from "../../src/render/venue/venue-cameras.js";
+      import { polar } from "../../src/render/venue/venue-map.js";
+      import { BATTER_PANEL } from "../../src/render/batter-meters.js";
+      import { SCORE_BOX } from "../../src/render/hud.js";
+      import { HUD_Y } from "../../src/render/score-bar.js";
+
+      const id = new URLSearchParams(location.search).get("ground") ?? "parklandsNew";
+      const ground = GROUNDS[id];
+      const map = ground.venue;
+      const pitch = { type: { id: "green" }, wear: 0, roughPatches: [] };
+      clearVenueCache();
+      const files = {};
+      const views = {};
+      const png = (w, h, paint) => {
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        paint(canvas.getContext("2d"));
+        return canvas.toDataURL("image/png");
+      };
+      for (const view of VIEWS)
+        for (const end of [0, 1]) {
+          const pic = venuePicture(map, ground, pitch, view, end);
+          views[view] = { fingerprint: viewFingerprint(map, view), w: pic.w, h: pic.h };
+          for (const layer of PAINTABLE) {
+            const image = new ImageData(pic.w, pic.h);
+            let any = false;
+            for (let i = 0; i < pic.w * pic.h; i++) {
+              if (pic.rgba[i * 4 + 3] === 0 || pic.layer[i] !== LAYER[layer]) continue;
+              any = true;
+              for (let k = 0; k < 4; k++) image.data[i * 4 + k] = pic.rgba[i * 4 + k];
+            }
+            if (any) files[`${layerKey(view, end, layer)}.png`] = png(pic.w, pic.h, (g) => g.putImageData(image, 0, 0));
+          }
+          // The guide.
+          const cam = view === "close" ? closeCamera(end) : view === "wide" ? tvCamera(end, 2) : tvCamera(end, 3, HI_REGION);
+          const scale = view === "close" ? 1 : view === "wide" ? 2 : 3;
+          files[`${layerKey(view, end, "guide")}.png`] = png(pic.w, pic.h, (g) => {
+            const ring = (radius, colour) => {
+              g.strokeStyle = colour;
+              g.beginPath();
+              let first = true;
+              for (let b = 0; b <= 360; b += 0.5) {
+                const p = polar(b, radius);
+                const s = cam.project({ x: p.x, y: 0, z: p.z });
+                if (!s) {
+                  first = true;
+                  continue;
+                }
+                if (first) g.moveTo(s.x, s.y);
+                else g.lineTo(s.x, s.y);
+                first = false;
+              }
+              g.stroke();
+            };
+            g.lineWidth = 1;
+            ring(map.boundary, "rgba(255,230,60,0.9)");
+            ring(map.fence.radius, "rgba(255,255,255,0.9)");
+            const box = (x, y, w, h, label) => {
+              g.fillStyle = "rgba(255,40,40,0.35)";
+              g.fillRect(x, y, w, h);
+              g.fillStyle = "#ff8080";
+              g.font = "10px monospace";
+              g.fillText(label, x + 3, y + 11);
+            };
+            if (view === "close") {
+              // The top 24 rows are above the screen; the panels as the close view shows them.
+              g.fillStyle = "rgba(0,0,0,0.5)";
+              g.fillRect(0, 0, pic.w, 24);
+              g.strokeStyle = "rgba(80,220,255,0.9)";
+              g.beginPath();
+              g.moveTo(0, cam.cy + 0.5);
+              g.lineTo(pic.w, cam.cy + 0.5);
+              g.stroke();
+              box(BATTER_PANEL.x, BATTER_PANEL.y + 24, BATTER_PANEL.w, BATTER_PANEL.h, "PANEL");
+              box(640 - 4 - SCORE_BOX.w, 4 + 24, SCORE_BOX.w, SCORE_BOX.h, "SCORE");
+              box(0, HUD_Y + 24, pic.w, pic.h - HUD_Y - 24, "SCORE BAR");
+            } else if (view === "wide") {
+              box(BATTER_PANEL.x * scale, BATTER_PANEL.y * scale, BATTER_PANEL.w * scale, BATTER_PANEL.h * scale, "PANEL (whole ground)");
+              box((640 - 4 - SCORE_BOX.w) * scale, 4 * scale, SCORE_BOX.w * scale, SCORE_BOX.h * scale, "SCORE");
+              box(0, HUD_Y * scale, pic.w, pic.h - HUD_Y * scale, "SCORE BAR (whole ground)");
+            }
+          });
+        }
+      window.templates = { ground: id, map: map.name, ends: map.ends, views, files };
+      document.title = "ready";
+    </script>
+  </body>
+</html>

@@ -138,7 +138,7 @@ export class Menu {
   update(dt) {
     this.t += dt;
     // A ground built from a map draws its scenery while you choose, so the match starts straight away.
-    prepareVenue(GROUNDS[this.cfg.ground], ballKindFor(this.cfg), 4);
+    prepareVenue(GROUNDS[this.cfg.ground], ballKindFor(this.cfg), 4, this.game.images);
     if (this.page === "teams") return updateTeams(this);
     const rows = this.rows;
     if (keys.pressed("ArrowUp")) {

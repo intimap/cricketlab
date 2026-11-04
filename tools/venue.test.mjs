@@ -151,3 +151,48 @@ test("drawing a close view is quick (a guard against it getting slow)", () => {
   const ms = performance.now() - t0;
   assert.ok(ms < 400, `${ms.toFixed(0)} ms`);
 });
+
+test("painting over: a painted layer replaces the drawn colours; one painted for an older map is left out", async () => {
+  const { applyPainted, viewFingerprint, staleLayers } = await import("../src/render/venue/venue-paint-over.js");
+  const { makePicture, putPixel, LAYER: L } = await import("../src/render/venue/venue-raster.js");
+  const pic = makePicture({ ...closeCamera(0), w: 4, h: 1 });
+  putPixel(pic, 0, 0, 100, [10, 20, 30], { x: 0, y: 1, z: 0 }, L.buildings);
+  // The painted layer: red over the building and over the sky next to it, nothing over the rest.
+  const painted = new Uint8ClampedArray([200, 0, 0, 255, 200, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0]);
+  const img = { width: 4, height: 1 };
+  const map = {
+    ...PARKLANDS_MAP,
+    painted: { "close-0-buildings": { asset: "x", fingerprint: viewFingerprint(PARKLANDS_MAP, "close") } },
+  };
+  applyPainted(pic, map, { x: img }, "close", 0, () => painted);
+  assert.deepEqual(Array.from(pic.rgba.slice(0, 8)), [200, 0, 0, 255, 200, 0, 0, 255]);
+  assert.equal(pic.layer[1], L.buildings, "paint over the sky joins the layer");
+  assert.equal(pic.rgba[11], 0, "unpainted pixels stay clear");
+  // The map moved since: left out, and the checks say so.
+  const moved = { ...map, parts: map.parts.map((p, i) => (i === 0 ? { ...p, radius: p.radius + 2 } : p)) };
+  const fresh = makePicture({ ...closeCamera(0), w: 4, h: 1 });
+  const warn = console.warn;
+  console.warn = () => {};
+  applyPainted(fresh, moved, { x: img }, "close", 0, () => painted);
+  console.warn = warn;
+  assert.equal(fresh.rgba[3], 0);
+  assert.equal(staleLayers(moved).length, 1);
+  assert.notEqual(viewFingerprint(PARKLANDS_MAP, "close"), viewFingerprint(PARKLANDS_MAP, "wide"));
+});
+
+test("the grounds' painted layers exist, fit their maps, and stay under 500 KB a ground", async () => {
+  const fs = await import("node:fs");
+  const { ASSET_URLS } = await import("../src/assets.js");
+  const { staleLayers } = await import("../src/render/venue/venue-paint-over.js");
+  for (const [id, g] of Object.entries(GROUNDS)) {
+    if (!g.venue) continue;
+    assert.deepEqual(staleLayers(g.venue), [], `${id} has stale paint`);
+    let bytes = 0;
+    for (const [key, entry] of Object.entries(g.venue.painted ?? {})) {
+      const url = ASSET_URLS[entry.asset];
+      assert.ok(url, `${id} ${key}: ${entry.asset} is listed in src/assets.js`);
+      bytes += fs.statSync(url).size;
+    }
+    assert.ok(bytes <= 500 * 1024, `${id}: ${Math.round(bytes / 1024)} KB of painted layers`);
+  }
+});

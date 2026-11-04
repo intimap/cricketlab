@@ -72,6 +72,9 @@ export function closeCamera(far) {
   });
 }
 
+/** The part of the whole-ground frame drawn at 3x for close zooms (px of the 640 x 360 frame). */
+export const HI_REGION = Object.freeze({ x: 130, y: 104, w: 380, h: 192 });
+
 /** The TV camera: distance (m) from the middle of the ground, how far it looks down, and its focal length (px). */
 export const TV = Object.freeze({ distance: 1100, down: 20, focal: 3750, cx: 320, cy: 194 });
 

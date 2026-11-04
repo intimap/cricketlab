@@ -9,7 +9,7 @@ import { viewFacing } from "./camera.js";
 export { HUD_Y, staminaColor, drawScoreBar } from "./score-bar.js";
 
 /** Width and height of the score box in the top right of the screen. */
-const SCORE_BOX = { w: 132, h: 33 };
+export const SCORE_BOX = { w: 132, h: 33 };
 
 /** The score, double size, with the overs under it, in a box in the top right corner. */
 export function drawScoreBox(inn) {

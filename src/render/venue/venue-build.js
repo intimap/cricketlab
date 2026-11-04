@@ -1,5 +1,5 @@
 import { makePicture, drawGround, putPixel, FLAG, LAYER } from "./venue-raster.js";
-import { closeCamera, tvCamera, TV } from "./venue-cameras.js";
+import { closeCamera, tvCamera, TV, HI_REGION } from "./venue-cameras.js";
 import { partsWork } from "./venue-parts.js";
 import { groundShade, closeOutfield, drawStumps } from "./venue-field.js";
 import { relight, castersOf, shadowTest, sunOf, lightingFor } from "./venue-light.js";
@@ -7,7 +7,7 @@ import { polar } from "./venue-map.js";
 import { frame } from "./venue-geometry.js";
 import { paintCloseField } from "../ground.js";
 import { CLOSE_CAMERA, closeRowDepth } from "../camera.js";
-import { paintedLayer } from "./venue-paint-over.js";
+import { applyPainted } from "./venue-paint-over.js";
 import { skyPixels, paintLampGlow } from "./venue-sky.js";
 
 /**
@@ -24,8 +24,8 @@ import { skyPixels, paintLampGlow } from "./venue-sky.js";
  * the last one stays up, so nothing stalls the game.
  */
 
-/** The part of the whole-ground frame drawn at 3x for close zooms (px of the 640 x 360 frame). */
-export const HI_REGION = Object.freeze({ x: 130, y: 104, w: 380, h: 192 });
+// The 3x region lives with the cameras; kept here too for the callers that took it from here.
+export { HI_REGION };
 
 const pictures = new Map();
 const lit = new Map();
@@ -41,7 +41,7 @@ const cameraFor = (view, end) =>
   view === "close" ? closeCamera(end) : view === "wide" ? tvCamera(end, 2) : tvCamera(end, 3, HI_REGION);
 
 /** The scenery for a view and end, drawn once (and kept): { pic, done, work }. */
-function scenery(map, view, end, ballKind) {
+function scenery(map, view, end, ballKind, images = null) {
   const key = `${map.name}:${view}:${end}:${ballKind}`;
   if (!pictures.has(key)) {
     const pic = makePicture(cameraFor(view, end));
@@ -56,6 +56,8 @@ function scenery(map, view, end, ballKind) {
         drawGround(pic, shade, 0, { x0: 0, x1: pic.w - 1, y0: y, y1: Math.min(pic.h - 1, y + rows - 1) });
         yield;
       }
+      // Painted layers over the drawn colours (they're relit with them).
+      if (images && Object.keys(map.painted ?? {}).length) applyPainted(pic, map, images, view, end);
       entry.done = true;
     })();
     pictures.set(key, entry);
@@ -168,7 +170,7 @@ function takeBuffer(slotKey, w, h) {
 
 /** The picture relit for `look` as a canvas, a slice at a time: the scenery, the field, the light. */
 function* litWork(map, ground, images, pitch, look, view, end, ballKind, key) {
-  const entry = scenery(map, view, end, ballKind);
+  const entry = scenery(map, view, end, ballKind, images);
   while (!entry.done) {
     entry.work.next();
     yield "scenery";
@@ -194,7 +196,6 @@ function* litWork(map, ground, images, pitch, look, view, end, ballKind, key) {
     g.putImageData(image, 0, 0, 0, y, pic.w, Math.min(rows * 4, pic.h - y));
     yield "put";
   }
-  for (const painted of paintedLayer(map, images, view, end)) g.drawImage(painted, 0, 0);
   if (lightingFor(look).night) paintLampGlow(g, pic, map);
   lit.set(key, canvas);
   latest.set(slotKey, canvas);
@@ -293,12 +294,12 @@ export function venueGround(ground, images, pitch, look, { ballKind = "white" } 
  * Draw a venue's scenery ahead, `ms` of it at a time (the menu does it while the teams are picked), so a
  * match starting there only has to paint the field and light it. The ball decides the sightscreens.
  */
-export function prepareVenue(ground, ballKind, ms) {
+export function prepareVenue(ground, ballKind, ms, images = null) {
   if (!ground?.venue) return true;
   const until = performance.now() + ms;
   for (const view of ["close", "wide", "near"])
     for (const end of [0, 1]) {
-      const entry = scenery(ground.venue, view, end, ballKind);
+      const entry = scenery(ground.venue, view, end, ballKind, images);
       while (!entry.done) {
         entry.work.next();
         if (performance.now() >= until) return false;

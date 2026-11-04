@@ -27,6 +27,7 @@
       import { LIGHTS } from "../../src/render/light.js";
       import { weatherLight } from "../../src/render/weather-look.js";
       import { venueGround, prepareVenue, HI_REGION } from "../../src/render/venue/venue-build.js";
+      import { staleLayers } from "../../src/render/venue/venue-paint-over.js";
 
       const params = new URLSearchParams(location.search);
       const ground = GROUNDS[params.get("ground") ?? "parklandsNew"];
@@ -57,7 +58,7 @@
       sheet.height = (H + LABEL) * lights.length;
       const g = sheet.getContext("2d");
       g.imageSmoothingEnabled = true;
-      while (!prepareVenue(ground, ball, 1000));
+      while (!prepareVenue(ground, ball, 1000, images));
       const times = {};
       lights.forEach((id, row) => {
         const look = weatherLight(LIGHTS[id], weather, false);
@@ -83,6 +84,9 @@
           drawInto(g, () => drawText(`${name}, ${LIGHTS[id].name}`, x + 4, y - 11, { color: "#f4ecd0" }));
         });
       });
+      // Painted layers that no longer fit the map, across the top of the sheet.
+      const stale = staleLayers(ground.venue);
+      if (stale.length) drawInto(g, () => drawText(`STALE PAINT: ${stale.map((x) => x.key).join(", ")}`, 4, 2, { color: "#ff6040" }));
       window.venueTimes = times;
       document.title = "ready";
     </script>

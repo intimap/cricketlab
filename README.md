@@ -167,8 +167,9 @@ src/
     bowling-side.js   over/around release geometry and follow-through position
     delivery.js       bowling: release, swing, seam, spin, bounce, flight
     runup.js          the player's run-up and release meter: rhythm, ramp, stride surges
-    bat-impact.js     blade contact coordinates, toe/splice rebound and continuous edge deflection
-    shot-timing.js    shared normal/power backlift durations for input and animation
+    bat-impact.js     blade contact coordinates: where on the blade, how thick an edge, toe/splice rebound
+    bat-ball.js       the ball off the bat as a collision: bat weight, bounce, face angle and tilt, edges, spin
+    shot-timing.js    backlift durations, the player's timing window and power charge (input, animation, reports)
     batting.js        the shot: timing, where the bat goes, edges, LBW, bowled
     shot-choice.js    which shot suits which ball: front or back foot, the back-foot shot
     shot-direction.js where a shot goes and what it's called, finding the gap
@@ -180,7 +181,7 @@ src/
     plans.js          the battle with the bowler: hidden weaknesses, memory of recent balls
     scouting.js       reading a batter's weakness from how he plays it: a hint, then given away
     ball-in-play.js   after the shot: the ball's flight, who fields it, boundaries, the outcome
-    ball-roll.js      a free ball in the air and along the ground: drag, bounce, friction
+    ball-roll.js      a free ball in the air and along the ground: drag, bounce (topspin skids on), friction
     running.js        the batters' running: calling and abandoning runs, who's at risk, the computer's calls
     fielder-motion.js how fielders move: accelerating, turning, easing up, set, dive/get up, walking in
     fielder-ai.js     who chases the ball, who cuts it off, who covers the stumps
@@ -339,7 +340,7 @@ src/
 netlify/
   functions/scores.mjs  the shared high-score service on Netlify (/api/scores)
   score-table.mjs       its tables: checks scores, keeps each table's best 200, safe against saves at once
-tools/                frame sheets (bowler-sheet.mjs, ground-sheet.mjs for every view of a map-built ground, with tools/sheets/; ground-templates.mjs for painting over one), balance reports (sim-report.mjs; bowling-report.mjs for the player's bowling, test-report.mjs for Tests, weather-report.mjs per weather), one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
+tools/                frame sheets (bowler-sheet.mjs, ground-sheet.mjs for every view of a map-built ground, with tools/sheets/; ground-templates.mjs for painting over one), balance reports (sim-report.mjs; bowling-report.mjs for the player's bowling, batting-report.mjs for his batting, test-report.mjs for Tests, weather-report.mjs per weather), one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
 ```
 
 The rule of thumb: `sim/` knows nothing about the screen, `engine/` knows nothing about cricket, and
@@ -354,7 +355,8 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 ### Where to start for common changes
 
 - **Ball physics and difficulty:** `sim/delivery.js` (how balls are bowled) and `sim/batting.js` (timing
-  windows, edges, LBW); which shot suits a ball in `sim/shot-choice.js`, where it goes in `sim/shot-direction.js`.
+  windows, edges, LBW); which shot suits a ball in `sim/shot-choice.js`, where it goes in `sim/shot-direction.js`,
+  how it comes off the bat in `sim/bat-ball.js`.
 - **Player ratings and squads:** `sim/teams.js`.
 - **Pitch behaviour:** `PITCH_TYPES` in `sim/conditions.js`.
 - **AI tactics:** `sim/ai.js`.
@@ -410,7 +412,9 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   with its images inlined (needs esbuild).
 - **Tests:** `npm test` runs every `tools/*.test.mjs` (node's built-in runner; no packages needed).
 - **Balance checks:** `node tools/sim-report.mjs [innings] [pitch]` simulates AI-vs-AI innings and prints
-  run rates, dismissals, plan figures and commentary moments.
+  run rates, dismissals, plan figures and commentary moments. `node tools/batting-report.mjs [innings]` bats
+  scripted players (perfect, good or average timing; always forward, always back, power on every attack)
+  against the computer's bowling with the player's timing window.
 - **Commentary:** each ball is called in beats: the start of the over and the setup before it, the delivery
   as it reaches the bat, the result joined on as one sentence, then the second voice's reset (timed by
   `scenes/booth-beats.js`, worded in `sim/booth-beats.js`, `booth-venue-lines.js`, `booth-drs-lines.js` and
@@ -443,11 +447,15 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   factual eligibility, freshness, duplicate protection and unchanged match records.
 
 Bat contact resolves the ball against a simplified oriented blade: across its width and along its length
-from toe to handle. Toe and splice contacts lose rebound speed; thin and thick edges blend their direction
-and pace continuously, including inside edges. Cuts, pulls and sweeps use a horizontal blade; drives and
-defence use an upright blade. This is a contact-plane approximation, independent of the drawn bat rig;
-post-strike spin and a full rigid-body collision are not modelled. Run
-`node tools/bat-impact.test.mjs` for contact geometry, edge continuity and seeded simulation checks.
+from toe to handle (`sim/bat-impact.js`). Cuts, pulls and sweeps use a horizontal blade; drives and defence use
+an upright blade. The ball then comes off as a collision (`sim/bat-ball.js`): a 156 g ball meets a rigid bat
+swung at up to about 27 m/s, with only part of its weight counting away from the balance point, a bounce of
+0.5 for a new ball and 0.42 for an old one, and friction across the face that turns slide into spin. The face
+is aimed so a well-played shot goes where it should; timing turns it (about 3 degrees per 10 ms) and a clearly
+early shot lifts it. An edge turns the surface towards the ball's side, the thinner the more, and an outside
+edge off an upright bat lifts a little so it carries. Topspin keeps a ball's pace at its first bounce and
+backspin checks it. Pads, gloves and the toe still use simple rules. Run `node tools/bat-impact.test.mjs` and
+`node tools/bat-ball.test.mjs` for contact geometry, the collision and seeded simulation checks.
 
 Over/around selection is remembered per bowler for the innings and can be changed with T, the SIDE touch
 button, or the SIDE row in the bowling panel. It locks when the run-up starts. The current action model

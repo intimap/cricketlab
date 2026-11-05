@@ -3,8 +3,8 @@ import { keys } from "../engine/input.js";
 import { clamp } from "../math.js";
 import { crossingAtZ } from "../sim/delivery.js";
 import { CONTACT_Z_FRONT, SWING_TIME, NORMAL_CHARGE, FOOTWORK_MIN, FOOTWORK_MAX } from "../sim/batting.js";
-import { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
-export { BACKLIFT_TIME, POWER_BACKLIFT_TIME } from "../sim/shot-timing.js";
+import { BACKLIFT_TIME, POWER_BACKLIFT_TIME, PLAYER_TIMING_WINDOW, POWER_CHARGE } from "../sim/shot-timing.js";
+export { BACKLIFT_TIME, POWER_BACKLIFT_TIME, PLAYER_TIMING_WINDOW, POWER_CHARGE } from "../sim/shot-timing.js";
 import { meterPos, releaseError, METER_FROM } from "../sim/runup.js";
 import { rhythmOf } from "../sim/rhythm.js";
 import { assistOf } from "./assists.js";
@@ -17,9 +17,6 @@ import { act } from "./player-actions.js";
  * same names call these.
  */
 
-const POWER_CHARGE = 0.95;
-/** The player's timing window is wider than the AI's. */
-const PLAYER_TIMING_WINDOW = 1.35;
 /** Front foot: S drive, W loft. Back foot: Q (cut, punch, pull, hook or glance, as the ball dictates). */
 const SHOT_KEYS = { KeyS: "drive", KeyQ: "cutpull", KeyW: "loft" };
 /** Defence: A forward, D back. */

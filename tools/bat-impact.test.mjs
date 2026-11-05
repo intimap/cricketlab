@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { BAT_BLADE, batImpact, bladeAngle, edgeExit } from "../src/sim/bat-impact.js";
+import { BAT_BLADE, batImpact, bladeAngle } from "../src/sim/bat-impact.js";
 import { BALL_RADIUS } from "../src/sim/geometry.js";
 import { Match } from "../src/sim/match.js";
 import { Rng } from "../src/sim/rng.js";
@@ -68,19 +68,14 @@ test("length and width follow bat orientation for cuts, pulls, sweeps and ramps"
   }
 });
 
-test("thin-to-thick deflection is continuous on both edges", () => {
-  const thin = hit({ dx: 0.085 });
-  const thick = hit({ dx: 0.04 });
-  assert.ok(thin.thickness < thick.thickness);
-  for (const side of [-1, 1]) {
-    const a = edgeExit(thin, 30, 20, false, side);
-    const b = edgeExit(thick, 30, 20, false, side);
-    assert.ok(Math.abs(a.bearing) > Math.abs(b.bearing));
-    const left = edgeExit(hit({ dx: 0.062 - 1e-8 }), 30, 20, false, side);
-    const right = edgeExit(hit({ dx: 0.062 + 1e-8 }), 30, 20, false, side);
-    assert.ok(Math.abs(left.bearing - right.bearing) < 0.001);
-    assert.ok(Math.abs(left.speed - right.speed) < 0.001);
+test("edge thickness falls smoothly from the face to the rim", () => {
+  let last = 1;
+  for (let dx = 0.034; dx < 0.1; dx += 0.004) {
+    const t = hit({ dx }).thickness;
+    assert.ok(t <= last, `${dx}: ${t} after ${last}`);
+    last = t;
   }
+  assert.ok(Math.abs(hit({ dx: 0.062 - 1e-9 }).thickness - hit({ dx: 0.062 + 1e-9 }).thickness) < 1e-6);
 });
 
 test("timing shifts contact along the blade without extra random draws", () => {

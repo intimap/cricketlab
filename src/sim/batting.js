@@ -1,4 +1,5 @@
-import { batImpact, edgeExit } from "./bat-impact.js";
+import { batImpact, bladeAngle } from "./bat-impact.js";
+import { strike, faceTilt, FACE_TURN } from "./bat-ball.js";
 import { clamp, toRad } from "../math.js";
 import { CREASE, STUMPS_HALF_WIDTH, BALL_RADIUS } from "./geometry.js";
 import { simulateFlight, crossingAtZ, sampleAtTime, hitsStumps, isWide } from "./delivery.js";
@@ -23,6 +24,11 @@ export const SWING_TIME = {
   defend: 0.12,
   leave: 0,
 };
+
+/** The most timing error (s) that turns the face: beyond it the shot is barely made anyway. */
+const TURN_ERROR = 0.12;
+/** A block's push at the ball (m/s): enough that it doesn't die at his feet. */
+const BLOCK_PUSH = 2.5;
 
 /** Extra vertical bat error (m) when hooking a ball above the shoulder: top edges and gloves. */
 const HOOK_ERROR = 0.11;
@@ -135,7 +141,12 @@ export function resolveDelivery(d, shot, bat, state, ball, spinner, rng, field =
       res.bowled = true;
     }
     if (contact.kind === "padPop") res.touchedBat = true;
-    res.start = { t: contact.at.t, pos: { x: contact.at.x, y: contact.at.y, z: contact.at.z }, vel: contact.exit };
+    res.start = {
+      t: contact.at.t,
+      pos: { x: contact.at.x, y: contact.at.y, z: contact.at.z },
+      vel: contact.exit,
+      spin: contact.spin,
+    };
     return res;
   }
 
@@ -276,87 +287,65 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
   const contactQuality = (kind === "middle" ? impact.faceQuality : 0.4) * impact.energy;
   const quality = clamp(contactQuality * timingQuality * (0.7 + 0.3 * suit));
   const ballSpeed = Math.abs(at.vz);
-  const batSpeed = defending ? 0 : (8 + 26 * shot.charge * (0.55 + 0.45 * bat.power)) * eye;
+  // The bat's speed at the sweet spot (m/s): up to about 27 for a full-blooded swing.
+  const swing = (6.4 + 20.8 * shot.charge * (0.55 + 0.45 * bat.power)) * eye;
   const natural = shotBearing(shot.type, line, height, back);
-
-  let speed, bearing, elevation;
-  switch (kind) {
-    case "middle": {
-      if (defending) {
-        speed = (2.2 + 0.12 * ballSpeed) * (1.25 - 0.5 * bat.defence) * (mistimed ? 1.3 : 1);
-      } else if (shot.type === "ramp") {
-        // Mostly the bowler's pace, redirected.
-        speed = (0.55 * ballSpeed + 4 + 6 * shot.charge) * (0.5 + 0.5 * quality) * ball.batPace;
-      } else if (isSweep(shot.type)) {
-        speed = (batSpeed + 0.25 * ballSpeed + 4) * (0.5 + 0.5 * quality) * ball.batPace;
-      } else {
-        speed = (batSpeed + 0.42 * ballSpeed) * (0.5 + 0.5 * quality) * ball.batPace * (hooking ? 0.7 : 1);
-      }
-      if (mistimed && !defending) speed *= 0.7;
-      // The ball and the shot set the direction; timing moves it. Played late it goes finer
-      // (towards third man, or fine leg for shots already going behind square on the leg side),
-      // early it goes squarer / across the line. A sweep's bat angle fixes it more.
-      const finer = natural < -45 ? -1 : 1;
-      const drift = finer * clamp(timing, -2, 2) * 16 + rng.normal(0, 5 + 18 * (1 - quality));
-      bearing = natural + drift * (isSweep(shot.type) ? 0.5 : 1);
-      if (!defending) bearing = intoGap(bearing, field, MAX_PLACEMENT * quality * (0.4 + 0.6 * bat.technique));
-      if (defending) elevation = height > 1.25 ? rng.range(15, 40) : rng.range(-25, -5);
-      else if (shot.type === "loft") elevation = 20 + 15 * shot.charge + rng.normal(0, 5);
-      else if (shot.type === "ramp") elevation = 28 + 12 * shot.charge + rng.normal(0, 6);
-      else if (isSweep(shot.type)) elevation = -2 + rng.normal(0, 2) + (height > 0.7 ? 12 : 0);
-      else if (shot.type === "cutpull")
-        // A pull is rolled down; only a hook off a really high ball tends to go in the air.
-        elevation =
-          back === "cut"
-            ? 4 + rng.normal(0, 4) + (height > 1 ? 7 : 0)
-            : back === "punch" || back === "glance"
-              ? 1.5 + rng.normal(0, 3) + (height > 0.8 ? 6 : 0)
-              : 2 + Math.max(0, height - 1.2) * 20 + rng.normal(0, 5);
-      else elevation = 1.5 + rng.normal(0, 3) + (height > 0.8 ? 7 : 0) + (timing < -1 ? rng.range(10, 30) : 0);
-      if (mistimed && !defending) elevation += rng.range(0, isSweep(shot.type) ? 8 : 22);
-      break;
-    }
-    case "thinEdge":
-    case "thickEdge":
-    case "insideEdge": {
-      // The ball's climb as it reaches the bat (degrees), which an outside edge keeps.
-      const rise = Math.max(0, (Math.atan2(at.vy, ballSpeed) * 180) / Math.PI);
-      const edge = edgeExit(impact, ballSpeed, batSpeed, defending, kind === "insideEdge" ? -1 : 1, rise);
-      speed = edge.speed;
-      bearing = edge.bearing + rng.normal(0, edge.spread);
-      elevation = edge.elevation + rng.normal(0, kind === "insideEdge" ? 5 : 4 + 4 * impact.thickness);
-      break;
-    }
-    case "padPop":
+  // Struck off the face or an edge: the collision decides it. A pad, a glove or the toe are their own.
+  const struck = kind !== "padPop" && kind !== "gloved" && (kind !== "bottomEdge" || impact.horizontal);
+  let exit;
+  let spin = 0;
+  let bearing;
+  if (struck) {
+    // Mistimed, the bat meets the ball before or after its fastest point; a cramped hook slower still.
+    // A block is pushed gently at the ball, softer for a good defender.
+    const batSpeed = defending
+      ? BLOCK_PUSH * (1.2 - 0.5 * bat.defence)
+      : swing * (0.5 + 0.5 * quality) * (mistimed ? 0.8 : 1) * (hooking ? 0.75 : 1);
+    // Timing turns the face (late goes finer, early squarer) and a scratchy hit strays; a good batter's
+    // wrists still work it towards a gap. A block goes where it's pushed.
+    const finer = natural < -45 ? -1 : 1;
+    const turn = finer * FACE_TURN * clamp(shot.timingError, -TURN_ERROR, TURN_ERROR) + rng.normal(0, 5 + 18 * (1 - quality));
+    const meant = natural + turn * (isSweep(shot.type) ? 0.5 : 1);
+    const aim = defending ? meant : intoGap(meant, field, MAX_PLACEMENT * quality * (0.4 + 0.6 * bat.technique));
+    const tilt = faceTilt(shot.type, back, height, shot.charge, Math.max(0, -timing)) + rng.normal(0, 0.9 + 1.5 * (1 - quality));
+    // The edge the ball meets, across the blade.
+    const blade = bladeAngle(shot.type, back);
+    const hit = strike({
+      ball: { x: at.vx, y: at.vy, z: at.vz },
+      bearing: aim,
+      tilt,
+      speed: batSpeed,
+      hardness: ball.hardness ?? 1,
+      soft: defending ? 0.3 + 0.35 * bat.defence : 0,
+      impact,
+      offset: { x: impact.across * Math.cos(blade), y: -impact.across * Math.sin(blade) },
+      aimed: shot.type === "ramp" ? "tilt" : "face",
+    });
+    exit = hit.vel;
+    spin = hit.spin;
+    bearing = (Math.atan2(exit.x, exit.z) * 180) / Math.PI;
+  } else {
+    let speed, elevation;
+    if (kind === "padPop") {
       speed = rng.range(2.5, 5);
       bearing = rng.normal(-95, 50);
       elevation = rng.range(25, 60);
-      break;
-    case "topEdge":
-      speed = 0.3 * ballSpeed + 0.25 * batSpeed + 2;
-      if (shot.type === "ramp") bearing = 180 + rng.normal(0, 20);
-      else if (shot.type === "sweep") bearing = -150 + rng.normal(0, 25);
-      else if (shot.type === "reverseSweep") bearing = 150 + rng.normal(0, 25);
-      else bearing = back === "pull" || back === "glance" ? -140 + rng.normal(0, 25) : natural + 150 + rng.normal(0, 30);
-      elevation = shot.type === "ramp" ? rng.range(55, 80) : rng.range(42, 72);
-      break;
-    case "gloved":
+    } else if (kind === "gloved") {
       speed = 0.3 * ballSpeed;
       bearing = 172 + rng.normal(0, 22);
       elevation = rng.range(15, 35);
-      break;
-    default: // bottomEdge
-      speed = 0.25 * ballSpeed;
+    } else {
+      // Off the toe, under the bat: down into the ground behind.
+      speed = 0.25 * ballSpeed * impact.energy;
       bearing = 180 + rng.normal(0, 35);
       elevation = -rng.range(15, 40);
+    }
+    const el = toRad(elevation);
+    const br = toRad(bearing);
+    const flat = speed * Math.cos(el);
+    exit = { x: Math.sin(br) * flat, y: speed * Math.sin(el), z: Math.cos(br) * flat };
   }
 
-  // Toe and splice hits return less energy, including otherwise clean face hits.
-  if (kind !== "gloved" && kind !== "padPop") speed *= impact.energy;
-  speed = Math.max(0, speed);
-  const el = toRad(elevation);
-  const br = toRad(bearing);
-  const flat = speed * Math.cos(el);
   return {
     kind,
     impact,
@@ -367,6 +356,8 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
     missReason: "",
     shotName: shotName(shot.type, bearing, height, footBack, back),
     at,
-    exit: { x: Math.sin(br) * flat, y: speed * Math.sin(el), z: Math.cos(br) * flat },
+    exit,
+    /** Off the bat (rad/s, + topspin), which the bounce feels. */
+    spin,
   };
 }

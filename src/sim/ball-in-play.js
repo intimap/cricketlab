@@ -60,6 +60,8 @@ export class BallInPlay {
     this.ball = {
       pos: { ...res.start.pos },
       vel: { ...res.start.vel },
+      /** Off the bat (rad/s, + topspin): the first bounce feels it. */
+      spin: res.start.spin ?? 0,
       bounced: !res.touchedBat,
       held: -1,
       atEnd: null,
@@ -192,7 +194,7 @@ export class BallInPlay {
 
   /** The free ball's path from now until it stops or crosses the boundary. */
   forecast() {
-    const b = { pos: { ...this.ball.pos }, vel: { ...this.ball.vel }, bounced: this.ball.bounced };
+    const b = { pos: { ...this.ball.pos }, vel: { ...this.ball.vel }, spin: this.ball.spin, bounced: this.ball.bounced };
     const path = [];
     const dt = 0.02;
     let t = this.t;

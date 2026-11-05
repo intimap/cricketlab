@@ -230,6 +230,71 @@ above the score bar shows each batter along the pitch, in or out of his ground. 
 any layers (the tools are ready), life in the ground (the crowd, flags), the run bar's place in the close
 view (it covers the foot of the near stumps while it's up), and measuring on the Pi 5.
 
+## Batting: the feet decide the shot (agreed November 2026, branch `batting`)
+
+From a review and a grilling round. The aim: the batter has to respond to the ball bowled, but can still
+rely on reacting; timing is king, but the wrong feet or the wrong shot hurt. Before: the shot key carried
+the foot (S drive, W loft, A forward defence forward; Q attack, D defence back), a 10 cm step across the
+crease, a wrong-foot penalty that was mild, and the ball came off the bat by formula (bat speed plus 42% of
+the ball's pace), its direction from the line and timing and its height set per shot.
+
+Decisions:
+
+- Played on keyboard, touch, gamepad and an arcade stick, built round a stick: its direction is the feet,
+  buttons what you do with the bat. Up is away from the camera, left and right as on screen (from behind
+  the bowler, up is back). Gamepad support (the browser's) comes in this work, menus included.
+- Feet: forward stride, back, forward or back and across, away to leg, down the pitch (two quick pushes
+  forward, 1-2 m, against pace too; the keeper may stump you, likelier standing up), or left alone on the
+  crease. They move during the ball's flight and strides take real time (about 0.2 s to plant the front
+  foot): late is caught on the crease. A trigger: hold a direction in the run-up and he presses that way at
+  release, a head start that costs if the ball goes the other way.
+- Buttons: defend, attack, loft, improvise (sweeps, ramps, scoops by the feet), power held or tapped to arm
+  it for the ball; no button leaves (feet back sways under a bouncer, feet alone ducks). Keyboard A S W D
+  and Shift; touch a stick and four buttons; gamepad the stick, face buttons and a shoulder for power.
+- The shot comes from the feet, the button and the ball, timing moving it finer or squarer. The whole
+  matrix: drives by line, the clip and whip, cut, late cut, punch, pull, hook, glance, upper cut, inside-out
+  drive, the pulls from inside the line, charging drives, sweep, slog-sweep, reverse sweep, ramps and
+  scoops, paddle, switch hit, the defences, smothering, jabs and fends on the crease, sway and duck.
+  Aiming where to hit it comes later (on HARD, perhaps the stick aiming once the feet lock in the swing).
+- Wrong choices hurt through the geometry: the feet decide where and when the bat meets the ball (forward
+  to a short one meets it climbing, back to a full one at the toes, across the line leaves the stumps or
+  pads in its path); ratings only add the error. The computer bats on the same rules.
+- The ball off the bat is a collision in the sim: a 156 g ball, its bounce off the bat about 0.5 new and
+  0.42 old; the bat's weight where it's hit (less at the toe and splice); bat speed from soft hands to
+  about 30 m/s; the face opened or closed by timing (about 3 degrees per 10 ms), tilted over or under the
+  ball; a little spin (drives run on, dabs and edges die). A perfect drive off 135 km/h is about 35-40 m/s.
+- Bats: each batter's has a weight (about 1.1-1.4 kg), edges and a handle length, from his ratings with
+  overrides in the squads, shown on the team sheet. Heavier hits harder but swings slower.
+- Feedback: a footwork word by the timing meter (GOOD STRIDE, CAUGHT ON THE CREASE, WRONG FOOT, ACROSS THE
+  LINE, OUT OF REACH, ROOM TO WORK); the nets coach rates the feet.
+- Assists: EASY moves the feet to the length (you choose the shot and time it), a wider window, the true
+  path and a landing mark; NORMAL as designed; HARD narrower, less forgiving, no ring.
+- Targets (your batting against the computer's bowling, 50 overs, tools/batting-report.mjs): good timing and
+  the right feet 5-6 an over, out every 40-60 balls; good timing on the crease about 4, out every 15-25;
+  good timing always forward out every 15-20; average timing and the right feet 4-5, out every 25-35. The
+  computer's own batting stays where it is (sim-report 4.68 an over, a wicket every 37.9 balls).
+
+Streams, in order, each ending in a play-test:
+
+1. The batting report, and the collision with today's controls (the physics change on its own).
+2. The feet in the sim: where and when the bat meets the ball from the feet, for both sides; the computer
+   retuned to today's scoring.
+3. The controls: the stick or arrows as feet, the trigger, down the pitch, four buttons, the power toggle,
+   touch's stick, the gamepad.
+4. The shot matrix: all the strokes, their animations, the stride drawn as you push, their names.
+5. Bats: weight, edges, handle, by player, on the team sheet.
+6. Assists and the footwork words.
+7. Balance against the report's targets.
+
+Stream 1 done (WIP on `batting`): `tools/batting-report.mjs` and `sim/bat-ball.js`. The computer's batting is
+unchanged over 300 innings (4.62 -> 4.61 an over, 36.2 -> 36.1 balls a wicket; a few fewer fours, a few more
+run outs). Your batting, 20 innings a row, before -> after: perfect timing 8.20 -> 8.01 an over and 47.7 ->
+48.5 balls a wicket; good 7.63 -> 7.74, 39.9 -> 49.7; average 6.86 -> 7.35, 39.1 -> 47.9; power on every
+attack 9.83 -> 11.27, 24.3 -> 34.2; always forward 7.66 -> 7.77, 44.1 -> 50.7; always back 7.57 -> 7.96, 66.7
+-> 72.0. Still far too easy, and the wrong feet don't hurt yet: streams 2 and 7. The timing turn still comes
+before the batter works the ball into a gap (as it did): moving it after made the computer score about 1.9
+an over less, a lever for stream 7.
+
 ## Later
 
 - Fictional names and art before any pub install.

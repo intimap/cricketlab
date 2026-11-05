@@ -19,7 +19,7 @@
       import { SCORE_BOX } from "../../src/render/hud.js";
       import { HUD_Y } from "../../src/render/score-bar.js";
 
-      const id = new URLSearchParams(location.search).get("ground") ?? "parklandsNew";
+      const id = new URLSearchParams(location.search).get("ground") ?? "parklands";
       const ground = GROUNDS[id];
       const map = ground.venue;
       const pitch = { type: { id: "green" }, wear: 0, roughPatches: [] };

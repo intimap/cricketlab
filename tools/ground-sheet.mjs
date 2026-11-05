@@ -8,7 +8,7 @@ import { createRequire } from "node:module";
 const { chromium } = createRequire(import.meta.url)("playwright");
 
 const out = process.argv[2] ?? ".";
-const ground = process.argv[3] ?? "parklandsNew";
+const ground = process.argv[3] ?? "parklands";
 const ball = process.argv[4] ?? "white";
 const weather = process.argv[5] ?? "sunny";
 const lights = process.argv[6] ?? "midday,afternoon,evening,night";

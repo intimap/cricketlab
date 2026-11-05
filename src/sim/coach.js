@@ -1,5 +1,6 @@
 import { deliveryName, crossingAtZ, lengthName, lineName, movementText } from "./delivery.js";
 import { shotSuitability, CONTACT_Z_FRONT } from "./batting.js";
+import { footworkWord, footworkTip } from "./footwork-words.js";
 
 /**
  * The nets coach: a verdict on every ball. Pure functions of what happened,
@@ -18,15 +19,15 @@ const LENGTH_MISS = 1;
 const LINE_MISS = 0.15;
 
 const SHOT_NAMES = {
-  drive: "FRONT-FOOT DRIVE (S)",
-  cutpull: "BACK-FOOT SHOT (Q)",
+  drive: "FRONT-FOOT DRIVE (FORWARD + S)",
+  cutpull: "BACK-FOOT SHOT (BACK + S)",
   loft: "LOFT (W)",
-  defend: "FORWARD DEFENCE (A)",
-  defendBack: "BACK-FOOT DEFENCE (D)",
+  defend: "FORWARD DEFENCE (FORWARD + A)",
+  defendBack: "BACK-FOOT DEFENCE (BACK + A)",
   leave: "LEAVE",
-  ramp: "RAMP",
-  sweep: "SWEEP",
-  reverseSweep: "REVERSE SWEEP",
+  ramp: "RAMP (BACK + D)",
+  sweep: "SWEEP (D)",
+  reverseSweep: "REVERSE SWEEP (ACROSS + D)",
 };
 /** The main options; "defendBack" is defence on the back foot. */
 const CHOICES = ["drive", "cutpull", "loft", "defend", "defendBack", "leave"];
@@ -70,11 +71,15 @@ function contactText(rec) {
   }
 }
 
-/** Feedback for the player's batting: the ball, the shot, timing, choice and a tip. */
-export function battingFeedback({ delivery, shot, rec, spinner }) {
+/**
+ * Feedback for the player's batting: the ball, the shot, timing, choice, his feet and a tip. `res` is the
+ * resolved ball (sim/batting.js), for where his feet met it.
+ */
+export function battingFeedback({ delivery, shot, rec, spinner, res = null }) {
   const lines = [describeDelivery(delivery, spinner)];
   // Defence is told apart by its foot.
-  const type = shot?.type === "defend" && shot.foot === "back" ? "defendBack" : (shot?.type ?? "leave");
+  const back = shot?.feet ? shot.feet.stride === "back" : shot?.foot === "back";
+  const type = shot?.type === "defend" && back ? "defendBack" : (shot?.type ?? "leave");
   const at = crossingAtZ(delivery.samples, CONTACT_Z_FRONT);
   const height = at?.y ?? 0.6;
   const line = at?.x ?? delivery.intent.line;
@@ -102,9 +107,15 @@ export function battingFeedback({ delivery, shot, rec, spinner }) {
   const gap = suit(best) - suit(type);
   const goodChoice = gap < CHOICE_GAP;
   lines.push(goodChoice ? "SHOT CHOICE: GOOD" : `SHOT CHOICE: ${SHOT_NAMES[best]} WAS THE PERCENTAGE PLAY`);
+  // His feet, in the word the timing meter showed.
+  const feet = footworkWord(res, shot?.type, pitchZ);
+  if (feet) lines.push(`FEET: ${feet.text}`);
+  const feetGood = !feet || feet.good;
 
   let tip = "";
-  if (!goodChoice && pitchZ > 8) tip = "SHORT BALL: GET ON THE BACK FOOT. ATTACK IT (S), DEFEND IT (A), OR LEAVE IT.";
+  // The feet come first: fix them and the rest follows.
+  if (!feetGood) tip = footworkTip(feet, pitchZ);
+  else if (!goodChoice && pitchZ > 8) tip = "SHORT BALL: GET ON THE BACK FOOT. ATTACK IT (S), DEFEND IT (A), OR LEAVE IT.";
   else if (!goodChoice && pitchZ < 4.5) tip = "PITCHED UP: GET ON THE FRONT FOOT. DRIVE IT (S) OR BLOCK IT (A).";
   else if (!goodChoice && Math.abs(line) > 0.35) tip = "WELL OUTSIDE OFF: LEAVE IT, OR CUT IF IT'S SHORT.";
   else if (shot && !timingGood && Math.abs(shot.timingError) > TIMING_BAD) {
@@ -114,9 +125,10 @@ export function battingFeedback({ delivery, shot, rec, spinner }) {
         : "WAY EARLY: WAIT FOR IT. LET THE BALL COME.";
   } else if (type === "leave" && Math.abs(line) < 0.12) tip = "THAT WAS ON THE STUMPS: DON'T LEAVE THOSE.";
   else if (rec.wicket) tip = "SHAKE IT OFF. WATCH THE BALL OUT OF THE HAND.";
-  else if (goodChoice && timingGood) tip = "TEXTBOOK. DO THAT AGAIN.";
+  else if (goodChoice && timingGood)
+    tip = feet?.key === "room" ? "ROOM TO WORK: NICELY MADE. TEXTBOOK." : "TEXTBOOK. DO THAT AGAIN.";
 
-  const good = !rec.wicket && goodChoice && (timingGood || type === "leave") && rec.contact !== "none";
+  const good = !rec.wicket && goodChoice && feetGood && (timingGood || type === "leave") && rec.contact !== "none";
   const poor = !!rec.wicket || (!goodChoice && rec.contact === "none") || (shot && Math.abs(shot.timingError ?? 0) > TIMING_BAD);
   if (tip) lines.push(`COACH: ${tip}`);
   return { title: resultText(rec), lines, grade: good ? "good" : poor ? "poor" : "ok" };

@@ -360,7 +360,7 @@ export function simulate(scene, overs) {
 export function coachFeedback(scene, rec) {
   const cur = scene.cur;
   const spinner = scene.spinner;
-  if (scene.human === "bat") return battingFeedback({ delivery: cur.delivery, shot: cur.shot, rec, spinner });
+  if (scene.human === "bat") return battingFeedback({ delivery: cur.delivery, shot: cur.shot, rec, spinner, res: cur.play?.res });
   const r = cur.runup;
   const err = r && cur.releaseMark != null ? releaseError(r, cur.releaseMark) : 0;
   const perfect = !!r && Math.abs(err) <= r.zone;

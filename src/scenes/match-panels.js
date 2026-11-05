@@ -12,7 +12,7 @@ import { PRESET_LABELS } from "../sim/field.js";
 import { closeFromBowlerEnd, projectWide } from "../render/camera.js";
 import { playerKit } from "../render/sprites.js";
 import { drawTimingMeter, drawFloat } from "../render/feedback.js";
-import { floatAge, timingFade } from "./match-feedback.js";
+import { floatAge, timingFade, footworkFade } from "./match-feedback.js";
 import { STRIKER_X, footworkOf } from "./batter-pose.js";
 import { METER_TRACK_FROM, meterPos, noBallPos } from "../sim/runup.js";
 import { HUD_Y, staminaColor, drawScorecard } from "../render/hud.js";
@@ -257,6 +257,9 @@ export function drawFeedback(scene) {
   }
   // On the open grass to the off side of the striker, clear of the stumps and the panels.
   if (fb.timing) drawTimingMeter(TIMING_METER.x, TIMING_METER.y, fb.timing.timing, timingFade(fb, scene.now));
+  // What his feet did, under the meter (or alone, when he missed it altogether).
+  if (fb.footwork)
+    drawFloat(fb.footwork.text, TIMING_METER.x, TIMING_METER.y + 16, fb.footwork.color, 1 - footworkFade(fb, scene.now), 0);
 }
 
 function drawReleaseMeter(scene) {

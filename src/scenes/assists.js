@@ -9,13 +9,46 @@ import { load, save } from "../engine/storage.js";
  *   aim                    after running in: "marker" (the landing spot stays up), "crosshair", or "none"
  *   ring                   batting, the ring round the ball (scenes/ball-ring.js): "truth", "read", or "none"
  *   advice                 the keeper's ball: "selected" (already chosen), or "shown"
+ *   feet                   batting: "auto" (his feet go to the length; you choose the shot and time it), or "own"
+ *   window                 batting: the timing window, times the player's usual one
+ *   landing                batting: the landing mark shows from release (otherwise only as it pitches)
  */
 export const ASSISTS = ["easy", "normal", "hard"];
 export const ASSIST_NAMES = { easy: "EASY", normal: "NORMAL", hard: "HARD" };
 export const ASSIST = {
-  easy: { beatWiden: 1.8, missedBeat: 0.5, zone: 1.6, aim: "marker", ring: "truth", advice: "selected" },
-  normal: { beatWiden: 1, missedBeat: 0, zone: 1, aim: "crosshair", ring: "read", advice: "shown" },
-  hard: { beatWiden: 0.75, missedBeat: 0, zone: 0.7, aim: "none", ring: "none", advice: "shown" },
+  easy: {
+    beatWiden: 1.8,
+    missedBeat: 0.5,
+    zone: 1.6,
+    aim: "marker",
+    ring: "truth",
+    advice: "selected",
+    feet: "auto",
+    window: 1.3,
+    landing: true,
+  },
+  normal: {
+    beatWiden: 1,
+    missedBeat: 0,
+    zone: 1,
+    aim: "crosshair",
+    ring: "read",
+    advice: "shown",
+    feet: "own",
+    window: 1,
+    landing: false,
+  },
+  hard: {
+    beatWiden: 0.75,
+    missedBeat: 0,
+    zone: 0.7,
+    aim: "none",
+    ring: "none",
+    advice: "shown",
+    feet: "own",
+    window: 0.8,
+    landing: false,
+  },
 };
 
 /** This device's assist level. */

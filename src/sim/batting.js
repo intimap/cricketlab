@@ -111,6 +111,8 @@ export function resolveDelivery(d, shot, bat, state, ball, spinner, rng, field =
     legByesAllowed: false,
     stumpingChance: false,
     start: { t: 0, pos: { x: 0, y: 0, z: 0 }, vel: { x: 0, y: 0, z: 0 } },
+    /** Where his feet met it: the stride, how far across, how much of the stride he'd made, the ball's line there. */
+    feet: { stride: feet.stride, across: feet.across ?? 0, made: meet.made, z: meet.z, line: meet.at?.x ?? null },
   };
 
   if (contact.kind !== "none" && contact.at && contact.exit) {
@@ -244,7 +246,7 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
   // Out of reach from where he's standing: a block lets it go by, an attacking shot swings and misses.
   const reach = defending ? REACH.defend : REACH.attack;
   const fromBody = line - (STANCE_X + (feet.across ?? 0));
-  if (fromBody > reach.off || fromBody < -reach.leg) return noContact(defending ? "wide" : "beaten");
+  if (fromBody > reach.off || fromBody < -reach.leg) return { ...noContact(defending ? "wide" : "beaten"), outOfReach: true };
 
   // Timing window (seconds); timing is the error expressed in windows.
   const window = defending

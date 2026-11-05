@@ -326,6 +326,11 @@ reverse-sweeps across or ramps going back. The full matrix and the sway and duck
 Gamepads work in every screen, with buttons per screen. Also fixed: the bowling crosshair's up and down
 were the wrong way round for a left-hander. No sim change, so the reports stand as after stream 2.
 
+Stream 6 done next (streams 4 and 5 still to come; WIP on `batting`): `sim/footwork-words.js`. The word by
+the timing meter, and the coach's FEET line, tip and grade. EASY moves the feet to the length (forward to
+6.8 m, back beyond), widens the window 1.3x and marks the landing spot from release. HARD's window is 0.8x.
+The landing mark when batting on NORMAL and HARD now only shows as the ball pitches. No sim change.
+
 ## Later
 
 - Fictional names and art before any pub install.

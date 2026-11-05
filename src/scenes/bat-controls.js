@@ -3,6 +3,7 @@ import { keys } from "../engine/input.js";
 import { clamp } from "../math.js";
 import { controlShot } from "../sim/shot-choice.js";
 import { PLAYER_ACROSS } from "../sim/feet.js";
+import { assistOf } from "./assists.js";
 import { act } from "./player-actions.js";
 
 /**
@@ -27,6 +28,8 @@ export const BAT_BUTTONS = Object.freeze({ KeyA: "defend", KeyS: "attack", KeyW:
 const DOUBLE_PUSH = 0.3;
 /** How fast he moves across his crease (m/s of ball time). */
 const ACROSS_SPEED = 1.6;
+/** EASY goes back to a ball pitched shorter than this (m from his stumps), as the computer's batters do. */
+const EASY_BACK_FROM = 6.8;
 /** Shift let go within this long (s) is a tap: it arms (or disarms) power for the ball. */
 const POWER_TAP = 0.25;
 
@@ -47,6 +50,15 @@ export function feetSoFar(cur) {
 
 /** The feet to send with the shot: where he's going, how far across, and when he set off. */
 export const feetToSend = (feet) => ({ stride: feet.stride, across: feet.across, from: feet.from });
+
+/**
+ * EASY's feet: to the length, in good time (forward to a pitched-up or good-length ball, back to a short
+ * one), across the crease as the player took him.
+ */
+export function easyFeet(d, across) {
+  const pitchZ = d.pitchedAt?.z ?? 0;
+  return { stride: pitchZ > EASY_BACK_FROM ? "back" : "forward", across, from: null };
+}
 
 /** Shift: held, it's power for the shot; a quick tap arms or disarms it for the ball. */
 function updatePower(scene) {
@@ -99,7 +111,8 @@ export function updateButtons(scene) {
   if (scene.human !== "bat" || !scene.cur || scene.cur.shot || !scene.cur.delivery) return;
   const cur = scene.cur;
   const t = scene.clock();
-  const feet = feetToSend(feetSoFar(cur));
+  const own = feetSoFar(cur);
+  const feet = assistOf(scene).feet === "auto" ? easyFeet(cur.delivery, own.across) : feetToSend(own);
   for (const [code, button] of Object.entries(BAT_BUTTONS)) {
     if (!keys.pressed(code)) continue;
     const shot = controlShot(button, feet);

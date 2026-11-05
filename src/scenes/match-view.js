@@ -344,6 +344,8 @@ function landingMarker(scene) {
   const bounceT = d.samples[d.bounceIndex].t;
   const since = cur.t - bounceT;
   if (since > LANDING_FLASH) return null;
+  // Batting, the mark is EASY's help: otherwise it only shows where the ball pitched, as it pitches.
+  if (scene.human === "bat" && since < 0 && !assistOf(scene).landing) return null;
   const p = projectClose(d.pitchedAt.x, 0, d.pitchedAt.z);
   return {
     p,

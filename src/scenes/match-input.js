@@ -40,7 +40,7 @@ export function commitSwing(scene, t, type, power, given = null) {
     type,
     charge: power ? POWER_CHARGE : NORMAL_CHARGE,
     timingError,
-    windowMult: PLAYER_TIMING_WINDOW,
+    windowMult: PLAYER_TIMING_WINDOW * assistOf(scene).window,
     footwork: feet.across,
     feet,
   };
@@ -57,7 +57,7 @@ export function commitDefend(scene, t, foot, given = null) {
     foot,
     charge: 0,
     timingError: Math.max(0, t + 0.12 - arrive),
-    windowMult: PLAYER_TIMING_WINDOW,
+    windowMult: PLAYER_TIMING_WINDOW * assistOf(scene).window,
     footwork: feet.across,
     feet,
   };

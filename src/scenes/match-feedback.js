@@ -1,4 +1,5 @@
 import { clamp } from "../math.js";
+import { footworkWord } from "../sim/footwork-words.js";
 
 /**
  * Arcade feedback for the match scene: what to show when the bat meets (or misses) the ball and when
@@ -66,15 +67,22 @@ function shotWord(res, shot) {
   return c.timed ? WORDS.timed : null;
 }
 
+/** The footwork word's colours: good feet gold, the rest the timing meter's late crimson. */
+const FEET_GOOD = "#ffe066";
+const FEET_BAD = "#e0283c";
+
 /**
- * The ball has reached the bat (or gone past it): a word over the striker, the player's timing meter,
- * and a hit-stop for a sweet strike.
+ * The ball has reached the bat (or gone past it): a word over the striker, the player's timing meter with
+ * the footwork word under it (sim/footwork-words.js), and a hit-stop for a sweet strike. `pitchZ`: where it
+ * pitched.
  */
-export function onContact(fb, now, res, shot, playerBatting) {
+export function onContact(fb, now, res, shot, playerBatting, pitchZ = 5) {
   const word = shotWord(res, shot);
   if (word) float(fb, now, word[0], word[1], "striker");
   const timing = res.contact.timing;
   if (playerBatting && shot.type !== "leave" && Number.isFinite(timing)) fb.timing = { timing, t0: now };
+  const feet = playerBatting ? footworkWord(res, shot.type, pitchZ) : null;
+  fb.footwork = feet ? { text: feet.text, color: feet.good ? FEET_GOOD : FEET_BAD, t0: now } : null;
   if (res.touchedBat && res.contact.quality > SWEET) hitStop(fb, now);
 }
 
@@ -99,8 +107,10 @@ export function stepFeedback(fb, now, dt, eye, pressure) {
   fb.shown.pressure = ease(fb.shown.pressure, pressure);
   fb.floats = fb.floats.filter((f) => now - f.t0 < FLOAT_LIFE);
   if (fb.timing && now - fb.timing.t0 >= TIMING_LIFE) fb.timing = null;
+  if (fb.footwork && now - fb.footwork.t0 >= TIMING_LIFE) fb.footwork = null;
 }
 
 /** Age (0..1) of a float, and how far the timing meter has faded (1 = fully shown). */
 export const floatAge = (f, now) => clamp((now - f.t0) / FLOAT_LIFE);
 export const timingFade = (fb, now) => clamp((TIMING_LIFE - (now - fb.timing.t0)) / 0.3);
+export const footworkFade = (fb, now) => clamp((TIMING_LIFE - (now - fb.footwork.t0)) / 0.3);

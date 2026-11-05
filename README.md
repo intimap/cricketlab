@@ -169,6 +169,7 @@ src/
     runup.js          the player's run-up and release meter: rhythm, ramp, stride surges
     bat-impact.js     blade contact coordinates: where on the blade, how thick an edge, toe/splice rebound
     bat-ball.js       the ball off the bat as a collision: bat weight, bounce, face angle and tilt, edges, spin
+    feet.js           the batter's feet: where and when the bat meets the ball, how high and low it reaches, the computer's feet
     shot-timing.js    backlift durations, the player's timing window and power charge (input, animation, reports)
     batting.js        the shot: timing, where the bat goes, edges, LBW, bowled
     shot-choice.js    which shot suits which ball: front or back foot, the back-foot shot
@@ -356,7 +357,7 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 
 - **Ball physics and difficulty:** `sim/delivery.js` (how balls are bowled) and `sim/batting.js` (timing
   windows, edges, LBW); which shot suits a ball in `sim/shot-choice.js`, where it goes in `sim/shot-direction.js`,
-  how it comes off the bat in `sim/bat-ball.js`.
+  how it comes off the bat in `sim/bat-ball.js`, where and when the feet meet it in `sim/feet.js`.
 - **Player ratings and squads:** `sim/teams.js`.
 - **Pitch behaviour:** `PITCH_TYPES` in `sim/conditions.js`.
 - **AI tactics:** `sim/ai.js`.
@@ -413,7 +414,7 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **Tests:** `npm test` runs every `tools/*.test.mjs` (node's built-in runner; no packages needed).
 - **Balance checks:** `node tools/sim-report.mjs [innings] [pitch]` simulates AI-vs-AI innings and prints
   run rates, dismissals, plan figures and commentary moments. `node tools/batting-report.mjs [innings]` bats
-  scripted players (perfect, good or average timing; always forward, always back, power on every attack)
+  scripted players (perfect, good or average timing; on the crease, always forward, always back, power on every attack)
   against the computer's bowling with the player's timing window.
 - **Commentary:** each ball is called in beats: the start of the over and the setup before it, the delivery
   as it reaches the bat, the result joined on as one sentence, then the second voice's reset (timed by
@@ -454,8 +455,21 @@ swung at up to about 27 m/s, with only part of its weight counting away from the
 is aimed so a well-played shot goes where it should; timing turns it (about 3 degrees per 10 ms) and a clearly
 early shot lifts it. An edge turns the surface towards the ball's side, the thinner the more, and an outside
 edge off an upright bat lifts a little so it carries. Topspin keeps a ball's pace at its first bounce and
-backspin checks it. Pads, gloves and the toe still use simple rules. Run `node tools/bat-impact.test.mjs` and
-`node tools/bat-ball.test.mjs` for contact geometry, the collision and seeded simulation checks.
+backspin checks it. Pads, gloves and the toe still use simple rules.
+
+The feet (`sim/feet.js`) decide where and when the bat meets the ball: a stride forward meets it about 2 m
+from the stumps, back about 0.85 m, on the crease between and down the pitch about 3.4 m. A stride takes
+0.15-0.45 s (quicker for nimble feet), and one started late is caught part of the way. How he stands sets
+how high and low the middle of the bat can get, so forward to a short ball finds the splice and gloves and
+back to a full one the toe. His weight goes into a drive off the front foot and a pull off the back. Played
+late, a bat coming down steeply from the back foot is still above a low ball. A mistimed shot meets the
+ball where it has moved to, which a straight bat swung through the line mostly follows and a cross bat
+can't. His pads and reach go with him across the crease, with less reach behind him to leg. Shots say
+their feet as `shot.feet` ({ stride, across, from }); today's keys give the shot's own foot, started as
+you commit. The computer picks its feet from its read of the length: sometimes stuck on the crease with
+heavy feet, sometimes down the pitch to spin. Run `node tools/bat-impact.test.mjs` and
+`node tools/bat-ball.test.mjs` and `node tools/feet.test.mjs` for contact geometry, the collision, the feet and
+seeded simulation checks.
 
 Over/around selection is remembered per bowler for the innings and can be changed with T, the SIDE touch
 button, or the SIDE row in the bowling panel. It locks when the run-up starts. The current action model

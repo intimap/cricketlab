@@ -4,8 +4,7 @@ import { load, save } from "../engine/storage.js";
 import { Rng } from "../sim/rng.js";
 import { isSpinner } from "../sim/teams.js";
 import { createMatch } from "../sim/formats.js";
-import { crossingAtZ } from "../sim/delivery.js";
-import { CONTACT_Z_FRONT, CONTACT_Z_BACK, playsBack } from "../sim/batting.js";
+import { feetOf, contactFor } from "../sim/feet.js";
 import { pickBowler } from "../sim/ai.js";
 import { callDuration } from "../render/booth.js";
 import { teamKit } from "../render/skins.js";
@@ -269,11 +268,11 @@ export class MatchScene {
     return ball.release(this, releaseError, rhythm);
   }
 
-  /** Ball time at which the ball reaches the bat for a given shot (and, for defence, foot). */
-  arrival(shotType, foot = null) {
+  /** Ball time at which the ball reaches the bat for a given shot (and, for defence, foot), or these feet (sim/feet.js). */
+  arrival(shotType, foot = null, feet = null) {
     const d = this.cur.delivery;
-    const back = playsBack(shotType, foot, d.pitchedAt?.z ?? 0);
-    return crossingAtZ(d.samples, back ? CONTACT_Z_BACK : CONTACT_Z_FRONT)?.t ?? 0.6;
+    const legs = feet ?? feetOf({ type: shotType, foot }, d.pitchedAt?.z ?? 0);
+    return contactFor(d, legs, this.inn.bat[this.inn.striker].p.bat.footwork).at?.t ?? 0.6;
   }
 
   /** Ball time, counting negative through the end of the run-up. */

@@ -57,7 +57,8 @@ export function shotSuitability(type, height, pitchZ, line, spinner, foot = null
   } else if (type === "defend") {
     if (height > 1.35) s = 0.5;
     if (line > 0.6) s = Math.min(s, 0.8);
-    // The wrong foot: forward to a short one (it climbs at the splice), back to a full one (stuck on the crease).
+    // The wrong foot, for the coach's verdict (the batting itself finds it through sim/feet.js): forward to a
+    // short one (it climbs at the splice), back to a full one (stuck on the crease).
     const back = playsBack(type, foot, pitchZ);
     if (!back && pitchZ > 7.5) s -= 0.3 + (height > 1 ? 0.2 : 0);
     if (back && pitchZ < 5) s -= 0.45;

@@ -1,5 +1,6 @@
 import { crossingAtZ } from "../sim/delivery.js";
-import { SWING_TIME, CONTACT_Z_FRONT, CONTACT_Z_BACK, playsBack, backFootShot, driveBearing } from "../sim/batting.js";
+import { SWING_TIME, CONTACT_Z_FRONT, CONTACT_Z_BACK, backFootShot, driveBearing } from "../sim/batting.js";
+import { feetOf } from "../sim/feet.js";
 import { BATTER_CLIPS, gamePreparationWindow } from "../render/batter/batter-motion-all.js";
 import { clipForShot } from "../render/batter/batter-catalog.js";
 
@@ -49,14 +50,14 @@ export function attemptedStroke(cur) {
   const type = cur.shot?.type ?? cur.swingType;
   if (type === "leave") return "leave";
   if (!["drive", "loft", "cutpull", "ramp", "sweep", "reverseSweep", "defend"].includes(type)) return null;
-  const footBack = playsBack(type, cur.shot?.foot, cur.delivery?.pitchedAt?.z ?? 5);
+  const footBack = feetOf(cur.shot ?? { type }, cur.delivery?.pitchedAt?.z ?? 5).stride === "back";
   if (type === "defend") return footBack ? "backFootDefence" : "forwardDefence";
   const contact = cur.play?.res?.contact;
   if (contact?.kind === "middle") {
     const realised = clipForShot(type, contact.shotName);
     if (realised) return realised;
   }
-  const at = crossingAtZ(cur.delivery.samples, footBack ? CONTACT_Z_BACK : CONTACT_Z_FRONT);
+  const at = contact?.at ?? crossingAtZ(cur.delivery.samples, footBack ? CONTACT_Z_BACK : CONTACT_Z_FRONT);
   const line = at?.x ?? cur.lineAtBat;
   const height = at?.y ?? 0;
   const back = type === "cutpull" ? backFootShot(line, height) : null;
@@ -76,13 +77,13 @@ export function rigStroke(scene, cur) {
   const type = cur.shot.type ?? cur.swingType;
   const name = attemptedStroke(cur);
   if (!name) return null;
-  const frontFoot = !playsBack(type, cur.shot.foot, cur.delivery.pitchedAt?.z ?? 5);
+  const frontFoot = feetOf(cur.shot, cur.delivery.pitchedAt?.z ?? 5).stride !== "back";
   if (type === "defend" && Number.isFinite(cur.defendAt)) {
-    const contactAt = Math.max(cur.defendAt + gamePreparationWindow(name), scene.arrival("defend", cur.shot.foot));
+    const contactAt = Math.max(cur.defendAt + gamePreparationWindow(name), scene.arrival("defend", cur.shot.foot, cur.shot.feet));
     return { name, type, contactAt, window: contactAt - cur.defendAt, frontFoot };
   }
   if (type === "leave") {
-    const contactAt = scene.arrival(scene.human === "bowl" ? "leave" : "drive", cur.shot.foot);
+    const contactAt = scene.arrival(scene.human === "bowl" ? "leave" : "drive", cur.shot.foot, cur.shot.feet);
     const start = Number.isFinite(cur.leaveAt) ? cur.leaveAt : contactAt - 0.22;
     return { name, type, contactAt, window: Math.max(0.001, contactAt - start), frontFoot: false };
   }

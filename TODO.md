@@ -295,6 +295,27 @@ attack 9.83 -> 11.27, 24.3 -> 34.2; always forward 7.66 -> 7.77, 44.1 -> 50.7; a
 before the batter works the ball into a gap (as it did): moving it after made the computer score about 1.9
 an over less, a lever for stream 7.
 
+Stream 2 done (WIP on `batting`): `sim/feet.js`. Shots carry their feet ({ stride, across, from }). The
+stride sets the contact depth and time; a late one is caught part of the way. The stance sets how high and
+low the bat reaches, and the weight into the shot. A late, steep bat is above a low ball. A mistimed shot
+meets the ball where it has moved to. The pads and the reach (shorter to leg) follow the feet, and a charge
+brings in the stumping. The old wrong-foot penalty is gone. Today's keys give the shot's own foot, started
+as you commit. The computer picks forward or back from its read, sometimes stays on the crease (heavy feet)
+or charges a spinner. It is retuned to today's scoring (swing power 0.55 -> 0.6, timing spread 1.85 ->
+1.6). sim-report over 300 innings: 4.62 -> 4.65 an over, 36.2 -> 38.1 balls a wicket.
+
+| Your batting, 20 innings | After stream 1 | After stream 2 |
+|---|---|---|
+| good timing, right feet | 7.74 an over, out every 49.7 | 7.51, 54.2 |
+| average timing, right feet | 7.35, 47.9 | 5.87, 32.0 |
+| good timing, on the crease | (new row) | 5.30, 45.6 |
+| good timing, always forward | 7.77, 50.7 | 7.11, 46.0 |
+| good timing, always back | 7.96, 72.0 | 4.20, 46.2 |
+
+The wrong feet now cost runs (almost no boundaries from the crease or the back foot) but not yet enough
+wickets: stream 7. Its levers are the stance ranges, the stride times, the weight table and the bat's
+descent, all in `sim/feet.js`.
+
 ## Later
 
 - Fictional names and art before any pub install.

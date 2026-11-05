@@ -4,14 +4,17 @@ import { clamp, toRad } from "../math.js";
 import { CREASE, STUMPS_HALF_WIDTH, BALL_RADIUS } from "./geometry.js";
 import { simulateFlight, crossingAtZ, sampleAtTime, hitsStumps, isWide } from "./delivery.js";
 import { isSweep, playsBack, shotSuitability, backFootShot } from "./shot-choice.js";
+import { STRIDES, REACH, STANCE_X, feetOf, contactFor, batRange, padDepth, weightInto, batDescent } from "./feet.js";
 import { driveBearing, shotBearing, shotName, intoGap } from "./shot-direction.js";
 
 // Shot choice and direction live in their own modules; older callers import them from here.
 export { playsBack, shotSuitability, backFootShot, driveBearing };
+// The feet and reach moved to sim/feet.js.
+export { STANCE_X, FOOTWORK_MIN, FOOTWORK_MAX } from "./feet.js";
 
-/** Depth (z) at which the bat meets the ball, front and back foot. */
-export const CONTACT_Z_FRONT = 1.95;
-export const CONTACT_Z_BACK = 0.85;
+/** Depth (z) at which the bat meets the ball, front and back foot, the stride made (sim/feet.js). */
+export const CONTACT_Z_FRONT = STRIDES.forward.z;
+export const CONTACT_Z_BACK = STRIDES.back.z;
 
 /** Seconds from starting the downswing to the bat reaching the ball. */
 export const SWING_TIME = {
@@ -27,6 +30,8 @@ export const SWING_TIME = {
 
 /** The most timing error (s) that turns the face: beyond it the shot is barely made anyway. */
 const TURN_ERROR = 0.12;
+/** How much timing error (s) moves where the ball is when the bat gets there. */
+const TIMING_REACH = 0.1;
 /** A block's push at the ball (m/s): enough that it doesn't die at his feet. */
 const BLOCK_PUSH = 2.5;
 
@@ -40,36 +45,8 @@ const HOOK_ERROR = 0.11;
  */
 export const MAX_PLACEMENT = 22;
 
-/**
- * The wrong foot for the length. Forward to a short ball: it climbs into the
- * bat higher than expected (top edges, gloves). Back to a full one: it skids
- * under the bat (bottom edges, bowled, LBW). Both tighten the timing.
- * `wrongFoot` is 0..1 from how wrong the choice was, eased by footwork.
- */
-const WRONG_FOOT_RISE = 0.14;
-const WRONG_FOOT_SKID = 0.09;
-const WRONG_FOOT_JITTER = 1.5;
-const WRONG_FOOT_WINDOW = 0.35;
-
-export function wrongFoot(type, footBack, pitchZ, footwork) {
-  if (type === "leave" || type === "ramp" || isSweep(type)) return { forward: 0, back: 0 };
-  const ease = 1.2 - 0.5 * footwork;
-  return {
-    forward: footBack ? 0 : clamp((pitchZ - 6.5) / 2.5) * ease,
-    back: footBack ? clamp((5.5 - pitchZ) / 2.5) * ease : 0,
-  };
-}
-
-/**
- * Footwork and reach. The batter takes guard at STANCE_X (m, just leg side of middle) and can step
- * across the crease before playing, as far as FOOTWORK_MIN (leg side) or FOOTWORK_MAX (off side). His
- * arms and bat reach so far either side of where he stands: less for a block than for an attacking
- * shot. A ball beyond his reach goes past the bat without touching it.
- */
-export const STANCE_X = -0.14;
-export const FOOTWORK_MIN = -0.1;
-export const FOOTWORK_MAX = 0.1;
-const REACH = { defend: 0.42, attack: 0.65 };
+/** Extra bat error (times) from a stride he hadn't finished: off balance. */
+const OFF_BALANCE = 0.8;
 
 /** Shot power (0..1) of a normal, non-power player shot. */
 export const NORMAL_CHARGE = 0.35;
@@ -118,9 +95,10 @@ function expectedAt(d, readTime, z, bat) {
  */
 export function resolveDelivery(d, shot, bat, state, ball, spinner, rng, field = []) {
   const pitchZ = d.pitchedAt ? d.pitchedAt.z : 0;
-  const footBack = playsBack(shot.type, shot.foot, pitchZ);
-  const at = crossingAtZ(d.samples, footBack ? CONTACT_Z_BACK : CONTACT_Z_FRONT);
-  const contact = at ? batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rng, field) : noContact("beaten");
+  const feet = feetOf(shot, pitchZ);
+  const footBack = feet.stride === "back";
+  const meet = contactFor(d, feet, bat.footwork);
+  const contact = meet.at ? batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng, field) : noContact("beaten");
   const res = {
     contact,
     touchedBat: contact.kind !== "none" && contact.kind !== "padPop",
@@ -153,10 +131,10 @@ export function resolveDelivery(d, shot, bat, state, ball, spinner, rng, field =
   res.wide = isWide(d.samples);
 
   // Pad: does the ball hit the front (or back) leg?
-  const padZ = footBack ? 0.7 : 1.55;
+  const padZ = padDepth(meet.z);
   const atPad = crossingAtZ(d.samples, padZ);
   // His pads go where his feet have gone.
-  const moved = shot.footwork ?? 0;
+  const moved = feet.across ?? 0;
   let padMin = (footBack ? -0.24 : -0.26) + moved;
   let padMax = (footBack ? 0.05 : 0.07) + moved;
   if (contact.batX !== undefined) {
@@ -175,6 +153,7 @@ export function resolveDelivery(d, shot, bat, state, ball, spinner, rng, field =
     if (wouldHit) {
       if (pitchedOutsideLeg) res.lbwNote = "pitched outside leg";
       else if (impactOutsideOff && offeredShot) res.lbwNote = "outside the line";
+      else if (padZ > 2.5 && rng.chance(0.7)) res.lbwNote = "too far down the pitch";
       else if (clipping && padZ > 1.4 && rng.chance(0.35)) res.lbwNote = "umpire's call, not out";
       else res.lbw = true;
     } else {
@@ -197,8 +176,11 @@ export function resolveDelivery(d, shot, bat, state, ball, spinner, rng, field =
     return res;
   }
 
-  // Beaten playing forward to a spinner: the keeper may have a stumping.
-  if (spinner && (shot.type === "drive" || shot.type === "loft") && contact.missReason !== "leave") {
+  // Beaten down the pitch, out of his ground: a stumping, likelier with the keeper standing up to spin.
+  // Beaten playing forward to a spinner, he may overbalance.
+  if (feet.stride === "down" && meet.made > 0.3 && contact.missReason !== "leave") {
+    res.stumpingChance = rng.chance(spinner ? 0.85 : 0.25);
+  } else if (spinner && (shot.type === "drive" || shot.type === "loft") && contact.missReason !== "leave") {
     res.stumpingChance = rng.chance(0.18 + 0.4 * (1 - bat.footwork));
   }
   const p = crossingAtZ(d.samples, CREASE) ?? d.samples[d.samples.length - 1];
@@ -211,7 +193,9 @@ export function resolveDelivery(d, shot, bat, state, ball, spinner, rng, field =
  * whether it connects, which part of the bat it hits, and the ball's exit
  * velocity. `at` is the true ball state at the contact depth.
  */
-function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rng, field) {
+function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng, field) {
+  const at = meet.at;
+  const footBack = feet.stride === "back";
   if (shot.type === "leave") return noContact("leave");
 
   // The batter commits from an early read and adjusts with a later one.
@@ -227,34 +211,40 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
   // The batter's eye: a bigger timing window and sweet spot, and more bat speed.
   const eye = shot.eyeMult ?? 1;
   const eyeEase = 1 + (eye - 1) / 2;
-  const wrong = wrongFoot(shot.type, footBack, pitchZ, bat.footwork);
-  const misfooted = Math.max(wrong.forward, wrong.back);
   // `difficulty` (from plans.js): above 1 when the ball targets a weakness or springs a surprise.
   const jitter =
     0.013 *
     (1.25 - bat.technique) *
     (1 + (1 - state.settled) * 0.6) *
     (shot.difficulty ?? 1) *
-    (1 + WRONG_FOOT_JITTER * misfooted);
+    (1 + OFF_BALANCE * (1 - meet.made));
   // Hooking a ball up around the head is a gamble: hard to get on top of.
   const hooking = shot.type === "cutpull" && at.x <= 0.2 && at.y > 1.35;
-  const batX = aimX + rng.normal(0, jitter);
-  const batY =
-    aimY +
-    rng.normal(0, jitter * 1.5) +
-    (hooking ? rng.normal(0, HOOK_ERROR) : 0) -
-    WRONG_FOOT_RISE * wrong.forward +
-    WRONG_FOOT_SKID * wrong.back;
-  const latErr = at.x - batX;
-  const vErr = at.y - batY;
   const height = at.y;
   const line = at.x;
   const back = shot.type === "cutpull" ? backFootShot(line, height) : null;
-  const suit = shotSuitability(shot.type, height, pitchZ, line, spinner, shot.foot);
+  const batX = aimX + rng.normal(0, jitter);
+  // Cuts, pulls and sweeps swing the bat across the body; drives and blocks come down straight.
+  const crossBat = Math.abs(Math.sin(bladeAngle(shot.type, back))) > 0.9;
+  // From how he stands the bat only gets so high and so low: past that it meets the ball off the middle.
+  const [low, high] = batRange(feet, meet.made, shot.type, crossBat);
+  const batY = clamp(aimY + rng.normal(0, jitter * 1.5) + (hooking ? rng.normal(0, HOOK_ERROR) : 0), low, high);
+  // Early or late, the bat meets the ball where it has got to by then. A straight bat swung through the line
+  // follows most of the ball's climb and angle (the better his technique, the more); a cross bat can't
+  // follow the climb, so a mistimed pull or cut finds an edge.
+  const off = clamp(shot.timingError ?? 0, -TIMING_REACH, TIMING_REACH);
+  const follow = 0.5 + 0.4 * bat.technique;
+  const latErr = at.x + at.vx * off * (1 - follow) - batX;
+  // Played late, a bat coming down steeply is still above where he meant it: a low ball goes under it.
+  const descent = batDescent(feet, meet.made, crossBat) * Math.max(0, off);
+  const vErr = at.y + at.vy * off * (crossBat ? 1 - 0.3 * bat.technique : 1 - follow) - batY - descent;
+  // How well the shot suits the ball; the feet's part comes from where they meet it (sim/feet.js).
+  const suit = shotSuitability(shot.type, height, pitchZ, line, spinner);
   const defending = shot.type === "defend";
   // Out of reach from where he's standing: a block lets it go by, an attacking shot swings and misses.
-  if (Math.abs(line - (STANCE_X + (shot.footwork ?? 0))) > (defending ? REACH.defend : REACH.attack))
-    return noContact(defending ? "wide" : "beaten");
+  const reach = defending ? REACH.defend : REACH.attack;
+  const fromBody = line - (STANCE_X + (feet.across ?? 0));
+  if (fromBody > reach.off || fromBody < -reach.leg) return noContact(defending ? "wide" : "beaten");
 
   // Timing window (seconds); timing is the error expressed in windows.
   const window = defending
@@ -264,8 +254,7 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
       (0.82 + 0.25 * state.settled) *
       (0.6 + 0.4 * suit) *
       (spinner ? 1.25 : 1) *
-      (shot.type === "ramp" || (isSweep(shot.type) && !spinner) ? 0.7 : 1) *
-      (1 - WRONG_FOOT_WINDOW * misfooted);
+      (shot.type === "ramp" || (isSweep(shot.type) && !spinner) ? 0.7 : 1);
   const timing = shot.timingError / (window * (shot.windowMult ?? 1) * eyeEase);
   if (Math.abs(timing) > 2.4) return { ...noContact(timing < 0 ? "early" : "late"), timing };
 
@@ -287,8 +276,8 @@ function batContact(d, shot, bat, state, ball, spinner, at, footBack, pitchZ, rn
   const contactQuality = (kind === "middle" ? impact.faceQuality : 0.4) * impact.energy;
   const quality = clamp(contactQuality * timingQuality * (0.7 + 0.3 * suit));
   const ballSpeed = Math.abs(at.vz);
-  // The bat's speed at the sweet spot (m/s): up to about 27 for a full-blooded swing.
-  const swing = (6.4 + 20.8 * shot.charge * (0.55 + 0.45 * bat.power)) * eye;
+  // The bat's speed at the sweet spot (m/s): up to about 27 for a full-blooded swing with his weight in it.
+  const swing = (6.4 + 20.8 * shot.charge * (0.55 + 0.45 * bat.power)) * eye * weightInto(shot.type, feet, meet.made);
   const natural = shotBearing(shot.type, line, height, back);
   // Struck off the face or an edge: the collision decides it. A pad, a glove or the toe are their own.
   const struck = kind !== "padPop" && kind !== "gloved" && (kind !== "bottomEdge" || impact.horizontal);

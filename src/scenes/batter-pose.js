@@ -1,7 +1,8 @@
 import { clamp, easeIn, easeOut } from "../math.js";
 import { CREASE } from "../sim/geometry.js";
 import { crossingAtZ } from "../sim/delivery.js";
-import { SWING_TIME, NORMAL_CHARGE, CONTACT_Z_BACK, playsBack, backFootShot, driveBearing } from "../sim/batting.js";
+import { SWING_TIME, NORMAL_CHARGE, CONTACT_Z_BACK, backFootShot, driveBearing } from "../sim/batting.js";
+import { feetOf } from "../sim/feet.js";
 import { projectFromStriker } from "../render/camera.js";
 import { BATTER_POSES, lerpPose, reachPose } from "../render/batter/batter-rig.js";
 import { BATTER_CLIPS, sampleGameBatterMotion } from "../render/batter/batter-motion-all.js";
@@ -88,7 +89,7 @@ export const footworkPixels = (moved) =>
 export function strikerStroke(scene, cur, t, fromBowler) {
   const ready = readyPose(scene, cur, t);
   let pose = ready;
-  const arrive = cur.delivery ? scene.arrival(cur.swingType ?? cur.shot?.type ?? "drive", cur.shot?.foot) : 0.6;
+  const arrive = cur.delivery ? scene.arrival(cur.swingType ?? cur.shot?.type ?? "drive", cur.shot?.foot, cur.shot?.feet) : 0.6;
   // Reach towards the line of the ball, from wherever his feet are.
   const stand = STRIKER_SCREEN_X + footworkPixels(footworkOf(scene, cur, t));
   const reach = clamp((projectFromStriker(cur.lineAtBat, 0, 1.9).x - (stand + 12)) * 0.8, -8, 26);
@@ -116,7 +117,7 @@ export function strikerStroke(scene, cur, t, fromBowler) {
       easeOut((t - cur.backliftAt) / Math.max(0.01, cur.swingAt - cur.backliftAt)),
     );
   } else if (cur.defendAt !== null && t >= cur.defendAt) {
-    const back = playsBack("defend", cur.shot?.foot, cur.delivery?.pitchedAt?.z ?? 5);
+    const back = feetOf(cur.shot ?? { type: "defend" }, cur.delivery?.pitchedAt?.z ?? 5).stride === "back";
     const block = back ? BATTER_POSES.defendBack : BATTER_POSES.defendFront;
     pose = lerpPose(ready, block, easeOut((t - cur.defendAt) / 0.09));
     pose = reachPose(pose, reach * clamp((t - cur.defendAt) / 0.15), !back);

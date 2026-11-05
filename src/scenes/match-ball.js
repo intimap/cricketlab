@@ -153,7 +153,7 @@ export function release(scene, releaseError, rhythm) {
     const shot = scene.match.aiShot(cur.delivery);
     cur.shot = shot;
     cur.play = scene.match.resolve(cur.intent, cur.delivery, shot);
-    const arrive = scene.arrival(shot.type, shot.foot);
+    const arrive = scene.arrival(shot.type, shot.foot, shot.feet);
     if (shot.type === "defend") cur.defendAt = arrive - 0.25;
     else if (shot.type === "leave") cur.leaveAt = arrive - 0.28;
     else {

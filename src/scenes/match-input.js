@@ -2,7 +2,7 @@ import { COLORS } from "../engine/screen.js";
 import { keys } from "../engine/input.js";
 import { clamp } from "../math.js";
 import { crossingAtZ } from "../sim/delivery.js";
-import { CONTACT_Z_FRONT, SWING_TIME, NORMAL_CHARGE, FOOTWORK_MIN, FOOTWORK_MAX } from "../sim/batting.js";
+import { CONTACT_Z_FRONT, SWING_TIME, NORMAL_CHARGE, FOOTWORK_MIN, FOOTWORK_MAX, playsBack } from "../sim/batting.js";
 import { BACKLIFT_TIME, POWER_BACKLIFT_TIME, PLAYER_TIMING_WINDOW, POWER_CHARGE } from "../sim/shot-timing.js";
 export { BACKLIFT_TIME, POWER_BACKLIFT_TIME, PLAYER_TIMING_WINDOW, POWER_CHARGE } from "../sim/shot-timing.js";
 import { meterPos, releaseError, METER_FROM } from "../sim/runup.js";
@@ -67,12 +67,23 @@ export function updateFootwork(scene, dt) {
   scene.cur.footwork = Math.abs(target - now) <= step ? target : now + Math.sign(target - now) * step;
 }
 
+/**
+ * Today's keys carry the feet (sim/feet.js): the shot's own foot, forward or back, and the step across the
+ * crease. He starts the stride as he commits (`t`), so a late one is caught part of the way; a leave has
+ * the time it needs.
+ */
+function keyFeet(scene, type, foot, t) {
+  const back = playsBack(type, foot, scene.cur.delivery.pitchedAt?.z ?? 0);
+  return { stride: back ? "back" : "forward", across: scene.cur.footwork ?? 0, from: t };
+}
+
 export function commitSwing(scene, t, type, power) {
   const cur = scene.cur;
   cur.swingType = type;
   cur.backliftAt = t;
   cur.swingAt = t + (power ? POWER_BACKLIFT_TIME : BACKLIFT_TIME);
-  const timingError = cur.swingAt + SWING_TIME[type] - scene.arrival(type);
+  const feet = keyFeet(scene, type, null, t);
+  const timingError = cur.swingAt + SWING_TIME[type] - scene.arrival(type, null, feet);
   if (power) scene.flash("POWER!", COLORS.gold);
   cur.shot = {
     type,
@@ -80,13 +91,15 @@ export function commitSwing(scene, t, type, power) {
     timingError,
     windowMult: PLAYER_TIMING_WINDOW,
     footwork: cur.footwork ?? 0,
+    feet,
   };
   cur.play = scene.match.resolve(cur.intent, cur.delivery, cur.shot);
 }
 
 export function commitDefend(scene, t, foot) {
   const cur = scene.cur;
-  const arrive = scene.arrival("defend", foot);
+  const feet = keyFeet(scene, "defend", foot, t);
+  const arrive = scene.arrival("defend", foot, feet);
   cur.defendAt = t;
   cur.shot = {
     type: "defend",
@@ -95,6 +108,7 @@ export function commitDefend(scene, t, foot) {
     timingError: Math.max(0, t + 0.12 - arrive),
     windowMult: PLAYER_TIMING_WINDOW,
     footwork: cur.footwork ?? 0,
+    feet,
   };
   cur.play = scene.match.resolve(cur.intent, cur.delivery, cur.shot);
 }
@@ -103,7 +117,13 @@ export function commitLeave(scene) {
   const cur = scene.cur;
   // The bat is already on its way up out of the way (see match-view.js): carry on, don't start the leave again.
   cur.leaveAt = Math.min(scene.clock(), scene.arrival("drive") - LEAVE_LIFT);
-  cur.shot = { type: "leave", charge: 0, timingError: 0, footwork: cur.footwork ?? 0 };
+  cur.shot = {
+    type: "leave",
+    charge: 0,
+    timingError: 0,
+    footwork: cur.footwork ?? 0,
+    feet: { ...keyFeet(scene, "leave", null, 0), from: null },
+  };
   cur.play = scene.match.resolve(cur.intent, cur.delivery, cur.shot);
 }
 

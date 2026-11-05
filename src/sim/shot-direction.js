@@ -12,14 +12,20 @@ export function driveBearing(line) {
   return Math.max(-140, -11 + (line + 0.15) * 350);
 }
 
-/** Natural direction of a shot (degrees, 0 = straight back past the bowler, + = off side). */
-export function shotBearing(type, line, height, back) {
+/**
+ * Natural direction of a shot (degrees, 0 = straight back past the bowler, + = off side). `variant`: "slog"
+ * hits a sweep over midwicket and a switch hit over point.
+ */
+export function shotBearing(type, line, height, back, variant = null) {
+  if (variant === "slog" && type === "sweep") return -78;
+  if (variant === "slog" && type === "reverseSweep") return 68;
   switch (type) {
     case "drive":
     case "loft":
       return driveBearing(line);
     case "cutpull":
       if (back === "cut") return 92 + line * 15;
+      if (back === "upperCut") return 128 + line * 8;
       if (back === "punch") return 8 + line * 70;
       if (back === "glance") return -125;
       return -72 - clamp(height - 0.8, 0, 1) * 30;

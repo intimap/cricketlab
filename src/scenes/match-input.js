@@ -28,7 +28,7 @@ function keyFeet(scene, type, foot, t) {
   return { stride: back ? "back" : "forward", across: scene.cur.footwork ?? 0, from: t };
 }
 
-export function commitSwing(scene, t, type, power, given = null) {
+export function commitSwing(scene, t, type, power, given = null, variant = null) {
   const cur = scene.cur;
   cur.swingType = type;
   cur.backliftAt = t;
@@ -43,6 +43,7 @@ export function commitSwing(scene, t, type, power, given = null) {
     windowMult: PLAYER_TIMING_WINDOW * assistOf(scene).window,
     footwork: feet.across,
     feet,
+    variant,
   };
   cur.play = scene.match.resolve(cur.intent, cur.delivery, cur.shot);
 }

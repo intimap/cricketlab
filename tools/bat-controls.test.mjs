@@ -2,7 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { pressKey, releaseKey, keys, endFrame } from "../src/engine/input.js";
 import { pollGamepads, MENU_PAD } from "../src/engine/gamepad.js";
-import { controlShot } from "../src/sim/shot-choice.js";
+import { strokeFor } from "../src/sim/strokes.js";
+const controlShot = (button, feet) => strokeFor(button, feet);
 import { PLAYER_ACROSS } from "../src/sim/feet.js";
 import { updateFeet, updateButtons, feetSoFar } from "../src/scenes/bat-controls.js";
 import { BAT_PAD, bowlPad, matchPad } from "../src/scenes/pad-bindings.js";
@@ -52,7 +53,7 @@ test("buttons and feet make the shot: attack drives forward, pulls back; improvi
   assert.equal(controlShot("attack", { stride: "forward" }).type, "drive");
   assert.equal(controlShot("attack", { stride: "down" }).type, "drive");
   assert.equal(controlShot("attack", { stride: "back" }).type, "cutpull");
-  assert.equal(controlShot("loft", { stride: "back" }).type, "loft");
+  assert.deepEqual(controlShot("loft", { stride: "back" }), { type: "cutpull", variant: "aerial" });
   assert.equal(controlShot("improvise", { stride: "forward", across: 0 }).type, "sweep");
   assert.equal(controlShot("improvise", { stride: "forward", across: 0.2 }).type, "reverseSweep");
   assert.equal(controlShot("improvise", { stride: "back", across: 0.2 }).type, "ramp");

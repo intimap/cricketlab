@@ -397,11 +397,14 @@ export function pickShot(d, inn, rng) {
     slog,
     rng,
   });
+  // Going for it against spin, a sweep is slogged.
+  const slogSweep = (type === "sweep" || type === "reverseSweep") && aggression > 0.7 && rng.chance(0.4);
   return {
     type,
     charge,
     timingError,
     feet,
+    variant: slogSweep ? "slog" : null,
     foot: type === "defend" ? (feet.stride === "back" ? "back" : "front") : null,
     footwork: feet.across,
     difficulty: hard,

@@ -29,9 +29,35 @@ export const SHOT_CATALOG = [
   ["forwardDefence", "defend", "forward defence", "Defence and leave"],
   ["backFootDefence", "defend", "back-foot defence", "Defence and leave"],
   ["leave", "leave", "", "Defence and leave"],
+  // The rest of the matrix (sim/strokes.js).
+  ["upperCut", "cutpull", "upper cut", "Back-foot shots"],
+  ["frontFootPull", "cutpull", "front-foot pull", "Back-foot shots"],
+  ["pull", "cutpull", "pull from inside the line", "Back-foot shots"],
+  ["pull", "cutpull", "lofted pull", "Back-foot shots"],
+  ["clipOffPads", "drive", "whip through midwicket", "Front-foot drives"],
+  ["slogSweep", "sweep", "slog-sweep", "Sweeps"],
+  ["switchHit", "reverseSweep", "switch hit", "Sweeps"],
+  ["smother", "defend", "smother", "Defence and leave"],
+  ["jab", "defend", "jab", "Defence and leave"],
+  ["jab", "defend", "dig out", "Defence and leave"],
+  ["fend", "defend", "fend", "Defence and leave"],
+  ["sway", "leave", "sway", "Defence and leave"],
+  ["duck", "leave", "duck", "Defence and leave"],
 ].map(([id, type, shotName, group]) => ({ id, type, shotName, group }));
 
+/** Words a stroke's name can open with that don't change how it's played (a charge, inside-out). */
+const LEADS = /^(charging |inside-out )+/;
+
+/**
+ * The clip for a stroke: its own row, or the clip of the stroke it's a version of ("charging cover drive"
+ * plays the cover drive), or one of the same name from another input (a front-foot punch is a drive).
+ */
 export function clipForShot(type, shotName) {
-  if (type === "leave") return "leave";
-  return SHOT_CATALOG.find((row) => row.type === type && row.shotName === shotName)?.id ?? null;
+  if (type === "leave") return shotName === "sway" || shotName === "duck" ? shotName : "leave";
+  const base = (shotName ?? "").replace(LEADS, "");
+  const row =
+    SHOT_CATALOG.find((r) => r.type === type && r.shotName === shotName) ??
+    SHOT_CATALOG.find((r) => r.type === type && r.shotName === base) ??
+    SHOT_CATALOG.find((r) => r.shotName === base && r.type !== "leave");
+  return row?.id ?? null;
 }

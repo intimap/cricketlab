@@ -156,23 +156,30 @@ export function strike({
 /**
  * The face's tilt for a shot (degrees up), from how it's played: over the ball for drives and pulls (kept
  * down), under it for lofts and ramps, and a block angled down; a high ball meets a drive's rising arc.
- * `early` is how early the shot is (timing windows); `charge` its power.
+ * `early` is how early the shot is (timing windows); `charge` its power; `variant` sim/strokes.js's.
  */
-export function faceTilt(type, back, height, charge, early) {
+export function faceTilt(type, back, height, charge, early, variant = null) {
   let tilt;
+  // A sweep or reverse sweep slogged, the face opens under it.
+  if (variant === "slog" && (type === "sweep" || type === "reverseSweep"))
+    return 14 + 8 * charge + EARLY_LIFT * Math.max(0, early - EARLY_FROM);
   if (type === "defend") tilt = height > 1.25 ? 10 : -5;
   else if (type === "loft") tilt = 14 + 14 * charge;
   else if (type === "ramp") tilt = 60 + 6 * charge;
   else if (type === "sweep" || type === "reverseSweep") tilt = -3 + (height > 0.7 ? 9 : 0);
   else if (type === "cutpull")
     tilt =
-      back === "cut"
-        ? -2 + (height > 1 ? 6 : 0)
-        : back === "punch" || back === "glance"
-          ? -3 + (height > 0.8 ? 5 : 0)
-          : -6 + Math.max(0, height - 1.2) * 22;
+      back === "upperCut"
+        ? 18 + 6 * charge
+        : back === "cut"
+          ? -2 + (height > 1 ? 6 : 0)
+          : back === "punch" || back === "glance"
+            ? -3 + (height > 0.8 ? 5 : 0)
+            : -6 + Math.max(0, height - 1.2) * 22;
   else tilt = -1 + Math.max(0, height - 0.8) * 20;
   // Early, the face is coming up through its arc: it lifts (beyond the first 30 ms).
   if (type !== "defend") tilt += EARLY_LIFT * Math.max(0, early - EARLY_FROM);
+  // A back-foot shot hit in the air: the face opened to it.
+  if (variant === "aerial") tilt += 12;
   return tilt;
 }

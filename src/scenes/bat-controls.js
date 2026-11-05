@@ -1,8 +1,8 @@
 import { COLORS } from "../engine/screen.js";
 import { keys } from "../engine/input.js";
 import { clamp } from "../math.js";
-import { controlShot } from "../sim/shot-choice.js";
-import { PLAYER_ACROSS } from "../sim/feet.js";
+import { strokeFor } from "../sim/strokes.js";
+import { PLAYER_ACROSS, contactFor } from "../sim/feet.js";
 import { assistOf } from "./assists.js";
 import { act } from "./player-actions.js";
 
@@ -16,7 +16,7 @@ import { act } from "./player-actions.js";
  *   the crease towards the off side or away to leg while held, and he stays there. Pushed through the
  *   bowler's run-up it's the trigger: he goes that way as the ball is let go. Nothing pushed, he stays on
  *   the crease.
- * - Buttons: A defend, S attack, W loft, D improvise (sweeps, the reverse sweep across, the ramp going back).
+ * - Buttons: A defend, S attack, W loft, D improvise. The feet and the ball make the stroke (sim/strokes.js).
  *   Shift held for power, or tapped to arm it for this ball (tap again to disarm). No button: he leaves it.
  *
  * What the feet set travels in the swing, defend or leave action that commits the shot.
@@ -115,9 +115,13 @@ export function updateButtons(scene) {
   const feet = assistOf(scene).feet === "auto" ? easyFeet(cur.delivery, own.across) : feetToSend(own);
   for (const [code, button] of Object.entries(BAT_BUTTONS)) {
     if (!keys.pressed(code)) continue;
-    const shot = controlShot(button, feet);
+    // The ball where his feet will meet it picks the stroke too (a pull at one up around the waist).
+    const footwork = scene.inn.bat?.[scene.inn.striker]?.p.bat.footwork;
+    const ball = contactFor(cur.delivery, feet, footwork).at;
+    const power = powered(cur);
+    const shot = strokeFor(button, feet, ball, power);
     if (shot.type === "defend") act(scene, { type: "defend", t, foot: shot.foot, feet });
-    else act(scene, { type: "swing", t, shot: shot.type, power: powered(cur), feet });
+    else act(scene, { type: "swing", t, shot: shot.type, power, feet, variant: shot.variant ?? null });
     return;
   }
   if (t > scene.arrival("drive", null, feet) + 0.05) act(scene, { type: "leave", feet });

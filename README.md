@@ -174,6 +174,7 @@ src/
     bat-ball.js       the ball off the bat as a collision: bat weight, bounce, face angle and tilt, edges, spin
     feet.js           the batter's feet: where and when the bat meets the ball, how high and low it reaches, the computer's feet
     footwork-words.js the word by the timing meter for what the feet did (GOOD STRIDE, WRONG FOOT...), and the coach's tip
+    strokes.js        the stroke matrix: button, feet and ball make the stroke, its variant (slog, aerial) and its name
     shot-timing.js    backlift durations, the player's timing window and power charge (input, animation, reports)
     batting.js        the shot: timing, where the bat goes, edges, LBW, bowled
     shot-choice.js    which shot suits which ball: front or back foot, the back-foot shot
@@ -280,8 +281,9 @@ src/
       batter-motion.js  the original straight drive, forward defence and pull
       batter-motion-all.js  all 28 stroke clips and the motion player
       batter-shot-extensions.js  composes authored data from batter-shots/
-      batter-shots/     drive, back-foot, sweep/ramp and touch-shot pose families
-      batter-catalog.js  input-family and shot-label routes to the 28 clips
+      batter-shots/     drive, back-foot, sweep/ramp and touch-shot pose families; variants.js builds strokes on them
+                        (upper cut, front-foot pull, slog-sweep, switch hit, smother, jab, fend, sway, duck)
+      batter-catalog.js  input-family and shot-label routes to the 37 clips (charging and inside-out play their stroke's)
     hud.js            HUD entry points, mini-map, banners, scorecard, speech bubbles
     score-bar.js      two-line batting/bowling strip with partnership and commentary
     team-flag.js      pixel team flags framing the bottom score strip
@@ -332,7 +334,7 @@ src/
     bowling-side.js   per-bowler side selection and setup controls
     batter-pose.js    the striker's pose through a ball: stance, trigger, backlift, strokes, follow-throughs
     batter-blend.js   how a stroke joins the stance either side of it, eased in and out
-    batter-stroke.js  presentation-only selection and the existing attack/block/leave clocks
+    batter-stroke.js  presentation-only selection (named as sim/strokes.js names it) and the attack/block/leave clocks
     match-view.js     drawing for the match scene: the close and wide views
     match-wide.js     the wide view: the whole ground with everyone as small figures
     venue-view.js     a map-built ground in the match: the bowling end, each view's picture, the live scoreboard
@@ -479,7 +481,21 @@ By the timing meter a word says what your feet did (`sim/footwork-words.js`): GO
 (no stride, or less than three quarters of one), WRONG FOOT (forward to a short one, back to a pitched-up one),
 ACROSS THE LINE (gone across with the ball passing behind your legs), OUT OF REACH, or ROOM TO WORK (backed away
 with the ball wide of you). The nets coach says it too, with a tip, and the wrong feet keep a ball from grading
-good. Run `node tools/bat-impact.test.mjs` and
+good.
+
+The stroke comes from the button, the feet and the ball (`sim/strokes.js`):
+
+| Button    | Forward (or on the crease)                                                                        | Back                                                                       | Down the pitch        |
+| --------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | --------------------- |
+| Attack    | drive by line; at a ball up around the waist, the front-foot pull                                 | cut, late cut, upper cut (short, wide and high), punch, pull, hook, glance | charging drive        |
+| Loft      | lofted drive by line, slog over midwicket                                                         | lofted pull, hook, upper cut in the air                                    | charging lofted drive |
+| Improvise | sweep, paddle sweep; across to the off side the reverse sweep. With power: slog-sweep, switch hit | ramp over the keeper or slips, scoop over fine leg                         | sweep                 |
+| Defend    | forward defence; smother to a pitched-up spinner; on the crease a jab, or digging out a yorker    | back-foot defence; fend when it's up at him                                | forward defence       |
+
+Gone right across the crease (beyond a shuffle) turns your angles: backed away, a straight ball is driven
+inside-out or cut; across to the off side, it's whipped to leg or pulled from inside the line. With no button,
+a ball up at you is swayed out of the way if you went back, ducked under otherwise. Your stride shows as you
+make it, and a charge carries you down the pitch. Run `node tools/bat-impact.test.mjs` and
 `node tools/bat-ball.test.mjs` and `node tools/feet.test.mjs` for contact geometry, the collision, the feet and
 seeded simulation checks.
 

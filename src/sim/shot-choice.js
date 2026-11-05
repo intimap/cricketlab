@@ -4,6 +4,9 @@ import { clamp } from "../math.js";
 
 export const isSweep = (type) => type === "sweep" || type === "reverseSweep";
 
+/** Short and wide, and this high (m) at the bat: it's upper-cut over the slips rather than cut down. */
+export const UPPER_CUT_HEIGHT = 1.3;
+
 /**
  * Does this shot go back (true) or forward? The attacking shots carry their
  * foot; defence follows the player's choice (`foot`), or the length for the
@@ -35,8 +38,8 @@ export function shotSuitability(type, height, pitchZ, line, spinner, foot = null
     if (line > 0.2 && line < 0.32) s -= 0.15;
     // No width and not much bounce: only a punch down the ground, and that's a risk.
     if (line <= 0.2 && line > -0.1 && height < 0.8) s -= 0.2;
-    // Above the shoulder it's very hard to keep down.
-    if (height > 1.55) s -= 0.45;
+    // Above the shoulder it's very hard to keep down (wide of him, he can upper-cut it instead).
+    if (height > 1.55) s -= line > 0.24 ? 0.15 : 0.45;
   } else if (type === "loft") {
     if (pitchZ > 6.5) s -= 0.4;
     if (height > 1) s -= 0.3;
@@ -68,28 +71,14 @@ export function shotSuitability(type, height, pitchZ, line, spinner, foot = null
 
 /**
  * Which back-foot shot a ball calls for, from its line and height at the bat:
- * "cut" with width outside off, "punch" (back-foot drive) with no width and
- * not much bounce, "glance" off the hip down leg, otherwise "pull" (a hook
- * when it's up around the head).
+ * "cut" with width outside off ("upperCut" when it's up above the shoulder:
+ * steered over the slips), "punch" (back-foot drive) with no width and not
+ * much bounce, "glance" off the hip down leg, otherwise "pull" (a hook when
+ * it's up around the head).
  */
 export function backFootShot(line, height) {
-  if (line > 0.24) return "cut";
+  if (line > 0.24) return height > UPPER_CUT_HEIGHT ? "upperCut" : "cut";
   if (line > -0.12 && height < 1) return "punch";
   if (line < -0.3 && height < 0.95) return "glance";
   return "pull";
-}
-
-/**
- * The shot the player's buttons and feet make (until the full matrix of strokes): defend blocks off
- * whichever foot he's on, attack drives off the front foot (or the crease, or down the pitch) and cuts or
- * pulls off the back, loft lofts, improvise sweeps, reverse-sweeps if he's gone across to the off side, and
- * ramps over the keeper going back. Returns { type, foot } (foot only for a block).
- */
-export function controlShot(button, feet) {
-  const back = feet.stride === "back";
-  if (button === "defend") return { type: "defend", foot: back ? "back" : "front" };
-  if (button === "attack") return { type: back ? "cutpull" : "drive" };
-  if (button === "loft") return { type: "loft" };
-  if (back) return { type: "ramp" };
-  return { type: (feet.across ?? 0) > 0.05 ? "reverseSweep" : "sweep" };
 }

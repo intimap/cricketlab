@@ -2,7 +2,7 @@ import { clamp, easeIn, easeOut } from "../math.js";
 import { CREASE } from "../sim/geometry.js";
 import { crossingAtZ } from "../sim/delivery.js";
 import { SWING_TIME, NORMAL_CHARGE, CONTACT_Z_BACK, backFootShot, driveBearing } from "../sim/batting.js";
-import { feetOf } from "../sim/feet.js";
+import { feetOf, strideTime, STRIDES } from "../sim/feet.js";
 import { projectFromStriker } from "../render/camera.js";
 import { BATTER_POSES, lerpPose, reachPose } from "../render/batter/batter-rig.js";
 import { BATTER_CLIPS, sampleGameBatterMotion } from "../render/batter/batter-motion-all.js";
@@ -21,11 +21,49 @@ export const LEAVE_LIFT = 0.22;
 /** Where the striker stands across the crease (just leg side of middle). */
 export const STRIKER_X = -0.14;
 
-/** Stance before the ball: an occasional bat tap, then a trigger movement as the bowler delivers. */
+/** Stance before the ball: an occasional bat tap, a trigger movement as the bowler delivers, then his stride. */
 export function readyPose(scene, cur, t) {
-  if (cur && t > -0.35) return lerpPose(BATTER_POSES.stance, BATTER_POSES.trigger, easeOut((t + 0.35) / 0.2));
+  if (cur && t > -0.35) {
+    const pose = lerpPose(BATTER_POSES.stance, BATTER_POSES.trigger, easeOut((t + 0.35) / 0.2));
+    const { feet, made } = strideMade(scene, cur, t);
+    return made > 0 ? lerpPose(pose, { ...pose, ...PRESS[feet.stride] }, easeOut(made)) : pose;
+  }
   const tap = Math.max(0, Math.sin(scene.now * 2.6)) ** 8;
   return { ...BATTER_POSES.stance, angle: BATTER_POSES.stance.angle + 12 * tap };
+}
+
+/**
+ * The stride drawn as he makes it: forward, the front foot out and his weight going onto it; back, the back
+ * foot back and across. A charge goes further, and carries him down the pitch (chargeOf).
+ */
+const PRESS = {
+  forward: { step: 2.2, lean: 4 },
+  down: { step: 2.6, lean: 5 },
+  back: { back: 2, lean: -1 },
+};
+/** How far down the pitch (m) a charge takes him from his crease, all the way there. */
+const CHARGE = STRIDES.down.z - STRIDES.forward.z;
+
+/** This ball's feet as drawn: the player's as he sets them, then the shot's (the computer's from release). */
+function feetDrawn(scene, cur) {
+  if (cur?.shot?.feet) return cur.shot.feet;
+  return scene.human === "bat" ? (cur?.feet ?? null) : null;
+}
+
+/** His feet and how much of the stride he's made by ball time t (0..1), from when he set off. */
+export function strideMade(scene, cur, t) {
+  const feet = feetDrawn(scene, cur);
+  if (!feet || feet.stride === "crease" || !PRESS[feet.stride] || !cur.delivery) return { feet, made: 0 };
+  const time = strideTime(feet.stride, scene.inn.bat[scene.inn.striker].p.bat.footwork);
+  // Made in good time (no set-off recorded): he gets there a moment before the ball.
+  const from = feet.from ?? scene.arrival(cur.shot?.type ?? "drive", cur.shot?.foot, feet) - time - 0.1;
+  return { feet, made: clamp((t - from) / time) };
+}
+
+/** How far down the pitch (m) his charge has taken him by ball time t. */
+export function chargeOf(scene, cur, t) {
+  const { feet, made } = strideMade(scene, cur, t);
+  return feet?.stride === "down" ? CHARGE * made : 0;
 }
 
 /** Follow-through for the shot being played, chosen by where the ball went (or was meant to go). */
@@ -39,7 +77,8 @@ export function finishPose(cur, type) {
   if (type === "cutpull") {
     const at = crossingAtZ(cur.delivery.samples, CONTACT_Z_BACK);
     const back = backFootShot(at?.x ?? cur.lineAtBat, at?.y ?? 0);
-    if (back === "cut") return contact?.shotName === "late cut" ? BATTER_POSES.lateCutEnd : BATTER_POSES.cutEnd;
+    if (back === "cut" || back === "upperCut")
+      return contact?.shotName === "late cut" ? BATTER_POSES.lateCutEnd : BATTER_POSES.cutEnd;
     if (back === "punch") return bearing > 25 ? BATTER_POSES.coverDriveEnd : BATTER_POSES.straightDriveEnd;
     if (back === "glance") return BATTER_POSES.clipEnd;
     return (at?.y ?? 0) > 1.35 ? BATTER_POSES.hookEnd : BATTER_POSES.pullEnd;

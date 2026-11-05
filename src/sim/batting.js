@@ -5,7 +5,8 @@ import { CREASE, STUMPS_HALF_WIDTH, BALL_RADIUS } from "./geometry.js";
 import { simulateFlight, crossingAtZ, sampleAtTime, hitsStumps, isWide } from "./delivery.js";
 import { isSweep, playsBack, shotSuitability, backFootShot } from "./shot-choice.js";
 import { STRIDES, REACH, STANCE_X, feetOf, contactFor, batRange, padDepth, weightInto, batDescent } from "./feet.js";
-import { driveBearing, shotBearing, shotName, intoGap } from "./shot-direction.js";
+import { driveBearing, shotBearing, intoGap } from "./shot-direction.js";
+import { strokeName, turnedBy } from "./strokes.js";
 
 // Shot choice and direction live in their own modules; older callers import them from here.
 export { playsBack, shotSuitability, backFootShot, driveBearing };
@@ -30,6 +31,8 @@ export const SWING_TIME = {
 
 /** The most timing error (s) that turns the face: beyond it the shot is barely made anyway. */
 const TURN_ERROR = 0.12;
+/** A slogged sweep or switch hit is harder to time (its window, times). */
+const SLOG_WINDOW = 0.85;
 /** How much timing error (s) moves where the ball is when the bat gets there. */
 const TIMING_REACH = 0.1;
 /** A block's push at the ball (m/s): enough that it doesn't die at his feet. */
@@ -197,7 +200,6 @@ export function resolveDelivery(d, shot, bat, state, ball, spinner, rng, field =
  */
 function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng, field) {
   const at = meet.at;
-  const footBack = feet.stride === "back";
   if (shot.type === "leave") return noContact("leave");
 
   // The batter commits from an early read and adjusts with a later one.
@@ -224,7 +226,9 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
   const hooking = shot.type === "cutpull" && at.x <= 0.2 && at.y > 1.35;
   const height = at.y;
   const line = at.x;
-  const back = shot.type === "cutpull" ? backFootShot(line, height) : null;
+  // The line he plays it to: right across the crease turns his angles (sim/strokes.js).
+  const shotLine = line - turnedBy(feet.across);
+  const back = shot.type === "cutpull" ? backFootShot(shotLine, height) : null;
   const batX = aimX + rng.normal(0, jitter);
   // Cuts, pulls and sweeps swing the bat across the body; drives and blocks come down straight.
   const crossBat = Math.abs(Math.sin(bladeAngle(shot.type, back))) > 0.9;
@@ -256,7 +260,8 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
       (0.82 + 0.25 * state.settled) *
       (0.6 + 0.4 * suit) *
       (spinner ? 1.25 : 1) *
-      (shot.type === "ramp" || (isSweep(shot.type) && !spinner) ? 0.7 : 1);
+      (shot.type === "ramp" || (isSweep(shot.type) && !spinner) ? 0.7 : 1) *
+      (shot.variant === "slog" ? SLOG_WINDOW : 1);
   const timing = shot.timingError / (window * (shot.windowMult ?? 1) * eyeEase);
   if (Math.abs(timing) > 2.4) return { ...noContact(timing < 0 ? "early" : "late"), timing };
 
@@ -280,7 +285,7 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
   const ballSpeed = Math.abs(at.vz);
   // The bat's speed at the sweet spot (m/s): up to about 27 for a full-blooded swing with his weight in it.
   const swing = (6.4 + 20.8 * shot.charge * (0.55 + 0.45 * bat.power)) * eye * weightInto(shot.type, feet, meet.made);
-  const natural = shotBearing(shot.type, line, height, back);
+  const natural = shotBearing(shot.type, shotLine, height, back, shot.variant);
   // Struck off the face or an edge: the collision decides it. A pad, a glove or the toe are their own.
   const struck = kind !== "padPop" && kind !== "gloved" && (kind !== "bottomEdge" || impact.horizontal);
   let exit;
@@ -298,7 +303,9 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
     const turn = finer * FACE_TURN * clamp(shot.timingError, -TURN_ERROR, TURN_ERROR) + rng.normal(0, 5 + 18 * (1 - quality));
     const meant = natural + turn * (isSweep(shot.type) ? 0.5 : 1);
     const aim = defending ? meant : intoGap(meant, field, MAX_PLACEMENT * quality * (0.4 + 0.6 * bat.technique));
-    const tilt = faceTilt(shot.type, back, height, shot.charge, Math.max(0, -timing)) + rng.normal(0, 0.9 + 1.5 * (1 - quality));
+    const tilt =
+      faceTilt(shot.type, back, height, shot.charge, Math.max(0, -timing), shot.variant) +
+      rng.normal(0, 0.9 + 1.5 * (1 - quality));
     // The edge the ball meets, across the blade.
     const blade = bladeAngle(shot.type, back);
     const hit = strike({
@@ -345,7 +352,17 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
     /** The timing error in windows (negative early), for the player's timing meter. */
     timing,
     missReason: "",
-    shotName: shotName(shot.type, bearing, height, footBack, back),
+    shotName: strokeName({
+      type: shot.type,
+      bearing,
+      height,
+      back,
+      feet,
+      variant: shot.variant,
+      pitchZ,
+      spinner,
+      line: shotLine,
+    }),
     at,
     exit,
     /** Off the bat (rad/s, + topspin), which the bounce feels. */

@@ -294,8 +294,8 @@ export class MatchScene {
     return input.updateFootwork(this, dt);
   }
 
-  commitSwing(t, type, power, feet) {
-    return input.commitSwing(this, t, type, power, feet);
+  commitSwing(t, type, power, feet, variant) {
+    return input.commitSwing(this, t, type, power, feet, variant);
   }
 
   commitDefend(t, foot, feet) {

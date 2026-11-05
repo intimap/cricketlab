@@ -331,6 +331,15 @@ the timing meter, and the coach's FEET line, tip and grade. EASY moves the feet 
 6.8 m, back beyond), widens the window 1.3x and marks the landing spot from release. HARD's window is 0.8x.
 The landing mark when batting on NORMAL and HARD now only shows as the ball pitches. No sim change.
 
+Stream 4 done (WIP on `batting`): `sim/strokes.js`, `render/batter/batter-shots/variants.js`. The stroke comes
+from the button, the feet and the ball: the front-foot pull, upper cut, lofted pull, slog-sweep, switch hit,
+inside-out drives, whips, pulls from inside the line, charging drives, smother, jab, dig out and fend, with
+names for each. Nine new clips are built on existing ones, plus the sway and duck for leaves. The stride shows as
+it's made, and a charge carries him down the pitch. The computer upper-cuts and sometimes slog-sweeps. sim-report
+over 300 innings: 4.65 -> 4.65 an over, 38.1 -> 37.7 balls a wicket. Still to do: a front-on view of the
+stride from behind is subtle (the stumps hide the feet), and the paddle and switch hit have no clip of their own
+beyond their families.
+
 ## Later
 
 - Fictional names and art before any pub install.

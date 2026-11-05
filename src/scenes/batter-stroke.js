@@ -1,5 +1,7 @@
 import { crossingAtZ } from "../sim/delivery.js";
-import { SWING_TIME, CONTACT_Z_FRONT, CONTACT_Z_BACK, backFootShot, driveBearing } from "../sim/batting.js";
+import { SWING_TIME, CONTACT_Z_FRONT, CONTACT_Z_BACK, backFootShot } from "../sim/batting.js";
+import { shotBearing } from "../sim/shot-direction.js";
+import { strokeName, turnedBy, leaveStyle } from "../sim/strokes.js";
 import { feetOf } from "../sim/feet.js";
 import { BATTER_CLIPS, gamePreparationWindow } from "../render/batter/batter-motion-all.js";
 import { clipForShot } from "../render/batter/batter-catalog.js";
@@ -9,59 +11,37 @@ import { clipForShot } from "../render/batter/batter-catalog.js";
  * On a clean contact the realised label gives the intended placement; an edge's exit does not.
  */
 
-function naturalBearing(type, line, height, back) {
-  if (type === "drive" || type === "loft") return driveBearing(line);
-  if (type === "cutpull") {
-    if (back === "cut") return 92 + line * 15;
-    if (back === "punch") return 8 + line * 70;
-    if (back === "glance") return -125;
-    return -72 - Math.max(0, Math.min(1, height - 0.8)) * 30;
-  }
-  if (type === "ramp") return line > 0.15 ? 160 : -165;
-  if (type === "sweep") return -115;
-  if (type === "reverseSweep") return 110;
-  return 0;
-}
+/** The strokes with clips of their own. */
+const PLAYED = new Set(["drive", "loft", "cutpull", "ramp", "sweep", "reverseSweep", "defend"]);
+/** Slower than this (m/s) and it's a spinner's ball, for the smother. */
+const SPIN_PACE = 28;
 
-/** A miss still has an attempted stroke, inferred from its input, line, height and foot. */
-export function intentLabel(type, bearing, height, footBack, back) {
-  if (type === "defend") return footBack ? "back-foot defence" : "forward defence";
-  if (type === "cutpull") {
-    if (back === "cut") return bearing > 115 ? "late cut" : "cut";
-    if (back === "punch") return "back-foot drive";
-    if (back === "glance") return "leg glance";
-    return height > 1.35 ? "hook" : "pull";
-  }
-  if (type === "ramp")
-    return Math.abs(bearing) > 168 ? "ramp over the keeper" : bearing > 0 ? "ramp over the slips" : "scoop over fine leg";
-  if (type === "sweep") return bearing < -125 ? "paddle sweep" : "sweep";
-  if (type === "reverseSweep") return "reverse sweep";
-  const lofted = type === "loft" ? "lofted " : "";
-  if (bearing > 80) return "square drive";
-  if (bearing > 45) return lofted + "cover drive";
-  if (bearing > 12) return lofted + "off drive";
-  if (bearing > -12) return lofted + "straight drive";
-  if (bearing > -40) return lofted + "on drive";
-  if (bearing > -100) return type === "loft" ? "slog over midwicket" : "clip off the pads";
-  return type === "loft" ? "slog over midwicket" : "leg glance";
-}
-
+/**
+ * The stroke the striker is shown playing: the realised one when he middled it, otherwise the one he went
+ * for, named the way the sim names it (sim/strokes.js) from his feet, the ball where he met it and the shot.
+ * A leave is let go, swayed or ducked by the ball's height.
+ */
 export function attemptedStroke(cur) {
   const type = cur.shot?.type ?? cur.swingType;
-  if (type === "leave") return "leave";
-  if (!["drive", "loft", "cutpull", "ramp", "sweep", "reverseSweep", "defend"].includes(type)) return null;
-  const footBack = feetOf(cur.shot ?? { type }, cur.delivery?.pitchedAt?.z ?? 5).stride === "back";
-  if (type === "defend") return footBack ? "backFootDefence" : "forwardDefence";
+  if (!type || !cur.delivery) return null;
+  const pitchZ = cur.delivery.pitchedAt?.z ?? 5;
+  const feet = feetOf(cur.shot ?? { type }, pitchZ);
   const contact = cur.play?.res?.contact;
-  if (contact?.kind === "middle") {
+  if (type !== "leave" && !PLAYED.has(type)) return null;
+  if (type !== "leave" && contact?.kind === "middle") {
     const realised = clipForShot(type, contact.shotName);
     if (realised) return realised;
   }
-  const at = contact?.at ?? crossingAtZ(cur.delivery.samples, footBack ? CONTACT_Z_BACK : CONTACT_Z_FRONT);
+  const at = contact?.at ?? crossingAtZ(cur.delivery.samples, feet.stride === "back" ? CONTACT_Z_BACK : CONTACT_Z_FRONT);
   const line = at?.x ?? cur.lineAtBat;
   const height = at?.y ?? 0;
-  const back = type === "cutpull" ? backFootShot(line, height) : null;
-  return clipForShot(type, intentLabel(type, naturalBearing(type, line, height, back), height, footBack, back));
+  if (type === "leave") return leaveStyle(feet, height);
+  const shotLine = line - turnedBy(feet.across);
+  const back = type === "cutpull" ? backFootShot(shotLine, height) : null;
+  const variant = cur.shot?.variant ?? null;
+  const bearing = shotBearing(type, shotLine, height, back, variant);
+  const spinner = cur.delivery.speed < SPIN_PACE;
+  return clipForShot(type, strokeName({ type, bearing, height, back, feet, variant, pitchZ, spinner, line: shotLine }));
 }
 
 /**

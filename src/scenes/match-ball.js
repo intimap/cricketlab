@@ -153,7 +153,7 @@ export function release(scene, releaseError, rhythm) {
     const shot = scene.match.aiShot(cur.delivery);
     cur.shot = shot;
     cur.play = scene.match.resolve(cur.intent, cur.delivery, shot);
-    const arrive = scene.arrival(shot.type, shot.foot);
+    const arrive = scene.arrival(shot.type, shot.foot, shot.feet);
     if (shot.type === "defend") cur.defendAt = arrive - 0.25;
     else if (shot.type === "leave") cur.leaveAt = arrive - 0.28;
     else {
@@ -360,7 +360,7 @@ export function simulate(scene, overs) {
 export function coachFeedback(scene, rec) {
   const cur = scene.cur;
   const spinner = scene.spinner;
-  if (scene.human === "bat") return battingFeedback({ delivery: cur.delivery, shot: cur.shot, rec, spinner });
+  if (scene.human === "bat") return battingFeedback({ delivery: cur.delivery, shot: cur.shot, rec, spinner, res: cur.play?.res });
   const r = cur.runup;
   const err = r && cur.releaseMark != null ? releaseError(r, cur.releaseMark) : 0;
   const perfect = !!r && Math.abs(err) <= r.zone;

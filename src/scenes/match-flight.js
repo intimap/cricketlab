@@ -38,7 +38,7 @@ export function updateFlight(scene, dt) {
   if (!cur.contactDone && cur.t >= res.start.t) {
     cur.contactDone = true;
     beats.onContact(scene);
-    onContact(scene.juice, scene.now, res, play.shot, scene.human === "bat");
+    onContact(scene.juice, scene.now, res, play.shot, scene.human === "bat", cur.delivery.pitchedAt?.z ?? 5);
     const kind = res.contact.kind;
     if (res.touchedBat) {
       playContact(res.contact);

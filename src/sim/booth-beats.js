@@ -85,11 +85,14 @@ export function deliveryCall(d, pick) {
 
 /** The stroke's verb, from its name (batting.js shotName). */
 const VERB = [
+  [/switch/, "SWITCH-HIT"],
   [/sweep/, "SWEPT"],
   [/ramp|scoop/, "RAMPED"],
   [/hook/, "HOOKED"],
   [/pull|slog/, "PULLED"],
+  [/upper cut/, "UPPER-CUT"],
   [/cut/, "CUT"],
+  [/whip/, "WHIPPED"],
   [/glance|clip/, "CLIPPED"],
   [/punch|back-foot drive/, "PUNCHED"],
   [/drive/, "DRIVEN"],

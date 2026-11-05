@@ -1,7 +1,8 @@
 import { clamp } from "../math.js";
 import { isSpinner, bowlingSpeed } from "./teams.js";
 import { simulateFlight, crossingAtZ } from "./delivery.js";
-import { reactionTime, STANCE_X, FOOTWORK_MIN, FOOTWORK_MAX } from "./batting.js";
+import { reactionTime } from "./batting.js";
+import { computerFeet } from "./feet.js";
 import { describeBall, readAgainst, exploits, difficulty } from "./plans.js";
 import { TEST_BATTING as TEST } from "./test-match.js";
 
@@ -9,14 +10,12 @@ import { TEST_BATTING as TEST } from "./test-match.js";
  * How wayward the computer's shot timing is (1 = as it was): more mistimes, edges and the odd air
  * swing, so its batters' eye (eye.js) doesn't stay full. Tuned against simulated innings.
  */
-const AI_TIMING_SPREAD = 1.85;
+const AI_TIMING_SPREAD = 1.6;
 /**
  * How hard the computer's batters swing (1 = as it was). Wayward timing alone brings the runs down but
  * gives away far more edges and wickets; swinging softer as well keeps innings their old length.
  */
-const AI_SHOT_POWER = 0.55;
-/** How far the computer's batters shuffle towards the line they've read (share of the way). */
-const AI_FOOTWORK = 0.5;
+const AI_SHOT_POWER = 0.6;
 // How much pressure makes computer batters impatient (tuned against simulated innings).
 const PRESSURE_AGGRESSION = 0.15;
 const SLOG_FROM = 0.45;
@@ -386,14 +385,28 @@ export function pickShot(d, inn, rng) {
     (inn.test ? TEST.timing : 1);
   // A slower ball he hasn't picked: through the shot too early.
   const timingError = rng.normal(d.paceMisread ? -0.035 : 0, Math.max(0.006, timingSd) * Math.sqrt(hard));
+  // His feet from his read of the length, so a misread can leave him on the wrong foot.
+  const feet = computerFeet({
+    type,
+    pitchZ,
+    line,
+    spinner,
+    footwork: skills.footwork,
+    settled: state.settled,
+    aggression,
+    slog,
+    rng,
+  });
+  // Going for it against spin, a sweep is slogged.
+  const slogSweep = (type === "sweep" || type === "reverseSweep") && aggression > 0.7 && rng.chance(0.4);
   return {
     type,
     charge,
     timingError,
-    // Forward or back in defence, from his read of the length (so a misread can leave him on the wrong foot).
-    foot: type === "defend" ? (pitchZ > 6.8 ? "back" : "front") : null,
-    // He shuffles part of the way across to the line he's read.
-    footwork: type === "leave" ? 0 : clamp((line - STANCE_X) * AI_FOOTWORK, FOOTWORK_MIN, FOOTWORK_MAX),
+    feet,
+    variant: slogSweep ? "slog" : null,
+    foot: type === "defend" ? (feet.stride === "back" ? "back" : "front") : null,
+    footwork: feet.across,
     difficulty: hard,
     battle: { seenBall, weak, familiar, surprise },
   };

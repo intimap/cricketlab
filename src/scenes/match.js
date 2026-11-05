@@ -1,11 +1,11 @@
 import { callFromBooth } from "./broadcast-commentary.js";
+import { matchPad } from "./pad-bindings.js";
 import { COLORS } from "../engine/screen.js";
 import { load, save } from "../engine/storage.js";
 import { Rng } from "../sim/rng.js";
 import { isSpinner } from "../sim/teams.js";
 import { createMatch } from "../sim/formats.js";
-import { crossingAtZ } from "../sim/delivery.js";
-import { CONTACT_Z_FRONT, CONTACT_Z_BACK, playsBack } from "../sim/batting.js";
+import { feetOf, contactFor } from "../sim/feet.js";
 import { pickBowler } from "../sim/ai.js";
 import { callDuration } from "../render/booth.js";
 import { teamKit } from "../render/skins.js";
@@ -149,9 +149,12 @@ export class MatchScene {
   /** Counts up each ball, so on-screen toggles (POWER) switch off for the next one. */
   touchEpoch = 0;
 
-  /** Which on-screen buttons a touch screen shows (engine/touch.js): the pause menu's, or batting or bowling. */
+  /** Which on-screen buttons a touch screen shows (engine/touch.js), and what a gamepad's press: pause, bat or bowl. */
   get touchMode() {
     return this.phase === "pause" ? "menu" : this.human;
+  }
+  get padBinding() {
+    return matchPad(this);
   }
 
   get spinner() {
@@ -269,11 +272,11 @@ export class MatchScene {
     return ball.release(this, releaseError, rhythm);
   }
 
-  /** Ball time at which the ball reaches the bat for a given shot (and, for defence, foot). */
-  arrival(shotType, foot = null) {
+  /** Ball time at which the ball reaches the bat for a given shot (and, for defence, foot), or these feet (sim/feet.js). */
+  arrival(shotType, foot = null, feet = null) {
     const d = this.cur.delivery;
-    const back = playsBack(shotType, foot, d.pitchedAt?.z ?? 0);
-    return crossingAtZ(d.samples, back ? CONTACT_Z_BACK : CONTACT_Z_FRONT)?.t ?? 0.6;
+    const legs = feet ?? feetOf({ type: shotType, foot }, d.pitchedAt?.z ?? 0);
+    return contactFor(d, legs, this.inn.bat[this.inn.striker].p.bat.footwork).at?.t ?? 0.6;
   }
 
   /** Ball time, counting negative through the end of the run-up. */
@@ -287,24 +290,20 @@ export class MatchScene {
     return input.updateBatInput(this);
   }
 
-  shotVariant(type) {
-    return input.shotVariant(this, type);
-  }
-
   updateFootwork(dt) {
     return input.updateFootwork(this, dt);
   }
 
-  commitSwing(t, type, power) {
-    return input.commitSwing(this, t, type, power);
+  commitSwing(t, type, power, feet, variant) {
+    return input.commitSwing(this, t, type, power, feet, variant);
   }
 
-  commitDefend(t, foot) {
-    return input.commitDefend(this, t, foot);
+  commitDefend(t, foot, feet) {
+    return input.commitDefend(this, t, foot, feet);
   }
 
-  commitLeave() {
-    return input.commitLeave(this);
+  commitLeave(feet) {
+    return input.commitLeave(this, feet);
   }
 
   updateFlight(dt) {

@@ -4,6 +4,9 @@ import { clamp } from "../math.js";
 
 export const isSweep = (type) => type === "sweep" || type === "reverseSweep";
 
+/** Short and wide, and this high (m) at the bat: it's upper-cut over the slips rather than cut down. */
+export const UPPER_CUT_HEIGHT = 1.3;
+
 /**
  * Does this shot go back (true) or forward? The attacking shots carry their
  * foot; defence follows the player's choice (`foot`), or the length for the
@@ -35,8 +38,8 @@ export function shotSuitability(type, height, pitchZ, line, spinner, foot = null
     if (line > 0.2 && line < 0.32) s -= 0.15;
     // No width and not much bounce: only a punch down the ground, and that's a risk.
     if (line <= 0.2 && line > -0.1 && height < 0.8) s -= 0.2;
-    // Above the shoulder it's very hard to keep down.
-    if (height > 1.55) s -= 0.45;
+    // Above the shoulder it's very hard to keep down (wide of him, he can upper-cut it instead).
+    if (height > 1.55) s -= line > 0.24 ? 0.15 : 0.45;
   } else if (type === "loft") {
     if (pitchZ > 6.5) s -= 0.4;
     if (height > 1) s -= 0.3;
@@ -57,7 +60,8 @@ export function shotSuitability(type, height, pitchZ, line, spinner, foot = null
   } else if (type === "defend") {
     if (height > 1.35) s = 0.5;
     if (line > 0.6) s = Math.min(s, 0.8);
-    // The wrong foot: forward to a short one (it climbs at the splice), back to a full one (stuck on the crease).
+    // The wrong foot, for the coach's verdict (the batting itself finds it through sim/feet.js): forward to a
+    // short one (it climbs at the splice), back to a full one (stuck on the crease).
     const back = playsBack(type, foot, pitchZ);
     if (!back && pitchZ > 7.5) s -= 0.3 + (height > 1 ? 0.2 : 0);
     if (back && pitchZ < 5) s -= 0.45;
@@ -67,12 +71,13 @@ export function shotSuitability(type, height, pitchZ, line, spinner, foot = null
 
 /**
  * Which back-foot shot a ball calls for, from its line and height at the bat:
- * "cut" with width outside off, "punch" (back-foot drive) with no width and
- * not much bounce, "glance" off the hip down leg, otherwise "pull" (a hook
- * when it's up around the head).
+ * "cut" with width outside off ("upperCut" when it's up above the shoulder:
+ * steered over the slips), "punch" (back-foot drive) with no width and not
+ * much bounce, "glance" off the hip down leg, otherwise "pull" (a hook when
+ * it's up around the head).
  */
 export function backFootShot(line, height) {
-  if (line > 0.24) return "cut";
+  if (line > 0.24) return height > UPPER_CUT_HEIGHT ? "upperCut" : "cut";
   if (line > -0.12 && height < 1) return "punch";
   if (line < -0.3 && height < 0.95) return "glance";
   return "pull";

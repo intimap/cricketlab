@@ -10,7 +10,7 @@ import {
   viewFacing,
 } from "../render/camera.js";
 import { BATTER_POSES, solveBatterRig, lerpPose, drawBatter, playerKit } from "../render/sprites.js";
-import { STRIKER_X, STRIKER_SCREEN_X, readyPose, strikerStroke, footworkOf, footworkPixels } from "./batter-pose.js";
+import { STRIKER_X, STRIKER_SCREEN_X, readyPose, strikerStroke, footworkOf, chargeOf } from "./batter-pose.js";
 
 /**
  * The striker in the close view: where and how big he's drawn (from either end), and bringing the
@@ -101,19 +101,25 @@ function alignToBall(scene, cur, pose, t, place) {
   return { ...pose, px: pose.px + off.x * w, py: pose.py + off.y * w, angle: pose.angle + off.a * w };
 }
 
-/** Where and how big the striker is drawn: from the batter's end, or down the far end facing us. */
+/**
+ * Where and how big the striker is drawn: from the batter's end, or down the far end facing us. A charge
+ * down the pitch carries him away from his crease (batter-pose.js chargeOf).
+ */
 export function strikerPlace(scene, kit, fromBowler, moved = 0) {
+  const depth = CREASE + (scene.cur ? chargeOf(scene, scene.cur, scene.clock()) : 0);
   if (fromBowler) {
-    const p = projectClose(STRIKER_X + moved, 0, CREASE);
-    return { x: p.x, y: p.y + 1, scale: (closePixelsPerMetre(CREASE) * kit.height) / BATTER_HEIGHT_PX, front: true };
+    const p = projectClose(STRIKER_X + moved, 0, depth);
+    return { x: p.x, y: p.y + 1, scale: (closePixelsPerMetre(depth) * kit.height) / BATTER_HEIGHT_PX, front: true };
   }
   // From behind him: a left-hander takes guard on the other side of the stumps (mirrored about them).
-  const x = STRIKER_SCREEN_X + footworkPixels(moved);
+  const guard = projectFromStriker(STRIKER_X, 0, CREASE);
+  const there = projectFromStriker(STRIKER_X + moved, 0, depth);
+  const x = STRIKER_SCREEN_X + there.x - guard.x;
   const stumps = projectFromStriker(0, 0, CREASE).x;
   return {
     x: viewFacing() < 0 ? 2 * stumps - x : x,
-    y: closeGroundY(CREASE) + 2,
-    scale: kit.height / STANDARD_HEIGHT,
+    y: closeGroundY(depth) + 2,
+    scale: (kit.height / STANDARD_HEIGHT) * (there.s / guard.s),
     front: false,
   };
 }

@@ -1,4 +1,6 @@
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect, drawPanel } from "../engine/screen.js";
+import { MENU_PAD } from "../engine/gamepad.js";
+
 import { drawText } from "../engine/text.js";
 import { keys, onKeyDown } from "../engine/input.js";
 import { sfx } from "../engine/audio.js";
@@ -6,6 +8,9 @@ import { load, save } from "../engine/storage.js";
 import { addScore, readScores } from "../engine/scores.js";
 import { NAME_MAX, NAME_CHARS, cleanName, boardFor, sortEntries, validEntry } from "../sim/leaderboard.js";
 import { CLASSICS } from "../sim/formats.js";
+
+/** A gamepad while typing a name: A to finish, B to take a letter back. */
+const ENTRY_PAD = Object.freeze({ 0: "Enter", 1: "ArrowLeft", 9: "Enter" });
 
 /** Rows of the table on screen. */
 const SHOWN = 12;
@@ -49,6 +54,11 @@ export class ScoreboardScene {
   /** Which on-screen buttons a touch screen shows (engine/touch.js). */
   get touchMode() {
     return this.phase === "entry" ? "entry" : "menu";
+  }
+
+  /** A gamepad's buttons (engine/gamepad.js): typing a name, B takes a letter back. */
+  get padBinding() {
+    return this.phase === "entry" ? ENTRY_PAD : MENU_PAD;
   }
 
   /**

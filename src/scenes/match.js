@@ -1,4 +1,5 @@
 import { callFromBooth } from "./broadcast-commentary.js";
+import { matchPad } from "./pad-bindings.js";
 import { COLORS } from "../engine/screen.js";
 import { load, save } from "../engine/storage.js";
 import { Rng } from "../sim/rng.js";
@@ -148,9 +149,12 @@ export class MatchScene {
   /** Counts up each ball, so on-screen toggles (POWER) switch off for the next one. */
   touchEpoch = 0;
 
-  /** Which on-screen buttons a touch screen shows (engine/touch.js): the pause menu's, or batting or bowling. */
+  /** Which on-screen buttons a touch screen shows (engine/touch.js), and what a gamepad's press: pause, bat or bowl. */
   get touchMode() {
     return this.phase === "pause" ? "menu" : this.human;
+  }
+  get padBinding() {
+    return matchPad(this);
   }
 
   get spinner() {
@@ -286,24 +290,20 @@ export class MatchScene {
     return input.updateBatInput(this);
   }
 
-  shotVariant(type) {
-    return input.shotVariant(this, type);
-  }
-
   updateFootwork(dt) {
     return input.updateFootwork(this, dt);
   }
 
-  commitSwing(t, type, power) {
-    return input.commitSwing(this, t, type, power);
+  commitSwing(t, type, power, feet) {
+    return input.commitSwing(this, t, type, power, feet);
   }
 
-  commitDefend(t, foot) {
-    return input.commitDefend(this, t, foot);
+  commitDefend(t, foot, feet) {
+    return input.commitDefend(this, t, foot, feet);
   }
 
-  commitLeave() {
-    return input.commitLeave(this);
+  commitLeave(feet) {
+    return input.commitLeave(this, feet);
   }
 
   updateFlight(dt) {

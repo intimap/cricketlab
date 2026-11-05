@@ -1,8 +1,7 @@
 import { COLORS } from "../engine/screen.js";
 import { keys } from "../engine/input.js";
 import { clamp } from "../math.js";
-import { crossingAtZ } from "../sim/delivery.js";
-import { CONTACT_Z_FRONT, SWING_TIME, NORMAL_CHARGE, FOOTWORK_MIN, FOOTWORK_MAX, playsBack } from "../sim/batting.js";
+import { SWING_TIME, NORMAL_CHARGE, playsBack } from "../sim/batting.js";
 import { BACKLIFT_TIME, POWER_BACKLIFT_TIME, PLAYER_TIMING_WINDOW, POWER_CHARGE } from "../sim/shot-timing.js";
 export { BACKLIFT_TIME, POWER_BACKLIFT_TIME, PLAYER_TIMING_WINDOW, POWER_CHARGE } from "../sim/shot-timing.js";
 import { meterPos, releaseError, METER_FROM } from "../sim/runup.js";
@@ -12,77 +11,29 @@ import { LEAVE_LIFT } from "./batter-pose.js";
 import { act } from "./player-actions.js";
 
 /**
- * The player's controls in the match scene: batting (shots, defence, leaving it, stepping across the
- * crease) and aiming the bowling crosshair. Each takes the scene (scenes/match.js), whose methods of the
+ * The player's controls in the match scene: committing the batter's shot, defence or leave (the controls
+ * themselves are in scenes/bat-controls.js), aiming the bowling crosshair and the run-up. Each takes the scene (scenes/match.js), whose methods of the
  * same names call these.
  */
 
-/** Front foot: S drive, W loft. Back foot: Q (cut, punch, pull, hook or glance, as the ball dictates). */
-const SHOT_KEYS = { KeyS: "drive", KeyQ: "cutpull", KeyW: "loft" };
-/** Defence: A forward, D back. */
-const DEFEND_KEYS = { KeyA: "front", KeyD: "back" };
-/** How fast the batter steps across his crease, and back to his guard (m/s). */
-const FOOTWORK_SPEED = 1.6;
-
-export function updateBatInput(scene) {
-  if (scene.human !== "bat" || !scene.cur) return;
-  const cur = scene.cur;
-  if (cur.shot) return;
-  const t = scene.clock();
-  if (!cur.delivery) return;
-  const power = keys.down("ShiftLeft") || keys.down("ShiftRight");
-  for (const [key, type] of Object.entries(SHOT_KEYS)) {
-    if (keys.pressed(key) && !cur.shot) act(scene, { type: "swing", t, shot: scene.shotVariant(type), power });
-  }
-  for (const [key, foot] of Object.entries(DEFEND_KEYS)) {
-    if (keys.pressed(key) && !cur.shot) act(scene, { type: "defend", t, foot });
-  }
-  if (cur.delivery && !cur.shot) {
-    const arrive = crossingAtZ(cur.delivery.samples, CONTACT_Z_FRONT)?.t ?? 0.6;
-    if (t > arrive + 0.05) act(scene, { type: "leave" });
-  }
-}
-
-/** Down + W is a ramp; down + left/right + Q is a sweep / reverse sweep. */
-export function shotVariant(scene, type) {
-  if (!keys.down("ArrowDown")) return type;
-  const left = keys.down("ArrowLeft");
-  const right = keys.down("ArrowRight");
-  if (type === "loft") return "ramp";
-  if (type === "cutpull" && left !== right) return left ? "sweep" : "reverseSweep";
-  return type;
-}
+// The batting controls (the feet on the arrows, four buttons): scenes/bat-controls.js.
+export { updateFeet as updateFootwork, updateButtons as updateBatInput } from "./bat-controls.js";
 
 /**
- * Hold Left or Right and the batter steps across his crease that way (the way you press on screen),
- * as far as FOOTWORK_MIN/MAX; let go and he steps back to his guard. Once he plays a shot his feet are
- * set. Down (for the sweeps and the ramp) brings him back to his guard too.
- */
-export function updateFootwork(scene, dt) {
-  if (scene.human !== "bat" || !scene.cur || scene.cur.shot) return;
-  const way = keys.down("ArrowDown") ? 0 : (keys.down("ArrowRight") ? 1 : 0) - (keys.down("ArrowLeft") ? 1 : 0);
-  const target = way * scene.screenTurn > 0 ? FOOTWORK_MAX : way * scene.screenTurn < 0 ? FOOTWORK_MIN : 0;
-  const now = scene.cur.footwork ?? 0;
-  const step = FOOTWORK_SPEED * dt;
-  scene.cur.footwork = Math.abs(target - now) <= step ? target : now + Math.sign(target - now) * step;
-}
-
-/**
- * Today's keys carry the feet (sim/feet.js): the shot's own foot, forward or back, and the step across the
- * crease. He starts the stride as he commits (`t`), so a late one is caught part of the way; a leave has
- * the time it needs.
+ * The feet for a shot that didn't bring its own (an older replay or test): the shot's own foot, forward or
+ * back, and the step across, started as he commits (`t`). The controls send theirs (scenes/bat-controls.js).
  */
 function keyFeet(scene, type, foot, t) {
   const back = playsBack(type, foot, scene.cur.delivery.pitchedAt?.z ?? 0);
   return { stride: back ? "back" : "forward", across: scene.cur.footwork ?? 0, from: t };
 }
 
-export function commitSwing(scene, t, type, power) {
+export function commitSwing(scene, t, type, power, given = null) {
   const cur = scene.cur;
   cur.swingType = type;
   cur.backliftAt = t;
   cur.swingAt = t + (power ? POWER_BACKLIFT_TIME : BACKLIFT_TIME);
-  const feet = keyFeet(scene, type, null, t);
+  const feet = given ?? keyFeet(scene, type, null, t);
   const timingError = cur.swingAt + SWING_TIME[type] - scene.arrival(type, null, feet);
   if (power) scene.flash("POWER!", COLORS.gold);
   cur.shot = {
@@ -90,15 +41,15 @@ export function commitSwing(scene, t, type, power) {
     charge: power ? POWER_CHARGE : NORMAL_CHARGE,
     timingError,
     windowMult: PLAYER_TIMING_WINDOW,
-    footwork: cur.footwork ?? 0,
+    footwork: feet.across,
     feet,
   };
   cur.play = scene.match.resolve(cur.intent, cur.delivery, cur.shot);
 }
 
-export function commitDefend(scene, t, foot) {
+export function commitDefend(scene, t, foot, given = null) {
   const cur = scene.cur;
-  const feet = keyFeet(scene, "defend", foot, t);
+  const feet = given ?? keyFeet(scene, "defend", foot, t);
   const arrive = scene.arrival("defend", foot, feet);
   cur.defendAt = t;
   cur.shot = {
@@ -107,13 +58,13 @@ export function commitDefend(scene, t, foot) {
     charge: 0,
     timingError: Math.max(0, t + 0.12 - arrive),
     windowMult: PLAYER_TIMING_WINDOW,
-    footwork: cur.footwork ?? 0,
+    footwork: feet.across,
     feet,
   };
   cur.play = scene.match.resolve(cur.intent, cur.delivery, cur.shot);
 }
 
-export function commitLeave(scene) {
+export function commitLeave(scene, given = null) {
   const cur = scene.cur;
   // The bat is already on its way up out of the way (see match-view.js): carry on, don't start the leave again.
   cur.leaveAt = Math.min(scene.clock(), scene.arrival("drive") - LEAVE_LIFT);
@@ -121,8 +72,8 @@ export function commitLeave(scene) {
     type: "leave",
     charge: 0,
     timingError: 0,
-    footwork: cur.footwork ?? 0,
-    feet: { ...keyFeet(scene, "leave", null, 0), from: null },
+    footwork: given?.across ?? cur.footwork ?? 0,
+    feet: given ?? { ...keyFeet(scene, "leave", null, 0), from: null },
   };
   cur.play = scene.match.resolve(cur.intent, cur.delivery, cur.shot);
 }
@@ -133,8 +84,10 @@ export function aimTarget(scene) {
   const turned = scene.screenTurn;
   if (keys.pressed("ArrowLeft")) scene.target.line -= 0.05 * step * turned;
   if (keys.pressed("ArrowRight")) scene.target.line += 0.05 * step * turned;
-  if (keys.pressed("ArrowUp")) scene.target.length += 0.5 * step * turned;
-  if (keys.pressed("ArrowDown")) scene.target.length -= 0.5 * step * turned;
+  // Up is away from the camera whichever hand the batter is (only the line turns for a left-hander).
+  const end = scene.view === "close" && scene.closeEnd === "bowl" ? -1 : 1;
+  if (keys.pressed("ArrowUp")) scene.target.length += 0.5 * step * end;
+  if (keys.pressed("ArrowDown")) scene.target.length -= 0.5 * step * end;
   scene.target.line = clamp(scene.target.line, -0.9, 1.1);
   scene.target.length = clamp(scene.target.length, 0.5, 12.5);
 }

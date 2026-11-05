@@ -316,6 +316,16 @@ The wrong feet now cost runs (almost no boundaries from the crease or the back f
 wickets: stream 7. Its levers are the stance ranges, the stride times, the weight table and the bat's
 descent, all in `sim/feet.js`.
 
+Stream 3 done (WIP on `batting`): `scenes/bat-controls.js`, `engine/gamepad.js`, `scenes/pad-bindings.js`,
+the touch stick. The arrows (stick, d-pad, touch stick) are the feet, up away from the camera. A push sets
+the stride going from then, forward twice goes down the pitch, left and right go across while held, and
+what's held in the run-up is the trigger. A S W D are defend, attack, loft and improvise; Shift is held for
+power or tapped to arm it; no button leaves. The shot comes from the button and the feet
+(`controlShot` in `sim/shot-choice.js`): attack drives forward and cuts or pulls back, improvise sweeps,
+reverse-sweeps across or ramps going back. The full matrix and the sway and duck animations are stream 4.
+Gamepads work in every screen, with buttons per screen. Also fixed: the bowling crosshair's up and down
+were the wrong way round for a left-hander. No sim change, so the reports stand as after stream 2.
+
 ## Later
 
 - Fictional names and art before any pub install.

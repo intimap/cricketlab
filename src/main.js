@@ -2,6 +2,7 @@ import { WIDTH, HEIGHT, COLORS, initScreen, present, toGameCoords, fillRect } fr
 import { drawText } from "./engine/text.js";
 import { initInput, keys, endFrame } from "./engine/input.js";
 import { initTouch } from "./engine/touch.js";
+import { pollGamepads } from "./engine/gamepad.js";
 import { unlockAudio, toggleMute } from "./engine/audio.js";
 import { loadAssets } from "./assets.js";
 import { Menu } from "./scenes/menu.js";
@@ -72,6 +73,7 @@ class Game {
     const frame = (now) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
+      pollGamepads(this.scene.padBinding);
       if (keys.pressed("KeyM")) toggleMute();
       this.scene.update(dt);
       touch(this.scene.touchMode, this.scene.touchEpoch);

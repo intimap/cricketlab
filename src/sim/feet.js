@@ -40,6 +40,8 @@ const RAMP = [0.35, 1.5];
 export const STANCE_X = -0.14;
 export const FOOTWORK_MIN = -0.1;
 export const FOOTWORK_MAX = 0.1;
+/** How far the player can take him across the crease (m): towards the off side, or away to leg. */
+export const PLAYER_ACROSS = Object.freeze({ off: 0.3, leg: -0.3 });
 /** How far the computer's batters shuffle towards the line they've read (share of the way). */
 const AI_FOOTWORK = 0.5;
 

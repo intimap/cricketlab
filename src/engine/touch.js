@@ -9,7 +9,9 @@ import { pressKey, releaseKey } from "./input.js";
  * Buttons: [label, key code, modes they show in (all if omitted), style?]. A
  * "toggle" button stays pressed until tapped again or the scene's
  * `touchEpoch` moves on (a new ball), since holding it down with a thumb
- * while playing a shot with the other is awkward.
+ * while playing a shot with the other is awkward. Batting, the d-pad becomes
+ * a stick for the batter's feet (it presses the arrows, two at once on a
+ * diagonal); POWER is a plain button the game reads as a tap to arm it.
  */
 const PAD = [
   ["▲", "ArrowUp", "up"],
@@ -40,12 +42,11 @@ const ACTIONS = {
     ["OK", "Enter", "big"],
   ],
   bat: [
-    ["DRIVE", "KeyS"],
-    ["BACK FOOT", "KeyQ"],
+    ["DEFEND", "KeyA"],
+    ["ATTACK", "KeyS"],
     ["LOFT", "KeyW"],
-    ["FWD DEF", "KeyA"],
-    ["POWER", "ShiftLeft", "toggle"],
-    ["BACK DEF", "KeyD"],
+    ["IMPROV", "KeyD"],
+    ["POWER", "ShiftLeft"],
     ["GO", "Space", "big"],
   ],
   bowl: [
@@ -80,6 +81,10 @@ const CSS = `
 .tc-top button { height: 26px; font-size: 9px; }
 .tc-pad { display: grid; grid-template: "a up b" 34px "left c right" 34px "d down e" 34px / 1fr 1fr 1fr; gap: 2px; }
 .tc-pad button { font-size: 16px; }
+.tc-stick { pointer-events: auto; touch-action: none; position: relative; width: 98px; height: 98px; margin: 0 auto;
+  border-radius: 50%; border: 1px solid #b8862a; background: rgba(18, 50, 31, 0.8); }
+.tc-stick i { position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px;
+  border-radius: 50%; background: #e8b931; opacity: 0.85; pointer-events: none; }
 .tc-grid button { height: 40px; }
 .tc-grid button.big { grid-column: span 2; height: 54px; font-size: 15px; }
 .tc-grid .row { grid-column: span 2; display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
@@ -156,6 +161,9 @@ export function initTouch() {
   left.append(top, pad);
   for (const t of TOP) button(top, t, t[2]);
   for (const p of PAD) button(pad, p, null);
+  shown.push({ el: pad, modes: ["menu", "entry", "bowl"] });
+  const stick = feetStick(left);
+  shown.push({ el: stick.el, modes: ["bat"] });
   const act = document.createElement("div");
   act.className = "tc-grid";
   box("tc-act").appendChild(act);
@@ -182,7 +190,69 @@ export function initTouch() {
       for (const release of [...latched]) release();
     }
     if (mode === current) return;
+    if (current === "bat") stick.letGo();
     current = mode;
     for (const s of shown) s.el.style.display = !s.modes || s.modes.includes(mode) ? "" : "none";
   };
+}
+
+/**
+ * The batting stick: put a thumb on it and lean. Past a third of the way out it presses that arrow (two on
+ * a diagonal); lift the thumb and it lets go.
+ */
+function feetStick(parent) {
+  const el = document.createElement("div");
+  el.className = "tc-stick";
+  const knob = document.createElement("i");
+  el.appendChild(knob);
+  parent.appendChild(el);
+  const pushed = new Set();
+  let finger = null;
+  const aim = (e) => {
+    const r = el.getBoundingClientRect();
+    const dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
+    const dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+    const k = Math.min(1, 1 / (Math.hypot(dx, dy) || 1));
+    knob.style.transform = `translate(${dx * k * 30}px, ${dy * k * 30}px)`;
+    const want = new Set();
+    if (dy < -0.35) want.add("ArrowUp");
+    if (dy > 0.35) want.add("ArrowDown");
+    if (dx < -0.35) want.add("ArrowLeft");
+    if (dx > 0.35) want.add("ArrowRight");
+    for (const code of [...pushed]) {
+      if (want.has(code)) continue;
+      releaseKey(code);
+      pushed.delete(code);
+    }
+    for (const code of want) {
+      if (pushed.has(code)) continue;
+      pressKey(code);
+      pushed.add(code);
+    }
+  };
+  const letGo = () => {
+    for (const code of pushed) releaseKey(code);
+    pushed.clear();
+    finger = null;
+    knob.style.transform = "";
+  };
+  el.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    finger = e.pointerId;
+    try {
+      el.setPointerCapture?.(e.pointerId);
+    } catch {
+      // A pointer the browser no longer tracks: it still steers until it lifts.
+    }
+    aim(e);
+  });
+  el.addEventListener("pointermove", (e) => {
+    if (e.pointerId === finger) aim(e);
+  });
+  for (const type of ["pointerup", "pointercancel"]) {
+    el.addEventListener(type, (e) => {
+      if (e.pointerId === finger) letGo();
+    });
+  }
+  return { el, letGo };
 }

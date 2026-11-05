@@ -10,10 +10,10 @@ import { takeAdvice } from "./bowling-advice.js";
  * input code turns keys, taps and clicks into these and hands them to act(), and nothing else changes the
  * match on the player's behalf, so a replay, a test or a network layer can carry the same messages.
  * (A delivery's "intent" is the bowling plan inside a "bowl" action, as sim/match.js uses the word.)
- * Held controls (stepping across, aftertouch, the aiming crosshair) are read where they're used, and what
- * they set travels in the action that commits them.
+ * Held controls (the batter's feet, aftertouch, the aiming crosshair) are read where they're used, and what
+ * they set travels in the action that commits them (a shot's `feet`: sim/feet.js).
  *
- *   swing { t, shot, power }     defend { t, foot }       leave {}          run { end }
+ *   swing { t, shot, power, feet }   defend { t, foot, feet }   leave { feet }   run { end }
  *   bowl { plan }                beat { index, error }    release { error, rhythm }        appeal {}         review { side }   accept {}
  *   chooseBowler { bowler }      delivery { delivery }    effort { effort } field { preset }
  *   newBall {}                   wicketSide { side }      placeFielder { idx, pos }
@@ -26,11 +26,11 @@ export function act(scene, action) {
   const inn = scene.inn;
   switch (action.type) {
     case "swing":
-      return scene.commitSwing(action.t, action.shot, action.power);
+      return scene.commitSwing(action.t, action.shot, action.power, action.feet);
     case "defend":
-      return scene.commitDefend(action.t, action.foot);
+      return scene.commitDefend(action.t, action.foot, action.feet);
     case "leave":
-      return scene.commitLeave();
+      return scene.commitLeave(action.feet);
     case "run":
       return scene.runCommand(scene.cur.play.live, action.end);
     case "bowl":

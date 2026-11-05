@@ -104,7 +104,7 @@ export function battingFeedback({ delivery, shot, rec, spinner }) {
   lines.push(goodChoice ? "SHOT CHOICE: GOOD" : `SHOT CHOICE: ${SHOT_NAMES[best]} WAS THE PERCENTAGE PLAY`);
 
   let tip = "";
-  if (!goodChoice && pitchZ > 8) tip = "SHORT BALL: GET ON THE BACK FOOT. ATTACK IT (Q), DEFEND IT (D), OR LEAVE IT.";
+  if (!goodChoice && pitchZ > 8) tip = "SHORT BALL: GET ON THE BACK FOOT. ATTACK IT (S), DEFEND IT (A), OR LEAVE IT.";
   else if (!goodChoice && pitchZ < 4.5) tip = "PITCHED UP: GET ON THE FRONT FOOT. DRIVE IT (S) OR BLOCK IT (A).";
   else if (!goodChoice && Math.abs(line) > 0.35) tip = "WELL OUTSIDE OFF: LEAVE IT, OR CUT IF IT'S SHORT.";
   else if (shot && !timingGood && Math.abs(shot.timingError) > TIMING_BAD) {

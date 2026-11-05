@@ -78,3 +78,18 @@ export function backFootShot(line, height) {
   if (line < -0.3 && height < 0.95) return "glance";
   return "pull";
 }
+
+/**
+ * The shot the player's buttons and feet make (until the full matrix of strokes): defend blocks off
+ * whichever foot he's on, attack drives off the front foot (or the crease, or down the pitch) and cuts or
+ * pulls off the back, loft lofts, improvise sweeps, reverse-sweeps if he's gone across to the off side, and
+ * ramps over the keeper going back. Returns { type, foot } (foot only for a block).
+ */
+export function controlShot(button, feet) {
+  const back = feet.stride === "back";
+  if (button === "defend") return { type: "defend", foot: back ? "back" : "front" };
+  if (button === "attack") return { type: back ? "cutpull" : "drive" };
+  if (button === "loft") return { type: "loft" };
+  if (back) return { type: "ramp" };
+  return { type: (feet.across ?? 0) > 0.05 ? "reverseSweep" : "sweep" };
+}

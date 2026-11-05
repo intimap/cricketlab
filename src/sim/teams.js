@@ -1,6 +1,7 @@
 import { clamp } from "../math.js";
 import { Rng } from "./rng.js";
 import { pickWeakness } from "./plans.js";
+import { bladeFor } from "./bats.js";
 
 // Average batting skill by role; individual ratings are drawn around it.
 const ROLE_BASE = { opener: 0.74, top: 0.78, middle: 0.72, keeper: 0.62, allround: 0.58, tail: 0.36, bunny: 0.22 };
@@ -152,11 +153,14 @@ export function makeTeam(name, abbr, colour, colour2, seed, roster) {
   const quirks = new Rng(seed * 31 + 7);
   const players = roster.map((p) => {
     const words = p.name.split(" ");
+    const bat = battingSkills(rng, p.role, p.flair);
     return {
       name: p.name,
       short: p.short ?? words[words.length - 1],
       nick: p.nick,
-      bat: battingSkills(rng, p.role, p.flair),
+      bat,
+      // His bat (sim/bats.js): from his power and height, unless the squad says otherwise.
+      blade: bladeFor(bat, p.look ?? DEFAULT_LOOK, p.blade),
       bowl: p.bowl,
       field: fieldingSkills(rng, p.keeper),
       keeper: p.keeper,
@@ -171,7 +175,15 @@ export function makeTeam(name, abbr, colour, colour2, seed, roster) {
 
 export function australia() {
   return makeTeam("AUSTRALIA", "AUS", "#1f6b3a", "#f2c230", 101, [
-    { name: "Osman Kawaga", hand: "left", look: look(1.77, "tan", "black", "short", "full", 1), nick: "Uzzy", role: "opener" },
+    {
+      name: "Osman Kawaga",
+      hand: "left",
+      look: look(1.77, "tan", "black", "short", "full", 1),
+      nick: "Uzzy",
+      role: "opener",
+      // A light bat for an accumulator who works it around.
+      blade: { weight: 1.17, edges: 38 },
+    },
     { name: "Trevor Hearn", look: look(1.83, "light", "brown", "short", "none", 23), nick: "Hearny", role: "opener", flair: 0.1 },
     {
       name: "Marcus La Bonshane",
@@ -314,6 +326,8 @@ export function england() {
       nick: "Stokesy",
       role: "allround",
       flair: 0.15,
+      // A big, heavy bat with big edges, for clearing the ropes.
+      blade: { weight: 1.38, edges: 44 },
       bowl: bowler("fast", 0.6, { pace: 0.8, stamina: 0.5 }),
     },
     {

@@ -175,6 +175,7 @@ src/
     feet.js           the batter's feet: where and when the bat meets the ball, how high and low it reaches, the computer's feet
     footwork-words.js the word by the timing meter for what the feet did (GOOD STRIDE, WRONG FOOT...), and the coach's tip
     strokes.js        the stroke matrix: button, feet and ball make the stroke, its variant (slog, aerial) and its name
+    bats.js           each batter's bat (weight, edges, handle) from his ratings or his squad, and what it does
     shot-timing.js    backlift durations, the player's timing window and power charge (input, animation, reports)
     batting.js        the shot: timing, where the bat goes, edges, LBW, bowled
     shot-choice.js    which shot suits which ball: front or back foot, the back-foot shot
@@ -495,9 +496,19 @@ The stroke comes from the button, the feet and the ball (`sim/strokes.js`):
 Gone right across the crease (beyond a shuffle) turns your angles: backed away, a straight ball is driven
 inside-out or cut; across to the off side, it's whipped to leg or pulled from inside the line. With no button,
 a ball up at you is swayed out of the way if you went back, ducked under otherwise. Your stride shows as you
-make it, and a charge carries you down the pitch. Run `node tools/bat-impact.test.mjs` and
-`node tools/bat-ball.test.mjs` and `node tools/feet.test.mjs` for contact geometry, the collision, the feet and
-seeded simulation checks.
+make it, and a charge carries you down the pitch.
+
+Every batter has his own bat (`sim/bats.js`). It weighs 1.1-1.4 kg, has edges of 36-44 mm and a short, normal
+or long handle. It comes from his power and height unless his squad gives it (`blade: { weight, edges,
+handle }` in `sim/teams.js` or `sim/squads/`).
+
+- A heavier bat hits harder (more of it meets the ball) but swings a touch slower, comes down later and has a
+  narrower timing window.
+- Big edges keep more pace off an edge.
+- A long handle reaches a little further and swings a little faster; a short one widens the window a touch.
+- The team sheet shows each bat: its weight, + for big edges, L or S for a long or short handle. Run `node tools/bat-impact.test.mjs` and
+  `node tools/bat-ball.test.mjs` and `node tools/feet.test.mjs` for contact geometry, the collision, the feet and
+  seeded simulation checks.
 
 Over/around selection is remembered per bowler for the innings and can be changed with T, the SIDE touch
 button, or the SIDE row in the bowling panel. It locks when the run-up starts. The current action model

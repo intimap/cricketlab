@@ -347,6 +347,45 @@ A long handle gives a little reach and speed. The team sheet shows weight, edges
 300 innings: 4.65 -> 4.68 an over, 37.7 -> 36.2 balls a wicket (Australia's tall hitters carry heavier,
 long-handled bats).
 
+Stream 7 done (on `balance`): `sim/styles.js`, per-format reports (sim-report OVERS=20/50 and TESTMATCH=1,
+batting-report FORMAT=t20/odi/test). What changed:
+- The computer bats each format its own way: in a hurry in short games (fewer leaves, lofts, charges,
+  ramps, harder swings), patiently in Tests (leaving outside off).
+- It bowls a death plan through the last fifth of a short game (yorkers, wide yorkers, slower balls,
+  the odd bouncer).
+- Bowlers read a batter's wrong feet (forward to the short ones, back to the full ones, stuck on the
+  crease) and bowl at them, testing a new batter early.
+- Playing away from the body without moving makes the bat waver.
+- Reaching up above the stance's height opens the face and cramps the swing.
+- The stances' reach is tighter.
+- The player's window is 1.35 -> 1.0, with normal power 0.35 -> 0.23.
+- The computer's timing spread is 1.6 -> 0.5 and its power 0.6 -> 0.64.
+
+Targets set for the formats (the 50-over ones as agreed):
+
+| Format | Good timing, right feet | Computer |
+|---|---|---|
+| T20 | 8.5-10 an over, out every 18-28 | about 8.2, a wicket every 19 |
+| ODI | 5-6, out every 40-60 | sim-report 4.68, 37.9 |
+| Test | 3-3.8, out every 70-110 | about 3.2, a wicket every 55-70 |
+
+Results (the player 30 innings a row; the computer 200-300 innings):
+
+| Row | T20 | ODI | Test |
+|---|---|---|---|
+| good timing, right feet | 9.26, 27.8 | 6.61, 40.8 | 3.66, 44.8 |
+| average timing | 5.28, 13.2 | 4.36, 22.7 | 2.93, 33.6 |
+| on the crease | 6.64, 19.0 | 4.58, 36.2 | 2.67, 37.2 |
+| always forward | 8.01, 18.9 | 5.25, 28.7 | 3.22, 36.4 |
+| always back | 4.90, 11.9 | 3.23, 23.9 | 1.76, 27.8 |
+| computer | 9.24, 26.1 | match 5.70, 30.7; untimed 4.60, 33.0 | first innings 3.31, 45.6 |
+
+Still short of the targets: the wrong feet in the ODI (crease out every 36 against 15-25, forward 29
+against 15-20), Test survival (good timing out every 45 against 70-110, and Tests end on day 3), the
+computer's T20 is a little fast and safe, and its untimed innings loses a wicket every 33 balls against
+37.9. The Classic Matches' targets have drifted (the chaser wins 15-80% against 30-40%): left as they are
+for now.
+
 ## Later
 
 - Fictional names and art before any pub install.

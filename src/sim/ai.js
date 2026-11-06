@@ -3,19 +3,21 @@ import { isSpinner, bowlingSpeed } from "./teams.js";
 import { simulateFlight, crossingAtZ } from "./delivery.js";
 import { reactionTime } from "./batting.js";
 import { computerFeet } from "./feet.js";
+import { battingStyle, styledCharge, deathOvers, deathBall, lengthAgainstFeet, TEST_FULLER } from "./styles.js";
 import { describeBall, readAgainst, exploits, difficulty } from "./plans.js";
 import { TEST_BATTING as TEST } from "./test-match.js";
 
 /**
- * How wayward the computer's shot timing is (1 = as it was): more mistimes, edges and the odd air
- * swing, so its batters' eye (eye.js) doesn't stay full. Tuned against simulated innings.
+ * How wayward the computer's shot timing is (times its ratings' spread). Tuned against simulated innings
+ * (tools/sim-report.mjs) once the feet, the bats and the format styles were in: the geometry of the feet now
+ * makes most of its mistakes, so it needs less of this than it did.
  */
-const AI_TIMING_SPREAD = 1.6;
+const AI_TIMING_SPREAD = 0.5;
 /**
  * How hard the computer's batters swing (1 = as it was). Wayward timing alone brings the runs down but
  * gives away far more edges and wickets; swinging softer as well keeps innings their old length.
  */
-const AI_SHOT_POWER = 0.6;
+const AI_SHOT_POWER = 0.64;
 // How much pressure makes computer batters impatient (tuned against simulated innings).
 const PRESSURE_AGGRESSION = 0.15;
 const SLOG_FROM = 0.45;
@@ -27,7 +29,7 @@ const CHASE_PUSH_PER_RUN = 0.08;
 /** Chasing: the most the run rate can push aggression either way. */
 const CHASE_MAX_PUSH = 0.45;
 /** Extra aggression at full limited-overs tempo (see Innings.tempo). */
-const LIMITED_OVERS_PUSH = 0.3;
+const LIMITED_OVERS_PUSH = 0.45;
 
 /** Pick the best available bowler for the next over, given conditions and fatigue. */
 export function pickBowler(inn) {
@@ -146,6 +148,8 @@ export function pickDeliveryPlan(inn, rng) {
       line = 0.05;
     }
     if (batter.p.bat.vsSpin < 0.45 && rng.chance(0.15)) length -= 0.6;
+    const read = lengthAgainstFeet(batter, true, rng);
+    if (read !== null) length = read;
     if (rng.chance(0.06)) length = 7.5;
     if (bowler.stamina < 0.35) effort = "low";
   } else {
@@ -155,7 +159,7 @@ export function pickDeliveryPlan(inn, rng) {
     const otherSwing = reversing ? "outswing" : "inswing";
     type = has("outswing") && (swinging || reversing) ? stockSwing : "seam";
     line = 0.22 + rng.normal(0, 0.04);
-    length = (greenTop ? 6.1 : 6.7) + rng.normal(0, 0.35);
+    length = (greenTop ? 6.1 : 6.7) + rng.normal(0, 0.35) - (inn.test ? TEST_FULLER : 0);
     if (plan === "corridor") {
       // Tight outside off: hard to leave, hard to score off.
       line = 0.15 + rng.normal(0, 0.04);
@@ -205,6 +209,11 @@ export function pickDeliveryPlan(inn, rng) {
     } else if (has("cutter") && inn.pitch.type.id !== "dust" && rng.chance(0.1)) {
       type = "cutter";
     }
+    // The death in a short game, or what he's read of the batter's feet (sim/styles.js).
+    const death = deathOvers(inn) ? deathBall(has, rng) : null;
+    const read = death ? null : lengthAgainstFeet(batter, false, rng);
+    if (death) ({ type, line, length, effort } = death);
+    else if (read !== null && type !== "bouncer" && type !== "yorker") length = read;
     if (inn.preset === "defensive") {
       line = 0.32;
       length += 0.4;
@@ -278,6 +287,7 @@ export function pickShot(d, inn, rng) {
   const state = inn.batterState(index);
   const spinner = isSpinner(inn.bowler.p.bowl);
   const aggression = battingAggression(inn, index);
+  const style = battingStyle(inn);
   const react = reactionTime(skills, state, spinner, d.speed);
 
   const readFrom = d.samples[Math.min(d.samples.length - 1, Math.floor((0.33 + react * 0.5) * 240 * (spinner ? 1.3 : 1)))];
@@ -332,7 +342,7 @@ export function pickShot(d, inn, rng) {
   } else if (onStumps) {
     type = roll < 0.3 + aggression * 0.4 ? "drive" : "defend";
   } else {
-    let leaveOdds = 0.18 + 0.4 * skills.temperament - 0.3 * aggression + (inn.ball.overs < 15 ? 0.12 : 0);
+    let leaveOdds = (0.18 + 0.4 * skills.temperament - 0.3 * aggression + (inn.ball.overs < 15 ? 0.12 : 0)) * style.leave;
     if (spinner) leaveOdds = line < 0.45 ? 0 : leaveOdds * 0.25;
     type = roll < leaveOdds ? "leave" : rng.chance(0.4) ? "defend" : "drive";
   }
@@ -355,6 +365,9 @@ export function pickShot(d, inn, rng) {
     softPush = true;
   }
   if (spinner && type === "drive" && rng.chance(aggression * 0.25)) type = "loft";
+  // The format's style: lofted drives in a hurry, the odd ramp off a quick (sim/styles.js).
+  if (!spinner && type === "drive" && rng.chance(style.loft * aggression)) type = "loft";
+  if (!spinner && type === "drive" && pitchZ > 1.5 && pitchZ < 5 && rng.chance(style.ramp * aggression)) type = "ramp";
   // Sweep the spinner when it's pitched up.
   if (
     spinner &&
@@ -377,7 +390,7 @@ export function pickShot(d, inn, rng) {
   else if (batter.p.weakness === "hook" && type === "cutpull" && height > 1.1) charge = Math.max(charge, rng.range(0.5, 0.8));
   // He's seen this one before: he's lined it up.
   if (familiar >= 3 && charge > 0) charge = Math.min(1, charge + 0.1);
-  charge *= AI_SHOT_POWER;
+  charge = styledCharge(charge, style) * AI_SHOT_POWER;
   const vsType = spinner ? skills.vsSpin : skills.vsPace;
   const timingSd =
     ((0.03 - 0.012 * skills.timing - 0.006 * state.settled) * (1.25 - 0.4 * vsType) * (1 + charge * 0.4) + 0.006) *
@@ -396,6 +409,7 @@ export function pickShot(d, inn, rng) {
     aggression,
     slog,
     rng,
+    charge: style.charge,
   });
   // Going for it against spin, a sweep is slogged.
   const slogSweep = (type === "sweep" || type === "reverseSweep") && aggression > 0.7 && rng.chance(0.4);

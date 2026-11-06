@@ -15,10 +15,11 @@ export const FOLLOW_ON_LEAD = 200;
 export const TEST_WEAR = 0.6;
 /**
  * How the computer bats in a Test (sim/ai.js): with less aggression, and a sharper read and timing than in an
- * untimed limited-overs innings, so a wicket costs about 55 balls rather than 35 (tools/test-report.mjs). A
- * chase needing more than `drawRate` an over is given up: they bat for the draw (`forDraw` aggression).
+ * untimed limited-overs innings, so its first innings goes at about 3.3 an over with a wicket every 45 balls
+ * (TESTMATCH=1 tools/sim-report.mjs; whole Tests: tools/test-report.mjs). It leaves more outside off too
+ * (sim/styles.js). A chase needing more than `drawRate` an over is given up: they bat for the draw.
  */
-export const TEST_BATTING = { caution: 0.3, read: 0.5, timing: 0.5, drawRate: 5.5, forDraw: -0.3 };
+export const TEST_BATTING = { caution: 0.12, read: 0.25, timing: 0.1, drawRate: 5.5, forDraw: -0.3 };
 
 /** The match clock: the day, overs bowled today, today's weather, and how many overs rain has cost. */
 export class TestClock {

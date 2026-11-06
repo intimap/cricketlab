@@ -176,6 +176,8 @@ src/
     footwork-words.js the word by the timing meter for what the feet did (GOOD STRIDE, WRONG FOOT...), and the coach's tip
     strokes.js        the stroke matrix: button, feet and ball make the stroke, its variant (slog, aerial) and its name
     bats.js           each batter's bat (weight, edges, handle) from his ratings or his squad, and what it does
+    styles.js         how the format and the batter change the computer's game: short-game hurry and death bowling,
+                      Test patience, bowlers reading a batter's feet
     shot-timing.js    backlift durations, the player's timing window and power charge (input, animation, reports)
     batting.js        the shot: timing, where the bat goes, edges, LBW, bowled
     shot-choice.js    which shot suits which ball: front or back foot, the back-foot shot
@@ -422,9 +424,11 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   with its images inlined (needs esbuild).
 - **Tests:** `npm test` runs every `tools/*.test.mjs` (node's built-in runner; no packages needed).
 - **Balance checks:** `node tools/sim-report.mjs [innings] [pitch]` simulates AI-vs-AI innings and prints
-  run rates, dismissals, plan figures and commentary moments. `node tools/batting-report.mjs [innings]` bats
+  run rates, dismissals, plan figures and commentary moments. `OVERS=20` (or 50) plays the first innings of a
+  match of that length at its tempo, `TESTMATCH=1` a Test's first innings; `node tools/test-report.mjs` whole
+  Tests. `node tools/batting-report.mjs [innings]` bats
   scripted players (perfect, good or average timing; on the crease, always forward, always back, power on every attack)
-  against the computer's bowling with the player's timing window.
+  against the computer's bowling with the player's timing window; `FORMAT=t20`, `odi` (default) or `test`.
 - **Commentary:** each ball is called in beats: the start of the over and the setup before it, the delivery
   as it reaches the bat, the result joined on as one sentence, then the second voice's reset (timed by
   `scenes/booth-beats.js`, worded in `sim/booth-beats.js`, `booth-venue-lines.js`, `booth-drs-lines.js` and

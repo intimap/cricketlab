@@ -7,6 +7,7 @@ import { isSweep, playsBack, shotSuitability, backFootShot } from "./shot-choice
 import { STRIDES, REACH, STANCE_X, feetOf, contactFor, batRange, padDepth, weightInto, batDescent } from "./feet.js";
 import { driveBearing, shotBearing, intoGap } from "./shot-direction.js";
 import { strokeName, turnedBy } from "./strokes.js";
+import { batBody, swingSpeedOf, windowOf, reachOf } from "./bats.js";
 
 // Shot choice and direction live in their own modules; older callers import them from here.
 export { playsBack, shotSuitability, backFootShot, driveBearing };
@@ -250,7 +251,9 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
   // Out of reach from where he's standing: a block lets it go by, an attacking shot swings and misses.
   const reach = defending ? REACH.defend : REACH.attack;
   const fromBody = line - (STANCE_X + (feet.across ?? 0));
-  if (fromBody > reach.off || fromBody < -reach.leg) return { ...noContact(defending ? "wide" : "beaten"), outOfReach: true };
+  const longer = reachOf(shot.blade);
+  if (fromBody > reach.off + longer || fromBody < -reach.leg - longer)
+    return { ...noContact(defending ? "wide" : "beaten"), outOfReach: true };
 
   // Timing window (seconds); timing is the error expressed in windows.
   const window = defending
@@ -261,7 +264,8 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
       (0.6 + 0.4 * suit) *
       (spinner ? 1.25 : 1) *
       (shot.type === "ramp" || (isSweep(shot.type) && !spinner) ? 0.7 : 1) *
-      (shot.variant === "slog" ? SLOG_WINDOW : 1);
+      (shot.variant === "slog" ? SLOG_WINDOW : 1) *
+      windowOf(shot.blade);
   const timing = shot.timingError / (window * (shot.windowMult ?? 1) * eyeEase);
   if (Math.abs(timing) > 2.4) return { ...noContact(timing < 0 ? "early" : "late"), timing };
 
@@ -284,7 +288,11 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
   const quality = clamp(contactQuality * timingQuality * (0.7 + 0.3 * suit));
   const ballSpeed = Math.abs(at.vz);
   // The bat's speed at the sweet spot (m/s): up to about 27 for a full-blooded swing with his weight in it.
-  const swing = (6.4 + 20.8 * shot.charge * (0.55 + 0.45 * bat.power)) * eye * weightInto(shot.type, feet, meet.made);
+  const swing =
+    (6.4 + 20.8 * shot.charge * (0.55 + 0.45 * bat.power)) *
+    eye *
+    weightInto(shot.type, feet, meet.made) *
+    swingSpeedOf(shot.blade);
   const natural = shotBearing(shot.type, shotLine, height, back, shot.variant);
   // Struck off the face or an edge: the collision decides it. A pad, a glove or the toe are their own.
   const struck = kind !== "padPop" && kind !== "gloved" && (kind !== "bottomEdge" || impact.horizontal);
@@ -314,6 +322,7 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
       tilt,
       speed: batSpeed,
       hardness: ball.hardness ?? 1,
+      bat: batBody(shot.blade),
       soft: defending ? 0.3 + 0.35 * bat.defence : 0,
       impact,
       offset: { x: impact.across * Math.cos(blade), y: -impact.across * Math.sin(blade) },

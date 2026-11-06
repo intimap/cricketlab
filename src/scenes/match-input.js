@@ -2,6 +2,7 @@ import { COLORS } from "../engine/screen.js";
 import { keys } from "../engine/input.js";
 import { clamp } from "../math.js";
 import { SWING_TIME, NORMAL_CHARGE, playsBack } from "../sim/batting.js";
+import { swingTimeOf } from "../sim/bats.js";
 import { BACKLIFT_TIME, POWER_BACKLIFT_TIME, PLAYER_TIMING_WINDOW, POWER_CHARGE } from "../sim/shot-timing.js";
 export { BACKLIFT_TIME, POWER_BACKLIFT_TIME, PLAYER_TIMING_WINDOW, POWER_CHARGE } from "../sim/shot-timing.js";
 import { meterPos, releaseError, METER_FROM } from "../sim/runup.js";
@@ -34,7 +35,9 @@ export function commitSwing(scene, t, type, power, given = null, variant = null)
   cur.backliftAt = t;
   cur.swingAt = t + (power ? POWER_BACKLIFT_TIME : BACKLIFT_TIME);
   const feet = given ?? keyFeet(scene, type, null, t);
-  const timingError = cur.swingAt + SWING_TIME[type] - scene.arrival(type, null, feet);
+  // A heavier bat takes longer to come down (sim/bats.js).
+  const swing = SWING_TIME[type] * swingTimeOf(scene.inn?.bat?.[scene.inn.striker]?.p.blade);
+  const timingError = cur.swingAt + swing - scene.arrival(type, null, feet);
   if (power) scene.flash("POWER!", COLORS.gold);
   cur.shot = {
     type,

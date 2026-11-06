@@ -340,6 +340,13 @@ over 300 innings: 4.65 -> 4.65 an over, 38.1 -> 37.7 balls a wicket. Still to do
 stride from behind is subtle (the stumps hide the feet), and the paddle and switch hit have no clip of their own
 beyond their families.
 
+Merged to main after stream 4 (with 1-3 and 6). Stream 5 done (WIP on `bats`): `sim/bats.js`. Each batter's
+bat comes from his power and height, with squad overrides for three players. A heavier bat gets more mass
+into the collision but a slower, later swing and a narrower window. Big edges keep more mass behind an edge.
+A long handle gives a little reach and speed. The team sheet shows weight, edges and handle. sim-report over
+300 innings: 4.65 -> 4.68 an over, 37.7 -> 36.2 balls a wicket (Australia's tall hitters carry heavier,
+long-handled bats).
+
 ## Later
 
 - Fictional names and art before any pub install.

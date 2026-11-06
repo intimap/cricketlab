@@ -203,6 +203,8 @@ export class Match {
     const field = [0, ...inn.placements.slice(0, 9).map((p) => bearingOf(p.pos.x, p.pos.z))];
     // Every batter's eye, the computer's as well as the player's, helps the shot (see eye.js).
     shot.eyeMult = eyeMultiplier(striker.eye);
+    // And his own bat (sim/bats.js).
+    shot.blade = striker.p.blade;
     const res = resolveDelivery(delivery, shot, striker.p.bat, state, inn.ball, this.spinner, this.rng, field);
     const live = new BallInPlay({
       res,

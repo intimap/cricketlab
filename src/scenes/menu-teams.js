@@ -58,4 +58,8 @@ export function drawTeams(menu) {
     align: "center",
     color: COLORS.dim,
   });
+  drawText("BAT: WEIGHT (KG)   + BIG EDGES   L / S LONG OR SHORT HANDLE", WIDTH / 2, TOP + SHEET.h + 22, {
+    align: "center",
+    color: COLORS.dim,
+  });
 }

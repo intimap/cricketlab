@@ -103,7 +103,8 @@ export function strike({
   const along = clamp(impact.along, 0, BAT_BLADE.handle);
   // An edge twists the bat in the hands: less of it counts, and it gives more.
   const edge = impact.edge ? 1 - impact.thickness : 0;
-  const mass = effectiveMass(bat, along) * (1 - 0.6 * edge) * (1 - 0.7 * soft);
+  // Big edges (sim/bats.js edgeKeep) keep more of the bat behind an edge.
+  const mass = effectiveMass(bat, along) * (1 - (0.8 - 0.4 * (bat.edgeKeep ?? 0.5)) * edge) * (1 - 0.7 * soft);
   // Soft hands give with it: less bounce off the bat.
   const e = restitution(hardness) * impact.energy * (1 - 0.15 * edge) * (1 - 0.5 * soft);
   const result = (faceBearing, edged) => {

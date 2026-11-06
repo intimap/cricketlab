@@ -28,6 +28,8 @@ export function india() {
       role: "keeper",
       keeper: true,
       flair: 0.3,
+      // Heavy for his size, on a short handle.
+      blade: { weight: 1.3, edges: 43, handle: "short" },
     },
     { name: "KL Rahool", look: look(1.8, "olive", "black", "short", "full", 1), nick: "Rahul", role: "middle" },
     {

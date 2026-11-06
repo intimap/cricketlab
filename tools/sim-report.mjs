@@ -3,6 +3,8 @@
 //
 //   node tools/sim-report.mjs            100 innings, mixed pitches, 90 overs
 //   node tools/sim-report.mjs 300 dust   300 innings on one pitch type
+//   OVERS=20 node tools/sim-report.mjs   a T20 innings (the short game's tempo)
+//   TESTMATCH=1 node tools/sim-report.mjs   a Test's first innings (whole Tests: tools/test-report.mjs)
 //
 // Compare before/after a change: same seeds every run, so differences are the change.
 import { Match } from "../src/sim/match.js";
@@ -11,6 +13,9 @@ import { australia, england } from "../src/sim/teams.js";
 import { PITCH_TYPES } from "../src/sim/conditions.js";
 
 const innings = Number(process.argv[2] ?? 100);
+const overs = Number(process.env.OVERS ?? 90);
+// Given a length, it's the first innings of a full match, played at that format's tempo; without, an untimed innings.
+const opts = process.env.TESTMATCH ? { test: true } : process.env.OVERS ? { innings: 2 } : {};
 const pitchArg = process.argv[3];
 const pitchIds = pitchArg ? [pitchArg] : Object.keys(PITCH_TYPES);
 
@@ -19,7 +24,7 @@ const how = {};
 const moments = {};
 const plans = {};
 for (let seed = 1; seed <= innings; seed++) {
-  const m = new Match(australia(), england(), pitchIds[seed % pitchIds.length], 90, new Rng(seed), "bat");
+  const m = new Match(australia(), england(), pitchIds[seed % pitchIds.length], overs, new Rng(seed), "bat", opts);
   while (!m.inn.isOver) {
     const plan = m.inn.overPlan;
     const { rec } = m.simBall();

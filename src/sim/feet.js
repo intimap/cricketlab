@@ -28,8 +28,8 @@ export const STRIDES = Object.freeze({
  * An upright bat (drives, blocks, lofts) and one swung across the body (cuts, pulls) differ; a sweep is
  * played down on one knee.
  */
-const UPRIGHT = { crease: [0.16, 1.1], forward: [0.1, 0.85], back: [0.2, 1.4], down: [0.08, 0.8] };
-const ACROSS = { crease: [0.4, 1.45], forward: [0.35, 1.25], back: [0.45, 1.65], down: [0.3, 1.1] };
+const UPRIGHT = { crease: [0.16, 0.95], forward: [0.1, 0.68], back: [0.24, 1.4], down: [0.08, 0.8] };
+const ACROSS = { crease: [0.4, 1.45], forward: [0.35, 1.0], back: [0.45, 1.65], down: [0.3, 1.1] };
 const KNEELING = [0.04, 0.8];
 const RAMP = [0.35, 1.5];
 
@@ -139,7 +139,7 @@ export function batRange(feet, made, type, horizontal) {
 export const padDepth = (z) => Math.max(0.7, z - 0.4);
 
 /** Odds a computer batter with heavy feet (footwork 0) stays on the crease instead of committing. */
-const CREASE_ODDS = 0.15;
+const CREASE_ODDS = 0.08;
 /** Odds an aggressive, nimble computer batter (both 1) charges a pitched-up spinner. */
 const CHARGE_ODDS = 0.35;
 
@@ -149,7 +149,7 @@ const CHARGE_ODDS = 0.35;
  * now and then, or swinging for it. He gets them going a moment after release, sooner with quick feet and a
  * settled eye, later against spin (there's longer to wait).
  */
-export function computerFeet({ type, pitchZ, line, spinner, footwork, settled, aggression, slog, rng }) {
+export function computerFeet({ type, pitchZ, line, spinner, footwork, settled, aggression, slog, rng, charge = 0 }) {
   let stride;
   if (type === "cutpull" || type === "ramp") stride = "back";
   else if (type === "sweep" || type === "reverseSweep") stride = "forward";
@@ -157,11 +157,12 @@ export function computerFeet({ type, pitchZ, line, spinner, footwork, settled, a
   else if (type === "leave") stride = pitchZ > 7 ? "back" : "forward";
   else stride = pitchZ > 7.5 ? "back" : "forward";
   if ((type === "drive" || type === "loft") && pitchZ > 2.5 && pitchZ < 6.5) {
-    const odds = spinner ? CHARGE_ODDS * aggression * footwork : slog ? 0.25 : 0;
+    // `charge`: the format's extra hurry to get at it (sim/styles.js).
+    const odds = (spinner ? CHARGE_ODDS * aggression * footwork : slog ? 0.25 : 0) + charge * aggression * footwork;
     if (odds > 0 && rng.chance(odds)) stride = "down";
   }
   if (type !== "leave" && stride !== "down" && rng.chance(CREASE_ODDS * (1 - footwork))) stride = "crease";
-  const from = (0.12 + 0.12 * (1 - footwork) + 0.04 * (1 - settled)) * (spinner ? 1.5 : 1) + rng.normal(0, 0.03);
+  const from = (0.1 + 0.1 * (1 - footwork) + 0.04 * (1 - settled)) * (spinner ? 1.5 : 1) + rng.normal(0, 0.03);
   // He shuffles part of the way across to the line he's read.
   const across = type === "leave" ? 0 : clamp((line - STANCE_X) * AI_FOOTWORK, FOOTWORK_MIN, FOOTWORK_MAX);
   return { stride, across, from: Math.max(0, from) };

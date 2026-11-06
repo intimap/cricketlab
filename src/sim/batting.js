@@ -32,6 +32,12 @@ export const SWING_TIME = {
 
 /** The most timing error (s) that turns the face: beyond it the shot is barely made anyway. */
 const TURN_ERROR = 0.12;
+/** Reaching up, the swing is cramped too: bat speed lost per metre above his stance's highest. */
+const CRAMPED = 1.2;
+/** Degrees the face opens per metre he reaches up above his stance's highest. */
+const REACH_UP_TILT = 40;
+/** How much a full-power swing narrows the timing window (s per unit of charge). */
+const POWER_WINDOW = 0.068;
 /** A slogged sweep or switch hit is harder to time (its window, times). */
 const SLOG_WINDOW = 0.85;
 /** How much timing error (s) moves where the ball is when the bat gets there. */
@@ -51,9 +57,15 @@ export const MAX_PLACEMENT = 22;
 
 /** Extra bat error (times) from a stride he hadn't finished: off balance. */
 const OFF_BALANCE = 0.8;
+/**
+ * Reaching for it: played further than EASY_REACH (m) from his body, the bat wavers more (up to REACH_STRAIN
+ * times more, 0.3 m further on). Moving his feet to the line is what keeps it under his eyes.
+ */
+const REACH_STRAIN = 0.8;
+const EASY_REACH = 0.18;
 
 /** Shot power (0..1) of a normal, non-power player shot. */
-export const NORMAL_CHARGE = 0.35;
+export const NORMAL_CHARGE = 0.23;
 
 const noContact = (missReason) => ({ kind: "none", quality: 0, missReason, shotName: "", at: null, exit: null });
 
@@ -222,7 +234,8 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
     (1.25 - bat.technique) *
     (1 + (1 - state.settled) * 0.6) *
     (shot.difficulty ?? 1) *
-    (1 + OFF_BALANCE * (1 - meet.made));
+    (1 + OFF_BALANCE * (1 - meet.made)) *
+    (1 + REACH_STRAIN * clamp((Math.abs(at.x - (STANCE_X + (feet.across ?? 0))) - EASY_REACH) / 0.3));
   // Hooking a ball up around the head is a gamble: hard to get on top of.
   const hooking = shot.type === "cutpull" && at.x <= 0.2 && at.y > 1.35;
   const height = at.y;
@@ -235,7 +248,10 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
   const crossBat = Math.abs(Math.sin(bladeAngle(shot.type, back))) > 0.9;
   // From how he stands the bat only gets so high and so low: past that it meets the ball off the middle.
   const [low, high] = batRange(feet, meet.made, shot.type, crossBat);
-  const batY = clamp(aimY + rng.normal(0, jitter * 1.5) + (hooking ? rng.normal(0, HOOK_ERROR) : 0), low, high);
+  const wanted = aimY + rng.normal(0, jitter * 1.5) + (hooking ? rng.normal(0, HOOK_ERROR) : 0);
+  const batY = clamp(wanted, low, high);
+  // Reaching up above where his stance lets the bat go, the face opens: it goes up in the air.
+  const reachedUp = Math.max(0, wanted - high);
   // Early or late, the bat meets the ball where it has got to by then. A straight bat swung through the line
   // follows most of the ball's climb and angle (the better his technique, the more); a cross bat can't
   // follow the climb, so a mistimed pull or cut finds an edge.
@@ -258,7 +274,7 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
   // Timing window (seconds); timing is the error expressed in windows.
   const window = defending
     ? 0.2 * (0.8 + 0.4 * bat.defence)
-    : (0.088 - 0.062 * shot.charge) *
+    : (0.088 - POWER_WINDOW * shot.charge) *
       (0.75 + 0.5 * bat.timing) *
       (0.82 + 0.25 * state.settled) *
       (0.6 + 0.4 * suit) *
@@ -304,7 +320,7 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
     // A block is pushed gently at the ball, softer for a good defender.
     const batSpeed = defending
       ? BLOCK_PUSH * (1.2 - 0.5 * bat.defence)
-      : swing * (0.5 + 0.5 * quality) * (mistimed ? 0.8 : 1) * (hooking ? 0.75 : 1);
+      : swing * (0.5 + 0.5 * quality) * (mistimed ? 0.8 : 1) * (hooking ? 0.75 : 1) * Math.max(0.4, 1 - CRAMPED * reachedUp);
     // Timing turns the face (late goes finer, early squarer) and a scratchy hit strays; a good batter's
     // wrists still work it towards a gap. A block goes where it's pushed.
     const finer = natural < -45 ? -1 : 1;
@@ -313,7 +329,8 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
     const aim = defending ? meant : intoGap(meant, field, MAX_PLACEMENT * quality * (0.4 + 0.6 * bat.technique));
     const tilt =
       faceTilt(shot.type, back, height, shot.charge, Math.max(0, -timing), shot.variant) +
-      rng.normal(0, 0.9 + 1.5 * (1 - quality));
+      rng.normal(0, 0.9 + 1.5 * (1 - quality)) +
+      REACH_UP_TILT * reachedUp;
     // The edge the ball meets, across the blade.
     const blade = bladeAngle(shot.type, back);
     const hit = strike({

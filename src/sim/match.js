@@ -1,4 +1,5 @@
 import { bowlerFieldingHome, armOf } from "./bowling-side.js";
+import { noteFeet } from "./styles.js";
 import { facingOf, mirrorDelivery, toStriker } from "./handedness.js";
 import { scout } from "./scouting.js";
 import { PITCH_TYPES, Pitch } from "./conditions.js";
@@ -284,6 +285,8 @@ export class Match {
     const inn = this.inn;
     const out = play.live.outcome();
     const { delivery, res, shot } = play;
+    // The bowlers see where his feet go (sim/styles.js).
+    noteFeet(inn.bat[inn.striker], shot, delivery.pitchedAt?.z ?? 0);
     const noBall = delivery.noBall;
     const wide = res.wide && !noBall;
     let runsBat = 0;

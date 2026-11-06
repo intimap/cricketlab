@@ -30,7 +30,7 @@
       import { staleLayers } from "../../src/render/venue/venue-paint-over.js";
 
       const params = new URLSearchParams(location.search);
-      const ground = GROUNDS[params.get("ground") ?? "parklandsNew"];
+      const ground = GROUNDS[params.get("ground") ?? "parklands"];
       const lights = (params.get("lights") ?? "midday,afternoon,evening,night").split(",");
       const weather = params.get("weather") ?? "sunny";
       const ball = params.get("ball") ?? "white";

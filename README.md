@@ -352,7 +352,7 @@ src/
 netlify/
   functions/scores.mjs  the shared high-score service on Netlify (/api/scores)
   score-table.mjs       its tables: checks scores, keeps each table's best 200, safe against saves at once
-tools/                frame sheets (bowler-sheet.mjs, ground-sheet.mjs for every view of a map-built ground, with tools/sheets/; ground-templates.mjs for painting over one), balance reports (sim-report.mjs; bowling-report.mjs for the player's bowling, batting-report.mjs for his batting, test-report.mjs for Tests, weather-report.mjs per weather), one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
+tools/                frame sheets (bowler-sheet.mjs, ground-sheet.mjs for every view of a map-built ground, with tools/sheets/; ground-templates.mjs and fit-painted.mjs for painting over one), balance reports (sim-report.mjs; bowling-report.mjs for the player's bowling, batting-report.mjs for his batting, test-report.mjs for Tests, weather-report.mjs per weather), one-file build, art generators (tools/art/), tests (*.test.mjs), batter-snaps.mjs (animation jolts)
 ```
 
 The rule of thumb: `sim/` knows nothing about the screen, `engine/` knows nothing about cricket, and
@@ -552,8 +552,11 @@ the bowling each over. To make another ground this way:
    drawn a few milliseconds a frame (`venue-build.js` `work`).
 5. **Paint over it** (optional): `node tools/ground-templates.mjs <dir> <ground>` exports every view, end and
    layer as the code draws it, with a guide showing what's off screen, the rope, fence, horizon and panels.
-   Its `PAINTING.txt` says how to put a painted layer in. Painted layers are relit with the rest; one
-   painted before the map changed is left out until it's repainted. Keep them under 500 KB a ground.
+   Paint over one (or generate one from it), then `node tools/fit-painted.mjs <image> <view>-<end>-<layer>
+   --install` fits it: scaled to the layer, cut to its shape, holes filled from the drawn layer, colours
+   snapped to a palette, with a before-and-after preview (leave off `--install` to look first; `--remove`
+   takes it out again). Painted layers are relit with the rest; one painted before the map changed is left
+   out until it's repainted. Keep them under 500 KB a ground.
 
 ### MCG wide-view prototype
 

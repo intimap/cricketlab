@@ -8,7 +8,7 @@ import { createRequire } from "node:module";
 const { chromium } = createRequire(import.meta.url)("playwright");
 
 const out = process.argv[2];
-const ground = process.argv[3] ?? "parklandsNew";
+const ground = process.argv[3] ?? "parklands";
 if (!out) throw new Error("usage: node tools/ground-templates.mjs <out dir> [ground]");
 const browser = await chromium.launch();
 const page = await browser.newPage();
@@ -38,12 +38,13 @@ The guides show what's off screen, the horizon, the rope (yellow) and fence (whi
 cover the picture (red). Paint in midday light; the game relights it for the afternoon, evening and night.
 Keep to the layer's shapes: the game keeps its own depth and lighting for each pixel.
 
-To put a painted layer in:
-  1. Save it as assets/venues/${id}/<view>-<end>-<layer>.png (the same size).
-  2. List it in src/assets.js:  "venues/${id}/<key>": new URL("../assets/venues/${id}/<key>.png", import.meta.url),
-  3. Add it to the map's painted list (src/render/venue/${id}-map.js):
-       painted: { "<key>": { asset: "venues/${id}/<key>", fingerprint: "<the view's fingerprint below>" } }
-  4. npm test checks it fits the map and that the painted layers stay under 500 KB.
+To put a painted layer in (it can be any size, painted over the template or generated from it):
+  node tools/fit-painted.mjs <your image> <view>-<end>-<layer> --ground ${t.ground} --install
+It scales it to the layer, cuts it to the layer's shape, fills any holes from the drawn layer, snaps the
+colours to a palette (--colours n, --ground-palette, --no-palette), writes a before-and-after preview, and
+puts it in (assets/venues/, src/assets.js and the map's painted list, with the fingerprint below). Leave
+off --install to look at the preview first; --remove <layer> takes one out again. npm test checks it fits
+the map and that the painted layers stay under 500 KB.
 If the map changes, the fingerprints change: a layer painted before then is left out until repainted.
 
 Fingerprints: ${Object.entries(t.views)

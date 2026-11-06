@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Fit a painted layer</title>
+  </head>
+  <body>
+    <script type="module">
+      // The fit tool's browser half (tools/fit-painted.mjs): the layer as the code draws it, the image scaled
+      // onto it, fitted to its shape (tools/fit-core.mjs), and a before-and-after preview of the view.
+      import { GROUNDS } from "../../src/render/grounds.js";
+      import { venuePicture, clearVenueCache } from "../../src/render/venue/venue-build.js";
+      import { PAINTABLE, VIEWS, viewFingerprint } from "../../src/render/venue/venue-paint-over.js";
+      import { LAYER } from "../../src/render/venue/venue-raster.js";
+      import { fitLayer, paletteOf } from "../fit-core.mjs";
+
+      const pitch = { type: { id: "green" }, wear: 0, roughPatches: [] };
+      const load = (url) =>
+        new Promise((done, fail) => {
+          const img = new Image();
+          img.onload = () => done(img);
+          img.onerror = () => fail(new Error("couldn't read the image"));
+          img.src = url;
+        });
+      const png = (w, h, data) => {
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext("2d").putImageData(new ImageData(data, w, h), 0, 0);
+        return canvas.toDataURL("image/png");
+      };
+
+      window.fitFor = async (url, key, opts) => {
+        const ground = GROUNDS[opts.ground];
+        if (!ground?.venue) throw new Error(`${opts.ground} isn't a ground built from a map`);
+        const map = ground.venue;
+        const [view, e, layer] = key.split("-");
+        const end = Number(e);
+        if (!VIEWS.includes(view) || !PAINTABLE.includes(layer) || (end !== 0 && end !== 1))
+          throw new Error(`${key}: a layer is <view>-<end>-<layer>: ${VIEWS.join("|")}, 0|1, ${PAINTABLE.join("|")}`);
+        clearVenueCache();
+        const pic = venuePicture(map, ground, pitch, view, end);
+        const { w, h } = pic;
+        const img = await load(url);
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        const g = canvas.getContext("2d");
+        // Painted over the template it's already the size: copied as it is; anything else is scaled smoothly.
+        const exact = img.width === w && img.height === h;
+        g.imageSmoothingEnabled = !exact;
+        g.imageSmoothingQuality = "high";
+        g.drawImage(img, 0, 0, w, h);
+        const image = g.getImageData(0, 0, w, h).data;
+        const index = LAYER[layer];
+        const where = (i) => (pic.rgba[i * 4 + 3] > 0 ? pic.layer[i] === index : opts.loose);
+        const palette =
+          opts.palette === "none"
+            ? null
+            : opts.palette === "ground"
+              ? paletteOf(pic.rgba, 48)
+              : paletteOf(image, opts.colours, where);
+        const fit = fitLayer({ w, h, image, drawn: pic.rgba, layer: pic.layer, index, loose: opts.loose, palette });
+        // The preview: the view as drawn on the left, with the fitted layer in on the right (sky shown blue).
+        const both = new Uint8ClampedArray(w * 2 * h * 4);
+        for (let y = 0; y < h; y++)
+          for (let x = 0; x < w; x++) {
+            const i = (y * w + x) * 4;
+            const sky = pic.rgba[i + 3] === 0;
+            const base = sky ? [120, 170, 225] : [pic.rgba[i], pic.rgba[i + 1], pic.rgba[i + 2]];
+            const over = fit.rgba[i + 3] ? [fit.rgba[i], fit.rgba[i + 1], fit.rgba[i + 2]] : base;
+            for (const [col, c] of [
+              [x, base],
+              [x + w, over],
+            ]) {
+              const o = (y * w * 2 + col) * 4;
+              both.set([c[0], c[1], c[2], 255], o);
+            }
+          }
+        return {
+          png: png(w, h, fit.rgba),
+          preview: png(w * 2, h, both),
+          stats: fit.stats,
+          size: [w, h],
+          source: [img.width, img.height],
+          fingerprint: viewFingerprint(map, view),
+        };
+      };
+      document.title = "ready";
+    </script>
+  </body>
+</html>

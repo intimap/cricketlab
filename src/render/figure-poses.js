@@ -35,10 +35,24 @@ export function figurePose(pose, phase) {
     bob = 3;
   } else if (pose === "celebrate") {
     bob = -1;
+  } else if (pose === "dive") {
+    // Flat out for the crease: low, legs trailing, the bat stretched out ahead along the turf.
+    feet = [
+      { x: -6, y: -2 },
+      { x: 5, y: -4 },
+    ];
+    lean = 5;
+    bob = 18;
   }
   const top = -42 + bob;
   let hands;
   switch (pose) {
+    case "dive":
+      hands = [
+        { x: -4, y: top + 20 },
+        { x: 6, y: top + 21 },
+      ];
+      break;
     case "run": {
       const swing = Math.sin(phase * Math.PI * 2);
       hands = [

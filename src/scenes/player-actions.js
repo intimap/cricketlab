@@ -13,7 +13,8 @@ import { takeAdvice } from "./bowling-advice.js";
  * Held controls (the batter's feet, aftertouch, the aiming crosshair) are read where they're used, and what
  * they set travels in the action that commits them (a shot's `feet`: sim/feet.js).
  *
- *   swing { t, shot, power, feet, variant }   defend { t, foot, feet }   leave { feet }   run { end }
+ *   swing { t, shot, power, feet, variant }   defend { t, foot, feet }   leave { feet }
+ *   run { end } (the way he's already going: keep running)   dive {}
  *   bowl { plan }                beat { index, error }    release { error, rhythm }        appeal {}         review { side }   accept {}
  *   chooseBowler { bowler }      delivery { delivery }    effort { effort } field { preset }
  *   newBall {}                   wicketSide { side }      placeFielder { idx, pos }
@@ -33,6 +34,9 @@ export function act(scene, action) {
       return scene.commitLeave(action.feet);
     case "run":
       return scene.runCommand(scene.cur.play.live, action.end);
+    case "dive":
+      if (scene.cur.play.live.dive()) scene.flash("DIVE!", COLORS.gold);
+      return;
     case "bowl":
       scene.cur = scene.newBall(action.plan, 0);
       return scene.setPhase("runup");

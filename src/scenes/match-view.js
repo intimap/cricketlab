@@ -150,10 +150,13 @@ function drawClose(scene) {
       const x = i === 0 ? STRIKER_X + (nonStrikerX - STRIKER_X) * clamp(r.progress / 0.15) : nonStrikerX;
       const kit = playerKit(scene.kitBat, inn.bat[r.bat].p);
       const moving = r.target !== null && live.t >= r.startAt;
+      // Diving for his crease, and down on the turf for a moment after it.
+      const down = r.diving || live.t < (r.downUntil ?? 0);
+      const pose = down ? "dive" : moving ? "run" : "stand";
       sprites.push({
         z,
         cast: { x, z, height: kit.height },
-        draw: () => figure(x, z, kit.height, { kit, pose: moving ? "run" : "stand", phase: scene.now * 3.5 + i, bat: true }),
+        draw: () => figure(x, z, kit.height, { kit, pose, phase: scene.now * 3.5 + i, bat: true }),
       });
     }
   } else {

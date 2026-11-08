@@ -1,4 +1,5 @@
 import { updateStrikePresentation } from "./strike-presentation.js";
+import { canDive } from "../sim/running.js";
 import { act } from "./player-actions.js";
 import { playContact, playBroadcast } from "./match-audio.js";
 import { COLORS } from "../engine/screen.js";
@@ -79,6 +80,8 @@ export function updateFlight(scene, dt) {
     if (scene.human === "bat" && scene.phase === "flight") {
       if (keys.pressed("ArrowUp")) act(scene, { type: "run", end: 1 });
       if (keys.pressed("ArrowDown")) act(scene, { type: "run", end: 0 });
+      // Close to his crease: dive for it (sim/running.js).
+      if (keys.pressed("Space") && live.runners.some((r) => canDive(live, r))) act(scene, { type: "dive" });
     }
     // Fielding: a press timed to a catch, and calling the throw (both optional; sim/fielding-calls.js).
     if (scene.human === "bowl" && scene.phase === "flight" && !live.dead) {
@@ -112,7 +115,10 @@ export function runCommand(scene, live, end) {
   const r = live.runners[0];
   if (r.target === null) {
     if (r.from !== end && live.requestRun()) scene.flash("YES! RUN!", COLORS.gold);
-  } else if (r.target !== end && live.recall()) {
+  } else if (r.target === end) {
+    // Already going that way: keep running, another straight after this one.
+    if (live.queueRun()) scene.flash(live.queuedRuns > 1 ? `AND ${live.queuedRuns} MORE!` : "AND ANOTHER!", COLORS.gold);
+  } else if (live.recall()) {
     scene.flash("NO! GET BACK!", COLORS.gold);
   }
 }

@@ -83,10 +83,11 @@ export function drawWide(scene) {
         pos = { x: scene.walkOff.x + (-30 - scene.walkOff.x) * k, z: scene.walkOff.z + (75 - scene.walkOff.z) * k };
       }
       const moving = r.target !== null || (out && scene.walkOff !== null);
+      const down = !out && (r.diving || live.t < (r.downUntil ?? 0));
       const phase = out && scene.walkOff ? scene.now * 1.4 : scene.now * 3.5;
       const kit = playerKit(scene.kitBat, inn.bat[r.bat]?.p);
       add(pos.x, 0, pos.z, (x, y, s) =>
-        wideFigure(x, y, s, moving ? "run" : "batter", scene.kitBat.cap, phase + r.bat, batting, kit),
+        wideFigure(x, y, s, down ? "dive" : moving ? "run" : "batter", scene.kitBat.cap, phase + r.bat, batting, kit),
       );
     }
     const ball = live.ball;

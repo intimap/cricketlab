@@ -69,7 +69,9 @@ export function drawPanels(scene) {
     const dir = scene.runDirection(live);
     if (dir !== null && !live.wicket && !live.boundary) {
       const running = live.runners[0].target !== null;
-      const text = running ? (dir === 1 ? "UP: GET BACK" : "DOWN: GET BACK") : dir === 1 ? "UP: RUN" : "DOWN: RUN";
+      // `dir` is the key that acts now: run, or (running) send them back; the other way asks for another.
+      const [back, on] = dir === 1 ? ["UP", "DOWN"] : ["DOWN", "UP"];
+      const text = running ? `${back}: GET BACK   ${on}: ANOTHER` : `${back}: RUN`;
       drawText(text, WIDTH / 2, 6, { ...PANEL_TEXT, color: running ? COLORS.cream : COLORS.gold, scale: 2 });
     }
   }

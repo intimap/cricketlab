@@ -146,6 +146,16 @@ export class BallInPlay {
     return running.requestRun(this);
   }
 
+  /** Keep running: another run straight after this one (sim/running.js). */
+  queueRun() {
+    return running.queueRun(this);
+  }
+
+  /** Dive for the crease, any batter in range (sim/running.js). */
+  dive() {
+    return running.dive(this);
+  }
+
   recall() {
     return running.recall(this);
   }

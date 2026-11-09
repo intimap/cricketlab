@@ -25,8 +25,7 @@ export function updateFlight(scene, dt) {
   if (!cur.delivery) return;
   updateStrikePresentation(scene);
   const slowmo = scene.human === "bat" && !cur.contactDone ? PLAYER_SLOWMO : 1;
-  // The release cue: the ball holds in the hand a moment (scenes/match-ball.js).
-  if (scene.now >= (cur.holdUntil ?? 0)) cur.t += dt * scene.timeScale * slowmo * timeFactor(scene.juice, scene.now);
+  cur.t += dt * scene.timeScale * slowmo * timeFactor(scene.juice, scene.now);
   scene.updateBatInput();
   const d = cur.delivery;
   if (!cur.bounceDone && d.bounceIndex >= 0 && cur.t >= d.samples[d.bounceIndex].t) {

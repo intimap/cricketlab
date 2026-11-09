@@ -10,6 +10,7 @@ import { rhythmOf } from "../sim/rhythm.js";
 import { assistOf } from "./assists.js";
 import { LEAVE_LIFT } from "./batter-pose.js";
 import { act } from "./player-actions.js";
+import { lengthCue, LENGTH_CUE } from "./match-ball.js";
 
 /**
  * The player's controls in the match scene: committing the batter's shot, defence or leave (the controls
@@ -165,7 +166,10 @@ export function updateRunup(scene, dt) {
       // Held on too long: dragged full, by the match's dice.
       act(scene, { type: "release", error: scene.match.rng.range(0.17, 0.2), rhythm: runupRhythm(cur, assistOf(scene)) });
     }
-  } else if (cur.tRun >= cur.runupDur + clamp(cur.aiReleaseError, -0.08, 0.08)) {
-    scene.release(cur.aiReleaseError);
+  } else {
+    const releaseAt = cur.runupDur + clamp(cur.aiReleaseError, -0.08, 0.08);
+    // Batting: the length cue, a moment before he lets go (scenes/match-ball.js).
+    if (cur.tRun >= releaseAt - LENGTH_CUE) lengthCue(scene);
+    if (cur.tRun >= releaseAt) scene.release(cur.aiReleaseError);
   }
 }

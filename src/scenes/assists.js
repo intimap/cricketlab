@@ -12,8 +12,8 @@ import { load, save } from "../engine/storage.js";
  *   feet                   batting: "auto" (his feet go to the length; you choose the shot and time it), or "own"
  *   window                 batting: the timing window, times the player's usual one
  *   landing                batting: the landing mark shows from release (otherwise only as it pitches)
- *   cue                    batting: at release the ball holds a moment with a beep and the ring flashing its
- *                          length, to set up for it (scenes/match-ball.js); HARD has no ring, so no cue
+ *   cue                    batting: half a second before release, the zone the ball will pitch in flashes on
+ *                          the pitch in its ring colour, with a beep (scenes/match-ball.js); not on HARD
  */
 export const ASSISTS = ["easy", "normal", "hard"];
 export const ASSIST_NAMES = { easy: "EASY", normal: "NORMAL", hard: "HARD" };

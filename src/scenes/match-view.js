@@ -1,4 +1,5 @@
 import { activeWicketSide } from "./bowling-side.js";
+import { drawLengthZone } from "../render/length-zone.js";
 import { bowlingGeometry, armOf } from "../sim/bowling-side.js";
 import { drawMatchBroadcast } from "../render/match-broadcast.js";
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect, drawLine } from "../engine/screen.js";
@@ -220,10 +221,7 @@ function drawClose(scene) {
           drawBall(p.x, p.y, radius, inn.ball.shine, scene.ballKind);
           // The ring: length and movement, as read or as it is (scenes/ball-ring.js).
           const ring = cur?.ring;
-          // Held at release (the batting cue), it flashes, a touch bigger, whatever it shows later.
-          if (ring && scene.now < (cur.holdUntil ?? 0)) {
-            drawBallRing(p.x, p.y, radius + 3, ring, Math.floor(scene.now * 10) % 2 ? 0.45 : 1);
-          } else if (ring && cur.t >= ring.showAt && cur.t < ring.hideAt + 0.15) {
+          if (ring && cur.t >= ring.showAt && cur.t < ring.hideAt + 0.15) {
             drawBallRing(p.x, p.y, radius, ring, cur.t > ring.hideAt ? 1 - (cur.t - ring.hideAt) / 0.15 : 1);
           }
         }
@@ -241,6 +239,10 @@ function drawClose(scene) {
     });
   }
 
+  // The length cue: the zone the ball's about to pitch in, flashing in its ring colour (scenes/match-ball.js).
+  const cue = cur?.lengthCue;
+  if (cue && scene.now < cue.until)
+    drawLengthZone(projectClose, cue.colour, scene.spinner, Math.floor((scene.now - cue.from) * 8) % 2 ? 0.3 : 0.55);
   // The pitch map's landing marker, on the ground under everyone.
   const landing = landingMarker(scene);
   if (landing) drawPitchReticle(landing.p, landing.k, landing.flash, landing.scale);

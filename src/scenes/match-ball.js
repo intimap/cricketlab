@@ -24,8 +24,22 @@ import { readWord } from "../sim/plans.js";
 import { rainDue, openRain, stopForRain } from "./match-rain.js";
 import { updateLight } from "./match-light.js";
 
-/** How long (real s) the ball holds at release for the batting cue. */
-export const RELEASE_HOLD = 0.5;
+/** How long (real s) before the computer lets go the length cue flashes, batting (assists.js cue). */
+export const LENGTH_CUE = 0.5;
+
+/**
+ * The length cue, batting on EASY and NORMAL: LENGTH_CUE before the computer lets go, the ball's worked out
+ * (the same delivery it then bowls) and the zone it will pitch in flashes on the pitch in its ring colour,
+ * with a beep (render/length-zone.js). Called each frame of the computer's run-up; does it once.
+ */
+export function lengthCue(scene) {
+  const cur = scene.cur;
+  if (cur.preDelivery || scene.human !== "bat" || !assistOf(scene).cue) return;
+  cur.preDelivery = scene.match.deliver(cur.intent, cur.aiReleaseError);
+  const ring = ballRing(scene, cur.preDelivery);
+  cur.lengthCue = { colour: ring?.length ?? "gold", from: scene.now, until: scene.now + LENGTH_CUE + 0.15 };
+  sfx.beep();
+}
 
 /**
  * A ball's life in the match scene, around the delivery itself: setting up the next ball, the
@@ -146,14 +160,10 @@ export function release(scene, releaseError, rhythm) {
     if (rhythm >= 0.85) scene.banner("ON THE BEAT!", COLORS.gold, 1, 2, 60);
     else if (rhythm < 0.35) scene.banner("OFF THE BEAT", COLORS.red, 1, 2, 60);
   }
-  cur.delivery = scene.match.deliver(cur.intent, releaseError);
+  // Worked out already for the length cue, or now.
+  cur.delivery = cur.preDelivery ?? scene.match.deliver(cur.intent, releaseError);
   cur.t = 0;
   cur.ring = ballRing(scene, cur.delivery);
-  // Batting, the ball holds a moment at release with a beep and the ring flashing its length (assists.js cue).
-  if (scene.human === "bat" && cur.ring && assistOf(scene).cue) {
-    cur.holdUntil = scene.now + RELEASE_HOLD;
-    sfx.beep();
-  }
   const atBat = crossingAtZ(cur.delivery.samples, CONTACT_Z_FRONT);
   cur.lineAtBat = atBat ? atBat.x : 0;
   if (scene.human === "bowl") {

@@ -28,3 +28,10 @@ test("a score keeps the assist it was played at, and nothing else gets through",
   assert.equal(validEntry({ ...base, assist: "easy" }).assist, "easy");
   assert.equal(validEntry({ ...base, assist: "cheat" }).assist, null);
 });
+
+test("batting on EASY and NORMAL, the ball holds at release with a cue; HARD has no ring and no cue", () => {
+  assert.equal(ASSIST.easy.cue, true);
+  assert.equal(ASSIST.normal.cue, true);
+  assert.equal(ASSIST.hard.cue, false);
+  assert.equal(ASSIST.hard.ring, "none");
+});

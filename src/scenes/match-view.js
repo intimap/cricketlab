@@ -220,7 +220,10 @@ function drawClose(scene) {
           drawBall(p.x, p.y, radius, inn.ball.shine, scene.ballKind);
           // The ring: length and movement, as read or as it is (scenes/ball-ring.js).
           const ring = cur?.ring;
-          if (ring && cur.t >= ring.showAt && cur.t < ring.hideAt + 0.15) {
+          // Held at release (the batting cue), it flashes, a touch bigger, whatever it shows later.
+          if (ring && scene.now < (cur.holdUntil ?? 0)) {
+            drawBallRing(p.x, p.y, radius + 3, ring, Math.floor(scene.now * 10) % 2 ? 0.45 : 1);
+          } else if (ring && cur.t >= ring.showAt && cur.t < ring.hideAt + 0.15) {
             drawBallRing(p.x, p.y, radius, ring, cur.t > ring.hideAt ? 1 - (cur.t - ring.hideAt) / 0.15 : 1);
           }
         }

@@ -24,6 +24,9 @@ import { readWord } from "../sim/plans.js";
 import { rainDue, openRain, stopForRain } from "./match-rain.js";
 import { updateLight } from "./match-light.js";
 
+/** How long (real s) the ball holds at release for the batting cue. */
+export const RELEASE_HOLD = 0.5;
+
 /**
  * A ball's life in the match scene, around the delivery itself: setting up the next ball, the
  * release, the ball going dead and being completed (the scorebook, the commentary box, the coach),
@@ -146,6 +149,11 @@ export function release(scene, releaseError, rhythm) {
   cur.delivery = scene.match.deliver(cur.intent, releaseError);
   cur.t = 0;
   cur.ring = ballRing(scene, cur.delivery);
+  // Batting, the ball holds a moment at release with a beep and the ring flashing its length (assists.js cue).
+  if (scene.human === "bat" && cur.ring && assistOf(scene).cue) {
+    cur.holdUntil = scene.now + RELEASE_HOLD;
+    sfx.beep();
+  }
   const atBat = crossingAtZ(cur.delivery.samples, CONTACT_Z_FRONT);
   cur.lineAtBat = atBat ? atBat.x : 0;
   if (scene.human === "bowl") {

@@ -168,6 +168,10 @@ export const sfx = {
   click() {
     tone(900, 0.03, 0.15, "square");
   },
+  /** The release cue: a short, clear beep. */
+  beep() {
+    tone(1180, 0.12, 0.22, "sine", 0, 0);
+  },
   /** Crowd roar, `level` 0..1. */
   cheer(level) {
     if (!ac || muted || ac.state === "suspended") return;

@@ -19,7 +19,7 @@ for (const { file, group } of allGroups()) {
   const row = rows.get(key) ?? { key, file, kind: group.kind, counts: {} };
   for (const voice of VOICES) {
     for (const format of FORMATS) {
-      const lines = [...(group.lines[voice] ?? []), ...(group.lines.any ?? [])];
+      const lines = [...(group.lines?.[voice] ?? []), ...(group.lines?.any ?? [])];
       const n = lines.filter((line) => suits(line, group, format)).length;
       row.counts[`${voice}.${format}`] = (row.counts[`${voice}.${format}`] ?? 0) + n;
     }
@@ -34,7 +34,7 @@ console.log(`${pad("SITUATION", 34)}${pad("KIND", 9)}${pad("FILE", 9)}${VOICES.m
 console.log(`${pad("", 52)}${VOICES.map(() => FORMATS.map((f) => num(f.toUpperCase())).join("") + "   ").join("")}`);
 let thin = 0;
 for (const row of rows.values()) {
-  const isThin = row.kind !== "call" && least(row) < THIN;
+  const isThin = row.kind !== "call" && row.kind !== "banter" && least(row) < THIN;
   if (isThin) thin++;
   if ((onlyThin && !isThin) || (onlyKind && row.kind !== onlyKind)) continue;
   const cells = VOICES.map((v) => FORMATS.map((f) => num(row.counts[`${v}.${f}`])).join("") + "   ").join("");
@@ -44,12 +44,15 @@ for (const row of rows.values()) {
 // Totals: lines written (an "any" line once), by kind.
 const byKind = Object.fromEntries(KINDS.map((k) => [k, 0]));
 let written = 0;
+let exchanges = 0;
 for (const { group } of allGroups()) {
-  const n = Object.values(group.lines).flat().length;
+  const n = Object.values(group.lines ?? {}).flat().length;
+  exchanges += group.exchanges?.length ?? 0;
   byKind[group.kind] += n;
   written += n;
 }
 console.log(`\n${written} lines in src/sim/lines/ (${KINDS.map((k) => `${k} ${byKind[k]}`).join(", ")}),`);
+console.log(`${exchanges} exchanges between the voices,`);
 console.log(`plus ${packCalls.entries.length} factual result calls in src/sim/commentary-pack/v1/ball_calls.json.`);
 console.log(
   `${Object.keys(SITUATIONS).length} situations; ${thin} situation rows thin (a remark with fewer than ${THIN} lines for a voice in a format).`,

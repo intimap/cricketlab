@@ -1,8 +1,14 @@
 import { broadcastContext } from "./broadcast-context.js";
 import { MOMENT_PRIORITY } from "./booth-moment-lines.js";
+import { ballReads } from "./ball-reads.js";
+import { matchSituations } from "./match-situations.js";
 
-/** Read-only, post-ball context. rec.striker stays correct even when the strike has changed. */
-export function boothContext(rec, inn, memory, beforePressure, { narrative, light } = {}) {
+/**
+ * Read-only, post-ball context: every situation worth a remark, most important first. The big moments,
+ * the match's state (sim/match-situations.js) and the everyday reads of the ball (sim/ball-reads.js).
+ * rec.striker stays correct even when the strike has changed.
+ */
+export function boothContext(rec, inn, memory, beforePressure, { narrative, light, match = null, format = "odi" } = {}) {
   const batter = inn?.bat[rec.wicket?.batter ?? rec.striker];
   const bowler = inn?.bowl[rec.bowler];
   const facts = {
@@ -63,6 +69,8 @@ export function boothContext(rec, inn, memory, beforePressure, { narrative, ligh
       add("dropCost", 75, { b: survivor.p.short, gained: survivor.runs - drop.on });
     }
   }
+  for (const option of [...matchSituations(rec, inn, match, format), ...ballReads(rec, inn, format)])
+    options.push({ ...option, facts: { ...facts, ...option.facts } });
   // Lulls may have banter. Never interrupt wickets, boundaries, extras or match endings with a joke.
   if (memory.quiet >= 12 && !rec.wicket && !rec.boundary && !rec.extra?.type && !rec.moment && !inn?.isOver) add("lull", 20);
   return options.sort((a, b) => b.priority - a.priority);

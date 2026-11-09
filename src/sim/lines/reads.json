@@ -1,0 +1,561 @@
+{
+  "about": "The everyday reads of a ball, for a remark on most balls (sim/ball-reads.js): the shot (timing, feet, a charge, an edge that got away), the bowling (beaten outside off, the bouncer, the yorker, the slower ball, a loose one), the players and the running. And the run-up reads of the over so far (sim/runup-reads.js), short so they're done before he lets go.",
+  "groups": [
+    {
+      "situation": "timedShot",
+      "case": "drive",
+      "kind": "shot",
+      "lines": {
+        "bunnings": [
+          "MARVELLOUS. HE BARELY SEEMED TO HIT IT.",
+          {
+            "text": "THAT'S A DRIVE THEY'LL BE SHOWING AT LUNCH.",
+            "formats": ["test"]
+          }
+        ],
+        "lorry": ["OH, WHAT A {shot}! TIMED TO PERFECTION!", "PURE TIMING! THE FIELDER NEVER MOVED!"],
+        "grog": [
+          "HEAD OVER IT, FRONT FOOT TO THE PITCH. THAT'S HOW YOU DRIVE.",
+          {
+            "text": "FULL AND WIDE WITH TWO MEN OUT. YOU CAN'T BOWL THERE.",
+            "formats": ["t20", "odi"]
+          }
+        ]
+      }
+    },
+    {
+      "situation": "timedShot",
+      "case": "cutpull",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["PUT AWAY WITH SOME DISDAIN."],
+        "lorry": ["CRACKED! HE'S GONE BACK AND JUST FLAYED THAT!"],
+        "grog": ["GIVE HIM WIDTH OR A SHORT ONE AND HE'LL PUNISH IT. THAT WAS BOTH."]
+      }
+    },
+    {
+      "situation": "timedShot",
+      "case": "sweep",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["SWEPT, AND SWEPT WELL."],
+        "lorry": ["DOWN ON ONE KNEE AND SWEPT! LOVELY!"],
+        "grog": ["HE READ THE LENGTH EARLY AND GOT DOWN. THE SPINNER HAS TO CHANGE IT."]
+      }
+    },
+    {
+      "situation": "timedShot",
+      "case": "loft",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["UP AND OVER. QUITE DELIBERATE."],
+        "lorry": ["OVER THE TOP! HE'S CLEARED THE INFIELD WITH ROOM TO SPARE!"],
+        "grog": ["THE FIELD WAS UP AND HE'S HIT OVER IT. THAT'S THE CAPTAIN'S CALL NOW."]
+      }
+    },
+    {
+      "situation": "timedShot",
+      "case": "glance",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["A TOUCH OF THE WRISTS. VERY TIDY."],
+        "lorry": ["JUST CARESSED AWAY! LOVELY WRISTS!"],
+        "grog": ["ON THE PADS, AND HE'S USED THE PACE. YOU CAN'T BOWL THERE TO HIM."]
+      }
+    },
+    {
+      "situation": "mistimed",
+      "case": "early",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["IN A HURRY THERE. THE BALL WAS IN RATHER LESS OF ONE."],
+        "lorry": ["WAY TOO EARLY! HE'S FINISHED THE SHOT BEFORE IT ARRIVED!"],
+        "grog": ["THROUGH THE SHOT TOO SOON. EITHER THE CHANGE OF PACE DID HIM, OR HE GUESSED."]
+      }
+    },
+    {
+      "situation": "mistimed",
+      "case": "late",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["A FRACTION LATE. THE BALL GOT THERE FIRST."],
+        "lorry": ["LATE ON IT! THE PACE HAS HURRIED HIM!"],
+        "grog": ["LATE ON THE SHOT. HE HAS TO GET THE FEET MOVING SOONER."]
+      }
+    },
+    {
+      "situation": "feetRead",
+      "case": "wrongFoot",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["THE FEET WENT ONE WAY, THE BALL THE OTHER."],
+        "lorry": ["WRONG FOOT! HE'S IN A TANGLE THERE!"],
+        "grog": ["THE LENGTH SAID ONE THING, HIS FEET SAID ANOTHER. THAT'S WHERE EDGES COME FROM."]
+      }
+    },
+    {
+      "situation": "feetRead",
+      "case": "crease",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["STUCK ON THE CREASE. NEITHER FORWARD NOR BACK."],
+        "lorry": ["HIS FEET HAVEN'T MOVED! HE'S ROOTED TO THE SPOT!"],
+        "grog": ["NO FOOTWORK AT ALL. AGAINST THIS ATTACK YOU HAVE TO COMMIT ONE WAY OR THE OTHER."]
+      }
+    },
+    {
+      "situation": "feetRead",
+      "case": "acrossLine",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["A LONG WAY ACROSS. THE STUMPS ARE RATHER ON SHOW."],
+        "lorry": ["HE'S WALKED RIGHT ACROSS! THE BOWLER WILL HAVE SEEN THAT!"],
+        "grog": ["TOO FAR OVER. AIM AT THE PADS AND YOU'VE GOT THE LBW IN PLAY."]
+      }
+    },
+    {
+      "situation": "feetRead",
+      "case": "outOfReach",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["REACHING FOR THAT ONE. IT WAS NEVER REALLY HIS."],
+        "lorry": ["HE'S CHASED IT A MILE! NOWHERE NEAR IT!"],
+        "grog": ["OUT OF HIS REACH. THAT'S THE BALL YOU LET GO, NOT THE ONE YOU FISH AT."]
+      }
+    },
+    {
+      "situation": "feetRead",
+      "case": "room",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["MADE HIMSELF SOME ROOM. QUITE ENTERPRISING."],
+        "lorry": ["BACKED AWAY AND GIVEN HIMSELF ROOM! CHEEKY!"],
+        "grog": ["STEPPING TO LEG TO OPEN UP THE OFF SIDE. THE BOWLER MUST FOLLOW HIM."]
+      }
+    },
+    {
+      "situation": "feetRead",
+      "case": "goodStride",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["LOVELY FOOTWORK. RIGHT TO THE PITCH OF IT."],
+        "lorry": ["WHAT FEET! HE WAS THERE AND WAITING FOR IT!"],
+        "grog": ["THAT'S THE FOOTWORK. GET TO THE LENGTH AND THE SHOT IS EASY."]
+      }
+    },
+    {
+      "situation": "charged",
+      "case": "scored",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["DOWN THE PITCH, AND IT WORKED. THIS TIME."],
+        "lorry": ["HE'S DANCED DOWN AND HIT IT! WHAT FOOTWORK!"],
+        "grog": ["GOT TO THE PITCH OF IT. THE SPINNER HAS TO SEE THAT COMING AND DRAG IT BACK."]
+      }
+    },
+    {
+      "situation": "charged",
+      "case": "blocked",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["ALL THAT EFFORT TO REACH IT, AND THEN A BLOCK."],
+        "lorry": ["CAME DOWN THE PITCH AND KEPT IT OUT! SHOWED HIS INTENT!"],
+        "grog": ["SMOTHERED ON THE CHARGE. AT LEAST HE'S MADE THE BOWLER THINK ABOUT HIS LENGTH."]
+      }
+    },
+    {
+      "situation": "charged",
+      "case": "missed",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["A LONG WAY FROM HOME, AND NOTHING TO SHOW FOR IT."],
+        "lorry": ["HE'S DOWN THE PITCH AND MISSED IT! HE'S A LUCKY MAN!"],
+        "grog": ["BEATEN ON THE CHARGE. FLIGHT AND DIP DID THAT. HE'S LUCKY TO BE IN."]
+      }
+    },
+    {
+      "situation": "edgedSafe",
+      "case": "dot",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["AN EDGE, AND NOBODY THERE. FORTUNE FAVOURS THE FORTUNATE."],
+        "lorry": ["EDGED! AND IT'S FALLEN SAFE! HE'S GOT AWAY WITH ONE!"],
+        "grog": ["THAT EDGE HAD NOWHERE TO GO. YOU'D WANT A FIELDER THERE."]
+      }
+    },
+    {
+      "situation": "edgedSafe",
+      "case": "runs",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["THE SCORER WON'T ASK HOW THEY CAME."],
+        "lorry": ["OFF THE EDGE AND THEY'LL TAKE THE RUNS! NOT PRETTY!"],
+        "grog": ["EDGED FOR RUNS. THE BOWLER HAS DONE THE WORK; THE FIELD HASN'T."]
+      }
+    },
+    {
+      "situation": "goodLeave",
+      "case": "close",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["WELL LEFT. HE KNOWS WHERE HIS OFF STUMP IS."],
+        "lorry": [
+          "LEFT IT! LOVELY JUDGEMENT!",
+          {
+            "text": "THAT'S TEST MATCH BATTING! KNOW YOUR OFF STUMP!",
+            "formats": ["test"]
+          }
+        ],
+        "grog": [
+          "A DISCIPLINED LEAVE. THE BOWLER HAS TO MAKE HIM PLAY.",
+          {
+            "text": "A LEAVE IN A T20 IS A DOT FOR THE BOWLER. HE'LL TAKE IT.",
+            "formats": ["t20"]
+          }
+        ]
+      }
+    },
+    {
+      "situation": "goodLeave",
+      "case": "length",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["LEFT ON LENGTH. HE TRUSTS THE BOUNCE."],
+        "lorry": ["LET IT GO OVER THE STUMPS! CONFIDENT!"],
+        "grog": ["LEAVING ON LENGTH TELLS ME HE'S READ THE PITCH."]
+      }
+    },
+    {
+      "situation": "solidBlock",
+      "kind": "shot",
+      "lines": {
+        "bunnings": [
+          "SOLID. NOTHING TO SEE, WHICH IS RATHER THE POINT.",
+          {
+            "text": "THE DEAD BAT. A TEST MATCH STAPLE.",
+            "formats": ["test"]
+          }
+        ],
+        "lorry": [
+          "BLOCKED! RIGHT IN THE MIDDLE OF THE BAT!",
+          {
+            "text": "DEFENDED! THE CROWD WANT A BIT MORE THAN THAT!",
+            "formats": ["t20"]
+          }
+        ],
+        "grog": ["SOFT HANDS, BAT CLOSE TO THE PAD. GOOD TECHNIQUE."]
+      }
+    },
+    {
+      "situation": "bigHit",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["GONE. INTO THE CROWD."],
+        "lorry": ["THAT'S HUGE! THAT'S NEARLY OUT OF THE GROUND!"],
+        "grog": ["CLEAN HITTING. HE'S STILL, HE'S BALANCED, AND THE HEAD'S DOWN."]
+      }
+    },
+    {
+      "situation": "notPicked",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["HE DIDN'T PICK THAT ONE. FEW WOULD HAVE."],
+        "lorry": ["HE HASN'T READ IT! IT'S GONE THE OTHER WAY!"],
+        "grog": ["HE'S MISSED THE CHANGE IN THE HAND. WATCH THE WRIST, NOT THE PITCH."]
+      }
+    },
+    {
+      "situation": "beatenOutside",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["BEATEN. A LOVELY DELIVERY.", "PAST THE OUTSIDE EDGE. HE'LL FEEL THAT ONE."],
+        "lorry": ["BEATEN! WHAT A BALL! THAT'S A BEAUTY!", "OH! HOW DID THAT MISS THE EDGE?!"],
+        "grog": [
+          "THAT'S THE CHANNEL. KEEP HITTING IT AND THE EDGE WILL COME.",
+          {
+            "text": "ON A LENGTH, MOVING AWAY. THAT'S TEST MATCH BOWLING.",
+            "formats": ["test"]
+          }
+        ]
+      }
+    },
+    {
+      "situation": "bouncerBall",
+      "case": "hooked",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["THE BOUNCER, AND IT'S BEEN HOOKED. HE ASKED FOR THAT."],
+        "lorry": ["HOOKED! HE'S TAKEN ON THE SHORT BALL AND WON!"],
+        "grog": ["IF YOU BOWL SHORT TO HIM, YOU NEED TWO MEN OUT THERE."]
+      }
+    },
+    {
+      "situation": "bouncerBall",
+      "case": "topEdged",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["UP OFF THE TOP EDGE. NOT ENTIRELY CONVINCING."],
+        "lorry": ["TOP EDGE! IT'S GONE UP, BUT IT'S LANDED SAFE!"],
+        "grog": ["THE BOUNCER'S DONE ITS JOB. HE'S GOT HIM HOOKING."]
+      }
+    },
+    {
+      "situation": "bouncerBall",
+      "case": "fended",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["FENDED OFF. NOT THE MOST GRACEFUL OF MOMENTS."],
+        "lorry": ["HE'S GOT THE BAT UP JUST IN TIME!"],
+        "grog": ["THAT'S THE SHORT BALL DOING ITS JOB. NOW PITCH ONE UP."]
+      }
+    },
+    {
+      "situation": "bouncerBall",
+      "case": "evaded",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["UNDER IT. A SENSIBLE DECISION."],
+        "lorry": ["HE'S DUCKED! THAT WHISTLED PAST HIS NOSE!"],
+        "grog": ["WELL LEFT, UNDER IT. THAT'S ONE OF THE BOWLER'S TWO GONE."]
+      }
+    },
+    {
+      "situation": "yorkerBall",
+      "case": "scored",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["A YORKER, DUG OUT FOR RUNS. RESOURCEFUL."],
+        "lorry": ["HE'S GOT HIS BAT DOWN ON THE YORKER AND SQUEEZED IT AWAY!"],
+        "grog": ["A FRACTION OFF THE YORKER LENGTH AND HE'S GOT UNDER IT."]
+      }
+    },
+    {
+      "situation": "yorkerBall",
+      "case": "dug",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["DUG OUT. AT SOME RISK TO HIS TOES."],
+        "lorry": ["JAMMED OUT! JUST IN TIME!"],
+        "grog": [
+          "RIGHT IN THE BLOCKHOLE. NOTHING TO HIT.",
+          {
+            "text": "THAT'S THE BALL AT THE DEATH. LAND IT THERE SIX TIMES AND YOU WIN.",
+            "formats": ["t20", "odi"]
+          }
+        ]
+      }
+    },
+    {
+      "situation": "yorkerBall",
+      "case": "missed",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["UNDER THE BAT. IT VERY NEARLY HIT THEM."],
+        "lorry": ["MISSED THE YORKER! THE STUMPS SURVIVE SOMEHOW!"],
+        "grog": ["THE BAT CAME DOWN TOO LATE. THAT'S THE PERFECT YORKER."]
+      }
+    },
+    {
+      "situation": "slowerBall",
+      "case": "fooled",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["THE SLOWER ONE. HE WAS RATHER EARLY FOR IT."],
+        "lorry": ["THE SLOWER BALL! HE'S BEEN COMPLETELY FOXED!"],
+        "grog": ["SAME ACTION, LESS PACE. HE NEVER SAW IT COMING."]
+      }
+    },
+    {
+      "situation": "slowerBall",
+      "case": "read",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["HE SAW THE SLOWER BALL. AND WAITED FOR IT."],
+        "lorry": ["HE'S PICKED THE SLOWER ONE! WAITED AND PUT IT AWAY!"],
+        "grog": ["THE SLOWER BALL WORKS ONCE AN OVER. TWICE, AND THEY'RE WAITING."]
+      }
+    },
+    {
+      "situation": "looseBall",
+      "case": "fullToss",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["A FULL TOSS. HE'LL NOT BE BOASTING ABOUT THAT ONE."],
+        "lorry": ["A FULL TOSS! AND IT'S BEEN DESPATCHED!"],
+        "grog": ["A GIFT. YOU CAN'T BOWL THOSE AT THIS LEVEL."]
+      }
+    },
+    {
+      "situation": "looseBall",
+      "case": "longHop",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["A LONG HOP, DULY PUNISHED."],
+        "lorry": ["DRAGGED DOWN AND BELTED! HE'LL WANT THAT ONE BACK!"],
+        "grog": ["TOO SHORT. A SPINNER CAN'T DROP SHORT TO A BATTER LIKE THIS."]
+      }
+    },
+    {
+      "situation": "wayward",
+      "case": "wide",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["A WIDE. GENEROSITY OF A SORT."],
+        "lorry": ["THAT'S MILES WIDE! THE KEEPER HAD TO DIVE!"],
+        "grog": ["A WIDE COSTS YOU MORE THAN THE RUN. IT'S ANOTHER BALL TOO."]
+      }
+    },
+    {
+      "situation": "wayward",
+      "case": "downLeg",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["DOWN THE LEG SIDE. A WASTED BALL."],
+        "lorry": ["DRIFTING DOWN LEG! FREE RUNS!"],
+        "grog": ["THE LINE HAS GONE. HE'S FALLING AWAY IN HIS ACTION."]
+      }
+    },
+    {
+      "situation": "firstBall",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["{b} IS UNDERWAY. WELL, HE'S FACED ONE."],
+        "lorry": ["FIRST BALL SEEN OFF! {b} CAN BREATHE!"],
+        "grog": ["THE FIRST BALL IS ALWAYS THE HARDEST. HE'LL WANT TO GET OFF STRIKE SOON."]
+      }
+    },
+    {
+      "situation": "offTheMark",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["{b} IS OFF THE MARK. {n} BALLS IN THE MAKING."],
+        "lorry": ["HE'S OFF THE MARK! AFTER {n} BALLS! THE RELIEF!"],
+        "grog": ["{n} BALLS TO GET OFF THE MARK. NOW HE CAN START TO BAT."]
+      }
+    },
+    {
+      "situation": "strikingFast",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["{b} HAS {r} FROM {n} BALLS. IN SOMETHING OF A HURRY."],
+        "lorry": ["{r} OFF {n}! {b} IS ON FIRE!"],
+        "grog": ["{r} FROM {n} BALLS. THE CAPTAIN HAS TO FIND SOMETHING DIFFERENT FOR {b}."]
+      }
+    },
+    {
+      "situation": "grinding",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["{r} FROM {n} BALLS. A STUDY IN PATIENCE."],
+        "lorry": ["{n} BALLS FOR {r}! HE'S DUG IN LIKE A TICK!"],
+        "grog": ["{r} FROM {n}. THAT'S NOT SLOW, THAT'S A PLAN: WEAR THE BOWLERS DOWN."]
+      }
+    },
+    {
+      "situation": "bowlerOnTop",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["{w} HAS {figures}. A TIDY DAY'S WORK."],
+        "lorry": ["{w} IS ON TOP! {figures} AND HE'S NOT FINISHED!"],
+        "grog": ["{figures} FOR {w}. HE'S BOWLED TO HIS FIELD ALL SPELL."]
+      }
+    },
+    {
+      "situation": "diveHome",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["A DIVE TO MAKE IT. THE LAUNDRY WILL HAVE WORK TONIGHT."],
+        "lorry": ["HE'S DIVED! HE'S IN! WHAT A FINISH TO THE RUN!"],
+        "grog": ["THE DIVE GOT HIM IN, BUT HE'S DOWN NOW. NO TURNING FOR ANOTHER IN A HURRY."]
+      }
+    },
+    {
+      "situation": "sentBack",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["YES, NO, SORRY. THE OLDEST CONVERSATION IN CRICKET."],
+        "lorry": ["SENT BACK! THAT WAS NEARLY A MIX-UP!"],
+        "grog": ["CALLING. ONE OF THEM HAS TO TAKE CHARGE OF IT."]
+      }
+    },
+    {
+      "situation": "thirdRun",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THREE. THEY'LL BE GLAD OF A SIT DOWN."],
+        "lorry": ["THEY'VE RUN THREE! LOOK AT THEM GO!"],
+        "grog": ["GOOD RUNNING TURNS ONES INTO TWOS AND TWOS INTO THREES."]
+      }
+    },
+    {
+      "situation": "runupRead",
+      "case": "fieldChange",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["THE FIELD HAS MOVED. INTERESTING."],
+        "lorry": ["A CHANGE IN THE FIELD! WHAT'S HE UP TO?"],
+        "grog": ["A MAN HAS MOVED. THERE'S A PLAN HERE."]
+      }
+    },
+    {
+      "situation": "runupRead",
+      "case": "bouncers",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["{n} BOUNCERS ALREADY THIS OVER."],
+        "lorry": ["{n} BOUNCERS! WILL HE GO AGAIN?"],
+        "grog": ["AFTER {n} SHORT ONES, WATCH FOR THE FULL ONE."]
+      }
+    },
+    {
+      "situation": "runupRead",
+      "case": "same",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["{types}, AND MORE {types}."],
+        "lorry": ["ALL {types} THIS OVER!"],
+        "grog": ["ALL {types}. A CHANGE MUST BE DUE."]
+      }
+    },
+    {
+      "situation": "runupRead",
+      "case": "weakness",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["HE'S HAD SOME TROUBLE {how}."],
+        "lorry": ["SEEN HIM {how}! WATCH THIS!"],
+        "grog": ["A KNOWN WEAKNESS: {how}."]
+      }
+    },
+    {
+      "situation": "runupRead",
+      "case": "full",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["ALL PITCHED UP THIS OVER."],
+        "lorry": ["FULL, FULL, FULL! HE WANTS THE DRIVE!"],
+        "grog": ["FULL EVERY BALL. HE'S HUNTING THE EDGE."]
+      }
+    },
+    {
+      "situation": "runupRead",
+      "case": "short",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["BANGING IT IN THIS OVER."],
+        "lorry": ["SHORT AGAIN AND AGAIN!"],
+        "grog": ["ALL BACK OF A LENGTH. THAT'S A PLAN."]
+      }
+    },
+    {
+      "situation": "runupRead",
+      "case": "offside",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["EVERYTHING OUTSIDE OFF THIS OVER."],
+        "lorry": ["OUTSIDE OFF AGAIN! TEASING HIM!"],
+        "grog": ["THE CORRIDOR, BALL AFTER BALL."]
+      }
+    }
+  ]
+}

@@ -212,9 +212,14 @@ src/
     over-summary.js   a recap of the over just bowled
     commentators.js   commentary voices and compatible booth entry points
     lines.js          the commentary's words, loaded from lines/*.json: per voice, per case, by format
-    lines/            the line files (JSON): calls, results, overs, stories, moments, colour, scene
+    lines/            the line files (JSON): calls, results, overs, stories, moments, colour, scene, reads,
+                      finishes, banter
     situations.js     every situation the lines are for: its rest, its {facts} and its cases
-    booth-editor.js   every ball: the caller's call, then a remark from one of the other two voices
+    booth-editor.js   every ball: the caller's call, then a remark (or an exchange) from the other two voices;
+                      the run-up remark and the start-of-over remark; the voice lean and no-repeat memory
+    ball-reads.js     the everyday reads of a ball: timing, feet, a charge, the bouncer, the yorker, a dive...
+    match-situations.js  the end of a chase, the tail wagging, a Test's lead and draw; the powerplay, the follow-on
+    runup-reads.js    the pattern of the over so far, read as the bowler runs in (never the ball in his hand)
     booth-caller.js   factual outcome classification and fresh calls for how the ball ended
     booth-context.js  read-only match situations and story priorities
     booth-stories.js  personality-specific analysis, reactions and banter
@@ -448,8 +453,18 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   match, players, banter. **To add lines**, append them to the group and run `npm test`: `tools/lines.test.mjs`
   checks every situation, case, voice and {fact}, and that each line fits where it's said.
   `node tools/lines-report.mjs` (or `... thin`, or `... banter`) counts the lines per situation, voice and format
-  and flags the thin ones: the place to write more. **A new situation** needs an entry in `sim/situations.js`,
+  and flags the thin ones: the place to write more. `node tools/commentary-transcript.mjs t20|odi|test [seed]`
+  plays a match through the commentary and prints what's said, with how often the box spoke (aim: about two
+  balls in three) and what it said most. **A new situation** needs an entry in `sim/situations.js`,
   its lines, and the code that spots it (`sim/booth-context.js` for remarks after the ball).
+  **How the box chooses:** after each ball, every true situation is ranked (`sim/booth-context.js`: the big
+  moments, `sim/match-situations.js` and the everyday reads in `sim/ball-reads.js`); the first that isn't
+  resting is said, by the voice its kind leans to (Grog the bowling, Lorry the shots, Bunnings the match, the
+  players and the quips), never by the caller. Everyday reads are said on most balls, not all; no kind gets
+  more than two in a row unless it's notable; a written line isn't said twice in a match until its pool runs
+  dry. Quiet passages and quiet overs' ends can bring an exchange between two voices. As the bowler runs in,
+  a pattern in the over so far (`sim/runup-reads.js`) gets a short word, once an over; at the start of an
+  over, what's new (the powerplay, a Test's new day, the follow-on).
   The rest: `sim/call.js` owns the factual play description (HPD), which every line is checked against
   (`sim/booth-policy.js` rejects copies). `sim/booth-editor.js` picks each ball's calls: the caller's from
   `sim/booth-caller.js` (the 328 factual calls in `commentary-pack/v1/ball_calls.json`, through `pack-voice.js`,

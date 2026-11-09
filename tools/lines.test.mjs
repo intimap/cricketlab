@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { allGroups, LINE_FILES, VOICES, KINDS, FORMATS, textOf, voiceLines, anyLines } from "../src/sim/lines.js";
-import { SITUATIONS, COMMON_FACTS } from "../src/sim/situations.js";
+import { allGroups, LINE_FILES, VOICES, KINDS, FORMATS, textOf, voiceLines, anyLines, exchangesFor } from "../src/sim/lines.js";
+import { SITUATIONS, COMMON_FACTS, RUNUP_CHARS } from "../src/sim/situations.js";
 import { fitsBox } from "../src/render/booth.js";
 import { fitsHud } from "../src/render/call-line.js";
 
@@ -13,6 +13,8 @@ import { fitsHud } from "../src/render/call-line.js";
 
 const SAMPLE = {
   b: "HEARN",
+  types: "SLOWER BALLS",
+  lead: "212",
   w: "WOAKES",
   end: "PAVILION END",
   nth: "SEVENTH",
@@ -26,7 +28,7 @@ const SAMPLE = {
   gained: "21",
   dots: "8",
   runs: "94",
-  how: "THE SHORT BALL",
+  how: "AGAINST THE SHORT BALL",
   field: "TWO SLIPS AND A GULLY",
   temp: "28",
   day: "3",
@@ -69,6 +71,18 @@ test("every group names a known situation, case, kind, formats and voices", () =
     else assert.equal(g.case, undefined, `${at}: this situation has no cases`);
     assert.ok(KINDS.includes(g.kind), `${at}: kind must be one of ${KINDS.join(", ")}`);
     for (const f of g.formats ?? []) assert.ok(FORMATS.includes(f), `${at}: format "${f}" (use ${FORMATS.join(", ")})`);
+    assert.ok(g.lines || g.exchanges, `${at}: needs "lines" or "exchanges"`);
+    for (const exchange of g.exchanges ?? []) {
+      const turns = Array.isArray(exchange) ? exchange : exchange.turns;
+      assert.ok(Array.isArray(turns) && turns.length >= 2, `${at}: an exchange needs two turns or more`);
+      for (const [voice, text] of turns) {
+        assert.ok(VOICES.includes(voice), `${at}: exchange voice "${voice}" (use ${VOICES.join(", ")})`);
+        assert.ok(typeof text === "string" && fitsBox(fill(text, g.situation)), `${at}: exchange line too long: "${text}"`);
+        for (const [, k] of text.matchAll(/\{(\w*)\}/g)) assert.ok(COMMON_FACTS.includes(k), `${at}: {${k}} in an exchange`);
+      }
+      for (const f of (!Array.isArray(exchange) && exchange.formats) || [])
+        assert.ok(FORMATS.includes(f), `${at}: format "${f}"`);
+    }
     for (const bank of [g.lines, g.replies].filter(Boolean)) {
       for (const [voice, lines] of Object.entries(bank)) {
         assert.ok([...VOICES, "any"].includes(voice), `${at}: voice "${voice}" (use ${VOICES.join(", ")} or any)`);
@@ -82,13 +96,15 @@ test("every line uses only its situation's facts, and fits where it's said", () 
   for (const { file, group: g } of allGroups()) {
     const at = where(file, g);
     const facts = new Set([...COMMON_FACTS, ...(SITUATIONS[g.situation]?.facts ?? [])]);
-    const fits = g.kind === "call" ? fitsHud : fitsBox;
-    const lines = [...Object.values(g.lines).flat(), ...Object.values(g.replies ?? {}).flat()];
+    const short = SITUATIONS[g.situation]?.short;
+    const fits = g.kind === "call" ? fitsHud : short ? (text) => fitsBox(text) && text.length <= RUNUP_CHARS : fitsBox;
+    const lines = [...Object.values(g.lines ?? {}).flat(), ...Object.values(g.replies ?? {}).flat()];
     for (const line of lines) {
       const text = textOf(line);
       assert.ok(typeof text === "string" && text.trim(), `${at}: an empty line`);
       for (const [, k] of text.matchAll(/\{(\w*)\}/g)) assert.ok(facts.has(k), `${at}: {${k}} isn't a fact here: "${text}"`);
-      assert.ok(fits(fill(text, g.situation)), `${at}: too long for the ${g.kind === "call" ? "HUD line" : "box"}: "${text}"`);
+      const place = g.kind === "call" ? "HUD line" : short ? `run-up (${RUNUP_CHARS} characters)` : "box";
+      assert.ok(fits(fill(text, g.situation)), `${at}: too long for the ${place}: "${text}"`);
       if (typeof line === "object") {
         for (const f of line.formats ?? []) assert.ok(FORMATS.includes(f), `${at}: format "${f}" in "${text}"`);
         for (const k of Object.keys(line.when ?? {})) assert.ok(facts.has(k), `${at}: "when" on {${k}}, not a fact here`);
@@ -100,7 +116,7 @@ test("every line uses only its situation's facts, and fits where it's said", () 
 test("no line is written twice for the same situation", () => {
   const seen = new Map();
   for (const { file, group: g } of allGroups()) {
-    for (const [voice, lines] of Object.entries(g.lines)) {
+    for (const [voice, lines] of Object.entries(g.lines ?? {})) {
       for (const line of lines) {
         const key = `${g.situation}|${g.case}|${voice}|${textOf(line).toUpperCase()}`;
         assert.ok(!seen.has(key), `${where(file, g)}: "${textOf(line)}" twice`);
@@ -111,9 +127,11 @@ test("no line is written twice for the same situation", () => {
 });
 
 test("every situation and case has something for every voice to say", () => {
-  for (const [situation, { cases }] of Object.entries(SITUATIONS)) {
+  for (const [situation, { cases, exchanges }] of Object.entries(SITUATIONS)) {
     for (const c of cases ?? [undefined]) {
       const at = `${situation}${c !== undefined ? `:${c}` : ""}`;
+      if (exchanges) assert.ok(exchangesFor(situation, c).length, `${at} has no exchanges`);
+      if (exchanges && !anyLines(situation, c).length) continue;
       assert.ok(anyLines(situation, c).length, `${at} has no lines`);
       voiceLines(situation, c).forEach((lines, i) => assert.ok(lines.length, `${at} has nothing for ${VOICES[i]}`));
     }

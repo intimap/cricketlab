@@ -3,9 +3,15 @@
  * many balls the box rests after saying it (`rest`), the facts its lines may use as {placeholders} beyond
  * the batter {b} and bowler {w}, and, for a situation split by case, the cases there are.
  *
+ * `short`: lines said in the run-up, kept to RUNUP_CHARS so they're done before he lets go. `exchanges`: the
+ * situation's words are exchanges between the voices rather than single lines.
+ *
  * Adding lines needs nothing here. A new situation needs an entry here, lines in a JSON file and the code
  * that spots it (sim/booth-context.js and friends). `npm test` checks the lines against this list.
  */
+
+/** The longest a run-up remark may be (characters, filled). */
+export const RUNUP_CHARS = 48;
 
 /** Facts every line may use: the batter and the bowler. */
 export const COMMON_FACTS = ["b", "w"];
@@ -110,7 +116,7 @@ export const SITUATIONS = {
   setBatter: { rest: 36 },
   nearRunout: { rest: 18 },
   variation: { rest: 24 },
-  lull: { rest: 18 },
+  lull: { rest: 18, exchanges: true },
 
   // --- The smaller moments (moments.json), from sim/moments.js: {n} and {k} are the moment's numbers. ---
   goldenDuck: { rest: 0 },
@@ -148,6 +154,57 @@ export const SITUATIONS = {
   wideningCracks: { rest: 18 },
   afternoon: { rest: 18 },
   evening: { rest: 18 },
+
+  // --- The everyday reads of the ball (sim/ball-reads.js; reads.json): the shot, the bowling, the players. ---
+  timedShot: { rest: 4, facts: ["shot"], cases: ["drive", "cutpull", "sweep", "loft", "glance"] },
+  mistimed: { rest: 6, cases: ["early", "late"] },
+  feetRead: { rest: 6, cases: ["wrongFoot", "crease", "acrossLine", "outOfReach", "room", "goodStride"] },
+  charged: { rest: 6, cases: ["scored", "blocked", "missed"] },
+  edgedSafe: { rest: 6, cases: ["dot", "runs"] },
+  goodLeave: { rest: 8, cases: ["close", "length"] },
+  solidBlock: { rest: 8 },
+  bigHit: { rest: 4 },
+  notPicked: { rest: 6 },
+  beatenOutside: { rest: 4 },
+  bouncerBall: { rest: 4, cases: ["hooked", "topEdged", "fended", "evaded"] },
+  yorkerBall: { rest: 4, cases: ["scored", "dug", "missed"] },
+  slowerBall: { rest: 6, cases: ["fooled", "read"] },
+  looseBall: { rest: 8, cases: ["fullToss", "longHop"] },
+  wayward: { rest: 12, cases: ["wide", "downLeg"] },
+  firstBall: { rest: 0 },
+  offTheMark: { rest: 0, facts: ["n"] },
+  strikingFast: { rest: 30, facts: ["r", "n"] },
+  grinding: { rest: 60, facts: ["r", "n"] },
+  bowlerOnTop: { rest: 48, facts: ["figures"] },
+  diveHome: { rest: 6 },
+  sentBack: { rest: 12 },
+  thirdRun: { rest: 18 },
+
+  // --- The match's state (sim/match-situations.js; finishes.json): the end of a chase, the tail, a Test. ---
+  chaseLastTwo: { rest: 3, facts: ["need", "left"], cases: ["easy", "even", "steep"] },
+  chaseLastOver: { rest: 1, facts: ["need", "left"], cases: ["easy", "even", "steep"] },
+  chaseLastBall: { rest: 0, facts: ["need", "left"], cases: ["1", "2", "3", "4", "5", "6", "more"] },
+  scoresLevel: { rest: 6, facts: ["need", "left"] },
+  closingOut: { rest: 12, facts: ["need", "left"] },
+  tailWagging: { rest: 36, facts: ["stand"] },
+  leadPassed: { rest: 0, facts: ["lead"] },
+  battingForDraw: { rest: 30, facts: ["left"] },
+  // At the start of an over.
+  powerplay: { rest: 0, facts: ["overs"], cases: ["start", "end"] },
+  firstOverOfDay: { rest: 0, facts: ["day"] },
+  followOn: { rest: 0, facts: ["lead"] },
+  nightwatchman: { rest: 0 },
+  declarationPush: { rest: 36, facts: ["lead"] },
+
+  // --- As he runs in (sim/runup-reads.js; reads.json): the pattern of the over so far. ---
+  runupRead: {
+    short: true,
+    facts: ["n", "types", "how"],
+    cases: ["fieldChange", "bouncers", "same", "weakness", "full", "short", "offside"],
+  },
+
+  // --- Banter between the voices (banter.json). ---
+  betweenOvers: { rest: 0, exchanges: true },
 
   // --- The ground, the weather, the intervals, the rain, the umpire and the wrap-up (scene.json). ---
   venue: { cases: ["theG", "lords", "scg", "lakshmi", "parklands"] },

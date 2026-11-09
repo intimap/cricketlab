@@ -1,0 +1,266 @@
+{
+  "about": "The match's own situations (sim/match-situations.js): the end of a chase, a side closing it out, the tail wagging, a Test's lead passed and batting for a draw; and at the start of an over, the powerplay, the first over of a Test day, the follow-on, a nightwatchman and the push for a declaration. Plus format-only lines for some older situations.",
+  "groups": [
+    {
+      "situation": "chaseLastTwo",
+      "case": "easy",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{need} FROM {left}. THEY OUGHT TO GET THESE."],
+        "lorry": ["{need} OFF {left}! SURELY THEY CAN'T LOSE IT FROM HERE!"],
+        "grog": ["{need} OFF {left}. NOTHING SILLY. SINGLES WILL DO IT."]
+      }
+    },
+    {
+      "situation": "chaseLastTwo",
+      "case": "even",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{need} FROM {left}. NOBODY LEAVE THEIR SEATS."],
+        "lorry": ["{need} OFF {left}! THIS IS GOING RIGHT TO THE WIRE!"],
+        "grog": ["{need} FROM {left}. ONE BIG OVER AND IT'S THEIRS. ONE TIGHT ONE AND IT ISN'T."]
+      }
+    },
+    {
+      "situation": "chaseLastTwo",
+      "case": "steep",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{need} FROM {left}. IT WOULD TAKE SOMETHING SPECIAL."],
+        "lorry": ["{need} OFF {left}! THEY NEED BOUNDARIES, AND THEY NEED THEM NOW!"],
+        "grog": ["{need} FROM {left}. THEY HAVE TO TARGET THE SHORT BOUNDARY."]
+      }
+    },
+    {
+      "situation": "chaseLastOver",
+      "case": "easy",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{need} NEEDED, {left} BALLS TO COME. A FORMALITY, ONE WOULD THINK."],
+        "lorry": ["{need} OFF {left}! THEY'RE NEARLY HOME!"],
+        "grog": ["{need} OFF {left}. JUST FIND THE GAPS AND DON'T GET OUT."]
+      }
+    },
+    {
+      "situation": "chaseLastOver",
+      "case": "even",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{need} FROM {left}. THE SORT OF ARITHMETIC NOBODY ENJOYS."],
+        "lorry": ["{need} OFF {left}! I CAN'T WATCH! I CAN'T NOT WATCH!"],
+        "grog": ["{need} FROM {left}. EXPECT THE WIDE YORKER. HE HAS TO BE READY FOR IT."]
+      }
+    },
+    {
+      "situation": "chaseLastOver",
+      "case": "steep",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{need} FROM {left}. SOMETHING REMARKABLE IS REQUIRED."],
+        "lorry": ["{need} FROM {left}! THEY NEED SIXES!"],
+        "grog": ["{need} OFF {left}. THE BOWLER MUSTN'T BOWL IN THE ARC. FULL AND WIDE."]
+      }
+    },
+    {
+      "situation": "chaseLastBall",
+      "case": "1",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["ONE BALL. ONE RUN. THAT'S ALL."],
+        "lorry": ["ONE NEEDED OFF THE LAST BALL! ANYTHING WILL DO!"],
+        "grog": ["ONE TO WIN. EVERY FIELDER IN TO SAVE THE SINGLE."]
+      }
+    },
+    {
+      "situation": "chaseLastBall",
+      "case": "2",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["TWO FROM THE LAST BALL. A GOOD DEAL OF RUNNING REQUIRED."],
+        "lorry": ["TWO OFF THE LAST BALL! THEY'LL HAVE TO RUN LIKE THE WIND!"],
+        "grog": ["TWO TO WIN. THE FIELD COMES IN; HE HAS TO HIT IT PAST THEM."]
+      }
+    },
+    {
+      "situation": "chaseLastBall",
+      "case": "3",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THREE FROM ONE. A BOUNDARY WOULD BE HELPFUL."],
+        "lorry": ["THREE OFF THE LAST BALL! IT HAS TO BE A FOUR!"],
+        "grog": ["THREE OFF ONE. THE FIELD GOES BACK: A BOUNDARY OR NOTHING."]
+      }
+    },
+    {
+      "situation": "chaseLastBall",
+      "case": "4",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["FOUR OFF THE LAST BALL. NO MARGIN AT ALL."],
+        "lorry": ["FOUR TO WIN! HE NEEDS A BOUNDARY! WHAT A FINISH!"],
+        "grog": ["A FOUR WINS IT, A THREE TIES IT. FULL AND STRAIGHT, BOWLER."]
+      }
+    },
+    {
+      "situation": "chaseLastBall",
+      "case": "5",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["FIVE TO WIN. A FOUR WON'T QUITE DO."],
+        "lorry": ["FIVE OFF THE LAST BALL! IT'S GOT TO BE A SIX!"],
+        "grog": ["FIVE NEEDED. A SIX WINS IT, A FOUR TIES IT."]
+      }
+    },
+    {
+      "situation": "chaseLastBall",
+      "case": "6",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["SIX TO WIN. OFF THE LAST BALL. WELL."],
+        "lorry": ["SIX TO WIN OFF THE LAST BALL! CAN HE DO IT?!"],
+        "grog": ["A SIX WINS IT. ANYTHING LESS AND IT'S OVER. DON'T BOWL IN THE ARC."]
+      }
+    },
+    {
+      "situation": "chaseLastBall",
+      "case": "more",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{need} OFF THE LAST BALL. A SHADE AMBITIOUS."],
+        "lorry": ["{need} OFF THE LAST BALL! IT'S ALL OVER, SURELY!"],
+        "grog": ["{need} OFF ONE BALL. THE BOWLING SIDE HAVE DONE IT."]
+      }
+    },
+    {
+      "situation": "scoresLevel",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["SCORES LEVEL. ONE RUN IN IT."],
+        "lorry": ["THE SCORES ARE LEVEL! ONE RUN TO WIN IT!"],
+        "grog": ["LEVEL. EVERY FIELDER UP. DON'T GIVE AWAY THE SINGLE."]
+      }
+    },
+    {
+      "situation": "closingOut",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{need} FROM {left}. THE BOWLING SIDE MAY START TO RELAX."],
+        "lorry": ["{need} OFF {left}! THAT'S SURELY BEYOND THEM NOW!"],
+        "grog": ["{need} FROM {left}. JUST DON'T BOWL NO-BALLS AND WIDES."]
+      }
+    },
+    {
+      "situation": "tailWagging",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THE TAIL IS WAGGING. {stand} FOR THIS STAND."],
+        "lorry": ["THE TAIL'S WAGGING! {stand} TOGETHER! THE BOWLERS ARE FURIOUS!"],
+        "grog": ["{stand} FOR THIS PAIR. THE BOWLERS LOST THEIR LENGTH LOOKING FOR THE EASY WICKET."]
+      }
+    },
+    {
+      "situation": "leadPassed",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THEY'RE IN FRONT NOW. ONLY JUST."],
+        "lorry": ["THEY'VE TAKEN THE LEAD! THE MOMENTUM HAS SWUNG!"],
+        "grog": ["IN FRONT BY {lead}. EVERY RUN NOW IS ONE THE OTHER SIDE HAS TO CHASE."]
+      }
+    },
+    {
+      "situation": "battingForDraw",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{left} OVERS LEFT. THEY'LL BAT, AND BAT."],
+        "lorry": ["{left} OVERS TO SURVIVE! EVERY BLOCK IS A SMALL VICTORY!"],
+        "grog": ["{left} OVERS TO GO. FORGET THE RUNS: DON'T GIVE THEM A CHANCE."]
+      }
+    },
+    {
+      "situation": "powerplay",
+      "case": "start",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THE FIRST {overs} OVERS, AND ONLY TWO MEN OUT."],
+        "lorry": ["POWERPLAY! {overs} OVERS OF FIELDING RESTRICTIONS! HERE WE GO!"],
+        "grog": ["TWO OUT FOR {overs} OVERS. THE BOWLERS HAVE TO HIT THE TOP OF OFF."]
+      }
+    },
+    {
+      "situation": "powerplay",
+      "case": "end",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THE POWERPLAY IS DONE. THE FIELDERS MAY SPREAD OUT AGAIN."],
+        "lorry": ["THE POWERPLAY'S OVER! MORE MEN ON THE ROPE NOW!"],
+        "grog": ["WITH THE FIELD BACK, THE SINGLES ARE THERE. THE BATTERS HAVE TO TAKE THEM."]
+      }
+    },
+    {
+      "situation": "firstOverOfDay",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["DAY {day}. THE PITCH HAS HAD A NIGHT TO THINK ABOUT IT."],
+        "lorry": ["WELCOME TO DAY {day}! A NEW DAY, AND ANYTHING CAN HAPPEN!"],
+        "grog": ["DAY {day}, FIRST OVER. THE BALL WILL DO A BIT THIS MORNING. BAT TIGHT."]
+      }
+    },
+    {
+      "situation": "followOn",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["FOLLOWING ON, {lead} BEHIND. A LONG ROAD BACK."],
+        "lorry": ["THEY'RE FOLLOWING ON! {lead} BEHIND! CAN THEY SAVE IT?"],
+        "grog": ["{lead} BEHIND AND FOLLOWING ON. BAT TIME; THE RUNS WILL COME."]
+      }
+    },
+    {
+      "situation": "nightwatchman",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["A NIGHTWATCHMAN. HE'LL BE HOPING THE NIGHT IS QUIET."],
+        "lorry": ["THEY'VE SENT IN THE NIGHTWATCHMAN! BRAVE MAN!"],
+        "grog": ["A NIGHTWATCHMAN, TO SAVE A PROPER BATTER FOR THE MORNING. SENSIBLE."]
+      }
+    },
+    {
+      "situation": "declarationPush",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{lead} IN FRONT. THE DECLARATION CAN'T BE FAR AWAY."],
+        "lorry": ["{lead} AHEAD! WHEN WILL THEY DECLARE?"],
+        "grog": ["{lead} ON. QUICK RUNS NOW, THEN GIVE THE BOWLERS THEIR TIME."]
+      }
+    },
+    {
+      "situation": "maiden",
+      "kind": "bowling",
+      "formats": ["t20"],
+      "lines": {
+        "bunnings": ["A MAIDEN. IN A T20. ONE DOESN'T SEE MANY."],
+        "lorry": ["A MAIDEN IN A T20! THAT'S GOLD DUST!"],
+        "grog": ["SIX DOTS IN A T20. THAT'S WORTH A WICKET TO THE BOWLING SIDE."]
+      }
+    },
+    {
+      "situation": "partnership",
+      "kind": "players",
+      "formats": ["test"],
+      "lines": {
+        "bunnings": ["{stand} TOGETHER. THE BOWLERS ARE WAITING FOR THE NEW BALL, I SUSPECT."],
+        "lorry": ["{stand} FOR THIS STAND! THEY'RE BATTING THE DAY AWAY!"],
+        "grog": ["{stand} TOGETHER. IN A TEST, A STAND LIKE THIS TIRES THE BOWLERS FOR TOMORROW TOO."]
+      }
+    },
+    {
+      "situation": "pressure",
+      "kind": "match",
+      "formats": ["t20"],
+      "lines": {
+        "bunnings": ["THE DOTS ARE MOUNTING. IN THIS FORMAT, THAT'S A CRISIS."],
+        "lorry": ["DOT AFTER DOT! THE CROWD WANT SOMETHING TO CHEER!"],
+        "grog": ["DOTS COST YOU MORE IN A T20 THAN WICKETS DO. SOMEONE HAS TO HIT."]
+      }
+    }
+  ]
+}

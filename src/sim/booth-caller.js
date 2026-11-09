@@ -2,7 +2,7 @@ import { LINES } from "./broadcast-context.js";
 import { byCase, voiceLines } from "./lines.js";
 import { PackVoice, packContext } from "./pack-voice.js";
 import { shotArea } from "./describe.js";
-import { boothWords, safeBoothCalls } from "./booth-policy.js";
+import { boothWords, safeBoothCalls, fillLine } from "./booth-policy.js";
 
 /** The caller's lines for how each kind of ball ended (sim/lines/results.json), per voice. */
 export const BOOTH_BALL_LINES = byCase("result", voiceLines);
@@ -78,8 +78,7 @@ export class BoothCaller {
       extra: rec.extra?.type === "nb" ? " A NO-BALL AS WELL." : rec.extra?.type === "wd" ? " A WIDE AS WELL." : "",
     };
     const render = (line) =>
-      line
-        .replace(/\{([^}]+)\}/g, (_, key) => facts[key] ?? `{${key}}`)
+      fillLine(line, facts)
         .toUpperCase()
         .replace(/\bONE BYES\b/g, "ONE BYE")
         .replace(/\bONE LEG-BYES\b/g, "ONE LEG-BYE");

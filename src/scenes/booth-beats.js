@@ -30,6 +30,10 @@ function pick(list) {
   return list[i];
 }
 
+/** The scene's presentation dice for the booth editor (sim/booth-editor.js). */
+const presentation = { random: Math.random };
+const editorOf = (scene) => scene.match.comm?.booth ?? null;
+
 function state(scene) {
   scene.beats ??= { innings: null, fieldSaid: new Set(), field: null, shotSaid: false };
   return scene.beats;
@@ -178,7 +182,12 @@ export function onNextBall(scene) {
     const plan = scene.human === "bat" && PLAN_READS[inn.overPlan] && inn.overPlan !== beats.planSaid ? inn.overPlan : null;
     const { head, extra } = overIntroParts(lead(scene), inn, fieldCall(inn, beats.fieldSaid), pick, plan);
     sayOnHud(scene, lead(scene), head, false);
-    if (extra && fitsBox(extra)) {
+    // What's new about the over (the powerplay, a Test day, a bowler's last), or else the usual scene-setting.
+    const remark = plan
+      ? null
+      : editorOf(scene)?.overStart(inn, scene.match, { caller: lead(scene), rng: presentation, fits: fitsBox });
+    if (remark) calls.push({ ...remark, keep: true });
+    else if (extra && fitsBox(extra)) {
       // A plan read matters to the batter: kept through the run-up, and important enough for QUIET.
       calls.push({ who: (lead(scene) + 1) % 3, text: extra, keep: true, priority: plan ? 70 : 30 });
       if (plan) {
@@ -203,7 +212,8 @@ const endOf = (calls, now) => calls.reduce((end, c) => Math.max(end, c.t0 + call
 
 /**
  * The bowler runs in: the box's chat about the last ball stops here (the ground and the start of the over
- * carry on), and the caller starts the ball's sentence on the HUD line.
+ * carry on), and the caller starts the ball's sentence on the HUD line. If the over so far has a pattern
+ * (and the box is free), one of the others says so, briefly, before he lets go.
  */
 export function onRunup(scene) {
   if (!live(scene) || !scene.cur) return;
@@ -214,6 +224,8 @@ export function onRunup(scene) {
   const started = intro.filter((c) => c.t0 <= scene.now);
   const waiting = intro.filter((c) => c.t0 > scene.now);
   scene.booth = [...started, ...scheduleCalls(waiting, endOf(started, scene.now))];
+  const remark = intro.length ? null : editorOf(scene)?.runup(inn, { caller: lead(scene), rng: presentation, fits: fitsBox });
+  if (remark && boxAllows(remark)) scene.booth = scheduleCalls([remark], scene.now);
   const ends = GROUNDS[scene.cfg.ground]?.ends ?? ["PAVILION END", "SCOREBOARD END"];
   const text = setupCall(
     lead(scene),

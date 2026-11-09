@@ -390,6 +390,9 @@ export class BallInPlay {
       wicket: this.wicket,
       catchDropped: this.catchDropped,
       nearRunout: this.wicket ? null : this.nearMiss,
+      // For the commentary: a batter dived home, or one was sent back.
+      dived: this.events.some((e) => e.type === "diveHome"),
+      recalled: this.events.some((e) => e.type === "recall"),
       // A boundary leaves the striker on strike, however far they'd run.
       strikerEnd: this.boundary ? 0 : striker.from,
     };

@@ -11,6 +11,7 @@ import { isSpinner } from "./teams.js";
 import { bowlDelivery, aimAllowance, movementOf } from "./delivery.js";
 import { resolveDelivery } from "./batting.js";
 import { plainCall } from "./call.js";
+import { footworkWord } from "./footwork-words.js";
 import { nextEye, offStrikeEye, eyeMultiplier } from "./eye.js";
 import { BallInPlay } from "./ball-in-play.js";
 import { pickBowler, pickOverPlan, pickFieldPreset, pickDeliveryPlan, pickShot, battingAggression, runningRisk } from "./ai.js";
@@ -365,6 +366,12 @@ export class Match {
       padVerdict: res.padHit ? (res.lbw ? "hitting" : res.lbwNote.replace(", not out", "")) : "",
     };
     rec.nearRunout = out.nearRunout;
+    // What the commentators read off the ball: his feet, his timing, a dive or a batter sent back.
+    rec.feet = footworkWord(res, shot.type, delivery.pitchedAt?.z ?? 0)?.key ?? null;
+    rec.stride = shot.feet?.stride ?? null;
+    rec.timing = Number.isFinite(contact.timing) ? contact.timing : null;
+    rec.dived = !!out.dived;
+    rec.recalled = !!out.recalled;
     rec.movement = movementOf(delivery);
     rec.moment = this.moments.read(rec, inn);
     // Has the striker given his weakness away? (sim/scouting.js)

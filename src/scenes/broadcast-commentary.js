@@ -21,6 +21,7 @@ export function callFromBooth(scene, done) {
     inn,
     applied,
     fitsCall: fitsHud,
+    match: scene.match,
     commentary: scene.match.comm,
     narrative: scene.match.comm.narrative,
     light: scene.cfg.light,

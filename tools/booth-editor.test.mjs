@@ -64,15 +64,21 @@ test("a full line that duplicates HPD is replaced by another safe contextual voi
   assert.ok(result.calls.every((call) => !repeatsHpd(call.text, hpd)));
 });
 
-test("pressure context has three distinct commentator voices", () => {
+test("pressure is said by the voice it leans to, or by the other one in the box when he's calling the over", () => {
+  // Pressure is the match's state: Bunnings's, unless he's calling the over (on the HUD line), then Lorry's.
   const outputs = [];
   for (let over = 0; over < 3; over++) {
-    const result = edit(new BoothEditor(), ball({ over }), innings({ pressure: 0.8 }));
-    assert.equal(result.calls[0].who, over);
+    const editor = new BoothEditor();
+    const result = editor.context(ball({ over }), "GOOD LENGTH, DEFENDED, NO RUN", names, rng, fitsBox, {
+      inn: innings({ pressure: 0.8 }),
+      caller: over,
+    });
     assert.equal(result.calls[0].topic, "pressure");
+    assert.equal(result.calls[0].who, over === 0 ? 1 : 0);
+    assert.notEqual(result.calls[0].who, over);
     outputs.push(result.calls[0].text);
   }
-  assert.equal(new Set(outputs).size, 3);
+  assert.equal(new Set(outputs).size, 2);
 });
 
 test("all authored topics have fitting lines for every voice and no missing placeholders", () => {
@@ -92,7 +98,7 @@ test("chase topics share a cooldown rather than repeating with different adjecti
   assert.equal(edit(editor, ball(), inn).calls[0].topic, "chaseSteep");
   inn.legal++;
   inn.requiredRate = 6;
-  assert.equal(edit(editor, ball(), inn).calls.length, 0);
+  assert.ok(edit(editor, ball(), inn).calls.every((call) => !call.topic.startsWith("chase")));
 });
 
 test("a catch on a no-ball or free hit is not treated as a lost wicket", () => {

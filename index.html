@@ -39,10 +39,17 @@
         justify-content: center;
       }
       #screen {
-        image-rendering: pixelated;
-        image-rendering: crisp-edges;
+        position: relative;
         display: block;
         cursor: pointer;
+      }
+      #screen canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
       }
       .keys {
         flex: none;

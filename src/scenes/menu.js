@@ -14,6 +14,7 @@ import { updateTeams, drawTeams } from "./menu-teams.js";
 import { endTime } from "./match-light.js";
 import { ASSISTS, ASSIST_NAMES, assistSetting } from "./assists.js";
 import { EFFECTS, EFFECT_NAMES } from "../render/lighting.js";
+import { crtEnabled, setCrt } from "../engine/crt.js";
 
 const MODES = ["bat", "bowl"];
 const PITCHES = ["green", "dust", "cracked"];
@@ -118,6 +119,7 @@ export class Menu {
         ["light", "TIME", time],
         ["assist", "ASSIST", ASSIST_NAMES[assistSetting()]],
         this.effectsRow,
+        ["screen", "SCREEN", crtEnabled() ? "CRT" : "SHARP"],
         ["start", "", "START  >"],
         ["back", "", "<  BACK"],
       ];
@@ -176,6 +178,7 @@ export class Menu {
         // Choosing AUTO again lets it try full effects afresh.
         save("effectsAuto", "full");
       }
+      if (key === "screen") setCrt(!crtEnabled());
       if (key === "classic") cfg.classic = cycle(CLASSIC_IDS, cfg.classic, dir);
     }
     const go = keys.pressed("Enter") || keys.pressed("Space");

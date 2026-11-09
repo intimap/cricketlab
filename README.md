@@ -147,6 +147,7 @@ src/
   math.js             clamp, easing, angle helpers
   engine/             browser plumbing, no cricket in here
     screen.js         640x360 pixel frame buffer, scaling, drawing primitives
+    crt.js            the old-CRT look over the whole picture (WebGL): curved glass, scanlines, phosphor, glow
     text.js           5x7 bitmap font
     silhouette.js     cast shadows: a sprite's shape sheared onto the ground, all of a frame's in one layer
     outline.js        a sprite drawn with a 1px outline round its whole shape (the striker)
@@ -354,7 +355,7 @@ src/
     match-striker.js  where the striker is drawn, and the blade onto the ball at contact
     match-panels.js   the panels over the picture: setup, speed gun, meters, coach card, release meter, feedback
     audio-mix.js      pause-menu controls for effects, crowd and broadcast volumes
-    pause-menu.js     the Esc menu: scorecard, instructions, view, assists, commentary, sound
+    pause-menu.js     the Esc menu: scorecard, instructions, view, assists, commentary, screen (CRT/sharp), sound
     scoreboard.js     the arcade high-score screen: name entry and the table
 netlify/
   functions/scores.mjs  the shared high-score service on Netlify (/api/scores)

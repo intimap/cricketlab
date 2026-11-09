@@ -1,5 +1,6 @@
 // The game draws into a fixed 640x360 offscreen canvas, which is scaled up
-// (pixelated) onto the visible canvas once per frame.
+// (pixelated) onto the visible canvas once per frame, or through the CRT pass (engine/crt.js).
+import { createCrt, crtEnabled, throughGlass } from "./crt.js";
 
 export const WIDTH = 640;
 export const HEIGHT = 360;
@@ -21,6 +22,10 @@ export let ctx;
 let buffer;
 let screen;
 let screenCtx;
+/** The element shown: the plain canvas and the CRT canvas, one at a time. */
+let frame;
+let crtCanvas;
+let crt = null;
 
 export function initScreen(container) {
   buffer = document.createElement("canvas");
@@ -29,10 +34,15 @@ export function initScreen(container) {
   ctx = buffer.getContext("2d");
   ctx.imageSmoothingEnabled = false;
 
+  frame = document.createElement("div");
+  frame.id = "screen";
+  container.appendChild(frame);
   screen = document.createElement("canvas");
-  screen.id = "screen";
-  container.appendChild(screen);
+  frame.appendChild(screen);
   screenCtx = screen.getContext("2d");
+  crtCanvas = document.createElement("canvas");
+  frame.appendChild(crtCanvas);
+  crt = createCrt(crtCanvas);
 
   const resize = () => {
     const dpr = window.devicePixelRatio || 1;
@@ -46,16 +56,21 @@ export function initScreen(container) {
     }
     const cssW = Math.round(WIDTH * scale);
     const cssH = Math.round(HEIGHT * scale);
-    screen.style.width = cssW + "px";
-    screen.style.height = cssH + "px";
-    screen.width = Math.round(cssW * dpr);
-    screen.height = Math.round(cssH * dpr);
+    frame.style.width = cssW + "px";
+    frame.style.height = cssH + "px";
+    for (const canvas of [screen, crtCanvas]) {
+      canvas.width = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
+    }
     screenCtx.imageSmoothingEnabled = false;
   };
   window.addEventListener("resize", resize);
   resize();
-  return screen;
+  return frame;
 }
+
+/** Whether the picture is going through the CRT pass right now. */
+const crtShowing = () => !!crt && crtEnabled();
 
 /**
  * Run `draw` with every drawing call going to `target` (a 2D context) instead of the frame buffer, e.g. to
@@ -71,19 +86,23 @@ export function drawInto(target, draw) {
   }
 }
 
-/** Copy the frame buffer to the visible canvas. */
+/** Copy the frame buffer to the visible canvas (through the CRT, if it's on). */
 export function present() {
+  const tube = crtShowing();
+  screen.style.visibility = tube ? "hidden" : "visible";
+  crtCanvas.style.visibility = tube ? "visible" : "hidden";
+  if (tube) return crt.draw(buffer, performance.now() / 1000);
   screenCtx.imageSmoothingEnabled = false;
   screenCtx.drawImage(buffer, 0, 0, screen.width, screen.height);
 }
 
-/** Convert a mouse event to frame-buffer coordinates. */
+/** Convert a mouse event to frame-buffer coordinates (through the curve of the glass, with the CRT on). */
 export function toGameCoords(event) {
-  const rect = screen.getBoundingClientRect();
-  return {
-    x: ((event.clientX - rect.left) / rect.width) * WIDTH,
-    y: ((event.clientY - rect.top) / rect.height) * HEIGHT,
-  };
+  const rect = frame.getBoundingClientRect();
+  let u = (event.clientX - rect.left) / rect.width;
+  let v = (event.clientY - rect.top) / rect.height;
+  if (crtShowing()) ({ u, v } = throughGlass(u, v));
+  return { x: u * WIDTH, y: v * HEIGHT };
 }
 
 export function fillRect(x, y, w, h, color) {

@@ -15,6 +15,7 @@ import { endTime } from "./match-light.js";
 import { ASSISTS, ASSIST_NAMES, assistSetting } from "./assists.js";
 import { EFFECTS, EFFECT_NAMES } from "../render/lighting.js";
 import { crtEnabled, setCrt } from "../engine/crt.js";
+import { CONTROL_NAMES, controlsSetting, cycleControls } from "./bat-stick.js";
 
 const MODES = ["bat", "bowl"];
 const PITCHES = ["green", "dust", "cracked"];
@@ -45,6 +46,9 @@ const BAT_HELP = [
   "UP/DOWN AFTER THE SHOT TO RUN (AGAIN TO KEEP RUNNING), SPACE TO DIVE WHEN IT FLASHES",
   "O = SIM OVER   B = BATTER/BOWLER END   ESC = MENU",
 ];
+/** Batting with CONTROLS: STICK (scenes/bat-stick.js): the second line says what the bat's stick does. */
+const STICK_HELP = "RIGHT STICK = THE BAT: BACK = ATTACK, RIGHT BACK = LOFT, TO A SIDE = SWEEP";
+const STICK_HELP_2 = "FORWARD = SWING.  NO BACKSWING = BLOCK.  FLICK = POWER.  BACK AND LET GO = LEAVE";
 const BOWL_HELP = [
   "BOWLING: ARROWS SET LINE & LENGTH, NUMBERS PICK THE BALL, E EFFORT, F FIELD",
   "SPACE TO RUN IN, SPACE AGAIN IN THE GOLD ZONE OF THE METER TO RELEASE",
@@ -120,6 +124,7 @@ export class Menu {
         ["assist", "ASSIST", ASSIST_NAMES[assistSetting()]],
         this.effectsRow,
         ["screen", "SCREEN", crtEnabled() ? "CRT" : "SHARP"],
+        ["controls", "CONTROLS", CONTROL_NAMES[controlsSetting()]],
         ["start", "", "START  >"],
         ["back", "", "<  BACK"],
       ];
@@ -179,6 +184,7 @@ export class Menu {
         save("effectsAuto", "full");
       }
       if (key === "screen") setCrt(!crtEnabled());
+      if (key === "controls") cycleControls(dir);
       if (key === "classic") cfg.classic = cycle(CLASSIC_IDS, cfg.classic, dir);
     }
     const go = keys.pressed("Enter") || keys.pressed("Space");
@@ -217,11 +223,12 @@ export class Menu {
 
     const rows = this.rows;
     if (this.sel >= rows.length) this.sel = rows.length - 1;
-    drawPanel(130, 98, 380, 132);
+    drawPanel(130, 98, 380, 136);
     // Rows close up a little when there are more of them.
-    const step = rows.length > 7 ? 12 : rows.length > 6 ? 14 : 16;
+    const step = rows.length > 9 ? 11 : rows.length > 7 ? 12 : rows.length > 6 ? 14 : 16;
+    const top = rows.length > 9 ? 106 : 110;
     rows.forEach(([key, label, value], i) => {
-      const y = 110 + i * step;
+      const y = top + i * step;
       const selected = this.sel === i;
       if (selected) fillRect(138, y - 4, 364, step - 1, "#24563a");
       drawText(label, 150, y, { color: COLORS.dim });
@@ -236,12 +243,13 @@ export class Menu {
           ? `${this.classic.blurb} YOU ${this.classic.human === "bat" ? "BAT" : "BOWL"}.`
           : FORMATS[cfg.format].blurb;
     wrapText(blurb, 60).forEach((line, i) =>
-      drawText(line, 320, 110 + rows.length * step + 4 + i * 10, { align: "center", color: COLORS.dim }),
+      drawText(line, 320, top + rows.length * step + 3 + i * 10, { align: "center", color: COLORS.dim }),
     );
 
     drawPanel(40, 238, 560, 84, "#0d2318");
     const role = cfg.format === "classic" ? this.classic.human : cfg.mode;
     const help = [...(role === "bat" ? BAT_HELP : BOWL_HELP)];
+    if (role === "bat" && controlsSetting() === "stick") help.splice(1, 1, STICK_HELP, STICK_HELP_2);
     if (cfg.format === "test")
       help.push(role === "bat" ? "TEST: L = SIM TO THE BREAK   C TWICE = DECLARE" : "TEST: L = SIM TO THE BREAK");
     help.forEach((line, i) =>

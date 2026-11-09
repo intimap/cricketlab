@@ -163,6 +163,10 @@ export function strikerStroke(scene, cur, t, fromBowler) {
     shotDoneAt = cur.defendAt + 0.3;
   } else if (cur.leaveAt !== null && t >= cur.leaveAt) {
     pose = lerpPose(ready, BATTER_POSES.leave, (t - cur.leaveAt) / 0.18);
+  } else if (!cur.shot && cur.stickLift > 0) {
+    // The bat on a stick (scenes/bat-stick.js): the backlift follows the thumb, part way or right up.
+    const high = clamp(((cur.stickDepth ?? 0) - 0.3) / 0.6);
+    pose = lerpPose(ready, lerpPose(BATTER_POSES.lift0, BATTER_POSES.lift1, high), cur.stickLift);
   } else if (scene.human === "bat" && cur.delivery && !cur.shot && t > arrive - LEAVE_LIFT) {
     // No shot chosen yet: start lifting the bat out of the way.
     pose = lerpPose(ready, BATTER_POSES.leave, (t - (arrive - LEAVE_LIFT)) / 0.18);

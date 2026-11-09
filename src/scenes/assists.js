@@ -14,6 +14,7 @@ import { load, save } from "../engine/storage.js";
  *   landing                batting: the landing mark shows from release (otherwise only as it pitches)
  *   cue                    batting: half a second before release, the zone the ball will pitch in flashes on
  *                          the pitch in its ring colour, with a beep (scenes/match-ball.js); not on HARD
+ *   gauge                  batting with the bat on a stick: the swing gauge (scenes/bat-stick.js); not on HARD
  */
 export const ASSISTS = ["easy", "normal", "hard"];
 export const ASSIST_NAMES = { easy: "EASY", normal: "NORMAL", hard: "HARD" };
@@ -29,6 +30,7 @@ export const ASSIST = {
     window: 1.3,
     landing: true,
     cue: true,
+    gauge: true,
   },
   normal: {
     beatWiden: 1,
@@ -41,6 +43,7 @@ export const ASSIST = {
     window: 1,
     landing: false,
     cue: true,
+    gauge: true,
   },
   hard: {
     beatWiden: 0.75,
@@ -53,6 +56,7 @@ export const ASSIST = {
     window: 0.8,
     landing: false,
     cue: false,
+    gauge: false,
   },
 };
 

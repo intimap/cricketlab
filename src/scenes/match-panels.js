@@ -23,6 +23,11 @@ import { gradeTap } from "../sim/rhythm.js";
 import { assistOf, ASSIST_NAMES } from "./assists.js";
 import { overReview } from "../sim/over-review.js";
 import { drawOverSummary } from "../render/over-summary.js";
+import { swingGauge } from "./bat-stick.js";
+import { drawSwingGauge } from "../render/swing-gauge.js";
+
+/** Where the swing gauge sits: to the left of the striker, clear of his swing and the timing meter. */
+const GAUGE_AT = { x: 232, y: 200 };
 
 /**
  * The match's panels over the picture: the bowling setup and choice of bowler, the speed gun, the
@@ -82,6 +87,9 @@ export function drawPanels(scene) {
       color: COLORS.gold,
     });
   }
+  // Batting on the stick: the swing gauge beside him (EASY and NORMAL).
+  const gauge = swingGauge(scene);
+  if (gauge) drawSwingGauge(GAUGE_AT.x, GAUGE_AT.y, gauge);
   // Release meter: the marker runs towards the delivery stride; hit the gold zone.
   if (scene.human === "bowl" && scene.cur && (scene.phase === "runup" || (scene.phase === "flight" && scene.phaseT < 0.9))) {
     drawReleaseMeter(scene);

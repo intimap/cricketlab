@@ -25,6 +25,7 @@ import { GROUND_WEAR_STEPS } from "./match-ball.js";
 import * as flight from "./match-flight.js";
 import * as setup from "./match-setup.js";
 import { PauseMenu } from "./pause-menu.js";
+import { controlsSetting } from "./bat-stick.js";
 import { ScoreboardScene } from "./scoreboard.js";
 import { resultEntry } from "../sim/leaderboard.js";
 import * as ending from "./match-ending.js";
@@ -153,7 +154,8 @@ export class MatchScene {
 
   /** Which on-screen buttons a touch screen shows (engine/touch.js), and what a gamepad's press: pause, bat or bowl. */
   get touchMode() {
-    return this.phase === "pause" ? "menu" : this.human;
+    if (this.phase === "pause") return "menu";
+    return this.human === "bat" && controlsSetting() === "stick" ? "batStick" : this.human;
   }
   get padBinding() {
     return matchPad(this);
@@ -296,8 +298,8 @@ export class MatchScene {
     return input.updateFootwork(this, dt);
   }
 
-  commitSwing(t, type, power, feet, variant) {
-    return input.commitSwing(this, t, type, power, feet, variant);
+  commitSwing(t, type, power, feet, variant, lifted = false) {
+    return input.commitSwing(this, t, type, power, feet, variant, lifted);
   }
 
   commitDefend(t, foot, feet) {

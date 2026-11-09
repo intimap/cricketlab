@@ -17,6 +17,8 @@ import { load, save } from "../engine/storage.js";
  *   gauge                  batting with the bat on a stick: the swing gauge (scenes/bat-stick.js); not on HARD
  */
 export const ASSISTS = ["easy", "normal", "hard"];
+/** A new player starts on EASY. */
+export const DEFAULT_ASSIST = "easy";
 export const ASSIST_NAMES = { easy: "EASY", normal: "NORMAL", hard: "HARD" };
 export const ASSIST = {
   easy: {
@@ -62,7 +64,7 @@ export const ASSIST = {
 
 /** This device's assist level. */
 export function assistSetting() {
-  const level = load("assist", "normal");
+  const level = load("assist", DEFAULT_ASSIST);
   return ASSISTS.includes(level) ? level : "normal";
 }
 

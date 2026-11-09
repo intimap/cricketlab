@@ -8,6 +8,8 @@ import { WIDTH, HEIGHT } from "../engine/screen.js";
 
 /** AUTO is full, stepping down to simple on a slow machine (scenes/effects-auto.js). */
 export const EFFECTS = ["auto", "full", "simple", "off"];
+/** A new player starts on full effects (AUTO would step a slow machine down to simple). */
+export const DEFAULT_EFFECTS = "full";
 export const EFFECT_NAMES = { auto: "AUTO", full: "FULL", simple: "SIMPLE", off: "OFF" };
 
 const NONE = { grade: false, shadows: false, bloom: false };

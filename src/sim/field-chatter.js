@@ -140,6 +140,21 @@ const LANKAN_SLEDGES = [
   "ELA! SPIN DOES THE TALKING!",
 ];
 
+const WINDIES_SLEDGES = [
+  "COME ON, BIG MAN! THAT'S HOW YOU DO IT!",
+  "OFF YOU GO, {N}. TAKE A LIME IN THE SHADE.",
+  "TOO MUCH PACE FOR YOU, {N}!",
+  "YES, SKIPPA! WHAT A BALL!",
+  "WELL BOWLED, YOUTH! WELL BOWLED!",
+  "SEE YOU LATER, {N}!",
+  "THAT ONE WAS TOO HOT, {N}!",
+  "BOWLERMAN! BOWLERMAN!",
+  "HE NEVER SAW THAT ONE, BOYS!",
+  "WALK ON, {N}. WALK ON.",
+  "ONE MORE, BOYS! ONE MORE AND WE ROLL!",
+  "BIG UP THE BOWLER!",
+];
+
 /** Each side's send-offs, by its abbreviation (sim/team-list.js); anyone else's sound English. */
 const SLEDGES = {
   AUS: AUSSIE_SLEDGES,
@@ -149,6 +164,7 @@ const SLEDGES = {
   IND: INDIAN_SLEDGES,
   PAK: PAKISTANI_SLEDGES,
   SL: LANKAN_SLEDGES,
+  WI: WINDIES_SLEDGES,
 };
 
 /** Each side's chirps when the bat is beaten. */
@@ -172,6 +188,7 @@ const CHIRPS = {
   IND: ["ARRE, BEATEN!", "JUST MISSED, YAAR!", "SHABAASH, BOWLER!", "ONE MORE THERE, ONE MORE!", "BHAI, HE CAN'T SEE IT!"],
   PAK: ["WAAH! BEATEN!", "TOO QUICK, BHAI!", "SHABASH, KEEP IT THERE!", "HE'S GUESSING, BOYS!", "ZABARDAST LINE!"],
   SL: ["AIYO, MISSED IT!", "ELA BALL, MACHAN!", "HONDAI, KEEP IT THERE!", "HE CAN'T READ IT, BOYS!", "PATTA!"],
+  WI: ["WHAT A BALL, BOWLERMAN!", "HE NAH READ IT, BOYS!", "KEEP IT RIGHT THERE!", "TOO QUICK FOR HIM!", "NEXT ONE IS YOURS!"],
 };
 
 /** A chirp from the fielding side (by abbreviation) when the bat is beaten. */

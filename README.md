@@ -1,6 +1,6 @@
 # Cricket Lab
 
-A 16-bit style cricket game (Australia, England, New Zealand, South Africa, India, Pakistan and Sri Lanka) for the browser. Play a five-day
+A 16-bit style cricket game (Australia, England, New Zealand, South Africa, India, Pakistan, Sri Lanka and the West Indies) for the browser. Play a five-day
 Test, a limited-overs match or a Classic Match, or practise in the nets, on a green top, a dust bowl or a cracked
 pitch, with a physics-based ball, wearing pitch and ageing ball, the weather, AI field placings and ball-by-ball
 commentary.
@@ -165,7 +165,7 @@ src/
     handedness.js     left-handers: the sim in the striker's frame, deliveries mirrored into it
     rng.js            seedable random numbers
     teams.js          squads and player ratings
-    team-list.js      every team the menu offers (Australia, England, New Zealand, South Africa, India, Pakistan, Sri Lanka)
+    team-list.js      every team the menu offers (Australia, England, New Zealand, South Africa, India, Pakistan, Sri Lanka, West Indies)
     squads/           the New Zealand, South Africa, India, Pakistan and Sri Lanka squads
     conditions.js     pitch types, pitch wear, ball wear (swing, reverse, grip)
     weather.js        the five weathers, what each does to the pitch and outfield, each ground's climate

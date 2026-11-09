@@ -15,7 +15,8 @@ export const BOUNDARY = 66;
 export const BOUNDARY_SCORES = BOUNDARY - 0.3;
 export const STUMPS_HALF_WIDTH = 0.114;
 export const STUMPS_HEIGHT = 0.711;
-export const BALL_RADIUS = 0.046;
+/** The ball's radius (m): a real ball, 72 mm across, for the bat, the pads and the stumps alike. */
+export const BALL_RADIUS = 0.036;
 export const GRAVITY = 9.81;
 
 /** The two sets of stumps: 0 = striker's end, 1 = bowler's end. */

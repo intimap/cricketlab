@@ -1,5 +1,5 @@
 import { playSound, sfx } from "../engine/audio.js";
-import { TRACKING_TIME } from "../render/match-broadcast.js";
+import { TRACKING_TIME, REPLAY_TIME } from "../render/match-broadcast.js";
 
 /** Match contact data selects timbre here; the audio engine only synthesises voices. */
 export function playContact(contact) {
@@ -40,7 +40,8 @@ export function playBroadcast(event) {
 
 /** Cue each reveal once, from update rather than the rendering path. */
 export function updateReviewAudio(scene) {
-  const thresholds = [1, 1.6, 2.2, TRACKING_TIME];
+  // The tracking boxes' reveals (after the REPLAY card), then the verdict.
+  const thresholds = [1, 1.6, 2.2].map((t) => t + REPLAY_TIME).concat(TRACKING_TIME);
   const cur = scene.cur;
   cur.reviewAudioStage ??= 0;
   while (cur.reviewAudioStage < thresholds.length && scene.phaseT >= thresholds[cur.reviewAudioStage]) {

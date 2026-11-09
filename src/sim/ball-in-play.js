@@ -389,10 +389,11 @@ export class BallInPlay {
       kind,
       wicket: this.wicket,
       catchDropped: this.catchDropped,
-      nearRunout: this.wicket ? null : this.nearMiss,
+      // The running counts for nothing once it's a boundary, so the commentary leaves it out.
+      nearRunout: this.wicket || this.boundary ? null : this.nearMiss,
       // For the commentary: a batter dived home, or one was sent back.
-      dived: this.events.some((e) => e.type === "diveHome"),
-      recalled: this.events.some((e) => e.type === "recall"),
+      dived: !this.boundary && this.events.some((e) => e.type === "diveHome"),
+      recalled: !this.boundary && this.events.some((e) => e.type === "recall"),
       // A boundary leaves the striker on strike, however far they'd run.
       strikerEnd: this.boundary ? 0 : striker.from,
     };

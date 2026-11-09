@@ -241,7 +241,7 @@ export class MatchScene {
 
   /** Big centre-screen announcement. */
   big(text, color, sub, dur = 1.8) {
-    this.banners.push({ text, sub, color, t0: this.now, dur, scale: 5, y: 96 });
+    this.banners.push({ text, sub, color, t0: this.now, dur, scale: 4, y: 96 });
   }
 
   betweenBalls() {

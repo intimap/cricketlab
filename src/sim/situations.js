@@ -148,15 +148,15 @@ export const SITUATIONS = {
   nearFifty: { rest: 12, facts: ["runs", "need"] },
   huntingFive: { rest: 12 },
   fieldPlan: { rest: 8, facts: ["field"] },
-  lowBounce: { rest: 18 },
-  extraBounce: { rest: 18 },
-  unevenBounce: { rest: 18 },
-  wideningCracks: { rest: 18 },
+  lowBounce: { rest: 60 },
+  extraBounce: { rest: 60 },
+  unevenBounce: { rest: 60 },
+  wideningCracks: { rest: 60 },
   afternoon: { rest: 18 },
   evening: { rest: 18 },
 
   // --- The everyday reads of the ball (sim/ball-reads.js; reads.json): the shot, the bowling, the players. ---
-  timedShot: { rest: 4, facts: ["shot"], cases: ["drive", "cutpull", "sweep", "loft", "glance"] },
+  timedShot: { rest: 6, facts: ["shot"], cases: ["drive", "cutpull", "sweep", "loft", "glance"] },
   mistimed: { rest: 6, cases: ["early", "late"] },
   feetRead: { rest: 6, cases: ["wrongFoot", "crease", "acrossLine", "outOfReach", "room", "goodStride"] },
   charged: { rest: 6, cases: ["scored", "blocked", "missed"] },
@@ -182,7 +182,7 @@ export const SITUATIONS = {
 
   // --- The match's state (sim/match-situations.js; finishes.json): the end of a chase, the tail, a Test. ---
   chaseLastTwo: { rest: 3, facts: ["need", "left"], cases: ["easy", "even", "steep"] },
-  chaseLastOver: { rest: 1, facts: ["need", "left"], cases: ["easy", "even", "steep"] },
+  chaseLastOver: { rest: 0, facts: ["need", "left"], cases: ["easy", "even", "steep"] },
   chaseLastBall: { rest: 0, facts: ["need", "left"], cases: ["1", "2", "3", "4", "5", "6", "more"] },
   scoresLevel: { rest: 6, facts: ["need", "left"] },
   closingOut: { rest: 12, facts: ["need", "left"] },

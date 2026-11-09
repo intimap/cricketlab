@@ -6,9 +6,12 @@
       "case": "easy",
       "kind": "match",
       "lines": {
-        "bunnings": ["{need} FROM {left}. THEY OUGHT TO GET THESE."],
-        "lorry": ["{need} OFF {left}! SURELY THEY CAN'T LOSE IT FROM HERE!"],
-        "grog": ["{need} OFF {left}. NOTHING SILLY. SINGLES WILL DO IT."]
+        "bunnings": ["{need} FROM {left}. THEY OUGHT TO GET THESE.", "{need} NEEDED, {left} TO COME. THEY'LL BE CONFIDENT."],
+        "lorry": ["{need} OFF {left}! SURELY THEY CAN'T LOSE IT FROM HERE!", "{need} OFF {left}! IT'S IN THE BAG, SURELY!"],
+        "grog": [
+          "{need} OFF {left}. NOTHING SILLY. SINGLES WILL DO IT.",
+          "{need} FROM {left}. THE ONLY WAY TO LOSE THIS IS A CLATTER OF WICKETS."
+        ]
       }
     },
     {
@@ -16,9 +19,12 @@
       "case": "even",
       "kind": "match",
       "lines": {
-        "bunnings": ["{need} FROM {left}. NOBODY LEAVE THEIR SEATS."],
-        "lorry": ["{need} OFF {left}! THIS IS GOING RIGHT TO THE WIRE!"],
-        "grog": ["{need} FROM {left}. ONE BIG OVER AND IT'S THEIRS. ONE TIGHT ONE AND IT ISN'T."]
+        "bunnings": ["{need} FROM {left}. NOBODY LEAVE THEIR SEATS.", "{need} OFF {left}. NAILS ARE BEING BITTEN."],
+        "lorry": ["{need} OFF {left}! THIS IS GOING RIGHT TO THE WIRE!", "{need} FROM {left}! WHO'S GOT THE NERVE?!"],
+        "grog": [
+          "{need} FROM {left}. ONE BIG OVER AND IT'S THEIRS. ONE TIGHT ONE AND IT ISN'T.",
+          "{need} FROM {left}. THE BOWLER WHO HOLDS HIS LENGTH WINS IT."
+        ]
       }
     },
     {
@@ -26,9 +32,12 @@
       "case": "steep",
       "kind": "match",
       "lines": {
-        "bunnings": ["{need} FROM {left}. IT WOULD TAKE SOMETHING SPECIAL."],
-        "lorry": ["{need} OFF {left}! THEY NEED BOUNDARIES, AND THEY NEED THEM NOW!"],
-        "grog": ["{need} FROM {left}. THEY HAVE TO TARGET THE SHORT BOUNDARY."]
+        "bunnings": ["{need} FROM {left}. IT WOULD TAKE SOMETHING SPECIAL.", "{need} FROM {left}. THEY'D NEED A SMALL MIRACLE."],
+        "lorry": ["{need} OFF {left}! THEY NEED BOUNDARIES, AND THEY NEED THEM NOW!", "{need} OFF {left}! IT'S A BIG ASK!"],
+        "grog": [
+          "{need} FROM {left}. THEY HAVE TO TARGET THE SHORT BOUNDARY.",
+          "{need} FROM {left}. SIXES OR BUST. THE BOWLERS MUST HIT THE BLOCKHOLE."
+        ]
       }
     },
     {
@@ -36,9 +45,12 @@
       "case": "easy",
       "kind": "match",
       "lines": {
-        "bunnings": ["{need} NEEDED, {left} BALLS TO COME. A FORMALITY, ONE WOULD THINK."],
-        "lorry": ["{need} OFF {left}! THEY'RE NEARLY HOME!"],
-        "grog": ["{need} OFF {left}. JUST FIND THE GAPS AND DON'T GET OUT."]
+        "bunnings": [
+          "{need} NEEDED, {left} BALLS TO COME. A FORMALITY, ONE WOULD THINK.",
+          "{need} FROM {left}. THE FAT LADY IS WARMING UP."
+        ],
+        "lorry": ["{need} OFF {left}! THEY'RE NEARLY HOME!", "{need} OFF {left}! JUST GET BAT ON BALL!"],
+        "grog": ["{need} OFF {left}. JUST FIND THE GAPS AND DON'T GET OUT.", "{need} FROM {left}. NO RISKS. PUSH AND RUN."]
       }
     },
     {
@@ -46,9 +58,12 @@
       "case": "even",
       "kind": "match",
       "lines": {
-        "bunnings": ["{need} FROM {left}. THE SORT OF ARITHMETIC NOBODY ENJOYS."],
-        "lorry": ["{need} OFF {left}! I CAN'T WATCH! I CAN'T NOT WATCH!"],
-        "grog": ["{need} FROM {left}. EXPECT THE WIDE YORKER. HE HAS TO BE READY FOR IT."]
+        "bunnings": ["{need} FROM {left}. THE SORT OF ARITHMETIC NOBODY ENJOYS.", "{need} FROM {left}. EVERY BALL AN EVENT."],
+        "lorry": ["{need} OFF {left}! I CAN'T WATCH! I CAN'T NOT WATCH!", "{need} OFF {left}! MY HEART CAN'T TAKE THIS!"],
+        "grog": [
+          "{need} FROM {left}. EXPECT THE WIDE YORKER. HE HAS TO BE READY FOR IT.",
+          "{need} FROM {left}. THE BOWLER HAS TO BOWL TO HIS FIELD. NO FREEBIES."
+        ]
       }
     },
     {
@@ -56,9 +71,15 @@
       "case": "steep",
       "kind": "match",
       "lines": {
-        "bunnings": ["{need} FROM {left}. SOMETHING REMARKABLE IS REQUIRED."],
-        "lorry": ["{need} FROM {left}! THEY NEED SIXES!"],
-        "grog": ["{need} OFF {left}. THE BOWLER MUSTN'T BOWL IN THE ARC. FULL AND WIDE."]
+        "bunnings": [
+          "{need} FROM {left}. SOMETHING REMARKABLE IS REQUIRED.",
+          "{need} FROM {left}. THEY'LL NEED TO FIND THE CROWD."
+        ],
+        "lorry": ["{need} FROM {left}! THEY NEED SIXES!", "{need} OFF {left}! IT'S GOT TO BE BOUNDARIES!"],
+        "grog": [
+          "{need} OFF {left}. THE BOWLER MUSTN'T BOWL IN THE ARC. FULL AND WIDE.",
+          "{need} FROM {left}. FULL AND WIDE, BOWLER. MAKE HIM REACH."
+        ]
       }
     },
     {
@@ -66,9 +87,12 @@
       "case": "1",
       "kind": "match",
       "lines": {
-        "bunnings": ["ONE BALL. ONE RUN. THAT'S ALL."],
-        "lorry": ["ONE NEEDED OFF THE LAST BALL! ANYTHING WILL DO!"],
-        "grog": ["ONE TO WIN. EVERY FIELDER IN TO SAVE THE SINGLE."]
+        "bunnings": ["ONE BALL. ONE RUN. THAT'S ALL.", "ONE RUN. ONE BALL. ALL RATHER SIMPLE."],
+        "lorry": ["ONE NEEDED OFF THE LAST BALL! ANYTHING WILL DO!", "ONE OFF ONE! JUST RUN, WHATEVER HAPPENS!"],
+        "grog": [
+          "ONE TO WIN. EVERY FIELDER IN TO SAVE THE SINGLE.",
+          "ONE TO WIN. THE BATTERS RUN WHATEVER HAPPENS. THE FIELD MUST HIT THE STUMPS."
+        ]
       }
     },
     {
@@ -76,9 +100,15 @@
       "case": "2",
       "kind": "match",
       "lines": {
-        "bunnings": ["TWO FROM THE LAST BALL. A GOOD DEAL OF RUNNING REQUIRED."],
-        "lorry": ["TWO OFF THE LAST BALL! THEY'LL HAVE TO RUN LIKE THE WIND!"],
-        "grog": ["TWO TO WIN. THE FIELD COMES IN; HE HAS TO HIT IT PAST THEM."]
+        "bunnings": ["TWO FROM THE LAST BALL. A GOOD DEAL OF RUNNING REQUIRED.", "TWO OFF ONE. A SPRINT WILL BE REQUIRED."],
+        "lorry": [
+          "TWO OFF THE LAST BALL! THEY'LL HAVE TO RUN LIKE THE WIND!",
+          "TWO TO WIN! THEY'LL RUN THEMSELVES INTO THE GROUND!"
+        ],
+        "grog": [
+          "TWO TO WIN. THE FIELD COMES IN; HE HAS TO HIT IT PAST THEM.",
+          "TWO OFF ONE. HIT IT INTO THE GAP AND RUN THE FIRST ONE HARD."
+        ]
       }
     },
     {
@@ -86,9 +116,12 @@
       "case": "3",
       "kind": "match",
       "lines": {
-        "bunnings": ["THREE FROM ONE. A BOUNDARY WOULD BE HELPFUL."],
-        "lorry": ["THREE OFF THE LAST BALL! IT HAS TO BE A FOUR!"],
-        "grog": ["THREE OFF ONE. THE FIELD GOES BACK: A BOUNDARY OR NOTHING."]
+        "bunnings": ["THREE FROM ONE. A BOUNDARY WOULD BE HELPFUL.", "THREE FROM THE LAST. A BOUNDARY, OR A VERY LONG RUN."],
+        "lorry": ["THREE OFF THE LAST BALL! IT HAS TO BE A FOUR!", "THREE TO WIN! FIND THE ROPE!"],
+        "grog": [
+          "THREE OFF ONE. THE FIELD GOES BACK: A BOUNDARY OR NOTHING.",
+          "THREE OFF ONE. THE FIELD'S BACK, SO THE GAP IS IN FRONT OF THEM."
+        ]
       }
     },
     {
@@ -96,9 +129,12 @@
       "case": "4",
       "kind": "match",
       "lines": {
-        "bunnings": ["FOUR OFF THE LAST BALL. NO MARGIN AT ALL."],
-        "lorry": ["FOUR TO WIN! HE NEEDS A BOUNDARY! WHAT A FINISH!"],
-        "grog": ["A FOUR WINS IT, A THREE TIES IT. FULL AND STRAIGHT, BOWLER."]
+        "bunnings": ["FOUR OFF THE LAST BALL. NO MARGIN AT ALL.", "FOUR TO WIN. THE ROPE OR NOTHING."],
+        "lorry": ["FOUR TO WIN! HE NEEDS A BOUNDARY! WHAT A FINISH!", "A FOUR WINS IT! CAN HE FIND THE GAP?!"],
+        "grog": [
+          "A FOUR WINS IT, A THREE TIES IT. FULL AND STRAIGHT, BOWLER.",
+          "FOUR TO WIN. THE BOWLER MUST NOT GIVE HIM WIDTH."
+        ]
       }
     },
     {
@@ -106,9 +142,9 @@
       "case": "5",
       "kind": "match",
       "lines": {
-        "bunnings": ["FIVE TO WIN. A FOUR WON'T QUITE DO."],
-        "lorry": ["FIVE OFF THE LAST BALL! IT'S GOT TO BE A SIX!"],
-        "grog": ["FIVE NEEDED. A SIX WINS IT, A FOUR TIES IT."]
+        "bunnings": ["FIVE TO WIN. A FOUR WON'T QUITE DO.", "FIVE TO WIN. ONLY THE MAXIMUM WILL DO."],
+        "lorry": ["FIVE OFF THE LAST BALL! IT'S GOT TO BE A SIX!", "FIVE NEEDED! A SIX AND THEY WIN!"],
+        "grog": ["FIVE NEEDED. A SIX WINS IT, A FOUR TIES IT.", "A FOUR TIES IT, A SIX WINS IT. THE BOWLER'S BEST BALL, PLEASE."]
       }
     },
     {
@@ -116,9 +152,12 @@
       "case": "6",
       "kind": "match",
       "lines": {
-        "bunnings": ["SIX TO WIN. OFF THE LAST BALL. WELL."],
-        "lorry": ["SIX TO WIN OFF THE LAST BALL! CAN HE DO IT?!"],
-        "grog": ["A SIX WINS IT. ANYTHING LESS AND IT'S OVER. DON'T BOWL IN THE ARC."]
+        "bunnings": ["SIX TO WIN. OFF THE LAST BALL. WELL.", "A SIX WINS IT. A BIG ASK OF ONE BALL."],
+        "lorry": ["SIX TO WIN OFF THE LAST BALL! CAN HE DO IT?!", "SIX TO WIN! THE WHOLE GROUND IS HOLDING ITS BREATH!"],
+        "grog": [
+          "A SIX WINS IT. ANYTHING LESS AND IT'S OVER. DON'T BOWL IN THE ARC.",
+          "SIX OFF THE LAST. EVERYONE DEEP, AND BOWL THE YORKER."
+        ]
       }
     },
     {
@@ -126,54 +165,75 @@
       "case": "more",
       "kind": "match",
       "lines": {
-        "bunnings": ["{need} OFF THE LAST BALL. A SHADE AMBITIOUS."],
-        "lorry": ["{need} OFF THE LAST BALL! IT'S ALL OVER, SURELY!"],
-        "grog": ["{need} OFF ONE BALL. THE BOWLING SIDE HAVE DONE IT."]
+        "bunnings": ["{need} OFF THE LAST BALL. A SHADE AMBITIOUS.", "{need} OFF THE LAST. EVEN A NO-BALL WON'T SAVE THEM."],
+        "lorry": ["{need} OFF THE LAST BALL! IT'S ALL OVER, SURELY!", "{need} OFF ONE! IT'S ALL OVER!"],
+        "grog": ["{need} OFF ONE BALL. THE BOWLING SIDE HAVE DONE IT.", "{need} OFF ONE BALL. THE BOWLERS HAVE WON THIS WELL."]
       }
     },
     {
       "situation": "scoresLevel",
       "kind": "match",
       "lines": {
-        "bunnings": ["SCORES LEVEL. ONE RUN IN IT."],
-        "lorry": ["THE SCORES ARE LEVEL! ONE RUN TO WIN IT!"],
-        "grog": ["LEVEL. EVERY FIELDER UP. DON'T GIVE AWAY THE SINGLE."]
+        "bunnings": ["SCORES LEVEL. ONE RUN IN IT.", "LEVEL. A SINGLE WINS IT."],
+        "lorry": ["THE SCORES ARE LEVEL! ONE RUN TO WIN IT!", "ALL SQUARE! WHO'S GOING TO BE THE HERO?!"],
+        "grog": [
+          "LEVEL. EVERY FIELDER UP. DON'T GIVE AWAY THE SINGLE.",
+          "SCORES LEVEL. EVERY FIELDER SAVING ONE. THE BATTER JUST NEEDS A GAP."
+        ]
       }
     },
     {
       "situation": "closingOut",
       "kind": "match",
       "lines": {
-        "bunnings": ["{need} FROM {left}. THE BOWLING SIDE MAY START TO RELAX."],
-        "lorry": ["{need} OFF {left}! THAT'S SURELY BEYOND THEM NOW!"],
-        "grog": ["{need} FROM {left}. JUST DON'T BOWL NO-BALLS AND WIDES."]
+        "bunnings": [
+          "{need} FROM {left}. THE BOWLING SIDE MAY START TO RELAX.",
+          "{need} FROM {left}. THE BATTING SIDE IS RUNNING OUT OF ROAD."
+        ],
+        "lorry": ["{need} OFF {left}! THAT'S SURELY BEYOND THEM NOW!", "{need} OFF {left}! THE BOWLERS HAVE DONE IT!"],
+        "grog": [
+          "{need} FROM {left}. JUST DON'T BOWL NO-BALLS AND WIDES.",
+          "{need} FROM {left}. BOWL STRAIGHT AND LET THEM TAKE THE RISKS."
+        ]
       }
     },
     {
       "situation": "tailWagging",
       "kind": "match",
       "lines": {
-        "bunnings": ["THE TAIL IS WAGGING. {stand} FOR THIS STAND."],
-        "lorry": ["THE TAIL'S WAGGING! {stand} TOGETHER! THE BOWLERS ARE FURIOUS!"],
-        "grog": ["{stand} FOR THIS PAIR. THE BOWLERS LOST THEIR LENGTH LOOKING FOR THE EASY WICKET."]
+        "bunnings": ["THE TAIL IS WAGGING. {stand} FOR THIS STAND.", "THE TAIL REFUSES TO GO QUIETLY. {stand} FOR THE STAND."],
+        "lorry": [
+          "THE TAIL'S WAGGING! {stand} TOGETHER! THE BOWLERS ARE FURIOUS!",
+          "{stand} FROM THE TAIL! THE BOWLERS ARE TEARING THEIR HAIR OUT!"
+        ],
+        "grog": [
+          "{stand} FOR THIS PAIR. THE BOWLERS LOST THEIR LENGTH LOOKING FOR THE EASY WICKET.",
+          "THEY'RE BOWLING SHORT AT THE TAIL. PITCH IT UP AND HIT THE STUMPS."
+        ]
       }
     },
     {
       "situation": "leadPassed",
       "kind": "match",
       "lines": {
-        "bunnings": ["THEY'RE IN FRONT NOW. ONLY JUST."],
-        "lorry": ["THEY'VE TAKEN THE LEAD! THE MOMENTUM HAS SWUNG!"],
-        "grog": ["IN FRONT BY {lead}. EVERY RUN NOW IS ONE THE OTHER SIDE HAS TO CHASE."]
+        "bunnings": ["THEY'RE IN FRONT NOW. ONLY JUST.", "THEY'RE AHEAD. BY {lead}."],
+        "lorry": ["THEY'VE TAKEN THE LEAD! THE MOMENTUM HAS SWUNG!", "THEY'VE GOT THEIR NOSES IN FRONT!"],
+        "grog": [
+          "IN FRONT BY {lead}. EVERY RUN NOW IS ONE THE OTHER SIDE HAS TO CHASE.",
+          "IN FRONT NOW. EVERY RUN FROM HERE IS ONE THE OTHER SIDE MUST MAKE LAST."
+        ]
       }
     },
     {
       "situation": "battingForDraw",
       "kind": "match",
       "lines": {
-        "bunnings": ["{left} OVERS LEFT. THEY'LL BAT, AND BAT."],
-        "lorry": ["{left} OVERS TO SURVIVE! EVERY BLOCK IS A SMALL VICTORY!"],
-        "grog": ["{left} OVERS TO GO. FORGET THE RUNS: DON'T GIVE THEM A CHANCE."]
+        "bunnings": ["{left} OVERS LEFT. THEY'LL BAT, AND BAT.", "{left} OVERS TO SURVIVE. EVERY BLOCK APPLAUDED."],
+        "lorry": ["{left} OVERS TO SURVIVE! EVERY BLOCK IS A SMALL VICTORY!", "BLOCK! THE CROWD'S CHEERING THE BLOCKS NOW!"],
+        "grog": [
+          "{left} OVERS TO GO. FORGET THE RUNS: DON'T GIVE THEM A CHANCE.",
+          "{left} OVERS. THE BOWLERS NEED WICKETS; THE BATTERS NEED TIME."
+        ]
       }
     },
     {
@@ -181,9 +241,21 @@
       "case": "start",
       "kind": "match",
       "lines": {
-        "bunnings": ["THE FIRST {overs} OVERS, AND ONLY TWO MEN OUT."],
-        "lorry": ["POWERPLAY! {overs} OVERS OF FIELDING RESTRICTIONS! HERE WE GO!"],
-        "grog": ["TWO OUT FOR {overs} OVERS. THE BOWLERS HAVE TO HIT THE TOP OF OFF."]
+        "bunnings": [
+          "THE FIRST {overs} OVERS, AND ONLY TWO MEN OUT.",
+          "THE POWERPLAY. THE BATTERS WILL BE BUSY.",
+          "FIELDING RESTRICTIONS FOR {overs} OVERS. A TEMPTING TIME TO BAT."
+        ],
+        "lorry": [
+          "POWERPLAY! {overs} OVERS OF FIELDING RESTRICTIONS! HERE WE GO!",
+          "THE POWERPLAY IS ON! LET'S SEE SOME FIREWORKS!",
+          "{overs} OVERS OF FREEDOM! GO GET 'EM!"
+        ],
+        "grog": [
+          "TWO OUT FOR {overs} OVERS. THE BOWLERS HAVE TO HIT THE TOP OF OFF.",
+          "IN THE POWERPLAY THE BOWLERS MUST HIT A HARD LENGTH. NO WIDTH.",
+          "TWO OUT. THE BATTERS WILL TARGET THE GAPS OVER THE INFIELD."
+        ]
       }
     },
     {
@@ -191,45 +263,72 @@
       "case": "end",
       "kind": "match",
       "lines": {
-        "bunnings": ["THE POWERPLAY IS DONE. THE FIELDERS MAY SPREAD OUT AGAIN."],
-        "lorry": ["THE POWERPLAY'S OVER! MORE MEN ON THE ROPE NOW!"],
-        "grog": ["WITH THE FIELD BACK, THE SINGLES ARE THERE. THE BATTERS HAVE TO TAKE THEM."]
+        "bunnings": [
+          "THE POWERPLAY IS DONE. THE FIELDERS MAY SPREAD OUT AGAIN.",
+          "THE FIELD SPREADS. THE GAME CHANGES GEAR.",
+          "NO MORE RESTRICTIONS. THE BATTERS HAVE TO WORK HARDER NOW."
+        ],
+        "lorry": [
+          "THE POWERPLAY'S OVER! MORE MEN ON THE ROPE NOW!",
+          "THE POWERPLAY'S DONE! WHO WON IT?!",
+          "FIELDERS EVERYWHERE NOW! THE GAPS HAVE CLOSED!"
+        ],
+        "grog": [
+          "WITH THE FIELD BACK, THE SINGLES ARE THERE. THE BATTERS HAVE TO TAKE THEM.",
+          "WITH THE FIELD BACK, THE SPINNERS WILL COME ON.",
+          "THE MIDDLE OVERS: KEEP WICKETS IN HAND AND ROTATE THE STRIKE."
+        ]
       }
     },
     {
       "situation": "firstOverOfDay",
       "kind": "match",
       "lines": {
-        "bunnings": ["DAY {day}. THE PITCH HAS HAD A NIGHT TO THINK ABOUT IT."],
-        "lorry": ["WELCOME TO DAY {day}! A NEW DAY, AND ANYTHING CAN HAPPEN!"],
-        "grog": ["DAY {day}, FIRST OVER. THE BALL WILL DO A BIT THIS MORNING. BAT TIGHT."]
+        "bunnings": ["DAY {day}. THE PITCH HAS HAD A NIGHT TO THINK ABOUT IT.", "DAY {day}, AND A FRESH START FOR EVERYONE."],
+        "lorry": [
+          "WELCOME TO DAY {day}! A NEW DAY, AND ANYTHING CAN HAPPEN!",
+          "WE'RE BACK FOR DAY {day}! WHAT HAS THE PITCH GOT IN STORE?"
+        ],
+        "grog": [
+          "DAY {day}, FIRST OVER. THE BALL WILL DO A BIT THIS MORNING. BAT TIGHT.",
+          "DAY {day}. THE FIRST HOUR IS THE BOWLERS' BEST CHANCE. BAT IT OUT."
+        ]
       }
     },
     {
       "situation": "followOn",
       "kind": "match",
       "lines": {
-        "bunnings": ["FOLLOWING ON, {lead} BEHIND. A LONG ROAD BACK."],
-        "lorry": ["THEY'RE FOLLOWING ON! {lead} BEHIND! CAN THEY SAVE IT?"],
-        "grog": ["{lead} BEHIND AND FOLLOWING ON. BAT TIME; THE RUNS WILL COME."]
+        "bunnings": ["FOLLOWING ON, {lead} BEHIND. A LONG ROAD BACK.", "BACK IN TO BAT, {lead} BEHIND. A DAUNTING PROSPECT."],
+        "lorry": ["THEY'RE FOLLOWING ON! {lead} BEHIND! CAN THEY SAVE IT?", "FOLLOWING ON! IT'S A FIGHT FOR SURVIVAL NOW!"],
+        "grog": [
+          "{lead} BEHIND AND FOLLOWING ON. BAT TIME; THE RUNS WILL COME.",
+          "{lead} BEHIND. FORGET THE DEFICIT. BAT SESSION BY SESSION."
+        ]
       }
     },
     {
       "situation": "nightwatchman",
       "kind": "players",
       "lines": {
-        "bunnings": ["A NIGHTWATCHMAN. HE'LL BE HOPING THE NIGHT IS QUIET."],
-        "lorry": ["THEY'VE SENT IN THE NIGHTWATCHMAN! BRAVE MAN!"],
-        "grog": ["A NIGHTWATCHMAN, TO SAVE A PROPER BATTER FOR THE MORNING. SENSIBLE."]
+        "bunnings": ["A NIGHTWATCHMAN. HE'LL BE HOPING THE NIGHT IS QUIET.", "THE NIGHTWATCHMAN. A NOBLE CALLING."],
+        "lorry": ["THEY'VE SENT IN THE NIGHTWATCHMAN! BRAVE MAN!", "IN COMES THE NIGHTWATCHMAN! GOOD LUCK, MY FRIEND!"],
+        "grog": [
+          "A NIGHTWATCHMAN, TO SAVE A PROPER BATTER FOR THE MORNING. SENSIBLE.",
+          "THE NIGHTWATCHMAN'S JOB: SURVIVE TO STUMPS. RUNS ARE A BONUS."
+        ]
       }
     },
     {
       "situation": "declarationPush",
       "kind": "match",
       "lines": {
-        "bunnings": ["{lead} IN FRONT. THE DECLARATION CAN'T BE FAR AWAY."],
-        "lorry": ["{lead} AHEAD! WHEN WILL THEY DECLARE?"],
-        "grog": ["{lead} ON. QUICK RUNS NOW, THEN GIVE THE BOWLERS THEIR TIME."]
+        "bunnings": ["{lead} IN FRONT. THE DECLARATION CAN'T BE FAR AWAY.", "{lead} AHEAD. THE CAPTAIN IS WATCHING THE CLOCK."],
+        "lorry": ["{lead} AHEAD! WHEN WILL THEY DECLARE?", "{lead} IN FRONT! DECLARE! DECLARE!"],
+        "grog": [
+          "{lead} ON. QUICK RUNS NOW, THEN GIVE THE BOWLERS THEIR TIME.",
+          "{lead} AHEAD. THE BOWLERS NEED TIME FOR TEN WICKETS, NOT TEN MORE RUNS."
+        ]
       }
     },
     {

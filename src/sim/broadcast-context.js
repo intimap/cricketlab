@@ -1,4 +1,4 @@
-import { voiceLines, storiesIn } from "./lines.js";
+import { voiceLines, storiesIn, formatOf } from "./lines.js";
 
 /** Leaves worth a word, and runs of dots (sim/lines/results.json and colour.json). */
 export const LINES = {
@@ -30,7 +30,8 @@ export function broadcastContext(rec, inn, narrative, light) {
   if (m.nearFifty) add("nearFifty", 58, { b: batter.p.short, runs: m.runs, need: 50 - m.runs }, `fifty:${rec.striker}`);
   if (m.huntingFive) add("huntingFive", 76, {}, `five:${rec.bowler}`);
   const dots = narrative.dotPressure;
-  const level = dots.batter >= 12 ? 12 : dots.batter >= 8 ? 8 : dots.batter >= 4 ? 4 : 0;
+  // Four dots running is routine in a Test: there the pressure rungs start at eight.
+  const level = dots.batter >= 12 ? 12 : dots.batter >= 8 ? 8 : dots.batter >= 4 && formatOf(inn) !== "test" ? 4 : 0;
   if (level && rec.legal && rec.total === 0)
     add(`dotPressure${level}`, 56 + level, { dots: dots.batter }, `dots:${rec.striker}:${dots.streak}:${level}`);
   const pitch = narrative.pitch;

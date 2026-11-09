@@ -3,7 +3,7 @@
 This directory preserves the original content pack and its offline validation tools.
 The live game loads only `ball_calls.json` through `sim/pack-voice.js`.
 Its current voice and context lines live in `sim/lines/*.json` (read by `sim/lines.js`);
-the optional reaction/context banks below are archive data,
+the best of its reaction and context banks below were taken into those files; the banks themselves are archive data,
 not active or pending runtime integrations. The original integration notes below
 describe the source package, not the current game.
 

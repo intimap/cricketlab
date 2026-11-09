@@ -1,0 +1,251 @@
+{
+  "about": "Remarks on the smaller moments (sim/moments.js): ducks, maidens, big overs, jaffas, weaknesses found.",
+  "groups": [
+    {
+      "situation": "goldenDuck",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["FIRST BALL. {b} WON'T WANT TO SEE THAT AGAIN.", "A GOLDEN DUCK. THE LONG WALK FEELS LONGER."],
+        "lorry": ["FIRST BALL! {b} IS ON HIS WAY FOR A GOLDEN DUCK!", "GONE FIRST BALL! WHAT A START FOR {w}!"],
+        "grog": ["{w} HAD A PLAN FOR {b} FROM BALL ONE. EXECUTED.", "NO TIME TO SETTLE. THAT'S WHY YOU ATTACK A NEW BATTER."]
+      }
+    },
+    {
+      "situation": "longDuck",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["{n} BALLS AND NOTHING TO SHOW FOR IT. HARD WORK UNREWARDED.", "{b} BATTLED {n} BALLS FOR NO RUN."],
+        "lorry": ["ALL THAT EFFORT! {n} BALLS AND {b} GOES FOR NOUGHT!", "{n} DELIVERIES OF RESISTANCE, AND IT ENDS IN A DUCK!"],
+        "grog": [
+          "{n} BALLS WITHOUT SCORING. THE PRESSURE TOLD IN THE END.",
+          "SURVIVAL WITHOUT SCORING ONLY LASTS SO LONG. {n} BALLS."
+        ]
+      }
+    },
+    {
+      "situation": "duck",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["{b} GOES WITHOUT SCORING.", "A DUCK FOR {b}. NOT HIS DAY."],
+        "lorry": ["NOUGHT! {b} DOESN'T TROUBLE THE SCORERS!", "{b} GONE FOR A DUCK! THE BOWLERS ARE ON TOP!"],
+        "grog": [
+          "{b} NEVER GOT GOING. THE BOWLERS GAVE HIM NOTHING TO HIT.",
+          "NO RUNS FOR {b}. HE COULDN'T FIND A WAY TO ROTATE STRIKE."
+        ]
+      }
+    },
+    {
+      "situation": "bowlerThird",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THREE FOR {w}. A VERY USEFUL DAY'S WORK.", "{w} HAS HIS THIRD."],
+        "lorry": ["THAT'S THREE FOR {w}! HE'S ON A ROLL!", "THREE WICKETS FOR {w}! THIS SPELL IS SPECIAL!"],
+        "grog": [
+          "{w} NOW HAS THREE. THE CAPTAIN WILL KEEP HIM ON.",
+          "THIRD WICKET FOR {w}. HE'S FOUND THE RIGHT LENGTH FOR THIS SURFACE."
+        ]
+      }
+    },
+    {
+      "situation": "shyMissed",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["A SHY, AND A MISS. THE BATTER WAS IN TROUBLE THERE.", "HAD THAT HIT, HE WAS GONE."],
+        "lorry": ["HE MISSED THE STUMPS! THAT WAS OUT IF IT HITS!", "SO CLOSE! A DIRECT HIT AND HE WAS GONE!"],
+        "grog": [
+          "THE RIGHT IDEA TO SHY. THE BACKING UP WAS THE PROBLEM.",
+          "WORTH THE SHY AT THAT RANGE. THE BATTERS TOOK A BIG RISK."
+        ]
+      }
+    },
+    {
+      "situation": "threeInARow",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["THREE IN A ROW. {w} IS UNDER SOME PRESSURE.", "ANOTHER ONE. THREE BOUNDARIES ON THE TROT."],
+        "lorry": ["THREE IN A ROW! {b} IS TEARING INTO {w}!", "AND AGAIN! THAT'S THREE BOUNDARIES IN A ROW!"],
+        "grog": [
+          "THREE BOUNDARIES. {w} NEEDS TO CHANGE SOMETHING: LENGTH OR FIELD.",
+          "{b} HAS TAKEN THE INITIATIVE. THREE ON THE BOUNCE."
+        ]
+      }
+    },
+    {
+      "situation": "backToBack",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["BACK-TO-BACK BOUNDARIES FOR {b}.", "TWO IN A ROW."],
+        "lorry": ["TWO IN TWO! {b} IS AWAY!", "BACK TO BACK! THE CROWD IS UP!"],
+        "grog": ["TWO BOUNDARIES. {w} HAS DRIFTED ONTO {b}'S STRENGTHS.", "BACK TO BACK. THAT CHANGES THE MOOD OF THE OVER."]
+      }
+    },
+    {
+      "situation": "intoNineties",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["{b} MOVES INTO THE NINETIES. {n} NOW.", "{n} FOR {b}. THE NINETIES."],
+        "lorry": ["INTO THE NINETIES! {b} IS ON {n}!", "{b} ON {n}! THE HUNDRED IS IN SIGHT!"],
+        "grog": [
+          "{n}. THIS IS WHERE BATTERS TIGHTEN UP. KEEP PLAYING THE BALL.",
+          "{b} ON {n}. THE FIELD WILL COME IN TO STOP THE SINGLES."
+        ]
+      }
+    },
+    {
+      "situation": "teamMilestone",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THE {n} COMES UP.", "{n} ON THE BOARD."],
+        "lorry": ["THAT BRINGS UP THE {n}!", "{n} UP FOR THE BATTING SIDE!"],
+        "grog": [
+          "{n} UP. NOW THE QUESTION IS HOW MANY MORE THEY CAN BUILD.",
+          "THE {n} IS UP. A PLATFORM, IF THEY KEEP WICKETS IN HAND."
+        ]
+      }
+    },
+    {
+      "situation": "equation",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{n} NEEDED FROM {k} BALLS.", "THE EQUATION: {n} FROM {k}."],
+        "lorry": ["{n} FROM {k}! THIS IS WHERE IT GETS INTERESTING!", "THEY NEED {n} OFF {k}! GAME ON!"],
+        "grog": [
+          "{n} FROM {k}. ONE BIG OVER CHANGES EVERYTHING; ONE QUIET ONE ENDS IT.",
+          "{n} OFF {k}. THEY NEED BOUNDARIES, NOT JUST SINGLES."
+        ]
+      }
+    },
+    {
+      "situation": "bigOver",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{n} FROM THE OVER. EXPENSIVE.", "AN OVER {w} WILL WANT TO FORGET. {n} FROM IT."],
+        "lorry": ["{n} OFF THE OVER! THAT'S A BIG ONE!", "WHAT AN OVER! {n} RUNS FROM IT!"],
+        "grog": [
+          "{n} FROM THE OVER. THE CAPTAIN MIGHT HAVE A WORD ABOUT THAT LENGTH.",
+          "{n} RUNS. ONE OVER LIKE THAT SWINGS THE MOMENTUM."
+        ]
+      }
+    },
+    {
+      "situation": "tightSpell",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{w} IS GIVING NOTHING AWAY.", "A MISERLY SPELL FROM {w}."],
+        "lorry": ["{w} HAS BEEN SUPERB! JUST {n} RUNS!", "WHAT CONTROL FROM {w}! NOTHING TO HIT!"],
+        "grog": [
+          "{w}'S FIGURES TELL THE STORY. {n} RUNS, AND THE BATTERS ARE STUCK.",
+          "{w} HAS BOWLED TO HIS FIELD ALL SPELL. THAT'S HOW YOU BUILD PRESSURE."
+        ]
+      }
+    },
+    {
+      "situation": "maiden",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["A MAIDEN FROM {w}.", "NOTHING FROM THE OVER. A MAIDEN."],
+        "lorry": ["A MAIDEN! {w} HAS TIED THEM DOWN!", "SIX BALLS, NO RUNS! A MAIDEN FOR {w}!"],
+        "grog": ["A MAIDEN. {w} KEPT IT IN THE CORRIDOR ALL OVER.", "A MAIDEN OVER. THE PRESSURE IS QUIETLY BUILDING."]
+      }
+    },
+    {
+      "situation": "maidenAgain",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["ANOTHER MAIDEN FROM {w}. BACK-TO-BACK.", "TWO MAIDENS IN A ROW FOR {w}."],
+        "lorry": ["BACK-TO-BACK MAIDENS! {w} IS SQUEEZING THEM!", "ANOTHER MAIDEN! THE BATTERS CAN'T GET HIM AWAY!"],
+        "grog": ["CONSECUTIVE MAIDENS. SOMEONE WILL HAVE TO TAKE A RISK SOON.", "TWO MAIDENS. THAT'S WHERE WICKETS COME FROM."]
+      }
+    },
+    {
+      "situation": "beatenAgain",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["BEATEN AGAIN. {n} TIMES THIS OVER.", "{b} BEATEN AGAIN. HE HASN'T LAID BAT ON THAT."],
+        "lorry": ["BEATEN AGAIN! {w} IS ALL OVER {b}!", "AND AGAIN! {b} IS GROPING!"],
+        "grog": [
+          "{n} TIMES BEATEN THIS OVER. {b} IS PLAYING AT DELIVERIES HE COULD LEAVE.",
+          "{w} IS FINDING THE EDGE OF THE BAT, JUST NOT THE EDGE ITSELF."
+        ]
+      }
+    },
+    {
+      "situation": "jaffa",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["A VERY GOOD BALL. {n} CENTIMETRES, {k}.", "THAT ONE DID TOO MUCH FOR ANYBODY."],
+        "lorry": ["WHAT A DELIVERY! {n} CENTIMETRES {k}!", "AN ABSOLUTE JAFFA! UNPLAYABLE!"],
+        "grog": [
+          "{n} CENTIMETRES {k} AT THAT PACE. YOU CAN'T PLAN FOR THAT ONE.",
+          "THE BATTER PLAYED THE RIGHT LINE. THE BALL CHANGED IT."
+        ]
+      }
+    },
+    {
+      "situation": "rapid",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["{n} KILOMETRES AN HOUR. QUICK.", "THAT WAS {n} ON THE SPEED GUN."],
+        "lorry": ["{n} K'S! THAT'S SERIOUS PACE!", "LOOK AT THAT ON THE SPEED GUN! {n}!"],
+        "grog": [
+          "{n} KM/H. THE BATTER HAS FRACTIONS OF A SECOND AT THAT SPEED.",
+          "{n}. GENUINE PACE MAKES EVERY DECISION HARDER."
+        ]
+      }
+    },
+    {
+      "situation": "bigSwing",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THAT SWUNG {n} CENTIMETRES. QUITE A LOT.", "PLENTY OF SWING THERE: {n} CENTIMETRES {k}."],
+        "lorry": ["{n} CENTIMETRES OF SWING! IT'S HOOPING!", "LOOK AT IT MOVE! {n} CENTIMETRES {k}!"],
+        "grog": [
+          "{n} CENTIMETRES {k} IN THE AIR. THE BATTER HAS TO PLAY LATE.",
+          "SWING LIKE THAT AND YOU WANT SLIPS IN. {n} CENTIMETRES."
+        ]
+      }
+    },
+    {
+      "situation": "bigTurn",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THAT TURNED {n} CENTIMETRES.", "BIG TURN: {n} CENTIMETRES {k}."],
+        "lorry": ["{n} CENTIMETRES OF TURN! IT'S SPINNING SQUARE!", "IT'S RAGING! {n} CENTIMETRES {k}!"],
+        "grog": [
+          "{n} CENTIMETRES {k} OFF THE PITCH. THE SURFACE IS HELPING THE SPINNERS NOW.",
+          "TURN LIKE THAT BRINGS THE CLOSE CATCHERS INTO PLAY."
+        ]
+      }
+    },
+    {
+      "situation": "weaknessHint",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{b} DIDN'T LOOK COMFORTABLE THERE, {how}.", "NOT ENTIRELY HAPPY {how}, {b}."],
+        "lorry": ["OOH! {b} WAS ALL AT SEA {how}!", "LOOK AT THAT! {b} HAS NO IDEA {how}!"],
+        "grog": ["WATCH {b} {how}. THERE MIGHT BE SOMETHING IN THAT.", "{w} WILL HAVE NOTICED THAT. {b} {how}."]
+      }
+    },
+    {
+      "situation": "weaknessWorkedOut",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "WE'VE SEEN ENOUGH OF {b} NOW. HE'S NOT HAPPY {how}.",
+          "{b} HAS BEEN IN A WHILE. THEY'LL HAVE NOTICED HIM {how}."
+        ],
+        "lorry": ["THEY'VE WORKED {b} OUT! HE'S NOT SURE {how}!", "I'VE SEEN IT TOO! {b} IS SHAKY {how}!"],
+        "grog": ["FOUR OVERS IN, THE PLAN WRITES ITSELF: AT {b} {how}.", "THEY'VE HAD A GOOD LOOK AT {b}. ATTACK HIM {how}."]
+      }
+    },
+    {
+      "situation": "weaknessShown",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THAT'S TWICE NOW {how}. A WEAKNESS, I'D SAY.", "{b} HAS A PROBLEM {how}. IT'S PLAIN NOW."],
+        "lorry": ["AGAIN! {b} JUST CANNOT COPE {how}!", "THERE IT IS AGAIN! {b} IS IN ALL SORTS {how}!"],
+        "grog": ["THAT'S THE PLAN, THEN: KEEP AT {b} {how}.", "TWICE IN TROUBLE {how}. BOWL THERE AND KEEP BOWLING THERE."]
+      }
+    }
+  ]
+}

@@ -1,24 +1,18 @@
-import { LINES } from "./broadcast-lines.js";
-import { BOOTH_DOT_LINES, GLOVE_LINES } from "./booth-dot-lines.js";
-import { BOOTH_SCORING_LINES, WINNING_EXTRA_LINES } from "./booth-scoring-lines.js";
-import { BOOTH_WICKET_LINES } from "./booth-wicket-lines.js";
+import { LINES } from "./broadcast-context.js";
+import { byCase, voiceLines } from "./lines.js";
 import { PackVoice, packContext } from "./pack-voice.js";
 import { shotArea } from "./describe.js";
 import { boothWords, safeBoothCalls } from "./booth-policy.js";
 
-export const BOOTH_BALL_LINES = {
-  ...BOOTH_DOT_LINES,
-  ...BOOTH_SCORING_LINES,
-  ...BOOTH_WICKET_LINES,
-  glove: GLOVE_LINES,
-  winningExtra: WINNING_EXTRA_LINES,
-};
+/** The caller's lines for how each kind of ball ended (sim/lines/results.json), per voice. */
+export const BOOTH_BALL_LINES = byCase("result", voiceLines);
+const DISMISSALS = new Set(["bowled", "lbw", "caught", "runout", "stumped"]);
 const NUMBERS = ["NO", "ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX", "SEVEN", "EIGHT", "NINE", "TEN"];
 const number = (n) => NUMBERS[n] ?? String(n);
 
 /** Classify the actual outcome before choosing any colourful wording. */
 export function ballCallCategory(rec) {
-  if (rec.wicket) return Object.hasOwn(BOOTH_WICKET_LINES, rec.wicket.how) ? rec.wicket.how : "wicket";
+  if (rec.wicket) return DISMISSALS.has(rec.wicket.how) ? rec.wicket.how : "wicket";
   const extra = rec.extra?.type;
   const boundary = rec.boundary && rec.runsBat === rec.boundary;
   if (extra && rec.moment?.kind === "winningRuns") return "winningExtra";

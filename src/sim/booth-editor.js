@@ -28,8 +28,13 @@ export class BoothEditor {
   lastLegal = null;
   narrativeKeys = new Set();
 
+  /**
+   * The ball's calls: first the caller's (topic "ballCall", fitting `context.fitsCall`, the HUD line), then
+   * the box's remarks from the other two voices (fitting `fits`): the over's recap, and one remark at most.
+   */
   edit(rec, hpd, names, rng, fits = () => true, context = {}) {
-    let primary = this.caller.call(rec, hpd, names, rng, fits);
+    const fitsCall = context.fitsCall ?? fits;
+    let primary = this.caller.call(rec, hpd, names, rng, fitsCall);
     // Match the energy to the passage: a quiet spell gets quiet calls.
     if (primary && this.quiet >= QUIET_PASSAGE && CALM.has(primary.category)) primary = calmly(primary);
     const recap =
@@ -37,13 +42,15 @@ export class BoothEditor {
     const overMoment = recap.length > 0 && OVER_MOMENTS.has(rec.moment?.kind) ? rec.moment.kind : null;
     const analysis = this.context(rec, hpd, names, rng, fits, {
       ...context,
-      lead: primary ? (primary.who + 1) % 3 : rec.over % 3,
+      lead: (rec.over + 1) % 3,
+      caller: rec.over % 3,
       silent: recap.length > 0 && !overMoment,
       only: overMoment,
     });
     const extra = analysis.calls.slice(0, 1);
     const calls = overMoment ? [...extra, ...recap] : [...recap, ...extra];
-    return { calls: safeBoothCalls([...(primary ? [primary] : []), ...calls], hpd, fits) };
+    const called = primary ? safeBoothCalls([primary], hpd, fitsCall) : [];
+    return { calls: [...called, ...safeBoothCalls(calls, hpd, fits)] };
   }
 
   context(
@@ -52,7 +59,7 @@ export class BoothEditor {
     names,
     rng,
     fits = () => true,
-    { inn = null, beforePressure, lead = rec.over % 3, narrative, light, silent = false, only = null } = {},
+    { inn = null, beforePressure, lead = rec.over % 3, caller = null, narrative, light, silent = false, only = null } = {},
   ) {
     this.ball++;
     if (inn !== this.innings) {
@@ -96,14 +103,14 @@ export class BoothEditor {
       if (!option.key && option.topic === this.lastTopic && story.rest > 0) continue;
       const facts = { b: names.batter, w: names.bowler, ...option.facts };
       const render = (text) => text.replace(/\{([^}]+)\}/g, (_, key) => String(facts[key] ?? `{${key}}`)).toUpperCase();
-      // The primary voice already called the ball; another adds context when there is something to say.
-      for (const who of [duty, (duty + 1) % 3, (duty + 2) % 3]) {
+      // The caller has called the ball (on the HUD line); another voice adds context when there's something to say.
+      for (const who of [duty, (duty + 1) % 3, (duty + 2) % 3].filter((v) => v !== caller)) {
         const choices = story.lines[who]
           .map(render)
           .filter((text) => !this.recent.includes(boothWords(text)) && safeBoothCalls([{ who, text }], hpd, fits).length);
         if (!choices.length) continue;
         const text = choices[Math.min(choices.length - 1, Math.floor(rng.random() * choices.length))];
-        const calls = [{ who, text, topic: option.topic }];
+        const calls = [{ who, text, topic: option.topic, priority: option.priority }];
         const safe = safeBoothCalls(calls, hpd, fits);
         for (const call of safe) this.recent.push(boothWords(call.text));
         this.recent = this.recent.slice(-40);

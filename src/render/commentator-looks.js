@@ -1,0 +1,35 @@
+/** Each commentator's colours: the 40x40 portrait in the box (render/booth.js) and the HUD's little head (render/call-line.js). */
+export const LOOKS = {
+  bunnings: {
+    bg: "#24425f",
+    jacket: "#eee5cc",
+    jacketShade: "#cbbf9f",
+    shirt: "#ffffff",
+    tie: "#7a1f24",
+    skin: "#dfa47c",
+    hair: "#dadad4",
+    brow: "#b9b9b2",
+  },
+  lorry: {
+    bg: "#4d2a26",
+    jacket: "#1f5233",
+    jacketShade: "#163c25",
+    shirt: "#f4f0e2",
+    tie: "#e8b931",
+    skin: "#e8b08a",
+    hair: "#2b2019",
+    brow: "#2b2019",
+  },
+  grog: {
+    bg: "#27414d",
+    jacket: "#1f3672",
+    jacketShade: "#172855",
+    shirt: "#bcd7f0",
+    tie: "#c8302e",
+    skin: "#e2a983",
+    hair: "#c9a65a",
+    brow: "#a8873f",
+    hat: "#e7d08e",
+    band: "#1f3672",
+  },
+};

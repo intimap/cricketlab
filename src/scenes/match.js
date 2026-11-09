@@ -57,6 +57,8 @@ export class MatchScene {
   cur = null;
   banners = [];
   commentary = "";
+  /** The caller's call for the ball on the HUD line: { who, text, from, t0 } (scenes/booth-beats.js). */
+  callLine = null;
   /** The commentary box's calls for the last ball: [{ who, text, t0 }], in speaking order. */
   booth = null;
   commT = 0;

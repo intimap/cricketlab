@@ -4,8 +4,9 @@ import { drawText } from "../engine/text.js";
 import { keys, mouse } from "../engine/input.js";
 import { toggleMute, isMuted } from "../engine/audio.js";
 import { drawScorecard } from "../render/hud.js";
+import { commentaryLevel, cycleCommentary } from "./commentary-level.js";
 
-const ITEMS = ["RESUME", "SCORECARD", "INSTRUCTIONS", "VIEW", "ASSIST", "SOUND", "AUDIO MIX", "QUIT TO MENU"];
+const ITEMS = ["RESUME", "SCORECARD", "INSTRUCTIONS", "VIEW", "ASSIST", "COMMENTARY", "SOUND", "AUDIO MIX", "QUIT TO MENU"];
 const MENU_X = 220;
 const MENU_W = 200;
 const MENU_TOP = 92;
@@ -133,6 +134,9 @@ export class PauseMenu {
       case "AUDIO MIX":
         this.screen = "mix";
         return null;
+      case "COMMENTARY":
+        cycleCommentary();
+        return null;
       case "SOUND":
         toggleMute();
         return null;
@@ -170,7 +174,9 @@ export class PauseMenu {
             ? `VIEW: BEHIND ${closeEnd === "bowl" ? "BOWLER" : "BATTER"}`
             : item === "ASSIST"
               ? `ASSIST: ${assist}`
-              : item;
+              : item === "COMMENTARY"
+                ? `COMMENTARY: ${commentaryLevel()}`
+                : item;
       drawText(label, WIDTH / 2, y, { align: "center", color: selected ? COLORS.gold : COLORS.cream });
     });
   }

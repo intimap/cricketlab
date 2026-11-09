@@ -1,0 +1,472 @@
+{
+  "about": "The ball as the over's caller calls it on the HUD line: the run-up, the delivery as it reaches the bat, the shot as it's played, how it ended, and the start of each over. Facts only, in the caller's voice.",
+  "groups": [
+    {
+      "situation": "setup",
+      "kind": "call",
+      "lines": {
+        "bunnings": ["{w} IN FROM THE {end} --", "{w} TO {b} --", "{w}, FROM THE {end} --"],
+        "lorry": ["HERE COMES {w}, STEAMING IN --", "{w} RUNS IN TO {b} --", "{w} CHARGES IN FROM THE {end} --"],
+        "grog": ["{w} TO {b}, FROM THE {end} --", "{w} RUNS IN --", "{w} AGAIN TO {b} --"]
+      }
+    },
+    {
+      "situation": "setupSpin",
+      "kind": "call",
+      "lines": {
+        "bunnings": ["{w} IN FROM THE {end} --", "{w}, OFF HIS SHORT RUN --", "{w} TO {b} --"],
+        "lorry": ["{w} SKIPS IN --", "{w} TWIRLS IN TO {b} --", "HERE'S {w} FROM THE {end} --"],
+        "grog": ["{w} TO {b}, FROM THE {end} --", "{w} WALKS IN --", "{w}, TOSSING IT UP TO {b} --"]
+      }
+    },
+    {
+      "situation": "setupAround",
+      "kind": "call",
+      "lines": {
+        "any": ["{w}, AROUND THE WICKET --", "{w} COMES AROUND THE WICKET --", "{w} FROM AROUND THE WICKET TO {b} --"]
+      }
+    },
+    {
+      "situation": "length",
+      "case": "full toss",
+      "kind": "call",
+      "lines": {
+        "any": ["A FULL TOSS", "FULL TOSS"]
+      }
+    },
+    {
+      "situation": "length",
+      "case": "yorker",
+      "kind": "call",
+      "lines": {
+        "any": ["RIGHT IN THE BLOCKHOLE", "SPEARED IN AT THE TOES", "FULL AT THE BASE OF THE STUMPS"]
+      }
+    },
+    {
+      "situation": "length",
+      "case": "full",
+      "kind": "call",
+      "lines": {
+        "any": ["PITCHED UP", "NICE AND FULL", "FULLER"]
+      }
+    },
+    {
+      "situation": "length",
+      "case": "good length",
+      "kind": "call",
+      "lines": {
+        "any": ["ON A LENGTH", "HITS THE DECK ON A LENGTH", "A GOOD AREA"]
+      }
+    },
+    {
+      "situation": "length",
+      "case": "back of a length",
+      "kind": "call",
+      "lines": {
+        "any": ["SHORT OF A LENGTH", "HAMMERED INTO THE PITCH", "BANGED IN"]
+      }
+    },
+    {
+      "situation": "length",
+      "case": "short",
+      "kind": "call",
+      "lines": {
+        "any": ["BANGED IN SHORT", "DUG IN SHORT", "SHORT AND RISING"]
+      }
+    },
+    {
+      "situation": "spinLength",
+      "case": "full toss",
+      "kind": "call",
+      "lines": {
+        "any": ["A FULL TOSS", "FULL TOSS"]
+      }
+    },
+    {
+      "situation": "spinLength",
+      "case": "yorker",
+      "kind": "call",
+      "lines": {
+        "any": ["FIRED IN AT THE TOES", "QUICKER AND FULL"]
+      }
+    },
+    {
+      "situation": "spinLength",
+      "case": "full",
+      "kind": "call",
+      "lines": {
+        "any": ["TOSSED UP", "FLIGHTED", "GIVEN SOME AIR"]
+      }
+    },
+    {
+      "situation": "spinLength",
+      "case": "good length",
+      "kind": "call",
+      "lines": {
+        "any": ["ON A LENGTH", "DIPPING ON A GOOD LENGTH", "A TEASING LENGTH"]
+      }
+    },
+    {
+      "situation": "spinLength",
+      "case": "back of a length",
+      "kind": "call",
+      "lines": {
+        "any": ["DRAGGED DOWN A TOUCH", "A SHADE SHORT"]
+      }
+    },
+    {
+      "situation": "spinLength",
+      "case": "short",
+      "kind": "call",
+      "lines": {
+        "any": ["DRAGGED DOWN SHORT", "A LONG HOP"]
+      }
+    },
+    {
+      "situation": "line",
+      "case": "wide outside off",
+      "kind": "call",
+      "lines": {
+        "any": ["WIDE OF OFF STUMP", "WIDE, TEMPTING HIM"]
+      }
+    },
+    {
+      "situation": "line",
+      "case": "outside off",
+      "kind": "call",
+      "lines": {
+        "any": ["OUTSIDE OFF", "IN THE CHANNEL", "FOURTH STUMP"]
+      }
+    },
+    {
+      "situation": "line",
+      "case": "off stump",
+      "kind": "call",
+      "lines": {
+        "any": ["AT THE TOP OF OFF", "AT OFF STUMP"]
+      }
+    },
+    {
+      "situation": "line",
+      "case": "middle",
+      "kind": "call",
+      "lines": {
+        "any": ["AT THE STUMPS", "STRAIGHT", "ON MIDDLE"]
+      }
+    },
+    {
+      "situation": "line",
+      "case": "leg stump",
+      "kind": "call",
+      "lines": {
+        "any": ["ON THE PADS", "AT LEG STUMP"]
+      }
+    },
+    {
+      "situation": "line",
+      "case": "down leg",
+      "kind": "call",
+      "lines": {
+        "any": ["DRIFTING DOWN LEG", "DOWN THE LEG SIDE"]
+      }
+    },
+    {
+      "situation": "deliveryName",
+      "case": "bouncer",
+      "kind": "call",
+      "lines": {
+        "any": ["BOUNCER", "THE SHORT ONE"]
+      }
+    },
+    {
+      "situation": "deliveryName",
+      "case": "yorker",
+      "kind": "call",
+      "lines": {
+        "any": ["THE YORKER", "YORKER"]
+      }
+    },
+    {
+      "situation": "deliveryName",
+      "case": "slower",
+      "kind": "call",
+      "lines": {
+        "any": ["THE SLOWER BALL", "OFF-PACE"]
+      }
+    },
+    {
+      "situation": "deliveryName",
+      "case": "cutter",
+      "kind": "call",
+      "lines": {
+        "any": ["THE CUTTER", "CUTTER"]
+      }
+    },
+    {
+      "situation": "deliveryName",
+      "case": "googly",
+      "kind": "call",
+      "lines": {
+        "any": ["THE GOOGLY", "THE WRONG 'UN"]
+      }
+    },
+    {
+      "situation": "deliveryName",
+      "case": "armBall",
+      "kind": "call",
+      "lines": {
+        "any": ["THE ARM BALL", "ARM BALL, SKIDDING ON"]
+      }
+    },
+    {
+      "situation": "edge",
+      "case": "thinEdge",
+      "kind": "call",
+      "lines": {
+        "any": ["EDGED", "THERE'S AN EDGE", "OFF THE OUTSIDE EDGE"]
+      }
+    },
+    {
+      "situation": "edge",
+      "case": "thickEdge",
+      "kind": "call",
+      "lines": {
+        "any": ["THICK EDGE", "EDGED, AND HARD", "OFF THE EDGE"]
+      }
+    },
+    {
+      "situation": "edge",
+      "case": "insideEdge",
+      "kind": "call",
+      "lines": {
+        "any": ["INSIDE EDGE", "GETS AN INSIDE EDGE"]
+      }
+    },
+    {
+      "situation": "edge",
+      "case": "padPop",
+      "kind": "call",
+      "lines": {
+        "any": ["BAT AND PAD", "INSIDE EDGE ONTO THE PAD"]
+      }
+    },
+    {
+      "situation": "edge",
+      "case": "topEdge",
+      "kind": "call",
+      "lines": {
+        "any": ["TOP EDGE, UP IT GOES", "SKIED OFF THE TOP EDGE"]
+      }
+    },
+    {
+      "situation": "edge",
+      "case": "bottomEdge",
+      "kind": "call",
+      "lines": {
+        "any": ["BOTTOM EDGE", "DRAGGED DOWN OFF THE BOTTOM EDGE"]
+      }
+    },
+    {
+      "situation": "edge",
+      "case": "gloved",
+      "kind": "call",
+      "lines": {
+        "any": ["OFF THE GLOVE", "GLOVED"]
+      }
+    },
+    {
+      "situation": "noBat",
+      "case": "leave",
+      "kind": "call",
+      "lines": {
+        "any": ["LEFT ALONE", "SHOULDERS ARMS", "LEAVES IT"]
+      }
+    },
+    {
+      "situation": "noBat",
+      "case": "pad",
+      "kind": "call",
+      "lines": {
+        "any": ["STRUCK ON THE PAD", "RAPPED ON THE PADS", "HIT ON THE PAD"]
+      }
+    },
+    {
+      "situation": "noBat",
+      "case": "miss",
+      "kind": "call",
+      "lines": {
+        "any": ["PLAYS AND MISSES", "SWINGS AND MISSES", "BEATEN"]
+      }
+    },
+    {
+      "situation": "block",
+      "kind": "call",
+      "lines": {
+        "any": ["BLOCKED", "DEFENDED", "SOLID IN DEFENCE", "DEAD BAT"]
+      }
+    },
+    {
+      "situation": "outcome",
+      "case": "1",
+      "kind": "call",
+      "lines": {
+        "any": ["ONE.", "THEY TAKE A SINGLE.", "A QUICK SINGLE."]
+      }
+    },
+    {
+      "situation": "outcome",
+      "case": "2",
+      "kind": "call",
+      "lines": {
+        "any": ["THEY COME BACK FOR TWO.", "TWO RUNS.", "THEY RUN TWO."]
+      }
+    },
+    {
+      "situation": "outcome",
+      "case": "3",
+      "kind": "call",
+      "lines": {
+        "any": ["THREE RUNS.", "THEY RUN THREE.", "ALL THE WAY BACK FOR THREE."]
+      }
+    },
+    {
+      "situation": "outcome",
+      "case": "six",
+      "kind": "call",
+      "lines": {
+        "any": ["SIX!", "THAT'S GONE ALL THE WAY. SIX!", "OUT OF HERE! SIX!"]
+      }
+    },
+    {
+      "situation": "outcome",
+      "case": "four",
+      "kind": "call",
+      "lines": {
+        "any": ["FOUR!", "RACES AWAY. FOUR!", "ALL THE WAY FOR FOUR!"]
+      }
+    },
+    {
+      "situation": "outcome",
+      "case": "fielded",
+      "kind": "call",
+      "lines": {
+        "any": ["STRAIGHT TO THE FIELDER. NO RUN.", "FIELDED. NO RUN.", "WELL STOPPED. NO RUN."]
+      }
+    },
+    {
+      "situation": "intro",
+      "case": "continue",
+      "kind": "call",
+      "lines": {
+        "bunnings": ["{w} TO BOWL HIS {nth} OVER. {figures}.", "{w} CONTINUES. {figures}.", "{w}, {figures}, FOR HIS {nth}."],
+        "lorry": [
+          "{w}'S {nth} OVER COMING UP! {figures}!",
+          "HERE'S {w} AGAIN! {figures}!",
+          "{w} FOR HIS {nth}! {figures} SO FAR!"
+        ],
+        "grog": ["{w}, {nth} OVER. {figures}.", "{w} TO CONTINUE. {figures}.", "{w}'S {nth}. {figures}."]
+      }
+    },
+    {
+      "situation": "intro",
+      "case": "open",
+      "kind": "call",
+      "lines": {
+        "bunnings": ["{w} TO OPEN THE BOWLING.", "{w} WILL TAKE THE NEW BALL."],
+        "lorry": ["{w} HAS THE NEW BALL! HERE WE GO!", "AND IT'S {w} TO START US OFF!"],
+        "grog": ["{w} OPENS UP. LET'S SEE WHAT THE NEW BALL DOES.", "{w} WITH THE NEW BALL. HE'LL LOOK FOR EARLY MOVEMENT."]
+      }
+    },
+    {
+      "situation": "intro",
+      "case": "partner",
+      "kind": "call",
+      "lines": {
+        "bunnings": ["{w} SHARES THE NEW BALL.", "{w} FROM THE OTHER END."],
+        "lorry": ["AND {w} FROM THE OTHER END! NEW BALL!", "{w} TO SHARE THE NEW BALL!"],
+        "grog": ["{w} WITH THE OTHER NEW-BALL OVER. SAME PLAN: FIND THE EDGE.", "{w} FROM THE OTHER END. HE'LL WANT IT TO SWING."]
+      }
+    },
+    {
+      "situation": "intro",
+      "case": "new",
+      "kind": "call",
+      "lines": {
+        "bunnings": ["{w} INTO THE ATTACK.", "A CHANGE: {w} COMES ON."],
+        "lorry": ["HERE'S {w}! FIRST OVER OF THE SPELL!", "{w} IS ON! LET'S SEE WHAT HE'S GOT!"],
+        "grog": ["{w} BROUGHT ON.", "A BOWLING CHANGE: {w}."]
+      }
+    },
+    {
+      "situation": "onField",
+      "case": "out",
+      "kind": "call",
+      "lines": {
+        "bunnings": ["THE FINGER GOES UP.", "GIVEN. {b} IS ON HIS WAY, UNLESS..."],
+        "lorry": ["THE FINGER GOES UP! HE'S GIVEN HIM!", "GIVEN OUT! LBW!"],
+        "grog": ["GIVEN. THAT LOOKED TIGHT ON LINE.", "THE UMPIRE'S SURE. HE'S GIVEN IT."]
+      }
+    },
+    {
+      "situation": "onField",
+      "case": "notOut",
+      "kind": "call",
+      "lines": {
+        "bunnings": ["NOT OUT, SAYS THE UMPIRE.", "THE UMPIRE SHAKES HIS HEAD."],
+        "lorry": ["NOT OUT! THE BOWLER CAN'T BELIEVE IT!", "NO! HE'S NOT GIVEN IT!"],
+        "grog": ["NOT OUT. PERHAPS PITCHING OUTSIDE, OR GOING OVER.", "NOT GIVEN. THE HEIGHT MAY HAVE SAVED HIM."]
+      }
+    },
+    {
+      "situation": "tracking",
+      "case": "WICKETS: HITTING",
+      "kind": "call",
+      "lines": {
+        "any": ["PITCHING IN LINE... IMPACT IN LINE... HITTING!", "IN LINE, IN LINE... AND IT'S HITTING THE STUMPS!"]
+      }
+    },
+    {
+      "situation": "tracking",
+      "case": "WICKETS: UMPIRE'S CALL",
+      "kind": "call",
+      "lines": {
+        "any": ["IN LINE... IN LINE... CLIPPING THE STUMPS. UMPIRE'S CALL.", "IT'S JUST CLIPPING. UMPIRE'S CALL."]
+      }
+    },
+    {
+      "situation": "tracking",
+      "case": "PITCHING: OUTSIDE LEG",
+      "kind": "call",
+      "lines": {
+        "any": ["IT'S HITTING, BUT IT PITCHED OUTSIDE LEG. NOT OUT.", "HITTING THE STUMPS -- BUT PITCHED OUTSIDE LEG. HE'S SAFE."]
+      }
+    },
+    {
+      "situation": "tracking",
+      "case": "IMPACT: OUTSIDE OFF",
+      "kind": "call",
+      "lines": {
+        "any": [
+          "IT'S HITTING, BUT HE WAS STRUCK OUTSIDE THE LINE PLAYING A SHOT. NOT OUT.",
+          "HITTING -- BUT THE IMPACT WAS OUTSIDE OFF, AND HE PLAYED A SHOT. SAFE."
+        ]
+      }
+    },
+    {
+      "situation": "tracking",
+      "case": "WICKETS: GOING OVER",
+      "kind": "call",
+      "lines": {
+        "any": ["IN LINE... BUT IT'S GOING OVER THE TOP!", "TOO HIGH. GOING OVER THE STUMPS."]
+      }
+    },
+    {
+      "situation": "tracking",
+      "case": "WICKETS: MISSING",
+      "kind": "call",
+      "lines": {
+        "any": ["IN LINE... BUT MISSING THE STUMPS.", "IT'S SLIDING DOWN. MISSING."]
+      }
+    }
+  ]
+}

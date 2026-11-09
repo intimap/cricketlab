@@ -1,0 +1,136 @@
+{
+  "about": "Remarks at the start of an over: why the bowler's on, the new ball, the phase of the innings, and his plan.",
+  "groups": [
+    {
+      "situation": "changeReason",
+      "case": "spin",
+      "kind": "bowling",
+      "lines": {
+        "any": ["SPIN ON -- THE PITCH IS OFFERING SOMETHING.", "THE SPINNER ON NOW. THE SURFACE IS STARTING TO HELP."]
+      }
+    },
+    {
+      "situation": "changeReason",
+      "case": "setBatter",
+      "kind": "bowling",
+      "lines": {
+        "any": ["{b} IS ON {r}. TIME FOR SOMETHING DIFFERENT.", "BROUGHT ON FOR {b}, WHO'S ON {r}. A NEW PROBLEM FOR HIM."]
+      }
+    },
+    {
+      "situation": "changeReason",
+      "case": "stand",
+      "kind": "bowling",
+      "lines": {
+        "any": ["THIS STAND IS WORTH {stand}. THEY NEED A BREAKTHROUGH.", "TO BREAK A STAND OF {stand}."]
+      }
+    },
+    {
+      "situation": "newBall",
+      "case": "due",
+      "kind": "bowling",
+      "lines": {
+        "any": ["THE NEW BALL IS DUE IN {n} OVERS.", "{n} OVERS UNTIL THE NEW BALL."]
+      }
+    },
+    {
+      "situation": "newBall",
+      "case": "available",
+      "kind": "bowling",
+      "lines": {
+        "any": ["THE NEW BALL IS AVAILABLE. WILL THEY TAKE IT?", "NEW BALL AVAILABLE NOW."]
+      }
+    },
+    {
+      "situation": "newBall",
+      "case": "taken",
+      "kind": "bowling",
+      "lines": {
+        "any": ["THE NEW BALL IN HAND -- SHINY, HARD, DANGEROUS.", "NEW BALL. IT'LL SWING AND BOUNCE."]
+      }
+    },
+    {
+      "situation": "phase",
+      "case": "start",
+      "kind": "match",
+      "lines": {
+        "any": ["NEW BALL, CLOSE CATCHERS. THE MOST DANGEROUS TIME TO BAT.", "EARLY DAYS. THE BALL WILL DO A BIT NOW."]
+      }
+    },
+    {
+      "situation": "phase",
+      "case": "set",
+      "kind": "match",
+      "lines": {
+        "any": ["BOTH BATTERS LOOK SET. TIDY BOWLING, NOT THREATENING.", "A PERIOD OF CONSOLIDATION. BOTH BATTERS IN."]
+      }
+    },
+    {
+      "situation": "phase",
+      "case": "deathChase",
+      "kind": "match",
+      "lines": {
+        "any": [
+          "{left} OVERS LEFT, {need} NEEDED. THIS IS WHERE IT GETS INTERESTING.",
+          "{need} FROM {left} OVERS. EVERY BALL MATTERS NOW."
+        ]
+      }
+    },
+    {
+      "situation": "phase",
+      "case": "death",
+      "kind": "match",
+      "lines": {
+        "any": ["{left} OVERS TO GO. TIME TO PUSH ON.", "THE LAST {left} OVERS. EXPECT THE BIG SHOTS."]
+      }
+    },
+    {
+      "situation": "planRead",
+      "case": "short",
+      "kind": "bowling",
+      "lines": {
+        "any": ["THE FIELD SAYS IT: EXPECT IT SHORT THIS OVER.", "THEY'LL TEST HIM WITH THE SHORT BALL HERE, I THINK."]
+      }
+    },
+    {
+      "situation": "planRead",
+      "case": "corridor",
+      "kind": "bowling",
+      "lines": {
+        "any": ["THIS WILL BE THE CORRIDOR: OUTSIDE OFF, AND WAIT.", "HE'LL KEEP IT OUTSIDE OFF AND WAIT FOR THE MISTAKE."]
+      }
+    },
+    {
+      "situation": "planRead",
+      "case": "squeeze",
+      "kind": "bowling",
+      "lines": {
+        "any": ["A SQUEEZE ON: TIGHT LINES, NOTHING TO HIT.", "THEY'RE GOING TO DRY UP THE RUNS THIS OVER."]
+      }
+    },
+    {
+      "situation": "planRead",
+      "case": "setup",
+      "kind": "bowling",
+      "lines": {
+        "any": ["WATCH FOR THE SET-UP: A FEW AWAY, THEN ONE BACK IN.", "HE'LL SET HIM UP OUTSIDE OFF, THEN BRING ONE IN."]
+      }
+    },
+    {
+      "situation": "planRead",
+      "case": "flight",
+      "kind": "bowling",
+      "lines": {
+        "any": ["HE'LL GIVE IT AIR THIS OVER AND INVITE THE DRIVE.", "TOSSING IT UP: HE WANTS HIM TO COME AT HIM."]
+      }
+    },
+    {
+      "situation": "planRead",
+      "case": "rough",
+      "kind": "bowling",
+      "lines": {
+        "any": ["HE'LL AIM FOR THE FOOTMARKS. A TOUGH OVER TO SURVIVE.", "INTO THE ROUGH, I'D THINK. WATCH FOR THE BIG ONE."]
+      }
+    }
+  ]
+}

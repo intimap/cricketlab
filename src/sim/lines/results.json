@@ -1,0 +1,811 @@
+{
+  "about": "How the ball ended, as the caller finishes the call when the shot wasn't called (wickets, extras, drops) or adds to it. One case per outcome (sim/booth-caller.js ballCallCategory).",
+  "groups": [
+    {
+      "situation": "result",
+      "case": "leave",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "No stroke from {b}. A quiet decision.",
+          "{b} lets that go. Nothing to add.",
+          "Bat stays out of the discussion. No run.",
+          "Watched through by {b}. Quite content to wait.",
+          "{b} declines the invitation. No run.",
+          "Through it goes. {b} keeps the bat to himself.",
+          "A leave from {b}. No unnecessary conversation with the ball.",
+          "{b} watches, waits, and leaves the score alone."
+        ],
+        "lorry": [
+          "He's leaving it! {b} won't be drawn into that one!",
+          "No shot! {b} is making the bowler come to him!",
+          "Through to the keeper! {b} never offered!",
+          "He's watched it all the way! Nothing doing!",
+          "Bat out of harm's way! No run to {b}!",
+          "Not tempted! {b} is happy to watch that go!",
+          "He's kept the bat parked! No run!",
+          "Another look for {b}, but no swing at it!"
+        ],
+        "grog": [
+          "{b} leaves. Make him play the next one.",
+          "No stroke. {w} hasn't drawn him into a contest there.",
+          "{b} lets it pass. The bowler must ask again.",
+          "A leave. I wouldn't chase a ball just because it's there.",
+          "{b} keeps the bat away. No gift for the bowler.",
+          "Through without a shot. That's a ball the batter can forget.",
+          "{b} won't reach for it. Nothing earned by either side.",
+          "Left alone. {w} still has to find a way through him."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "defend",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "Bat meets ball, ambition kept in reserve. No run.",
+          "A block from {b}. Nothing extravagant.",
+          "{b} puts the bat in the way. The score can wait.",
+          "Quietly defended. {b} has made his point.",
+          "{b} keeps that one out. A small job completed.",
+          "A defensive bat. The scoreboard remains untroubled.",
+          "{b} blocks. Not every ball needs a flourish.",
+          "Safely dealt with by {b}. No run."
+        ],
+        "lorry": [
+          "Bat down! {b} isn't giving that one a chance!",
+          "He's kept it out! No run, but the bat did its job!",
+          "A solid block from {b}! Nothing through there!",
+          "Defended! {b} is staying right with the contest!",
+          "No big swing! Just the bat in the way from {b}!",
+          "That's kept out! No room for the ball to sneak through!",
+          "He's blocked it! {w} has to go again!",
+          "Bat and ball meet! No run for {b}!"
+        ],
+        "grog": [
+          "{b} defends. Keep the scoring ball separate from the survival ball.",
+          "A block. No need to manufacture a shot at everything.",
+          "{b} keeps it out. The bowler hasn't found a way through.",
+          "Defended. I'd make him keep doing that before changing the plan.",
+          "A defensive stroke. The batter has kept the risk down.",
+          "{b} blocks. Now the bowler has to repeat the question.",
+          "Kept out. A patient bat rather than an ambitious one.",
+          "{b} chooses defence. Nothing wasted on a low-percentage swing."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "beaten",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "A swing from {b}, but the ball wins that exchange.",
+          "{b} has played at air. No damage this time.",
+          "The bat offered an answer. The ball declined to meet it.",
+          "Beaten outside off. {w} will think that was close.",
+          "Through to the keeper, past the outside edge.",
+          "{b} feels for it and finds nothing."
+        ],
+        "lorry": [
+          "Past the bat! {b} has had a proper look at trouble!",
+          "He's missed it! {w} will like the sight of that!",
+          "Oh, the ball's beaten him! No contact at all!",
+          "Past the edge again! Oh, {w}!",
+          "So close to the edge! {b} got away with that!",
+          "Another one beats the bat! What a contest!"
+        ],
+        "grog": [
+          "Beaten. {b} hasn't matched the bat to that delivery.",
+          "{w} gets past the bat. That's a question worth asking again.",
+          "An unsuccessful stroke. The batter has to reset his read.",
+          "Beaten. {b} pushed at it with hard hands.",
+          "{w} found the gap between bat and pad. Good bowling.",
+          "Beaten by movement. {b} played the line, not the ball."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "miss",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "No contact for {b}. Nothing added.",
+          "The bat and ball remain strangers. No run.",
+          "Nothing off the bat, and nothing on the board.",
+          "A swing and a miss. Nothing doing.",
+          "{b} misses out on that one.",
+          "No bat on it. The keeper takes it."
+        ],
+        "lorry": [
+          "He's not connected! No run for {b}!",
+          "Nothing on it! The score hasn't moved!",
+          "No contact, no run! {b} has to start again!",
+          "Swung and missed! {b} wanted that one!",
+          "Nothing! He's swung through thin air!",
+          "Big swing, no contact! The crowd groans!"
+        ],
+        "grog": [
+          "No contact. The batter has to judge the next one afresh.",
+          "Nothing off the bat. {b} can't force a result from that.",
+          "A missed connection. No reward for the stroke.",
+          "A miss. {b} committed early and the ball was elsewhere.",
+          "Swing and a miss. Timing was out.",
+          "No contact. {b} went searching for the ball."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "pad",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "Onto the pad. {b} survives, with nothing added.",
+          "The pad is involved, the scorebook isn't.",
+          "{b} wears that on the pad. No wicket, no run."
+        ],
+        "lorry": [
+          "On the pad! But {b} is still there!",
+          "It's hit the pad! No wicket this time!",
+          "Pad first, and no run! {b} survives that exchange!"
+        ],
+        "grog": [
+          "The pad takes it. No wicket, but the bat hasn't settled the matter.",
+          "Onto the pad. I'd want {b} to judge that one carefully.",
+          "No run from the pad. The bowler has made contact, not a breakthrough."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "edgeDot",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "A {contact} from {b}. Nothing to add to the score.",
+          "Not the part of the bat he ordered. No run.",
+          "An edge, and the score remains exactly where it was."
+        ],
+        "lorry": [
+          "An edge! No run, but that wasn't what {b} wanted!",
+          "A {contact}! Nothing added for {b}!",
+          "Off the edge! {b} hasn't got that one away!"
+        ],
+        "grog": [
+          "An edge for no run. The bat hasn't fully controlled that.",
+          "Edge found. I'd keep testing that contact.",
+          "A {contact}, for no run. Not a stroke the batter has controlled."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "offCentreDot",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "Off the {part}. The ball has taken the energy out of that stroke.",
+          "The {part} is involved. Not much reward, and no run.",
+          "No run. That met the {part}, rather than the bat's best address."
+        ],
+        "lorry": [
+          "Off the {part}! He's got no run from that connection!",
+          "That hasn't flown off the {part}! Nothing added!",
+          "The {part} takes it! {b} hasn't got it away!"
+        ],
+        "grog": [
+          "Off the {part}. The stroke has lost its punch.",
+          "No run. Contact on the {part} has taken the pace out of it.",
+          "{b} finds the {part}, not the sweet spot. No reward."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "stopped",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "{b} connects, but there is no run in it.",
+          "{b} plays a {shot}. No run despite the connection.",
+          "{b} finds the bat's middle, but not a scoring result.",
+          "Struck firmly, but straight to the fielder.",
+          "A good shot, a better stop.",
+          "Nicely played. Well fielded. No run."
+        ],
+        "lorry": [
+          "He's connected, but there's no run!",
+          "Bat on ball! {b} can't get a run from it!",
+          "He's met that one, but the scoreboard hasn't moved!",
+          "Hit hard! But there's a man there!",
+          "Great stop! That was going places!",
+          "He's middled it, and it's stopped!"
+        ],
+        "grog": [
+          "Good contact without a run. Finding the gap is the next part.",
+          "{b} connects, but the stroke hasn't produced a scoring chance.",
+          "No run despite the connection. Contact alone doesn't do the job.",
+          "Good shot, wrong gap. The field's doing its job.",
+          "Struck well, but {w} has a fielder in exactly the right place.",
+          "Middled into the ring. The fielders are earning their keep."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "miscue",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "Not much authority in that stroke. No run.",
+          "{b} hasn't got hold of it. Nothing added.",
+          "A rather modest return from the swing. No run."
+        ],
+        "lorry": [
+          "He's not got hold of it! No run for {b}!",
+          "That hasn't come off as he'd hoped! Nothing added!",
+          "A swing, but no scoring result from {b}!"
+        ],
+        "grog": [
+          "The connection hasn't delivered much pace. No run.",
+          "{b} hasn't controlled that stroke well enough to score.",
+          "No run. I'd look for a cleaner meeting of bat and ball."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "glove",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "Off the glove. {result}. Not quite the intended instrument.",
+          "The glove is involved. {result} from the delivery.",
+          "{b} gets the glove to it. {result}."
+        ],
+        "lorry": [
+          "Off the glove! {result}!",
+          "It's taken the glove! {result} for the batting side!",
+          "Glove on it! {result}! That wasn't the bat!"
+        ],
+        "grog": [
+          "The glove makes contact. {result}. That was not a controlled connection.",
+          "{result} off the glove. The ball has not met the blade.",
+          "Glove involved. {result}. I'd want the bat doing that work."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "single",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "{b}'s {shot} brings a single. Quietly useful.",
+          "A single to {b}. The small change counts.",
+          "One more. The score moves without much ceremony.",
+          "Pushed into the gap for one.",
+          "A quick single. Sensible cricket.",
+          "They walk it. One more on the board."
+        ],
+        "lorry": [
+          "They're through for one! Keep that board moving!",
+          "{shot}, {where}! They've got a single!",
+          "One added! That's another little job done!",
+          "Quick single! Great running between the wickets!",
+          "Pushed and run! They're keeping it ticking!",
+          "One more! Nice and busy!"
+        ],
+        "grog": [
+          "{b} plays a {shot} for one. Useful work without a big risk.",
+          "One to {b}. Not every scoring ball needs a big stroke.",
+          "They take one. That keeps the innings moving without a boundary.",
+          "A single. Rotating the strike is how you build pressure on the bowler.",
+          "Turned for one. {b} keeps the board moving.",
+          "A soft-handed single. That's good batting under pressure."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "two",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "{shot} from {b}, and they get back for two.",
+          "They come back with a pair. Nicely accounted for.",
+          "Two more. A little more value from that stroke."
+        ],
+        "lorry": [
+          "They've got two! That's busy cricket!",
+          "{where}! They're back for the second! Two more!",
+          "A pair! They've made that ball count!"
+        ],
+        "grog": [
+          "Two runs. That's good value without needing the rope.",
+          "A pair for {b}. More useful than settling for the single.",
+          "Two added. The running has made a contribution there."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "three",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "{b} plays a {shot}. They have worked three from it.",
+          "They collect three. A substantial amount of running.",
+          "Three more. The batters have been kept occupied."
+        ],
+        "lorry": [
+          "Three! They've worked for every one of those!",
+          "They're back for a third! That's properly busy!",
+          "Three runs to {b}! Look at the effort in that!"
+        ],
+        "grog": [
+          "Three runs. That's a valuable return without a boundary.",
+          "They make three. The running has squeezed more from the stroke.",
+          "A three. Useful work between the wickets."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "runs",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "{n} added to the total. A productive delivery for the batting side.",
+          "The score moves by {n}. That is the return from this ball.",
+          "{n} more. The scorebook has some work to do."
+        ],
+        "lorry": [
+          "{n} added! The batting side have made that ball pay!",
+          "They've collected {n}! That gets the board moving!",
+          "It's {n} more! A busy delivery for the scorers!"
+        ],
+        "grog": [
+          "{n} from the ball. The batting side have got value out of it.",
+          "The total rises by {n}. The bowler has to reset now.",
+          "They add {n}. That's a useful return from one delivery."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "edgeRuns",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "A {contact} brings {n}. The bat's intentions are not recorded.",
+          "{n} off an edge. A useful accident for {b}.",
+          "Not quite the intended contact, but {n} go into the book."
+        ],
+        "lorry": [
+          "Off the edge, and {n} added! He'll take those!",
+          "A {contact}! It's brought {b} {n}!",
+          "He hasn't middled it, but he's got {n}!"
+        ],
+        "grog": [
+          "{n} off the edge. That result flatters the contact.",
+          "An edge brings {n}. I wouldn't call that a controlled scoring shot.",
+          "The edge supplies {n}. The bowler hasn't got the reward he wanted."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "offCentreRuns",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "The {part} supplies {n}. Not the purest route into the scorebook.",
+          "{n} from contact on the {part}. Useful, if imperfect.",
+          "Off the {part}, and {n} are added."
+        ],
+        "lorry": [
+          "Off the {part}, but they've got {n}!",
+          "He's found {n} despite catching it on the {part}!",
+          "The {part} takes it! And it still brings {n}!"
+        ],
+        "grog": [
+          "{n} from the {part}. Better contact could have given that stroke more pace.",
+          "Off the {part} for {n}. The bat's sweet spot hasn't done the work.",
+          "{b} gets {n}, but the connection on the {part} costs him power."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "four",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "A {shot} from {b}, and it reaches the rope. Four.",
+          "The ball reaches the rope. Four rather useful runs.",
+          "Four more. {b} has given the scoreboard a small lift."
+        ],
+        "lorry": [
+          "Four! That's what {b} was looking for!",
+          "{where}! To the rope! Four more to {b}!",
+          "He's got his boundary! Four added!"
+        ],
+        "grog": [
+          "Four to {b}. The bowler has conceded a scoring ball.",
+          "It reaches the boundary. That's a ball the bowler will review.",
+          "{shot}, {where}, for four. I'd be thinking about denying that scoring option."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "six",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "{b}'s {shot} clears the rope. The ground has proved a little small.",
+          "Beyond the rope without a bounce. Six to {b}.",
+          "Six more. That is one way to move the calculation along."
+        ],
+        "lorry": [
+          "Six! {b} has cleared the boundary!",
+          "All the way! Six more to {b}!",
+          "He's sent it over the rope! That's six!"
+        ],
+        "grog": [
+          "Six. {b} has taken the aerial option and made it pay.",
+          "Cleared for six. The bowler must find a different answer.",
+          "Six to {b}. That's an expensive result from one delivery."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "edgeBoundary",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "A {contact}, and {boundary}. Fortune has made its contribution.",
+          "An edge reaches the boundary for {boundary}. The bowler may need a moment.",
+          "{boundary} to {b}. Not all boundaries follow the intended route."
+        ],
+        "lorry": [
+          "An edge, and it's gone for {boundary}! He'll take every one!",
+          "Off the edge for {boundary}! The bowler can't believe the return!",
+          "It's reached the boundary off the edge! {boundary} more!"
+        ],
+        "grog": [
+          "An edge for {boundary}. The result is better than the contact.",
+          "{boundary} from an edge. I wouldn't discard a plan just because of that.",
+          "The edge brings a boundary. {boundary} is the cost of that escape."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "drop",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "The chance goes down. {b} survives. {result}.",
+          "{b} has been given another opportunity. {result}.",
+          "A catch not completed. The batter remains. {result}."
+        ],
+        "lorry": [
+          "He's put it down! {b} survives! {result}!",
+          "A chance has gone begging! {result}!",
+          "They've let {b} off! {result}!"
+        ],
+        "grog": [
+          "A missed catch. {b} stays, and the ball brings {result}.",
+          "The chance wasn't held. {result}. I'd stick to the plan that made it.",
+          "{b} survives a chance. {result}. That is an opening wasted."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "byes",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "Byes, {n} of them. A contribution without the bat.",
+          "{n} byes go into the extras column.",
+          "{n} added as byes. {b}'s own account is unchanged."
+        ],
+        "lorry": [
+          "Byes! {n} more to the total!",
+          "They've got {n} byes! Extras doing the scoring!",
+          "It's byes, {n} of them! Nothing off the bat!"
+        ],
+        "grog": [
+          "{n} byes. No bat runs, but the team still benefits.",
+          "Byes add {n}. Those runs matter to the total all the same.",
+          "{n} in byes. That's a delivery without bat runs, but not without cost."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "legByes",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "{n} in leg-byes. The pad has made a contribution.",
+          "Leg-byes supply {n}. Not an entry in {b}'s own account.",
+          "{n} leg-byes. The team benefits, if the bat does not."
+        ],
+        "lorry": [
+          "Leg-byes! {n} added to the total!",
+          "Off the body, and {n} in leg-byes!",
+          "They've collected {n} leg-byes! Every one counts!"
+        ],
+        "grog": [
+          "{n} leg-byes. No runs to the bat, but the total moves.",
+          "Leg-byes, {n}. The batting side still gets a return.",
+          "{n} from the body. Those leg-byes all count in the equation."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "wide",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "Called wide. The ball costs {n}, and does not use a legal delivery.",
+          "A wide, with {n} added. A small piece of generosity.",
+          "Wide signalled. {n} to the total, and another ball to bowl."
+        ],
+        "lorry": [
+          "Wide! {n} added, and he has to bowl another!",
+          "It's a wide! A gift of {n} to the batting side!",
+          "Wide called! {n} more without using a legal ball!"
+        ],
+        "grog": [
+          "A wide costs {n}. That's a legal ball still owed by the bowler.",
+          "Wide, and {n} added. I'd want more discipline from the next one.",
+          "{n} from a wide. The bowler has given away runs and a delivery."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "noBall",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "A no-ball. The total rises by {n}, with no legal ball used.",
+          "No-ball signalled. {n} go into the scorebook.",
+          "An illegal delivery costs {n}. Another ball is required."
+        ],
+        "lorry": [
+          "No-ball! {n} more, and that delivery doesn't count!",
+          "He's bowled a no-ball! The total gets {n}!",
+          "No-ball called! It's cost {n} in all!"
+        ],
+        "grog": [
+          "A no-ball costs {n}. The bowler still owes a legal delivery.",
+          "{n} from a no-ball. That's a costly way to lose control of an over.",
+          "No-ball. {n} added, and no progress through the legal deliveries."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "noBallBoundary",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "A no-ball and {boundary} off the bat. {n} added in all.",
+          "{boundary} to {b}, plus the no-ball. An expensive entry.",
+          "The boundary comes with a no-ball. {n} to the total."
+        ],
+        "lorry": [
+          "No-ball, and {boundary} off the bat! That's {n} altogether!",
+          "He's hit {boundary}, and there's a no-ball as well! {n} added!",
+          "A boundary and the no-ball! The total jumps by {n}!"
+        ],
+        "grog": [
+          "{n} in all: {boundary} off the bat and the no-ball. The bowler has paid twice.",
+          "A no-ball punished for {boundary}. That's {n} from the delivery.",
+          "{boundary} plus the no-ball. I'd call that an expensive lapse."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "winningExtra",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "{event}. {n} added, and the chase is over.",
+          "{event} completes the scoring. They have reached their target.",
+          "{event}, and the target is reached. No more arithmetic required."
+        ],
+        "lorry": [
+          "{event}! That's enough! They've completed the chase!",
+          "It's over! {event}, and the batting side are home!",
+          "{event}! The target's reached! They can celebrate now!"
+        ],
+        "grog": [
+          "{event}. The chase is finished; the batting side have their target.",
+          "The target is reached with {event}. That's the job done.",
+          "{event} closes the chase. The bowling side cannot defend that total any longer."
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "bowled",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "The stumps settle the argument. {b} is bowled.{extra}",
+          "Through the bat's protection. {b} is bowled.{extra}",
+          "{b} hears the answer behind him. Bowled.{extra}"
+        ],
+        "lorry": [
+          "Bowled him! {b}'s stumps have been disturbed!{extra}",
+          "He's through! {b} is bowled!{extra}",
+          "The stumps are hit! That's the end of {b}!{extra}"
+        ],
+        "grog": [
+          "Bowled. {b} hasn't kept that delivery out.{extra}",
+          "The ball gets through to the stumps. {b} has to go.{extra}",
+          "{b} is bowled. The bat hasn't protected its target.{extra}"
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "lbw",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "The decision is LBW. {b}'s innings ends on the pad.{extra}",
+          "{b} is given LBW. The pad cannot save him.{extra}",
+          "LBW is the verdict. {b} has to depart.{extra}"
+        ],
+        "lorry": [
+          "LBW! The decision goes against {b}!{extra}",
+          "He's out LBW! That's the end of {b}!{extra}",
+          "Given! {b} has been dismissed LBW!{extra}"
+        ],
+        "grog": [
+          "LBW. {b} hasn't escaped the pad decision.{extra}",
+          "{b} is out LBW. The ball has beaten his protection.{extra}",
+          "The pad is involved, and the verdict is out. LBW.{extra}"
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "caught",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "The catch is completed. {b} has no reprieve.{extra}",
+          "Held this time. {b}'s innings is over.{extra}",
+          "A catch brings {b}'s stay to a close.{extra}"
+        ],
+        "lorry": [
+          "He's held it! {b} is caught!{extra}",
+          "The catch sticks! {b} has to go!{extra}",
+          "Taken! They've caught {b}!{extra}"
+        ],
+        "grog": [
+          "Caught. {b} has given a chance they have converted.{extra}",
+          "The catch is taken. {b} hasn't got away with the stroke.{extra}",
+          "{b} is caught. An opportunity made, and finished.{extra}"
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "runout",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "The running ends in a dismissal. {b} is run out. {result}.{extra}",
+          "{b} is run out. {result} from the ball.{extra}",
+          "A run-out ends {b}'s innings. {result}.{extra}"
+        ],
+        "lorry": [
+          "Run out! {b} is short! {result}!{extra}",
+          "They've run {b} out! {result}!{extra}",
+          "He's run out! {b} has to go! {result}!{extra}"
+        ],
+        "grog": [
+          "{b} is run out. The run has cost a wicket. {result}.{extra}",
+          "A run-out. {b}'s innings ends between the wickets. {result}.{extra}",
+          "{b} hasn't made his ground. Run out. {result}.{extra}"
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "stumped",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "{b} is stumped. The crease has proved an important detail.{extra}",
+          "The keeper completes it. {b} is stumped.{extra}",
+          "{b} has left his ground, and now his innings. Stumped.{extra}"
+        ],
+        "lorry": [
+          "Stumped! The keeper has got {b}!{extra}",
+          "He's out of his ground! {b} is stumped!{extra}",
+          "The keeper's done it! That's a stumping!{extra}"
+        ],
+        "grog": [
+          "Stumped. {b} hasn't kept himself protected by the crease.{extra}",
+          "The keeper catches {b} out of his ground. Stumped.{extra}",
+          "{b} is stumped. Coming out has cost him his wicket.{extra}"
+        ]
+      }
+    },
+    {
+      "situation": "result",
+      "case": "wicket",
+      "kind": "call",
+      "lines": {
+        "bunnings": [
+          "{b}'s innings is over. The dismissal is {dismissal}.{extra}",
+          "A wicket ends {b}'s stay. {dismissal}.{extra}",
+          "{b} departs, dismissed {dismissal}.{extra}"
+        ],
+        "lorry": [
+          "{b} is out! {dismissal}!{extra}",
+          "A wicket! {b} has been dismissed {dismissal}!{extra}",
+          "He's gone! {b}'s innings ends, {dismissal}!{extra}"
+        ],
+        "grog": [
+          "{b} is dismissed {dismissal}. An opening for the bowling side.{extra}",
+          "A wicket, {dismissal}. {b} has to leave.{extra}",
+          "{b}'s innings ends with a dismissal: {dismissal}.{extra}"
+        ]
+      }
+    },
+    {
+      "situation": "leaveExtra",
+      "case": "wide",
+      "kind": "call",
+      "lines": {
+        "bunnings": ["Shoulders arms outside off. Discipline from {b}.", "{b} leaves the width alone. No need to chase it."],
+        "lorry": ["Not tempted! {b} makes the bowler come straighter!", "Arms up! {b} won't give away an edge out there!"],
+        "grog": [
+          "{b} leaves the width. Make the bowler change the line.",
+          "A disciplined leave. That width belongs to the keeper."
+        ]
+      }
+    },
+    {
+      "situation": "leaveExtra",
+      "case": "close",
+      "kind": "call",
+      "lines": {
+        "bunnings": ["Fourth-stump corridor. {b} shoulders arms. Good judgement.", "Close to off, but {b} trusts the leave."],
+        "lorry": ["Arms raised in the corridor! {b} holds his nerve!", "No invitation accepted! {b} leaves outside off!"],
+        "grog": [
+          "That corridor tests judgement. {b} keeps the bat inside it.",
+          "{b} leaves fourth stump. The bowler must attack the stumps."
+        ]
+      }
+    },
+    {
+      "situation": "leaveExtra",
+      "case": "length",
+      "kind": "call",
+      "lines": {
+        "bunnings": ["{b} trusts the length and lets it pass. Quite composed."],
+        "lorry": ["Judged on length! {b} lets that one go through!"],
+        "grog": ["{b} leaves on length. No need to follow the bounce."]
+      }
+    }
+  ]
+}

@@ -205,22 +205,22 @@ src/
     test-match.js     Tests: the five-day clock, declarations, the follow-on, the result or draw
     coach.js          the nets coach: a verdict on every ball faced or bowled
     leaderboard.js    high-score entries from a result, and how they rank
-    call.js           the score bar's plain call: what was bowled, the shot, the result
+    call.js           the plain call (HPD): what was bowled, the shot, the result; what the commentary is checked against
     commentary.js     simulation commentary records, over summaries and sledges
     moments.js        spots situations worth talking about (droughts, pressure, near run-outs...)
     commentary-narrative.js  the innings' running story (spells, partnerships, pressure) for the box
     over-summary.js   a recap of the over just bowled
     commentators.js   commentary voices and compatible booth entry points
-    booth-editor.js   every-ball call plus an optional contextual second voice
-    booth-caller.js   factual outcome classification and fresh primary calls
-    booth-dot-lines.js  voice-specific calls for leaves, blocks and other dots
-    booth-scoring-lines.js  voice-specific runs, boundaries and extras calls
-    booth-wicket-lines.js  voice-specific dismissal calls
+    lines.js          the commentary's words, loaded from lines/*.json: per voice, per case, by format
+    lines/            the line files (JSON): calls, results, overs, stories, moments, colour, scene
+    situations.js     every situation the lines are for: its rest, its {facts} and its cases
+    booth-editor.js   every ball: the caller's call, then a remark from one of the other two voices
+    booth-caller.js   factual outcome classification and fresh calls for how the ball ended
     booth-context.js  read-only match situations and story priorities
     booth-stories.js  personality-specific analysis, reactions and banter
     booth-chat.js     between-balls chat topics for the box
     booth-policy.js   final HPD duplication and booth line validation
-    booth-beats.js    the ball's beats: start of the over, the setup as he runs in, the delivery at the bat
+    booth-beats.js    the caller's words for the start of the over, the run-up, the delivery and shot at the bat
     booth-moment-lines.js  lines for moments.js's ducks, maidens, big overs, jaffas, the equation...
     booth-drs-lines.js  the LBW decision and the review in stages: given, reviewed, tracking, verdict
     booth-venue-lines.js  scene-setting: each ground, and the pitch report at the start
@@ -229,7 +229,6 @@ src/
     booth-weather-lines.js the box on the weather, lunch, tea and stumps, and the call to declare
     field-reading.js  what the field says about the plan (slips, bat-pad, boundary riders, the ring)
     broadcast-context.js  broadcast pressure and tactics stories from the ball and the narrative
-    broadcast-lines.js  each voice's broadcast and colour lines
     field-chatter.js  fielders' send-offs and chirps, in each side's own voice
     pack-voice.js     picks commentary-pack lines that are true of the ball, fresh each time
     commentary-pack/  the commentary pack (v1): its lines as JSON, with its own README, checks and integration notes
@@ -288,7 +287,8 @@ src/
                         (upper cut, front-foot pull, slog-sweep, switch hit, smother, jab, fend, sway, duck)
       batter-catalog.js  input-family and shot-label routes to the 37 clips (charging and inside-out play their stroke's)
     hud.js            HUD entry points, mini-map, banners, scorecard, speech bubbles
-    score-bar.js      two-line batting/bowling strip with partnership and commentary
+    score-bar.js      two-line batting/bowling strip with partnership; the bottom line's plain text
+    call-line.js      the HUD's bottom line: the over's caller (little head and surname) calling the ball
     team-flag.js      pixel team flags framing the bottom score strip
     over-balls.js     shaded delivery spheres with runs, wickets and extras
     batter-meters.js  shared eye and pressure panel
@@ -296,7 +296,8 @@ src/
     match-broadcast.js DRS tracking, verdict cards and celebrations, and the review's timings
     ball-trail.js     the delivery's fading trail and the pitch-map landing reticle (close view)
     feedback.js       arcade feedback drawn: timing meter and callout, floating words, eased bars
-    booth.js          commentator portraits and the commentary popup
+    booth.js          commentator portraits and the commentary popup (the box's remarks)
+    commentator-looks.js  each commentator's colours, for the portrait and the HUD's little head
     ball-ring.js      the ring round the ball in flight: length and movement
     run-bar.js        the run bar above the score bar: the pitch on its side, each batter along it, in or out of his ground
     pitch-map.js      a pitch map: where balls pitched, by what came of them
@@ -332,8 +333,9 @@ src/
     match-audio.js    contact timbres and broadcast sound cues
     strike-presentation.js  full-pace launch after contact and the close-to-wide broadcast cut
     celebrations.js   skipping a wicket's or boundary's celebration
-    broadcast-commentary.js  the box's call for each ball
-    booth-beats.js    when the box speaks: before the over, as he runs in, at the bat, the result, the review
+    broadcast-commentary.js  the caller's and the box's calls for each ball
+    booth-beats.js    who says what when: the caller on the HUD line through each ball, the box's remarks around it
+    commentary-level.js  the COMMENTARY setting: FULL, QUIET or CALLS ONLY
     bowling-side.js   per-bowler side selection and setup controls
     batter-pose.js    the striker's pose through a ball: stance, trigger, backlift, strokes, follow-throughs
     batter-blend.js   how a stroke joins the stance either side of it, eased in and out
@@ -347,7 +349,7 @@ src/
     match-striker.js  where the striker is drawn, and the blade onto the ball at contact
     match-panels.js   the panels over the picture: setup, speed gun, meters, coach card, release meter, feedback
     audio-mix.js      pause-menu controls for effects, crowd and broadcast volumes
-    pause-menu.js     the Esc menu: scorecard, instructions, sound
+    pause-menu.js     the Esc menu: scorecard, instructions, view, assists, commentary, sound
     scoreboard.js     the arcade high-score screen: name entry and the table
 netlify/
   functions/scores.mjs  the shared high-score service on Netlify (/api/scores)
@@ -377,6 +379,8 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
 - **What's shown on screen:** `scenes/match-view.js` (the close view) and `match-wide.js`, `match-striker.js`,
   `match-panels.js` and `render/`.
 - **A new player control:** turn the key into an action in `scenes/player-actions.js` (see the rule in CLAUDE.md).
+- **Commentary lines:** append to `sim/lines/*.json`, then `npm test` and `node tools/lines-report.mjs thin`
+  (see Commentary below); a new situation also needs `sim/situations.js` and its spotting code.
 - **Left-handers:** a player's `hand` in `sim/teams.js`; the sim works in the striker's frame (`sim/handedness.js`),
   and `render/camera.js` `setFacing` mirrors it back to the world for the views. World-fixed things (bowler, umpire,
   non-striker, footmarks, the sun) are drawn at `x * viewFacing()`.
@@ -429,36 +433,33 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   Tests. `node tools/batting-report.mjs [innings]` bats
   scripted players (perfect, good or average timing; on the crease, always forward, always back, power on every attack)
   against the computer's bowling with the player's timing window; `FORMAT=t20`, `odi` (default) or `test`.
-- **Commentary:** each ball is called in beats: the start of the over and the setup before it, the delivery
-  as it reaches the bat, the result joined on as one sentence, then the second voice's reset (timed by
-  `scenes/booth-beats.js`, worded in `sim/booth-beats.js`, `booth-venue-lines.js`, `booth-drs-lines.js` and
-  `field-reading.js`). `sim/call.js` owns the factual HUD play description (HPD). The booth (BC) is selected
-  by `sim/booth-editor.js`: every ball gets a primary call from `sim/booth-caller.js`, using the established
-  328-line ball-call bank and 354 additional voice-specific lines in `sim/booth-*-lines.js`. A second voice
-  can add analysis from read-only situations in `sim/booth-context.js` and personality-specific stories in
-  `sim/booth-stories.js`. Wording and topic memory avoid recent repetition; when a primary pool is exhausted,
-  the least recently used safe line is allowed back. HPD text is never used as a fallback.
-  `sim/booth-policy.js` rejects duplicate HPD text both at selection and display. The legacy duplicate generator remains removed.
-  `sim/commentary.js` is a facade owning one
-  narrative tracker and booth per match; it re-exports the new `LINES` and `COLOUR_LINES` banks.
-  `sim/commentary-narrative.js` reads every applied ball, including AI simulations, without changing
-  cricket state or drawing random numbers. It tracks each batter's legal dot streak, the current
-  over, approaching milestones and observed pitch/bounce changes. `sim/broadcast-context.js`
-  ranks this evidence; `sim/broadcast-lines.js` holds the three voices' wording. Pressure escalates
-  after 4, 8 and 12 dots faced, once per rung per streak. Milestone and field observations have
-  cooldowns; custom fields do not inherit preset claims. Selected AFTERNOON/EVENING lighting can
-  prompt an observation, but there is no invented day, session or weather clock.
-  `sim/booth-chat.js` provides end-of-over recaps: team runs from the over (including extras),
-  bowler overs/maidens/wickets/runs, and match score. The outgoing voice recaps before the change
-  of ends; long recaps use multiple panels rather than truncating figures. `getOverSummary(inn, over)`
-  accepts a tracked snapshot or a zero-based completed over number. Partial starting overs are
-  labelled as runs since resumption. `sim/over-summary.js` provides the older summary fallback;
-  fielder send-offs and chirps are in `sim/field-chatter.js`. `sim/commentators.js` keeps portrait
-  identities and compatible `boothCall`, `boothChat`, `boothJoke` entry points;
-  `Commentary.remember` accepts both `(rec, inn)` and `(rec, batter, bowler)`. The v1 pack is retained as a source archive;
-  only its `ball_calls.json` bank is loaded by the game.
-  Run `node tools/commentary-narrative.test.mjs`, `node tools/booth-caller.test.mjs` and `node tools/booth-editor.test.mjs` to check every-ball coverage,
-  factual eligibility, freshness, duplicate protection and unchanged match records.
+- **Commentary:** two jobs in two places. The over's caller (the three voices take an over each) calls the
+  ball on the HUD's bottom line, with his little head and surname (`render/call-line.js`): who's bowling at
+  the start of the over, the run-up, the delivery and the shot as it reaches the bat, then how it ended, as one
+  sentence. The box (`render/booth.js`) carries the other two voices' remarks: the ground and the day, why the
+  bowler's on and his plan, the moments after the ball, the over's recap. `scenes/booth-beats.js` decides who
+  says what when; the pause menu's COMMENTARY setting (`scenes/commentary-level.js`) quietens the box to the
+  notable moments, or leaves just the caller.
+  **The words are data**, in `sim/lines/*.json`, read by `sim/lines.js`. Each file is a list of groups:
+  `{ "situation", "case", "kind", "formats", "lines": { "bunnings": [...], "lorry": [...], "grog": [...], "any": [...] } }`.
+  A line is a string, or `{ "text", "formats": ["t20"], "when": { "need": [5, 6] } }` to narrow it to a format
+  (t20, odi, test) or to the facts it needs. `{b}` and `{w}` are the batter and bowler; each situation's other
+  facts, its cases and how long it rests are in `sim/situations.js`. Kinds: call (the caller's), shot, bowling,
+  match, players, banter. **To add lines**, append them to the group and run `npm test`: `tools/lines.test.mjs`
+  checks every situation, case, voice and {fact}, and that each line fits where it's said.
+  `node tools/lines-report.mjs` (or `... thin`, or `... banter`) counts the lines per situation, voice and format
+  and flags the thin ones: the place to write more. **A new situation** needs an entry in `sim/situations.js`,
+  its lines, and the code that spots it (`sim/booth-context.js` for remarks after the ball).
+  The rest: `sim/call.js` owns the factual play description (HPD), which every line is checked against
+  (`sim/booth-policy.js` rejects copies). `sim/booth-editor.js` picks each ball's calls: the caller's from
+  `sim/booth-caller.js` (the 328 factual calls in `commentary-pack/v1/ball_calls.json`, through `pack-voice.js`,
+  and the results lines), then one remark at most from read-only situations ranked in `sim/booth-context.js`,
+  never by the caller. Topic rests and line memory avoid repetition. `sim/commentary-narrative.js` reads every
+  applied ball without changing cricket state or drawing random numbers: dot streaks, the over, milestones in
+  reach, the pitch; `sim/broadcast-context.js` ranks this evidence. `sim/booth-chat.js` recaps each over (the
+  outgoing voice, before the change of ends). Fielders' chirps are in `sim/field-chatter.js`.
+  Run `npm test` to check every-ball coverage, factual eligibility, freshness, duplicate protection,
+  the lines and unchanged match records.
 
 Bat contact resolves the ball against a simplified oriented blade: across its width and along its length
 from toe to handle (`sim/bat-impact.js`). Cuts, pulls and sweeps use a horizontal blade; drives and defence use
@@ -535,8 +536,8 @@ the bowling each over. To make another ground this way:
    `castersOf` if it should throw a shadow.
 2. **Add the ground** to `src/render/grounds.js` as Parklands (new) is (`parklandsNew`, which signing off
    copies over Parklands): `venue: <MAP>`, its `ends`, and
-   `wide: { camera: tvWideCamera() }`, and put it in `ON_MENU`; its commentary lines in
-   `sim/booth-venue-lines.js` and its weather in `sim/weather.js` if it has its own.
+   `wide: { camera: tvWideCamera() }`, and put it in `ON_MENU`; its commentary lines as a `venue` case in
+   `sim/lines/scene.json` (and the case in `sim/situations.js`), and its weather in `sim/weather.js` if it has its own.
 3. **Look at it**: `node tools/ground-sheet.mjs <dir> <ground> [white|red] [weather] [lights]` (with the
    page served on port 8000) draws every view, end and time of day on one sheet, and says how long each
    light took. Things to know about the cameras:

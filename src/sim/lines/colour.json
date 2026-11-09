@@ -1,0 +1,125 @@
+{
+  "about": "Remarks on the pressure of dots, milestones in reach, the field, the pitch and the light.",
+  "groups": [
+    {
+      "situation": "dotPressure",
+      "case": "4",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{b}: {dots} dots faced in a row. A patient examination."],
+        "lorry": ["{dots} dots now for {b}! Nothing loose to work with!"],
+        "grog": ["{dots} scoreless deliveries faced by {b}. The bowler is closing the options."]
+      }
+    },
+    {
+      "situation": "dotPressure",
+      "case": "8",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{b} has faced {dots} dots in succession. Every run must be earned."],
+        "lorry": ["{dots} dots to {b}! The pressure is building with every ball!"],
+        "grog": ["{b}: {dots} consecutive dots faced. He needs a single to break the hold."]
+      }
+    },
+    {
+      "situation": "dotPressure",
+      "case": "12",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{b} has faced {dots} dots now. The bowler is making him work for every inch."],
+        "lorry": ["{dots} scoreless balls faced by {b}! Something has to give!"],
+        "grog": ["{dots} dots faced by {b}. The bowler is narrowing his scoring options."]
+      }
+    },
+    {
+      "situation": "nervousNineties",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["{b} on {runs}. A hundred is close; the next ball still needs playing."],
+        "lorry": ["{b} is on {runs}! Just {need} short of three figures!"],
+        "grog": ["{b}, {runs}. Keep the scoring options open; don't let the hundred dictate the shot."]
+      }
+    },
+    {
+      "situation": "nearFifty",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["{b} on {runs}. A fifty within reach, with patience."],
+        "lorry": ["{runs} for {b}! {need} away from the half-century!"],
+        "grog": ["{b} on {runs}. No need to force the milestone."]
+      }
+    },
+    {
+      "situation": "huntingFive",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["Four wickets for {w}. One more would complete a fine spell."],
+        "lorry": ["{w} has four! One more for a five-wicket haul!"],
+        "grog": ["{w} hunting a fifth. The captain will want to keep the pressure on."]
+      }
+    },
+    {
+      "situation": "fieldPlan",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["{field}"],
+        "lorry": ["Look at the field! {field}"],
+        "grog": ["{field}"]
+      }
+    },
+    {
+      "situation": "lowBounce",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["That kept low. Something else for the batter to consider."],
+        "lorry": ["That stayed down! Watch the bounce on this surface!"],
+        "grog": ["Low bounce on a wearing surface. The straight ball remains a threat."]
+      }
+    },
+    {
+      "situation": "extraBounce",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["A little extra lift there. Worth noting."],
+        "lorry": ["That climbed! There's still life in this pitch!"],
+        "grog": ["Extra bounce on that delivery. The batter must allow for it."]
+      }
+    },
+    {
+      "situation": "unevenBounce",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["We've seen one keep low and another climb. Not entirely predictable."],
+        "lorry": ["Low, then high! This surface is asking awkward questions!"],
+        "grog": ["Low bounce and extra lift in this innings. The cracks complicate the length."]
+      }
+    },
+    {
+      "situation": "wideningCracks",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["The cracks are opening as this pitch wears. Patience will matter."],
+        "lorry": ["Look at that worn surface! Every ball could bring a chance!"],
+        "grog": ["Those widening cracks give the spinner another problem to pose."]
+      }
+    },
+    {
+      "situation": "afternoon",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["Afternoon light, lengthening shadows. A fine setting for the contest."],
+        "lorry": ["Lovely afternoon light! Now, who makes the most of it?"],
+        "grog": ["Long afternoon shadows across the ground. Keep watching the length."]
+      }
+    },
+    {
+      "situation": "evening",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["The evening shadows stretch across the ground. A lovely light."],
+        "lorry": ["Evening light now! Still plenty of cricket in this contest!"],
+        "grog": ["Long shadows in this evening light. Concentration still matters."]
+      }
+    }
+  ]
+}

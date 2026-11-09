@@ -227,7 +227,7 @@ export function completeBall(scene) {
     scene.setPhase("after");
     return;
   }
-  // The score bar gets the plain call; the commentary box (below) adds the colour.
+  // The plain call: what the caller and the box are checked against (beats.onResult puts the caller's on the HUD).
   scene.commentary = done.rec.call ?? "";
   scene.commT = 0;
   const { calls } = scene.callFromBooth(done);
@@ -371,6 +371,7 @@ export function simulate(scene, overs) {
     if ((toBreak && applied.testBreak) || simShouldStop(scene, applied)) break;
   }
   scene.commentary = scene.simLines.length ? "Simulated. " + scene.match.overCommentary.overSummary(inn) : "";
+  scene.callLine = null;
   scene.setPhase("simSummary");
 }
 

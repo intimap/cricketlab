@@ -47,6 +47,11 @@ export const TEAM_SKINS = {
     gloveTrim: "#f4c430",
     odi: { shirt: "#2350a8", shade: "#193c82", pants: "#1c2f7a", pantsShade: "#132158", numberColour: "#f4c430" },
   },
+  WI: {
+    grip: "#7b1b30",
+    gloveTrim: "#f2b51c",
+    odi: { shirt: "#8a1f3a", shade: "#661629", pants: "#6e1a2e", pantsShade: "#4c1020", numberColour: "#f2b51c" },
+  },
 };
 
 /** A team's kit: its colours as a plain kit, its skin laid over, and its coloured kit when `coloured`. */

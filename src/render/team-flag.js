@@ -17,6 +17,7 @@ export function drawTeamFlag(team, x, y) {
   if (team.abbr === "IND") return india(x, y, w, h);
   if (team.abbr === "PAK") return pakistan(x, y, w, h);
   if (team.abbr === "SL") return sriLanka(x, y, w, h);
+  if (team.abbr === "WI") return westIndies(x, y, w, h);
   const canton = team.abbr === "AUS" || team.abbr === "NZ";
   fillRect(x, y, w, h, team.abbr === "AUS" ? "#172a50" : team.abbr === "NZ" ? "#14306e" : team.colour);
   if (!canton) {
@@ -142,4 +143,30 @@ function sriLanka(x, y, w, h) {
     [w - 4, h - 5],
   ])
     fillRect(x + dx, y + dy, 1, 1, gold);
+}
+
+/** The West Indies: on maroon, the sun going down behind a palm tree on an island, three stumps in front. */
+function westIndies(x, y, w, h) {
+  const gold = "#f2b51c";
+  const green = "#2f8a3a";
+  fillRect(x, y, w, h, "#7b1b30");
+  const cx = x + 18;
+  const top = y + 3;
+  // The sun.
+  fillRect(cx - 2, top, 7, 1, gold);
+  fillRect(cx - 3, top + 1, 9, 3, gold);
+  fillRect(cx - 2, top + 4, 7, 1, gold);
+  // The sea and the island.
+  fillRect(cx - 9, top + 12, 19, 2, "#2f6fc9");
+  fillRect(cx - 6, top + 10, 13, 2, green);
+  // The palm: a trunk and its fronds.
+  fillRect(cx + 3, top + 4, 1, 6, "#5a3d26");
+  fillRect(cx, top + 3, 8, 1, green);
+  fillRect(cx - 1, top + 4, 1, 1, green);
+  fillRect(cx + 8, top + 4, 1, 1, green);
+  fillRect(cx + 1, top + 2, 1, 1, green);
+  fillRect(cx + 6, top + 2, 1, 1, green);
+  // Three stumps in front, and the bails.
+  for (const dx of [-5, -3, -1]) fillRect(cx + dx, top + 6, 1, 6, COLORS.cream);
+  fillRect(cx - 5, top + 5, 5, 1, COLORS.cream);
 }

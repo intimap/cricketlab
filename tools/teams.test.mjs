@@ -4,7 +4,7 @@ import { TEAMS, TEAM_IDS } from "../src/sim/team-list.js";
 import { TEAM_SKINS } from "../src/render/skins.js";
 
 test("every team fields an XI with a keeper and five bowlers, and has its kit", () => {
-  assert.deepEqual(TEAM_IDS, ["AUS", "ENG", "NZ", "SA", "IND", "PAK", "SL"]);
+  assert.deepEqual(TEAM_IDS, ["AUS", "ENG", "NZ", "SA", "IND", "PAK", "SL", "WI"]);
   for (const id of TEAM_IDS) {
     const team = TEAMS[id]();
     assert.equal(team.abbr, id);

@@ -1,4 +1,5 @@
 import { activeWicketSide } from "./bowling-side.js";
+import { drawLengthZone } from "../render/length-zone.js";
 import { bowlingGeometry, armOf } from "../sim/bowling-side.js";
 import { drawMatchBroadcast } from "../render/match-broadcast.js";
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect, drawLine } from "../engine/screen.js";
@@ -238,6 +239,10 @@ function drawClose(scene) {
     });
   }
 
+  // The length cue: the zone the ball's about to pitch in, flashing in its ring colour (scenes/match-ball.js).
+  const cue = cur?.lengthCue;
+  if (cue && scene.now < cue.until)
+    drawLengthZone(projectClose, cue.colour, scene.spinner, Math.floor((scene.now - cue.from) * 8) % 2 ? 0.3 : 0.55);
   // The pitch map's landing marker, on the ground under everyone.
   const landing = landingMarker(scene);
   if (landing) drawPitchReticle(landing.p, landing.k, landing.flash, landing.scale);

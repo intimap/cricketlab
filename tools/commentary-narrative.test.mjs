@@ -23,7 +23,9 @@ const ball = (facts = {}) => ({
   extra: { type: null, runs: 0 },
   ...facts,
 });
+// A limited-overs innings: in a Test the dot-pressure rungs start at eight.
 const innings = () => ({
+  oversLimit: 50,
   legal: 0,
   runs: 0,
   wkts: 0,

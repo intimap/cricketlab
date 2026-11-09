@@ -1,0 +1,600 @@
+{
+  "about": "Remarks after the ball on the big moments and the state of the game.",
+  "groups": [
+    {
+      "situation": "winning",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "THE EQUATION HAS DISAPPEARED. A RATHER SATISFYING SIGHT FOR THE DRESSING ROOM.",
+          "THEY CAN PUT THE CALCULATORS AWAY. JOB DONE.",
+          "AND THAT'S THE MATCH. WELL PLAYED."
+        ],
+        "lorry": [
+          "THEY'VE HELD THEIR NERVE! THAT DRESSING ROOM CAN BREATHE AGAIN!",
+          "LISTEN TO THEM! ALL THAT WAITING, AND NOW THE RELEASE!",
+          "THEY'VE DONE IT! THEY'VE WON IT!",
+          "OVER THE LINE! THEY'VE GOT THE RUNS THEY NEEDED!"
+        ],
+        "grog": [
+          "THE CHASE IS FINISHED. NOW YOU CAN TALK ABOUT HOW THEY MANAGED THE RISK.",
+          "THEY GOT OVER THE LINE. NOW YOU CAN LOOK AT WHICH RISKS PAID OFF.",
+          "THEY PACED THE CHASE WELL. NEVER LET THE RATE GET AWAY."
+        ]
+      }
+    },
+    {
+      "situation": "inningsEnd",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "THE INNINGS IS CLOSED. TIME TO CONSIDER WHAT THEY MADE OF THEIR OPPORTUNITY.",
+          "AND THAT'S THE INNINGS. A FAIR DAY'S WORK, OR NOT, DEPENDING ON WHO YOU ASK.",
+          "THE INNINGS CLOSES."
+        ],
+        "lorry": [
+          "THAT'S THEIR LOT! THERE'LL BE PLENTY TO TALK ABOUT IN THAT DRESSING ROOM!",
+          "THAT'S THE END OF THE INNINGS! WHAT A RIDE!",
+          "ALL OVER! TIME TO SEE WHAT THE OTHER LOT CAN DO!"
+        ],
+        "grog": [
+          "THE BATTING SIDE WILL LOOK BACK AT THE CHANCES THEY HAD TO BUILD SOMETHING.",
+          "THE INNINGS IS DONE. NOW IT'S ABOUT WHAT THE BOWLERS CAN DO WITH IT.",
+          "THEY'LL BE HAPPY WITH THAT, OR THEY'LL BE ASKING QUESTIONS. WE'LL SEE."
+        ]
+      }
+    },
+    {
+      "situation": "collapse",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "A NEW BATTER, AND THE SAME UNCOMFORTABLE QUESTION: WHO STOPS THIS?",
+          "THE DRESSING ROOM DOOR IS GETTING RATHER TOO MUCH USE.",
+          "WICKETS FALLING LIKE AUTUMN LEAVES.",
+          "A PROCESSION, I'M AFRAID."
+        ],
+        "lorry": [
+          "THEY'RE UNRAVELLING! SOMEBODY HAS TO STAY THERE AND STOP THIS!",
+          "YOU CAN FEEL THE PANIC! THEY NEED A PARTNERSHIP, DESPERATELY!",
+          "IT'S A COLLAPSE! THEY'RE FALLING APART!",
+          "ANOTHER ONE! THIS IS CARNAGE!"
+        ],
+        "grog": [
+          "FORGET THE BIG SHOT. SURVIVE A SPELL TOGETHER AND MAKE THEM WORK AGAIN.",
+          "THE NEXT PAIR MUST TAKE THE DRAMA OUT OF IT. SMALL TARGETS, STRAIGHT BATS.",
+          "IN A COLLAPSE, THE BATTERS PLAY THE SCOREBOARD, NOT THE BALL.",
+          "THE NEW BATTER HAS TO SURVIVE AN OVER BEFORE HE THINKS ABOUT RUNS.",
+          "A COLLAPSE NEEDS A CALM RESPONSE, NOT A BIGGER SWING."
+        ]
+      },
+      "replies": {
+        "bunnings": ["ONE QUIET PARTNERSHIP WOULD CHANGE THE MOOD."],
+        "lorry": ["THE NEXT FEW BALLS FEEL ENORMOUS NOW!"],
+        "grog": ["I'D KEEP THE CATCHERS IN. DON'T LET THEM RESET."]
+      }
+    },
+    {
+      "situation": "hatTrick",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["A SPELL TO KEEP THE SCORECARD FROM. THE BATTERS MAY PREFER TO FORGET IT."],
+        "lorry": ["I'VE LOST MY VOICE! HE'S TURNED THIS SPELL INTO SOMETHING THEY'LL TALK ABOUT FOR YEARS!"],
+        "grog": ["THREE SUCCESSIVE BREAKTHROUGHS. THE NEXT BATTER WALKS INTO A VERY DIFFERENT MATCH."]
+      }
+    },
+    {
+      "situation": "twoInTwo",
+      "kind": "players",
+      "lines": {
+        "bunnings": [
+          "I SUSPECT THERE WILL BE A LITTLE EXTRA INTEREST IN THE NEXT DELIVERY.",
+          "TWO IN TWO. THE NEXT BALL HAS SOME INTEREST.",
+          "TWO WICKETS IN TWO BALLS. A HAT-TRICK BALL."
+        ],
+        "lorry": [
+          "BRING EVERYONE IN! I WOULDN'T MISS THIS NEXT BALL FOR ANYTHING!",
+          "TWO IN TWO! HAT-TRICK BALL COMING UP!",
+          "ANOTHER ONE! IT'S A HAT-TRICK BALL!"
+        ],
+        "grog": [
+          "HAT-TRICK BALL. I'D MAKE THE NEW MAN PLAY AND KEEP THE CATCHERS CLOSE.",
+          "TWO IN TWO. EVERY FIELDER IN. MAKE THE NEW MAN EARN IT.",
+          "HAT-TRICK BALL. I'D BOWL HIM A YORKER."
+        ]
+      }
+    },
+    {
+      "situation": "hundred",
+      "kind": "players",
+      "lines": {
+        "bunnings": [
+          "{b} HAS GIVEN THE INNINGS ITS BACKBONE. THAT TAKES SOME DOING.",
+          "A HUNDRED IS A GOOD PLACE TO START AGAIN, RATHER THAN STOP.",
+          "A HUNDRED FOR {b}. A FINE INNINGS.",
+          "THREE FIGURES. {b} HAS EARNED THE APPLAUSE."
+        ],
+        "lorry": [
+          "{b}! WHAT AN EFFORT! HE'S GIVEN EVERYONE AROUND HIM SOMETHING TO BUILD ON!",
+          "A HUNDRED! {b} HAS DONE IT! THE CROWD IS UP!",
+          "CENTURY! WHAT A KNOCK FROM {b}!",
+          "A CENTURY! THE NUMBER EVERY BATTER DREAMS ABOUT!"
+        ],
+        "grog": [
+          "THE HUNDRED IS THERE. I'D LIKE {b} TO MAKE THEM START HIS INNINGS ALL OVER AGAIN.",
+          "A HUNDRED FOR {b}. HE PICKED THE BALLS TO HIT AND LEFT THE REST.",
+          "{b} HAS A HUNDRED. THE BOWLERS NEVER FOUND A WAY TO STOP HIM SCORING.",
+          "THREE FIGURES. TAKE THE MOMENT, THEN RESET."
+        ]
+      }
+    },
+    {
+      "situation": "fifty",
+      "kind": "players",
+      "lines": {
+        "bunnings": [
+          "A START HAS BECOME A CONTRIBUTION. {b} WILL KNOW THERE IS MORE TO DO.",
+          "FIFTY FOR {b}. A WELL-MADE ONE.",
+          "{b} RAISES THE BAT. FIFTY."
+        ],
+        "lorry": [
+          "HE'S GOT HIMSELF IN! DON'T GIVE IT AWAY NOW, {b}!",
+          "FIFTY FOR {b}! WHAT AN INNINGS!",
+          "UP COMES THE FIFTY! {b} SALUTES THE CROWD!"
+        ],
+        "grog": [
+          "THIS IS THE POINT TO THINK BIGGER. THE HARD WORK OF GETTING IN IS BEHIND {b}.",
+          "FIFTY FOR {b}. NOW HE HAS TO GO ON AND MAKE IT COUNT.",
+          "A FIFTY BUILT ON GOOD JUDGEMENT. {b} HAS LEFT WELL AND PUNISHED THE BAD BALL.",
+          "A HALF-CENTURY IS A PLATFORM. BUILD ON IT."
+        ]
+      }
+    },
+    {
+      "situation": "outInNineties",
+      "kind": "players",
+      "lines": {
+        "bunnings": [
+          "THAT WALK WILL FEEL LONGER WITH A CENTURY SO CLOSE.",
+          "OUT IN THE NINETIES. CRUEL.",
+          "SO CLOSE. {b} WILL BE RATHER DISAPPOINTED."
+        ],
+        "lorry": [
+          "OH, HE WAS SO CLOSE! THAT WILL HURT WHEN HE SITS DOWN!",
+          "OH NO! OUT IN THE NINETIES! HEARTBREAK!",
+          "SO NEAR! {b} IS DEVASTATED!"
+        ],
+        "grog": [
+          "A PERSONAL MILESTONE MISSED, BUT THEY MUST NOT LET IT DISTRACT THE NEXT PAIR.",
+          "THE NINETIES. HE STARTED THINKING ABOUT THE HUNDRED, NOT THE BALL.",
+          "OUT IN THE NINETIES. THE BOWLERS SQUEEZED HIM AND HE WENT LOOKING FOR IT."
+        ]
+      }
+    },
+    {
+      "situation": "fiveFor",
+      "kind": "players",
+      "lines": {
+        "bunnings": [
+          "{w} HAS MADE THIS A SPELL THE BATTING SIDE WILL REMEMBER RATHER DIFFERENTLY.",
+          "FIVE WICKETS FOR {w}. HIS NAME GOES ON THE BOARD.",
+          "{w} HAS FIVE. A DAY TO REMEMBER."
+        ],
+        "lorry": [
+          "WHAT A SHIFT FROM {w}! HE'S CARRIED THE ATTACK!",
+          "FIVE FOR {w}! WHAT A PERFORMANCE!",
+          "{w} HAS HIS FIVE! THE CROWD ARE ON THEIR FEET!"
+        ],
+        "grog": [
+          "THAT HAUL IS A REWARD FOR {w}. THE QUESTION NOW IS HOW MUCH MORE HE CAN TAKE.",
+          "FIVE FOR {w}. HE'S BOWLED WITH PATIENCE AND WAITED FOR THEM.",
+          "{w} HAS FIVE. HE'S TAKEN THEM WITH THE SAME BALL, AGAIN AND AGAIN."
+        ]
+      }
+    },
+    {
+      "situation": "standBroken",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "THAT PARTNERSHIP WAS PROVIDING SOME COMFORT. THE NEW PAIR MUST FIND IT AGAIN.",
+          "THE PARTNERSHIP IS OVER. AT LAST, THE BOWLERS WILL SAY.",
+          "THAT ENDS A HANDY STAND."
+        ],
+        "lorry": [
+          "THEY NEEDED TO BREAK THAT STAND! THE BOWLING SIDE HAVE THEIR OPENING!",
+          "THE PARTNERSHIP'S BROKEN! FINALLY!",
+          "THEY'VE SPLIT THEM! WHAT A RELIEF!"
+        ],
+        "grog": [
+          "A SET PAIR HAS BEEN SPLIT. I'D ATTACK BEFORE THE NEW BATTER GETS COMFORTABLE.",
+          "THE STAND IS BROKEN. NOW ATTACK THE NEW MAN BEFORE HE SETTLES.",
+          "BREAK A BIG STAND AND YOU OFTEN GET TWO. KEEP THE PRESSURE ON."
+        ]
+      }
+    },
+    {
+      "situation": "bigKnockEnds",
+      "kind": "players",
+      "lines": {
+        "bunnings": [
+          "{b} HAS DONE MUCH OF THE BUILDING. SOMEONE ELSE MUST CARRY IT ON.",
+          "{b} IS OUT. A FINE INNINGS COMES TO AN END.",
+          "THE END OF A LONG STAY FOR {b}."
+        ],
+        "lorry": [
+          "THAT'S THE SET MAN GONE! HE'S LEFT A BIG JOB FOR THE NEXT PAIR!",
+          "{b} IS GONE! WHAT AN INNINGS IT WAS!",
+          "THEY'VE GOT {b}! THE CROWD STANDS FOR HIM!"
+        ],
+        "grog": [
+          "LOSING THE ESTABLISHED BATTER CHANGES THE PLAN. I'D TEST THE NEW MAN IMMEDIATELY.",
+          "{b} OUT AT LAST. THE BOWLERS WILL FEEL THE GAME HAS OPENED UP.",
+          "THE BIG WICKET. THE OTHERS NOW HAVE TO BAT WITHOUT {b}'S SHELTER."
+        ]
+      }
+    },
+    {
+      "situation": "wicket",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "A NEW PAIR HAS TO BEGIN THE CONVERSATION ALL OVER AGAIN.",
+          "THERE IS AN OPENING NOW. WHAT THEY DO WITH IT IS THE INTERESTING PART.",
+          "AND THAT, AS THEY SAY, IS THAT.",
+          "A WICKET. THE BOWLING SIDE IS VERY PLEASED.",
+          "WICKETS REMAIN A VERY PERSUASIVE ARGUMENT."
+        ],
+        "lorry": [
+          "THE BOWLING SIDE HAVE A WAY IN! THEY'LL WANT ANOTHER BEFORE THIS PAIR SETTLES!",
+          "THE MOOD HAS CHANGED! THE NEW MAN WILL FEEL EVERY PAIR OF EYES!",
+          "GOT HIM! THE BOWLING SIDE ARE UP IN THE AIR!",
+          "WHAT A BREAKTHROUGH! THE CROWD IS STUNNED!"
+        ],
+        "grog": [
+          "I'D KEEP THE PRESSURE ON THE NEW BATTER. DON'T HAND HIM AN EASY START.",
+          "THIS IS WHEN I'D KEEP A CATCHING FIELD. MAKE THE NEW PAIR EARN THEIR COMFORT.",
+          "A WICKET CHANGES EVERYTHING. A NEW BATTER, A NEW PLAN.",
+          "THE PRESSURE BUILT AND THE WICKET CAME. THAT'S CRICKET.",
+          "A WICKET CHANGES THE CALCULATION."
+        ]
+      }
+    },
+    {
+      "situation": "pressureReleased",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "THAT SHOULD SETTLE HIM. IT'S BEEN A PATIENT WAIT.",
+          "SOME RELIEF FOR THE BATTER. THE BOWLER MUST BEGIN THE SQUEEZE AGAIN.",
+          "A BOUNDARY, AND THE PRESSURE LIFTS."
+        ],
+        "lorry": [
+          "AT LAST! HE'S BEEN BOTTLED UP, AND NOW HE CAN BREATHE AGAIN!",
+          "THAT'S WHAT HE NEEDED! YOU COULD FEEL HIM GETTING RESTLESS!",
+          "THAT'S A RELEASE! THEY NEEDED THAT!"
+        ],
+        "grog": [
+          "THE PRESSURE WAS WORKING. I'D MAKE HIM EARN EVERY INCH AGAIN.",
+          "THE BATTER HAS FOUND A RELEASE. THE NEXT BALL MUST ASK A BETTER QUESTION.",
+          "ONE BOUNDARY AND THE FIELD HAS TO SPREAD. THE SINGLES OPEN UP."
+        ]
+      },
+      "replies": {
+        "bunnings": ["RELIEF IS USEFUL. GETTING CARRIED AWAY IS RATHER LESS SO."],
+        "lorry": ["AND NOW HE'LL WANT TO GO AGAIN!"],
+        "grog": ["I'D RESET THE LINE BEFORE HE GETS USED TO THAT FREEDOM."]
+      }
+    },
+    {
+      "situation": "drop",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "{b} HAS BEEN GIVEN TIME HE HAD NO RIGHT TO EXPECT.",
+          "THE BOWLER HAS TO CREATE THAT OPPORTUNITY ALL OVER AGAIN.",
+          "DROPPED. THE FIELDER WILL WANT THE GROUND TO SWALLOW HIM.",
+          "A CHANCE, GRASSED.",
+          "THE REPLAY WILL BE LESS FORGIVING THAN I AM."
+        ],
+        "lorry": [
+          "THAT'S A LIFELINE! {b} HAS TO MAKE THEM PAY FOR THAT!",
+          "THEY'VE LET HIM OFF! THAT CAN CHANGE THE WHOLE FEEL OF A SPELL!",
+          "DROPPED HIM! OH NO! THAT'S A SITTER!",
+          "HE'S PUT IT DOWN! I CAN'T BELIEVE IT!",
+          "A LIFE! HE'S BEEN GIVEN A LIFE!"
+        ],
+        "grog": [
+          "A CHANCE HAS GONE. I'D STICK WITH THE PLAN THAT CREATED IT.",
+          "THE BATTER HAS ANOTHER LIFE. I WOULDN'T GIVE HIM AN EASY RESET AS WELL.",
+          "DROPPED. THE BOWLER DID EVERYTHING RIGHT.",
+          "THE HANDS WERE TOO HARD. IT'S POPPED OUT.",
+          "CREATING THE CHANCE IS ONLY HALF THE JOB."
+        ]
+      }
+    },
+    {
+      "situation": "dropCost",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "{b} HAS ADDED {gained} SINCE THAT MISSED CHANCE. THE SCOREBOOK DOES KEEP RECEIPTS.",
+          "{b} HAS ADDED {gained} SINCE THE DROP. EXPENSIVE.",
+          "THE DROPPED CATCH NOW STANDS AT {gained} RUNS."
+        ],
+        "lorry": [
+          "{gained} MORE SINCE THEY LET {b} OFF! HOW BIG COULD THAT MOMENT BECOME?",
+          "{gained} MORE SINCE THEY DROPPED HIM! THAT HURTS!",
+          "THEY'RE PAYING FOR THAT DROP NOW! {gained} RUNS!"
+        ],
+        "grog": [
+          "THE MISSED CHANCE HAS COST {gained} ALREADY. THAT'S WHY YOU HAVE TO KEEP MAKING OPPORTUNITIES.",
+          "CATCHES WIN MATCHES. THAT DROP HAS COST {gained}.",
+          "{gained} RUNS SINCE THE DROP. THE FIELDER WILL BE FEELING IT."
+        ]
+      }
+    },
+    {
+      "situation": "chaseSteep",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "{need} FROM {left}. THERE IS RATHER LESS ROOM FOR PATIENCE NOW.",
+          "THE REQUIRED PACE LEAVES VERY LITTLE ROOM TO WAIT.",
+          "{need} FROM {left}. A STEEP CLIMB.",
+          "THE RATE IS GETTING AWAY. {need} OFF {left}."
+        ],
+        "lorry": [
+          "THEY NEED {need} FROM {left}! EVERY QUIET BALL FEELS TWICE AS LONG NOW!",
+          "{need} OFF {left}! THEY'VE GOT TO GO NOW!",
+          "THE RATE'S CLIMBING! {need} FROM {left}!"
+        ],
+        "grog": [
+          "WITH {need} NEEDED FROM {left}, THEY MUST FIND SCORING OPTIONS WITHOUT THROWING WICKETS AWAY.",
+          "{need} FROM {left}. THEY NEED A BIG OVER OR TWO.",
+          "{need} OFF {left}. PICK A BOWLER AND TAKE HIM ON."
+        ]
+      }
+    },
+    {
+      "situation": "chaseTight",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "{need} NEEDED FROM {left}. A USEFUL TIME TO HAVE A CLEAR HEAD.",
+          "{need} FROM {left}. EVENLY POISED.",
+          "IT'S {need} OFF {left}. ANYONE'S GAME."
+        ],
+        "lorry": [
+          "{need} FROM {left}! I CAN'T TAKE MY EYES OFF THIS NOW!",
+          "{need} OFF {left}! THIS IS GOING TO BE CLOSE!",
+          "IT'S NECK AND NECK! {need} FROM {left}!"
+        ],
+        "grog": [
+          "{need} FROM {left}. I'D PLAN THE NEXT OVER, RATHER THAN TRY TO WIN IT IN ONE HIT.",
+          "{need} FROM {left}. KEEP WICKETS IN HAND AND THE RATE TAKES CARE OF ITSELF.",
+          "{need} OFF {left}. SINGLES AND THE ODD BOUNDARY. NO HEROICS."
+        ]
+      }
+    },
+    {
+      "situation": "chaseComfort",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "{need} FROM {left}. NO PARTICULAR NEED TO MAKE THIS MORE EXCITING.",
+          "{need} FROM {left}. NO GREAT HURRY.",
+          "THEY'RE COMFORTABLE. {need} OFF {left}."
+        ],
+        "lorry": [
+          "THEY'VE GOT ROOM TO WORK WITH! JUST DON'T DO ANYTHING SILLY!",
+          "{need} OFF {left}! THEY'RE CRUISING HOME!",
+          "EASY DOES IT! {need} FROM {left}!"
+        ],
+        "grog": [
+          "THE EQUATION ALLOWS SINGLES. I'D KEEP THE RISK LOW AND MAKE THEM STOP ME.",
+          "{need} FROM {left}. JUST DON'T LOSE WICKETS IN CLUSTERS.",
+          "{need} OFF {left}. THE BOWLING SIDE NEEDS WICKETS, NOT DOTS."
+        ]
+      }
+    },
+    {
+      "situation": "partnership",
+      "kind": "players",
+      "lines": {
+        "bunnings": [
+          "THIS PAIR ARE GIVING THE INNINGS SOME SHAPE. A USEFUL HABIT.",
+          "THE STAND IS WORTH {stand}. NEITHER SIDE WILL HAVE FAILED TO NOTICE.",
+          "{stand} TOGETHER. A PARTNERSHIP OF SOME SUBSTANCE.",
+          "THIS STAND IS NOW {stand}."
+        ],
+        "lorry": [
+          "THEY'RE BUILDING SOMETHING TOGETHER! DON'T LET THEM BREAK THIS UP NOW!",
+          "{stand} FOR THE PARTNERSHIP! THEY'RE CRUISING!",
+          "WHAT A STAND! {stand} AND COUNTING!"
+        ],
+        "grog": [
+          "THIS PARTNERSHIP IS MAKING THE CAPTAIN THINK. I'D TRY TO DENY THEIR EASY SINGLES.",
+          "{stand} TOGETHER. THE CAPTAIN HAS TO BREAK THIS UP.",
+          "THEY'RE RUNNING WELL AND ROTATING THE STRIKE. THAT'S HOW YOU BUILD {stand}."
+        ]
+      }
+    },
+    {
+      "situation": "pressure",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "THE SCORE HAS GONE QUIET. THE BATTER'S THOUGHTS MAY BE GETTING RATHER LOUD.",
+          "THE BOWLER IS MAKING PATIENCE PART OF THE TEST.",
+          "THE RUNS HAVE DRIED UP. RATHER COMPLETELY.",
+          "NOTHING IS COMING EASILY OUT THERE."
+        ],
+        "lorry": [
+          "HE'S BEING SQUEEZED! YOU CAN FEEL HIM LOOKING FOR A WAY OUT!",
+          "THE BOWLERS HAVE GOT THEM IN A VICE!",
+          "YOU COULD CUT THE TENSION WITH A KNIFE!",
+          "THE PRESSURE IS ENORMOUS NOW!"
+        ],
+        "grog": [
+          "THE SQUEEZE IS WORKING. I'D KEEP THAT SCORING OPTION CLOSED AND LET HIM TAKE THE RISK.",
+          "TIGHT BOWLING, TIGHT FIELD. SOMETHING HAS TO GIVE.",
+          "THE BOWLERS ARE BOWLING IN PARTNERSHIP. THAT'S HOW YOU SQUEEZE A SIDE.",
+          {
+            "text": "THE TEST BOWLERS ARE HAPPY TO WAIT. THEY KNOW A MISTAKE IS COMING.",
+            "formats": ["test"]
+          }
+        ]
+      }
+    },
+    {
+      "situation": "width",
+      "kind": "shot",
+      "lines": {
+        "bunnings": [
+          "A LITTLE WIDTH CAN BE A GENEROUS GIFT. THE BATTER WAS IN NO MOOD TO REFUSE.",
+          "WIDTH, AND IT WAS USED.",
+          "GIVEN ROOM, AND HE TOOK IT."
+        ],
+        "lorry": [
+          "HE'S BEEN GIVEN ROOM! YOU CAN'T KEEP INVITING HIM TO DO THAT!",
+          "TOO WIDE AND IT'S GONE!",
+          "HE'S GIVEN HIM ROOM AND PAID THE PRICE!"
+        ],
+        "grog": [
+          "THAT'S THE PROBLEM WITH OFFERING WIDTH. I'D BRING THE NEXT ONE CLOSER TO HIM.",
+          "NO WIDTH TO A BATTER LIKE THIS. CRAMP HIM.",
+          "THE LINE WAS WRONG. THE FIELD WAS SET FOR SOMETHING STRAIGHTER."
+        ]
+      }
+    },
+    {
+      "situation": "luckyBoundary",
+      "kind": "shot",
+      "lines": {
+        "bunnings": [
+          "THE SCOREBOOK WON'T ASK HOW WELL HE HIT IT. THE BOWLER MAY HAVE AN OPINION.",
+          "FOUR, OF A SORT.",
+          "IT WENT FOR FOUR. NONE OF IT INTENDED."
+        ],
+        "lorry": [
+          "HE'LL TAKE THOSE! THE BOWLER CAN'T BELIEVE HE'S GOT AWAY WITH IT!",
+          "IT'S FLOWN OFF THE EDGE FOR FOUR!",
+          "LUCKY! BUT THEY'LL TAKE IT!"
+        ],
+        "grog": [
+          "THE RESULT FLATTERS THE CONTACT. I WOULDN'T ABANDON THE PLAN BECAUSE OF THAT.",
+          "AN EDGE FOR FOUR. THE BOWLER BEAT HIM AND STILL GOT HIT.",
+          "THAT'S WHY YOU HAVE A THIRD MAN."
+        ]
+      }
+    },
+    {
+      "situation": "fatigue",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["{w} MAY FIND THE END OF THIS SPELL QUITE AN ATTRACTIVE PROSPECT."],
+        "lorry": ["{w} IS WORKING HARD OUT THERE! HOW MUCH HAS HE GOT LEFT IN THIS SPELL?"],
+        "grog": ["{w} IS TIRED. I'D BE THINKING ABOUT A CHANGE BEFORE THE BATTER TAKES ADVANTAGE."]
+      }
+    },
+    {
+      "situation": "setBatter",
+      "kind": "players",
+      "lines": {
+        "bunnings": [
+          "{b} LOOKS RATHER AT HOME. AN INCONVENIENCE FOR THE BOWLING SIDE.",
+          "{b} LOOKS QUITE AT HOME NOW.",
+          "{b} HAS THE MEASURE OF THINGS.",
+          "{b} IS SEEING IT LIKE A BEACH BALL."
+        ],
+        "lorry": [
+          "{b} IS GETTING COMFORTABLE! THEY'VE GOT TO FIND SOMETHING DIFFERENT!",
+          "{b} IS IN! THE BOWLERS ARE IN TROUBLE!",
+          "LOOK AT {b}! HE'S SEEING IT SO WELL!",
+          "{b} IS PLAYING LIKE HE OWNS THE PLACE!"
+        ],
+        "grog": [
+          "{b} HAS HIS EYE IN. I'D CHANGE THE QUESTION BEFORE HE DICTATES THE SPELL.",
+          "{b} IS SET. THE BOWLERS NEED A NEW PLAN, NOT MORE OF THE SAME.",
+          "WHEN A BATTER'S THIS SET, YOU DRY UP HIS SINGLES AND WAIT.",
+          "{b} HAS PLAYED HIMSELF IN. NOW IT'S ABOUT CONCENTRATION."
+        ]
+      }
+    },
+    {
+      "situation": "nearRunout",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "THEIR CALLING COULD DO WITH A QUIETER CONVERSATION.",
+          "VERY NEARLY RUN OUT. A DIRECT HIT AND HE WAS GONE.",
+          "A CLOSE ONE. THE BATTERS MAY NEED A CHAT."
+        ],
+        "lorry": [
+          "MY HEART CAN'T TAKE THAT CALLING! THEY NEED TO TALK TO EACH OTHER!",
+          "OH, THAT WAS CLOSE! INCHES!",
+          "THE THROW JUST MISSED! HE WAS GONE!"
+        ],
+        "grog": [
+          "A RUN IS ONLY USEFUL IF BOTH BATTERS AGREE ON IT. I'D SORT THE CALLING OUT.",
+          "HIT THE STUMPS AND HE'S OUT. THE FIELDING HAS TO BE SHARPER.",
+          "THAT'S A RISKY RUN. THE CALLING HAS TO BE CLEARER."
+        ]
+      }
+    },
+    {
+      "situation": "variation",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": [
+          "A CHANGE OF QUESTION. THE BATTER DID NOT APPEAR TO HAVE PREPARED THAT ANSWER.",
+          "A CHANGE OF PACE. AND IT WORKED.",
+          "SOMETHING DIFFERENT. IT DID THE TRICK."
+        ],
+        "lorry": [
+          "HE'S GOT HIM THINKING NOW! THE NEXT ONE COULD BE ANYTHING!",
+          "WHAT A CHANGE-UP! HE NEVER SAW IT!",
+          "OH, THE VARIATION! BRILLIANT!"
+        ],
+        "grog": [
+          "THE CHANGE HAS DISRUPTED HIS READ. I'D GO BACK TO THE STOCK BALL BEFORE HE ADJUSTS.",
+          "SET HIM UP WITH THE STOCK BALL, THEN THE VARIATION. CLASSIC.",
+          "THE VARIATION ONLY WORKS IF THE STOCK BALL IS GOOD. IT WAS."
+        ]
+      }
+    },
+    {
+      "situation": "lull",
+      "kind": "banter",
+      "lines": {
+        "bunnings": [
+          "A QUIET SPELL. BILL HAS STARTED TAKING ATTENDANCE AMONG THE PIGEONS.",
+          "BILL CALLS THIS A LULL. I CALL IT A CHANCE TO FINISH MY TEA.",
+          "A QUIET PERIOD. NOT UNWELCOME.",
+          "THE GAME IS TAKING A BREATHER."
+        ],
+        "lorry": [
+          "THOSE PIGEONS AT FINE LEG HAVEN'T MOVED. THEY'RE BETTER AT LEAVING THAN I AM!",
+          "RICHIE'S GOT HIS TEA. I'VE GOT NERVOUS ENERGY. ONE OF US PLANNED AHEAD!",
+          "COME ON, SOMEBODY DO SOMETHING!",
+          "I'VE HAD MORE EXCITEMENT AT THE DENTIST!"
+        ],
+        "grog": [
+          "I'D DRAW YOU A FIELD PLAN, BUT BILL'S USED THE PAPER TO COUNT PIGEONS.",
+          "RICHIE WANTS CALM. BILL WANTS A WICKET. I'D SETTLE FOR SOMEONE HITTING MY FIELD.",
+          {
+            "text": "THESE QUIET SPELLS ARE WHERE TEST MATCHES ARE WON. BOTH SIDES KNOW IT.",
+            "formats": ["test"]
+          },
+          "THE BOWLERS ARE BUILDING PRESSURE. YOU DON'T SEE IT, BUT IT'S THERE."
+        ]
+      },
+      "replies": {
+        "bunnings": ["A VERY SOUND LEAVE FROM THE PIGEON, BILL."],
+        "lorry": ["DON'T KNOCK THE PIGEONS! THEY WATCH EVERY BALL!"],
+        "grog": ["I'M STILL TRYING TO WORK OUT THEIR FIELD PLACEMENTS."]
+      }
+    }
+  ]
+}

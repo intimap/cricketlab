@@ -37,3 +37,13 @@ export function safeBoothCalls(calls, hpd, fits = () => true) {
     return true;
   });
 }
+
+/**
+ * Fill a line's {placeholders} from `facts` (a missing one stays as {key}, which the gate rejects), with
+ * "a" made "an" before a filled word starting with a vowel ("AN OFF DRIVE", "AN UPPER CUT").
+ */
+export function fillLine(text, facts) {
+  return String(text)
+    .replace(/\b([Aa]) \{(\w+)\}/g, (all, a, key) => (/^[AEIOUaeiou]/.test(String(facts[key] ?? "")) ? `${a}n {${key}}` : all))
+    .replace(/\{([^{}]+)\}/g, (_, key) => (facts[key] === null || facts[key] === undefined ? `{${key}}` : String(facts[key])));
+}

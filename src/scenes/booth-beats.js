@@ -1,7 +1,8 @@
 import { scheduleCalls, callDuration, fitsBox } from "../render/booth.js";
+import { fitsHud, shownOf } from "../render/call-line.js";
 import { GROUNDS } from "../render/grounds.js";
 import { TRACKING_TIME } from "../render/match-broadcast.js";
-import { setupCall, deliveryCall, shotCall, outcomeCall, overIntroCall, fieldCall, PLAN_READS } from "../sim/booth-beats.js";
+import { setupCall, deliveryCall, shotCall, outcomeCall, overIntroParts, fieldCall, PLAN_READS } from "../sim/booth-beats.js";
 import { COLORS } from "../engine/screen.js";
 import { venueCall } from "../sim/booth-venue-lines.js";
 import { wrapUpCall } from "../sim/booth-wrap-lines.js";
@@ -10,12 +11,14 @@ import { leadOf } from "../sim/test-match.js";
 import { warningCall } from "../sim/booth-law-lines.js";
 import { onFieldCall, reviewCall, trackingCall, verdictCall } from "../sim/booth-drs-lines.js";
 import { activeWicketSide } from "./bowling-side.js";
+import { boxAllows } from "./commentary-level.js";
 
 /**
- * The commentary box through each ball, on the broadcast's beats: scene-setting and the start of the
- * over before it, the setup as the bowler runs in, the delivery as it reaches the bat, then the result
- * joined on as one sentence (and the second voice's reset after it); and the LBW decision and review.
- * The words come from sim/booth-*.js; this decides when they're said. Presentation only.
+ * The commentary through each ball, on the broadcast's beats. The over's caller calls the ball on the HUD's
+ * bottom line (`scene.callLine`): who's bowling at the start of the over, the run-up, the delivery and the
+ * shot as it reaches the bat, then how it ended, as one sentence. The box (`scene.booth`) carries the other
+ * two voices' remarks: the ground and the day, why the bowler's on and his plan, the moments after the ball.
+ * The words come from sim/booth-*.js; this decides when and where they're said. Presentation only.
  */
 
 // Presentation randomness: never the match's dice. Never the same option from a list twice running.
@@ -27,21 +30,60 @@ function pick(list) {
   return list[i];
 }
 
+/** The scene's presentation dice for the booth editor (sim/booth-editor.js). */
+const presentation = { random: Math.random };
+const editorOf = (scene) => scene.match.comm?.booth ?? null;
+
 function state(scene) {
-  scene.beats ??= { innings: null, fieldSaid: new Set(), field: null, running: null };
+  scene.beats ??= { innings: null, fieldSaid: new Set(), field: null, shotSaid: false };
   return scene.beats;
 }
 
-/** The voice leading the over (the one who calls each ball, as booth-caller.js does). */
+/** The voice calling this over (the one who calls each ball, as booth-caller.js does). */
 const lead = (scene) => scene.inn.overNo % 3;
+/** The box speaks with the voices not calling: the caller is on the HUD line. */
+const boxVoice = (scene, who) => (who === lead(scene) ? (who + 1) % 3 : who);
 const live = (scene) => !scene.nets && !!scene.inn.bowler;
 const fieldSignature = (inn) => `${inn.preset}:${inn.customField ? JSON.stringify(inn.placements) : ""}`;
 
-/** Calls on after whatever the box is still saying. */
+/** Remarks on after whatever the box is still saying, if the commentary setting allows them. */
 function queue(scene, calls, at = scene.now + 0.2) {
+  calls = calls.filter(boxAllows);
   if (!calls.length) return;
   const after = scene.booth?.length ? Math.max(at, scene.boothEndsAt()) : at;
   scene.booth = [...(scene.booth ?? []).filter((c) => scene.now - c.t0 <= callDuration(c)), ...scheduleCalls(calls, after)];
+}
+
+/** An event the box speaks to at once, cutting off what it was saying. */
+function interrupt(scene, call, at = scene.now) {
+  scene.booth = boxAllows(call) ? scheduleCalls([call], at) : [];
+}
+
+/** Trim a call to the HUD line, at a word, if it's too long. */
+function fitted(text) {
+  if (fitsHud(text)) return text;
+  const words = text.split(" ");
+  while (words.length > 1 && !fitsHud(`${words.join(" ")}..`)) words.pop();
+  return `${words.join(" ")}..`;
+}
+
+/**
+ * The caller says `text` on the HUD line: carrying on the sentence he's in the middle of (`carryOn`, if it
+ * fits), or starting a new one. From time `at` (default now), the line before stays up until then.
+ */
+function sayOnHud(scene, who, text, carryOn, at = scene.now) {
+  if (!text) return;
+  const prev = scene.callLine;
+  if (carryOn && prev && prev.who === who && fitsHud(`${prev.text} ${text}`))
+    scene.callLine = { who, text: `${prev.text} ${text}`, from: shownOf(prev, scene.now), t0: at };
+  else scene.callLine = { who, text: fitted(text), from: 0, t0: at, prev: at > scene.now ? prev : null };
+}
+
+/** Finish the caller's open sentence ("--") with a full stop: the ball's over and there's no more to say. */
+function closeHud(scene) {
+  const call = scene.callLine;
+  if (!call?.text.endsWith(" --")) return;
+  scene.callLine = { ...call, text: `${call.text.slice(0, -3)}.`, from: shownOf(call, scene.now), t0: scene.now };
 }
 
 /** The innings (or match) is over: the box wraps it up over the scorecard. */
@@ -55,9 +97,9 @@ export function onInningsEnd(scene) {
   if (match.hasNextInnings && !match.clock) facts.need = inn.runs + 1;
   else if (match.hasNextInnings && match.innings.length === 3) facts.need = Math.max(1, -leadOf(match, inn.bowlTeam) + 1);
   else if (match.result) facts.result = match.result.text;
-  const who = lead(scene);
+  const who = boxVoice(scene, lead(scene));
   const text = wrapUpCall(who, facts, pick);
-  if (fitsBox(text)) queue(scene, [{ who, text }], scene.now + 0.6);
+  if (fitsBox(text)) queue(scene, [{ who, text, event: true }], scene.now + 0.6);
 }
 
 /** The weather report is up: the box's take on the day (and the rain), the longest version that fits. */
@@ -65,7 +107,7 @@ export function onForecast(scene) {
   if (scene.nets) return;
   const { match } = scene;
   const w = match.weather;
-  const who = (match.clock?.day ?? 0) % 3;
+  const who = boxVoice(scene, (match.clock?.day ?? 0) % 3);
   const facts = {
     id: w.id,
     temp: w.temp,
@@ -75,7 +117,7 @@ export function onForecast(scene) {
   };
   for (const f of [facts, { ...facts, day: 0 }, { id: w.id, temp: w.temp }]) {
     const text = weatherCall(who, f, pick);
-    if (fitsBox(text)) return queue(scene, [{ who, text }], scene.now + 0.5);
+    if (fitsBox(text)) return queue(scene, [{ who, text, event: true }], scene.now + 0.5);
   }
 }
 
@@ -83,19 +125,19 @@ export function onForecast(scene) {
 export function onBreak(scene, brk, day) {
   if (scene.nets) return;
   const inn = scene.inn;
-  const who = lead(scene);
+  const who = boxVoice(scene, lead(scene));
   const text = breakCall(who, brk, { team: inn.batTeam.name, score: `${inn.runs}/${inn.wkts}`, day }, pick);
-  if (fitsBox(text)) queue(scene, [{ who, text }], scene.now + 0.6);
+  if (fitsBox(text)) queue(scene, [{ who, text, event: true }], scene.now + 0.6);
 }
 
-/** Rain has stopped play: the lead voice says so, the next what it has cost. */
+/** Rain has stopped play: one voice says so, the next what it has cost. */
 export function onRain(scene, facts) {
   if (scene.nets) return;
-  const who = lead(scene);
-  const next = (who + 1) % 3;
+  const who = (lead(scene) + 1) % 3;
+  const next = (lead(scene) + 2) % 3;
   const calls = [
-    { who, text: rainStopCall(who, pick) },
-    { who: next, text: rainCostCall(next, facts, pick) },
+    { who, text: rainStopCall(who, pick), event: true },
+    { who: next, text: rainCostCall(next, facts, pick), event: true },
   ];
   queue(
     scene,
@@ -107,19 +149,22 @@ export function onRain(scene, facts) {
 /** The umpire has warned the bowler for too many bouncers, or taken him off: the box says so after the ball. */
 export function onWarning(scene, kind, bowler) {
   if (scene.nets) return;
-  const who = lead(scene);
+  const who = boxVoice(scene, lead(scene));
   const text = warningCall(who, kind, { w: bowler.short }, pick);
-  if (fitsBox(text)) queue(scene, [{ who, text }], scene.now + 0.8);
+  if (fitsBox(text)) queue(scene, [{ who, text, event: true }], scene.now + 0.8);
 }
 
 /** Batting in a Test: the box reckons it's time to declare. */
 export function onDeclareAdvice(scene) {
-  const who = lead(scene);
+  const who = boxVoice(scene, lead(scene));
   const text = declareCall(who, pick);
-  if (fitsBox(text)) queue(scene, [{ who, text }], scene.now + 0.4);
+  if (fitsBox(text)) queue(scene, [{ who, text, event: true }], scene.now + 0.4);
 }
 
-/** The next ball is being set up: at an innings' start, the ground and pitch; at an over's, the bowler. */
+/**
+ * The next ball is being set up. At an innings' start the box sets the scene (the ground and the pitch); at
+ * an over's, the caller says who's bowling and the box why he's on, the phase, the field or his plan.
+ */
 export function onNextBall(scene) {
   if (!live(scene)) return;
   const beats = state(scene);
@@ -129,17 +174,22 @@ export function onNextBall(scene) {
     beats.innings = inn;
     beats.fieldSaid.clear();
     const text = venueCall(scene.cfg.ground, inn.pitch.type.id, scene.cfg.light, scene.match.innings.length === 1, pick);
-    if (text && fitsBox(text)) calls.push({ who: 0, text, keep: true });
+    if (text && fitsBox(text)) calls.push({ who: boxVoice(scene, 0), text, keep: true, event: true });
   }
   const sig = fieldSignature(inn);
   if (inn.ballInOver === 0) {
     // Batting against the computer, a change of plan is read out, and tagged on screen as it's said.
     const plan = scene.human === "bat" && PLAN_READS[inn.overPlan] && inn.overPlan !== beats.planSaid ? inn.overPlan : null;
-    let text = overIntroCall(lead(scene), inn, fieldCall(inn, beats.fieldSaid), pick, plan);
-    // Too long with the intro: the plan alone is what matters.
-    if (!fitsBox(text) && plan) text = pick(PLAN_READS[plan].lines);
-    if (fitsBox(text)) {
-      calls.push({ who: lead(scene), text, keep: true });
+    const { head, extra } = overIntroParts(lead(scene), inn, fieldCall(inn, beats.fieldSaid), pick, plan);
+    sayOnHud(scene, lead(scene), head, false);
+    // What's new about the over (the powerplay, a Test day, a bowler's last), or else the usual scene-setting.
+    const remark = plan
+      ? null
+      : editorOf(scene)?.overStart(inn, scene.match, { caller: lead(scene), rng: presentation, fits: fitsBox });
+    if (remark) calls.push({ ...remark, keep: true });
+    else if (extra && fitsBox(extra)) {
+      // A plan read matters to the batter: kept through the run-up, and important enough for QUIET.
+      calls.push({ who: (lead(scene) + 1) % 3, text: extra, keep: true, priority: plan ? 70 : 30 });
       if (plan) {
         beats.planSaid = plan;
         scene.flash(`READ: ${PLAN_READS[plan].tag}`, COLORS.gold);
@@ -149,7 +199,7 @@ export function onNextBall(scene) {
     // The captain has moved the field mid-over.
     const field = fieldCall(inn, beats.fieldSaid);
     if (field && fitsBox(`A CHANGE IN THE FIELD. ${field}`))
-      calls.push({ who: (lead(scene) + 2) % 3, text: `A CHANGE IN THE FIELD. ${field}` });
+      calls.push({ who: (lead(scene) + 2) % 3, text: `A CHANGE IN THE FIELD. ${field}`, priority: 30 });
   }
   beats.field = sig;
   queue(scene, calls);
@@ -161,21 +211,21 @@ const kept = (scene) => (scene.booth ?? []).filter((c) => c.keep && scene.now - 
 const endOf = (calls, now) => calls.reduce((end, c) => Math.max(end, c.t0 + callDuration(c)), now);
 
 /**
- * The bowler runs in: the last ball's chat stops here. The start of the over (if still to come) is said
- * as he runs in; otherwise the setup, held open for the delivery and the result.
+ * The bowler runs in: the box's chat about the last ball stops here (the ground and the start of the over
+ * carry on), and the caller starts the ball's sentence on the HUD line. If the over so far has a pattern
+ * (and the box is free), one of the others says so, briefly, before he lets go.
  */
 export function onRunup(scene) {
   if (!live(scene) || !scene.cur) return;
   const beats = state(scene);
   const inn = scene.inn;
-  beats.running = null;
+  beats.shotSaid = false;
   const intro = kept(scene);
-  if (intro.length) {
-    const started = intro.filter((c) => c.t0 <= scene.now);
-    const waiting = intro.filter((c) => c.t0 > scene.now);
-    scene.booth = [...started, ...scheduleCalls(waiting, endOf(started, scene.now))];
-    return;
-  }
+  const started = intro.filter((c) => c.t0 <= scene.now);
+  const waiting = intro.filter((c) => c.t0 > scene.now);
+  scene.booth = [...started, ...scheduleCalls(waiting, endOf(started, scene.now))];
+  const remark = intro.length ? null : editorOf(scene)?.runup(inn, { caller: lead(scene), rng: presentation, fits: fitsBox });
+  if (remark && boxAllows(remark)) scene.booth = scheduleCalls([remark], scene.now);
   const ends = GROUNDS[scene.cfg.ground]?.ends ?? ["PAVILION END", "SCOREBOARD END"];
   const text = setupCall(
     lead(scene),
@@ -188,11 +238,10 @@ export function onRunup(scene) {
     },
     pick,
   );
-  beats.running = { who: lead(scene), text, t0: scene.now, open: true };
-  scene.booth = [beats.running];
+  sayOnHud(scene, lead(scene), text, false);
 }
 
-/** The ball reaches the bat: what was bowled and what he did with it, carried on from the setup. */
+/** The ball reaches the bat: what was bowled and what he did with it, carried on from the run-up. */
 export function onContact(scene) {
   if (!live(scene) || !scene.cur?.delivery) return;
   const beats = state(scene);
@@ -222,100 +271,48 @@ export function onContact(scene) {
       )
     : "";
   beats.shotSaid = !!shot;
-  grow(scene, beats, lead(scene), shot ? `${delivery} ${shot}` : delivery, true);
-  // Too long for the box with the setup: the shot alone carries on.
-  if (shot && !beats.running.text.endsWith(shot)) grow(scene, beats, lead(scene), shot, true);
-}
-
-/** Add `text` to the open sentence (or start one), keeping it open if more is coming. */
-function grow(scene, beats, who, text, open) {
-  const prev = beats.running;
-  // After the start of the over, if that's still being said.
-  const intro = kept(scene);
-  const at = endOf(intro, scene.now);
-  if (prev && prev.who === who && fitsBox(`${prev.text} ${text}`)) {
-    beats.running = {
-      who,
-      text: `${prev.text} ${text}`,
-      from: prev.text.length + 1,
-      cont: true,
-      open,
-      t0: Math.max(at, prev.t0),
-    };
-  } else beats.running = { who, text, from: 0, cont: !!prev && at === scene.now, open, t0: at };
-  scene.booth = [...intro, beats.running];
-}
-
-/** Close the open sentence where it stands (the ball is over without its result being called yet). */
-function close(scene, beats) {
-  if (!beats.running) return;
-  const call = { ...beats.running, open: false, from: beats.running.text.length, t0: scene.now };
-  beats.running = null;
-  scene.booth = [call];
+  sayOnHud(scene, lead(scene), shot ? `${delivery} ${shot}` : delivery, true);
+  // Too long for the line with the run-up: the shot alone carries on.
+  if (shot && !scene.callLine.text.endsWith(shot)) sayOnHud(scene, lead(scene), shot, true);
 }
 
 /**
- * The ball is done: the box's calls for it (booth-editor.js). The first, the lead voice's result, finishes
- * the open sentence; the rest follow it.
+ * The ball is done. The caller finishes his sentence with how it ended: briefly if he called the shot, or
+ * with his own call for the ball (wickets, drops, extras). The box's remarks follow.
  */
 export function onResult(scene, calls, rec) {
   const beats = state(scene);
-  const [first, ...rest] = calls;
-  // The shot was called as it was played: finish the sentence with how it ended, if the box's own
-  // call for the ball isn't needed.
-  const outcome = beats.shotSaid && beats.running && first?.who === beats.running.who ? outcomeCall(rec, pick) : null;
+  const primary = calls.find((c) => c.topic === "ballCall");
+  const rest = calls.filter((c) => c !== primary);
+  const who = scene.callLine?.who ?? primary?.who ?? lead(scene);
+  const outcome = beats.shotSaid ? outcomeCall(rec, pick) : null;
   beats.shotSaid = false;
-  if (outcome !== null) {
-    if (outcome) grow(scene, beats, first.who, outcome, false);
-    else {
-      const call = beats.running;
-      beats.running = {
-        ...call,
-        text: call.text.replace(/ --$/, "."),
-        from: call.text.length,
-        cont: true,
-        open: false,
-        t0: scene.now,
-      };
-      scene.booth = [beats.running];
-    }
-    beats.running = null;
-    queue(scene, rest);
-    return;
-  }
-  if (first && beats.running && first.who === beats.running.who) {
-    grow(scene, beats, first.who, first.text, false);
-    beats.running = null;
-    queue(scene, rest);
-    return;
-  }
-  close(scene, beats);
-  queue(scene, calls);
+  if (outcome) sayOnHud(scene, who, outcome, true);
+  else if (outcome === null && primary) sayOnHud(scene, primary.who, primary.text, true);
+  else closeHud(scene);
+  queue(scene, rest);
 }
 
 const names = (scene) => ({ b: scene.inn.bat[scene.cur.play.striker ?? scene.inn.striker]?.p.short ?? "" });
 
-/** The umpire gives his decision on an LBW appeal. */
+/** The umpire gives his decision on an LBW appeal: the caller says it. */
 export function onDecision(scene, out) {
   if (!live(scene)) return;
-  const beats = state(scene);
-  close(scene, beats);
-  queue(scene, [{ who: lead(scene), text: onFieldCall(lead(scene), out, names(scene), pick) }], scene.now);
+  sayOnHud(scene, lead(scene), onFieldCall(lead(scene), out, names(scene), pick), true);
 }
 
-/** A review is called for, then the ball-tracking plays. */
+/** A review is called for (the box), then the caller reads the ball-tracking as it plays. */
 export function onReview(scene, by) {
   if (!live(scene)) return;
   const who = (lead(scene) + 1) % 3;
-  scene.booth = scheduleCalls([{ who, text: reviewCall(who, by, names(scene), pick) }], scene.now);
-  // The tracking as it plays, once the review call is done.
+  interrupt(scene, { who, text: reviewCall(who, by, names(scene), pick), event: true });
   const at = Math.max(scene.boothEndsAt(), scene.now + TRACKING_TIME - 0.6);
-  scene.booth.push(...scheduleCalls([{ who: lead(scene), text: trackingCall(scene.cur.tracking.reason, pick) }], at));
+  sayOnHud(scene, lead(scene), trackingCall(scene.cur.tracking.reason, pick), false, at);
 }
 
-/** The review's verdict, before the ball's own calls. */
+/** The review's verdict, from the box, before the ball's own calls. */
 export function onVerdict(scene, { onField, out, verdict }) {
   if (!live(scene)) return;
   const who = (lead(scene) + 2) % 3;
-  scene.booth = scheduleCalls([{ who, text: verdictCall(who, { onField, out, verdict }, names(scene), pick) }], scene.now);
+  interrupt(scene, { who, text: verdictCall(who, { onField, out, verdict }, names(scene), pick), event: true });
 }

@@ -1,0 +1,301 @@
+{
+  "about": "Remarks on the pressure of dots, milestones in reach, the field, the pitch and the light.",
+  "groups": [
+    {
+      "situation": "dotPressure",
+      "case": "4",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "{b}: {dots} dots faced in a row. A patient examination.",
+          "{dots} WITHOUT A RUN FOR {b}. HE'LL BE COUNTING.",
+          "{b} HAS GONE {dots} WITHOUT SCORING. THE BOWLER IS ON TOP.",
+          {
+            "text": "{dots} DOTS IN A ROW. IN THIS FORMAT THAT'S A SMALL CRISIS.",
+            "formats": ["t20"]
+          }
+        ],
+        "lorry": [
+          "{dots} dots now for {b}! Nothing loose to work with!",
+          "{dots} DOTS! {b} NEEDS TO GET OFF STRIKE!",
+          "{b} CAN'T GET IT AWAY! {dots} IN A ROW!",
+          {
+            "text": "{dots} DOTS IN A T20! THE CROWD'S GETTING RESTLESS!",
+            "formats": ["t20"]
+          }
+        ],
+        "grog": [
+          "{dots} scoreless deliveries faced by {b}. The bowler is closing the options.",
+          "{dots} DOTS. HE HAS TO FIND A SINGLE, ANY SINGLE.",
+          "THE BOWLER HAS FOUND {b}'S OFF STUMP. {dots} DOTS."
+        ]
+      }
+    },
+    {
+      "situation": "dotPressure",
+      "case": "8",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "{b} has faced {dots} dots in succession. Every run must be earned.",
+          "{dots} DOTS NOW. THE SCOREBOARD HAS FORGOTTEN {b}.",
+          "{b} IS STUCK. {dots} BALLS WITHOUT A RUN.",
+          {
+            "text": "{dots} DOTS. A T20 BATTER CAN'T AFFORD MANY OF THOSE.",
+            "formats": ["t20"]
+          }
+        ],
+        "lorry": [
+          "{dots} dots to {b}! The pressure is building with every ball!",
+          "{dots} DOTS! THIS IS AGONY FOR {b}!",
+          "STILL NOTHING! {dots} BALLS! SOMEBODY HELP HIM!",
+          {
+            "text": "{dots} DOTS IN A ROW IN A TEST! WHAT A DUEL!",
+            "formats": ["test"]
+          }
+        ],
+        "grog": [
+          "{b}: {dots} consecutive dots faced. He needs a single to break the hold.",
+          "{dots} DOTS. HE'S LOOKING FOR A BAD BALL AND THERE ISN'T ONE.",
+          "{b} NEEDS TO ROTATE THE STRIKE. A PUSH AND RUN, ANYTHING.",
+          {
+            "text": "{dots} DOTS. IN THIS FORMAT, THAT'S WORSE THAN A WICKET.",
+            "formats": ["t20", "odi"]
+          }
+        ]
+      }
+    },
+    {
+      "situation": "dotPressure",
+      "case": "12",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "{b} has faced {dots} dots now. The bowler is making him work for every inch.",
+          "{dots} DOTS. HE MAY HAVE TAKEN ROOT.",
+          "{b} HAS NOW FACED {dots} WITHOUT A RUN. REMARKABLE, IN ITS WAY."
+        ],
+        "lorry": [
+          "{dots} scoreless balls faced by {b}! Something has to give!",
+          "{dots} DOTS! I'VE NEVER SEEN ANYTHING LIKE IT!",
+          "{b} IS TRAPPED! {dots} BALLS! THE BOWLER'S GOT HIM IN A CAGE!"
+        ],
+        "grog": [
+          "{dots} dots faced by {b}. The bowler is narrowing his scoring options.",
+          "{dots} DOTS. EITHER HE BREAKS THE SHACKLES OR THE SHACKLES BREAK HIM.",
+          "THIS IS THE MOMENT A BATTER GETS OUT. {dots} DOTS DOES THAT TO YOU."
+        ]
+      }
+    },
+    {
+      "situation": "nervousNineties",
+      "kind": "players",
+      "lines": {
+        "bunnings": [
+          "{b} on {runs}. A hundred is close; the next ball still needs playing.",
+          "{b} ON {runs}. THE NINETIES CAN BE A NERVOUS PLACE.",
+          "{need} SHORT OF A HUNDRED. {b} MUST BE THINKING ABOUT IT."
+        ],
+        "lorry": [
+          "{b} is on {runs}! Just {need} short of three figures!",
+          "{b} IS IN THE NINETIES! {need} TO GO! I CAN'T WATCH!",
+          "SO CLOSE NOW! {b} ON {runs}!"
+        ],
+        "grog": [
+          "{b}, {runs}. Keep the scoring options open; don't let the hundred dictate the shot.",
+          "{runs}. THE BOWLERS WILL TRY TO KEEP HIM ON STRIKE AND MAKE HIM WAIT.",
+          "{b} NEEDS {need}. PLAY THE SAME WAY THAT GOT YOU HERE."
+        ]
+      }
+    },
+    {
+      "situation": "nearFifty",
+      "kind": "players",
+      "lines": {
+        "bunnings": [
+          "{b} on {runs}. A fifty within reach, with patience.",
+          "{b} ON {runs}. THE FIFTY BECKONS.",
+          "{need} MORE FOR {b}'S FIFTY."
+        ],
+        "lorry": [
+          "{runs} for {b}! {need} away from the half-century!",
+          "{b}'S ON {runs}! THE FIFTY'S RIGHT THERE!",
+          "COME ON, {b}! {need} FOR THE FIFTY!"
+        ],
+        "grog": [
+          "{b} on {runs}. No need to force the milestone.",
+          "{runs} FOR {b}. DON'T CHASE IT. IT WILL COME.",
+          "{b} NEEDS {need}. THE BOWLERS WILL TRY TO MAKE HIM WAIT."
+        ]
+      }
+    },
+    {
+      "situation": "huntingFive",
+      "kind": "players",
+      "lines": {
+        "bunnings": [
+          "Four wickets for {w}. One more would complete a fine spell.",
+          "FOUR FOR {w}. ONE MORE FOR THE HONOURS BOARD.",
+          "{w} HAS FOUR. HE'LL WANT ANOTHER."
+        ],
+        "lorry": [
+          "{w} has four! One more for a five-wicket haul!",
+          "{w} IS HUNTING NUMBER FIVE! COME ON!",
+          "ONE MORE FOR {w}! THE FIVE-FOR IS ON!"
+        ],
+        "grog": [
+          "{w} hunting a fifth. The captain will want to keep the pressure on.",
+          "{w} ON FOUR. KEEP HIM ON. HE'S IN RHYTHM.",
+          "FOUR FOR {w}. THE TAIL IS IN; HIS FIFTH SHOULD COME."
+        ]
+      }
+    },
+    {
+      "situation": "fieldPlan",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["{field}"],
+        "lorry": ["Look at the field! {field}"],
+        "grog": ["{field}"]
+      }
+    },
+    {
+      "situation": "lowBounce",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "That kept low. Something else for the batter to consider.",
+          "KEEPING LOW NOW. THE PITCH IS TIRING.",
+          "UNDER THE BAT. IT WAS NOT BOUNCING TODAY.",
+          "THE BOUNCE HAS GONE OUT OF THE PITCH."
+        ],
+        "lorry": [
+          "That stayed down! Watch the bounce on this surface!",
+          "IT'S SHOOTING ALONG THE GROUND!",
+          "THAT KEPT SO LOW! LIKE A RAT UP A DRAINPIPE!",
+          "THE PITCH IS DYING! IT'S KEEPING LOW!"
+        ],
+        "grog": [
+          "Low bounce on a wearing surface. The straight ball remains a threat.",
+          "LOW BOUNCE: BOWL STUMP TO STUMP AND THE BATTER HAS TO PLAY EVERYTHING.",
+          "THE CROSS-BAT SHOTS ARE OFF THE MENU ON A PITCH THIS LOW.",
+          "THE BOWLED AND THE LBW ARE IN PLAY. ATTACK THE STUMPS."
+        ]
+      }
+    },
+    {
+      "situation": "extraBounce",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "A little extra lift there. Worth noting.",
+          "THAT ONE TOOK OFF. A LIVELY SURFACE.",
+          "STEEPLING BOUNCE. HE DIDN'T EXPECT THAT.",
+          "THE PITCH HAS SOME LIFE IN IT YET."
+        ],
+        "lorry": [
+          "That climbed! There's still life in this pitch!",
+          "THAT REARED UP! LOOK AT THE BOUNCE!",
+          "IT'S FLYING THROUGH! THE KEEPER'S TAKING IT ABOVE HIS HEAD!",
+          "WHAT BOUNCE! THE QUICKS WILL LOVE THIS!"
+        ],
+        "grog": [
+          "Extra bounce on that delivery. The batter must allow for it.",
+          "EXTRA BOUNCE. BRING IN A SHORT LEG AND A GULLY.",
+          "WITH THIS BOUNCE, BACK OF A LENGTH IS THE WICKET BALL.",
+          "THE BATTER HAS TO PLAY WITH SOFT HANDS ON A PITCH THIS LIVELY."
+        ]
+      }
+    },
+    {
+      "situation": "unevenBounce",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "We've seen one keep low and another climb. Not entirely predictable.",
+          "ONE KEPT LOW. THE NEXT MAY NOT.",
+          "THE PITCH IS BEHAVING RATHER UNPREDICTABLY.",
+          "THE CRACKS ARE HAVING THEIR SAY."
+        ],
+        "lorry": [
+          "Low, then high! This surface is asking awkward questions!",
+          "THAT ONE SHOT THROUGH! THIS PITCH IS A MINEFIELD!",
+          "LOOK AT THE BOUNCE! UP AND DOWN LIKE A YO-YO!",
+          "THE BATTERS DON'T KNOW WHAT'S COMING!"
+        ],
+        "grog": [
+          "Low bounce and extra lift in this innings. The cracks complicate the length.",
+          "UNEVEN BOUNCE MEANS BOWL STRAIGHT. THE PITCH WILL DO THE REST.",
+          "ON A PITCH LIKE THIS, PLAY LATE AND UNDER YOUR EYES.",
+          "THE BOWLERS SHOULD JUST HIT THE CRACKS AND WAIT."
+        ]
+      }
+    },
+    {
+      "situation": "wideningCracks",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "The cracks are opening as this pitch wears. Patience will matter.",
+          "THE CRACKS ARE WIDENING. THE SPINNER HAS NOTICED.",
+          "YOU COULD LOSE A COIN IN SOME OF THOSE CRACKS.",
+          "THE PITCH IS BREAKING UP. AS PITCHES DO."
+        ],
+        "lorry": [
+          "Look at that worn surface! Every ball could bring a chance!",
+          "LOOK AT THOSE CRACKS! THE SPINNER'S RUBBING HIS HANDS!",
+          "IT'S SPINNING OUT OF THE CRACKS! WATCH OUT!",
+          "THE PITCH IS FALLING APART!"
+        ],
+        "grog": [
+          "Those widening cracks give the spinner another problem to pose.",
+          "AIM AT THE CRACKS AND LET THE PITCH DO THE WORK.",
+          "THE CRACKS GIVE THE SPINNER TWO DELIVERIES: ONE THAT TURNS, ONE THAT DOESN'T.",
+          "BATTING LAST ON THIS WILL BE A NIGHTMARE."
+        ]
+      }
+    },
+    {
+      "situation": "afternoon",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "Afternoon light, lengthening shadows. A fine setting for the contest.",
+          "THE AFTERNOON SUN IS SETTLING IN.",
+          "A WARM AFTERNOON. THE FIELDERS ARE LOOKING FOR SHADE."
+        ],
+        "lorry": [
+          "Lovely afternoon light! Now, who makes the most of it?",
+          "WHAT A LOVELY AFTERNOON FOR CRICKET!",
+          "THE SUN'S OUT AND SO ARE THE ICE CREAMS!"
+        ],
+        "grog": [
+          "Long afternoon shadows across the ground. Keep watching the length.",
+          "THE AFTERNOON IS USUALLY THE BEST TIME TO BAT. THE PITCH IS AT ITS BEST.",
+          "TIRED LEGS IN THE AFTERNOON. THE BOWLERS WILL FEEL IT NOW."
+        ]
+      }
+    },
+    {
+      "situation": "evening",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "The evening shadows stretch across the ground. A lovely light.",
+          "THE SHADOWS ARE LONG NOW. A LOVELY LIGHT.",
+          "EVENING. THE CROWD IS THINNING."
+        ],
+        "lorry": [
+          "Evening light now! Still plenty of cricket in this contest!",
+          "LOOK AT THOSE SHADOWS! WHAT A SIGHT!",
+          "THE LIGHT'S GOING! PICK IT UP IF YOU CAN!"
+        ],
+        "grog": [
+          "Long shadows in this evening light. Concentration still matters.",
+          "IN THIS LIGHT THE BALL IS HARDER TO PICK UP. BOWL STRAIGHT.",
+          "EVENING. THE NEW BALL WOULD BE DANGEROUS NOW."
+        ]
+      }
+    }
+  ]
+}

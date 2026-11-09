@@ -1,33 +1,21 @@
-import { LINES, COLOUR_LINES } from "./broadcast-lines.js";
+import { voiceLines, storiesIn, formatOf } from "./lines.js";
 
+/** Leaves worth a word, and runs of dots (sim/lines/results.json and colour.json). */
+export const LINES = {
+  leaveWide: voiceLines("leaveExtra", "wide"),
+  leaveClose: voiceLines("leaveExtra", "close"),
+  leaveLength: voiceLines("leaveExtra", "length"),
+  defendPressure: Object.fromEntries([4, 8, 12].map((n) => [n, voiceLines("dotPressure", String(n))])),
+};
+
+/** The pitch and the light. */
+const COLOUR_TOPICS = ["lowBounce", "extraBounce", "unevenBounce", "wideningCracks", "afternoon", "evening"];
+export const COLOUR_LINES = Object.fromEntries(COLOUR_TOPICS.map((topic) => [topic, voiceLines(topic)]));
+
+const { dotPressure, ...COLOUR_STORIES } = storiesIn("colour");
 export const BROADCAST_STORIES = {
-  ...Object.fromEntries([4, 8, 12].map((n) => [`dotPressure${n}`, { rest: 4, lines: LINES.defendPressure[n] }])),
-  nervousNineties: {
-    rest: 12,
-    lines: [
-      ["{b} on {runs}. A hundred is close; the next ball still needs playing."],
-      ["{b} is on {runs}! Just {need} short of three figures!"],
-      ["{b}, {runs}. Keep the scoring options open; don't let the hundred dictate the shot."],
-    ],
-  },
-  nearFifty: {
-    rest: 12,
-    lines: [
-      ["{b} on {runs}. A fifty within reach, with patience."],
-      ["{runs} for {b}! {need} away from the half-century!"],
-      ["{b} on {runs}. No need to force the milestone."],
-    ],
-  },
-  huntingFive: {
-    rest: 12,
-    lines: [
-      ["Four wickets for {w}. One more would complete a fine spell."],
-      ["{w} has four! One more for a five-wicket haul!"],
-      ["{w} hunting a fifth. The captain will want to keep the pressure on."],
-    ],
-  },
-  fieldPlan: { rest: 8, lines: [["{field}"], ["Look at the field! {field}"], ["{field}"]] },
-  ...Object.fromEntries(Object.entries(COLOUR_LINES).map(([topic, lines]) => [topic, { rest: 18, lines }])),
+  ...Object.fromEntries([4, 8, 12].map((n) => [`dotPressure${n}`, { rest: dotPressure.rest, lines: LINES.defendPressure[n] }])),
+  ...COLOUR_STORIES,
 };
 
 /** Facts only: the innings clock does not imply a real day, weather or session. */
@@ -42,7 +30,8 @@ export function broadcastContext(rec, inn, narrative, light) {
   if (m.nearFifty) add("nearFifty", 58, { b: batter.p.short, runs: m.runs, need: 50 - m.runs }, `fifty:${rec.striker}`);
   if (m.huntingFive) add("huntingFive", 76, {}, `five:${rec.bowler}`);
   const dots = narrative.dotPressure;
-  const level = dots.batter >= 12 ? 12 : dots.batter >= 8 ? 8 : dots.batter >= 4 ? 4 : 0;
+  // Four dots running is routine in a Test: there the pressure rungs start at eight.
+  const level = dots.batter >= 12 ? 12 : dots.batter >= 8 ? 8 : dots.batter >= 4 && formatOf(inn) !== "test" ? 4 : 0;
   if (level && rec.legal && rec.total === 0)
     add(`dotPressure${level}`, 56 + level, { dots: dots.batter }, `dots:${rec.striker}:${dots.streak}:${level}`);
   const pitch = narrative.pitch;

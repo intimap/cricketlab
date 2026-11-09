@@ -1,3 +1,4 @@
+import { fillLine } from "./booth-policy.js";
 import BALL_CALLS from "./commentary-pack/v1/ball_calls.json" with { type: "json" };
 
 /** Authored factual calls used by BoothCaller; presentation dice are passed in. */
@@ -51,13 +52,9 @@ function render(entry, ctx) {
     n: rec.moment?.n,
     k: typeof k === "number" ? (NUMBER_WORDS[k] ?? String(k)) : k,
   };
-  let ok = true;
-  const text = entry.text.replace(/\{([^{}]+)\}/g, (_, key) => {
-    const v = values[key];
-    if (v === null || v === undefined || v === "") ok = false;
-    return String(v);
-  });
-  return ok ? text : null;
+  const keys = [...entry.text.matchAll(/\{([^{}]+)\}/g)].map((m) => m[1]);
+  if (keys.some((key) => values[key] === null || values[key] === undefined || values[key] === "")) return null;
+  return fillLine(entry.text, values);
 }
 
 /** Everything a line can test: the ball record, plus the one derived fact the pack uses. */

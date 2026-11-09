@@ -1,5 +1,6 @@
 import { boothCall } from "../sim/commentators.js";
 import { fitsBox } from "../render/booth.js";
+import { fitsHud } from "../render/call-line.js";
 
 /** Keep narration wiring out of the match phase controller. */
 export function callFromBooth(scene, done) {
@@ -19,6 +20,8 @@ export function callFromBooth(scene, done) {
   return boothCall(rec, rec.call ?? "", names, rng, scene.match.comm, fitsBox, {
     inn,
     applied,
+    fitsCall: fitsHud,
+    match: scene.match,
     commentary: scene.match.comm,
     narrative: scene.match.comm.narrative,
     light: scene.cfg.light,

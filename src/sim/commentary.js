@@ -3,7 +3,7 @@ import { OverSummary } from "./over-summary.js";
 import { BoothEditor } from "./booth-editor.js";
 import { createNarrative, trackBall, getOverSummary } from "./commentary-narrative.js";
 
-export { LINES, COLOUR_LINES } from "./broadcast-lines.js";
+export { LINES, COLOUR_LINES } from "./broadcast-context.js";
 export { pickChirp, pickSledges } from "./field-chatter.js";
 
 /** Compatibility facade: one narrative and one active booth per match. */

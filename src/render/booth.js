@@ -3,6 +3,7 @@ import { COLORS, ctx, fillRect, fillEllipse, drawPanel } from "../engine/screen.
 import { drawText, wrapText } from "../engine/text.js";
 import { COMMENTATORS } from "../sim/commentators.js";
 import { HUD_Y } from "./hud.js";
+import { LOOKS } from "./commentator-looks.js";
 
 const BOX_W = 252;
 const BOX_H = 52;
@@ -13,42 +14,6 @@ const SLIDE = 0.22;
 const TALK_RATE = 30;
 const HOLD = 1.6;
 const LINE_CHARS = 32;
-
-// Each commentator's look in the 40x40 portrait.
-const LOOKS = {
-  bunnings: {
-    bg: "#24425f",
-    jacket: "#eee5cc",
-    jacketShade: "#cbbf9f",
-    shirt: "#ffffff",
-    tie: "#7a1f24",
-    skin: "#dfa47c",
-    hair: "#dadad4",
-    brow: "#b9b9b2",
-  },
-  lorry: {
-    bg: "#4d2a26",
-    jacket: "#1f5233",
-    jacketShade: "#163c25",
-    shirt: "#f4f0e2",
-    tie: "#e8b931",
-    skin: "#e8b08a",
-    hair: "#2b2019",
-    brow: "#2b2019",
-  },
-  grog: {
-    bg: "#27414d",
-    jacket: "#1f3672",
-    jacketShade: "#172855",
-    shirt: "#bcd7f0",
-    tie: "#c8302e",
-    skin: "#e2a983",
-    hair: "#c9a65a",
-    brow: "#a8873f",
-    hat: "#e7d08e",
-    band: "#1f3672",
-  },
-};
 
 /** A 40x40 head-and-shoulders portrait; mouth 0 = closed, 1 = half, 2 = open. */
 export function drawPortrait(id, x, y, mouth) {

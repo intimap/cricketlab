@@ -1,0 +1,436 @@
+{
+  "about": "The ground, the pitch, the weather, the intervals, the rain, the umpire's warnings and the wrap-up at the end.",
+  "groups": [
+    {
+      "situation": "venue",
+      "case": "theG",
+      "kind": "match",
+      "lines": {
+        "any": [
+          "THE MCG. NOTHING QUITE LIKE IT IN CRICKET.",
+          "A BIG CROWD IN AT THE MCG. WHAT A PLACE TO PLAY.",
+          "THE G IS BUZZING. THE BIGGEST STAGE IN THE GAME."
+        ]
+      }
+    },
+    {
+      "situation": "venue",
+      "case": "lords",
+      "kind": "match",
+      "lines": {
+        "any": [
+          "LORD'S. THE HOME OF CRICKET.",
+          "THE PAVILION, THE SLOPE, THE HISTORY. IT'S LORD'S.",
+          "A FULL HOUSE AT LORD'S. THE MEMBERS ARE IN THEIR SEATS."
+        ]
+      }
+    },
+    {
+      "situation": "venue",
+      "case": "scg",
+      "kind": "match",
+      "lines": {
+        "any": [
+          "THE SCG. THE CROWD RIGHT ON TOP OF THE ACTION.",
+          "SYDNEY. THE STANDS TIGHT TO THE BOUNDARY BOARDS.",
+          "A GREAT ATMOSPHERE AT THE SCG."
+        ]
+      }
+    },
+    {
+      "situation": "venue",
+      "case": "lakshmi",
+      "kind": "match",
+      "lines": {
+        "any": [
+          "LAKSHMI BLUFF. THE MOUNTAINS LOOKING DOWN ON THE GAME.",
+          "CRICKET AMONG THE PEAKS. WHAT A SETTING.",
+          "THE THIN AIR UP HERE AT LAKSHMI BLUFF. IT CAN CARRY."
+        ]
+      }
+    },
+    {
+      "situation": "venue",
+      "case": "parklands",
+      "kind": "match",
+      "lines": {
+        "any": [
+          "A LOVELY DAY AT PARKLANDS OVAL.",
+          "THE TREES, THE PICKET FENCE. PARKLANDS IS A PICTURE.",
+          "A GOOD CROWD ON THE GRASS BANKS AT PARKLANDS."
+        ]
+      }
+    },
+    {
+      "situation": "pitch",
+      "case": "green",
+      "kind": "match",
+      "lines": {
+        "any": ["A BIT OF GREEN IN THIS PITCH -- THE SEAMERS WILL LOVE IT.", "GRASS ON THE SURFACE. EXPECT SEAM AND SWING EARLY."]
+      }
+    },
+    {
+      "situation": "pitch",
+      "case": "dust",
+      "kind": "match",
+      "lines": {
+        "any": ["DRY AND DUSTY -- THE SPINNERS WILL BE LICKING THEIR LIPS.", "A DUST BOWL. IT'LL TURN, AND IT'LL KEEP LOW."]
+      }
+    },
+    {
+      "situation": "pitch",
+      "case": "cracked",
+      "kind": "match",
+      "lines": {
+        "any": [
+          "HARD AND CRACKED -- SOME WILL KEEP LOW, SOME WILL TAKE OFF.",
+          "YOU CAN SEE THE CRACKS. BATTING WON'T GET ANY EASIER."
+        ]
+      }
+    },
+    {
+      "situation": "light",
+      "case": "afternoon",
+      "kind": "match",
+      "lines": {
+        "any": ["THE SHADOWS STARTING TO LENGTHEN."]
+      }
+    },
+    {
+      "situation": "light",
+      "case": "evening",
+      "kind": "match",
+      "lines": {
+        "any": ["LONG SHADOWS ACROSS THE GROUND NOW."]
+      }
+    },
+    {
+      "situation": "light",
+      "case": "night",
+      "kind": "match",
+      "lines": {
+        "any": ["UNDER LIGHTS NOW."]
+      }
+    },
+    {
+      "situation": "weather",
+      "case": "sunny",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["BLUE SKY AND {temp} DEGREES. I'D BAT.", "NOT A CLOUD ABOUT. GOOD DAY FOR IT."],
+        "lorry": ["GLORIOUS! SUNSHINE AND RUNS, I SAY!", "WHAT A DAY FOR CRICKET! GET THE HATS ON!"],
+        "grog": [
+          "DRY AND SUNNY: THE PITCH WILL WEAR, AND THE SPINNERS WILL LIKE THAT LATER.",
+          "FAST OUTFIELD TODAY. PIERCE THE FIELD AND IT'S FOUR."
+        ]
+      }
+    },
+    {
+      "situation": "weather",
+      "case": "overcast",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["GREY AND {temp} DEGREES. THE QUICKS WON'T MIND.", "LIGHTS MAY BE NEEDED. THE BATTERS WON'T ENJOY THIS."],
+        "lorry": ["LOOK AT THAT CLOUD! IT'S GOING TO HOOP AROUND!", "SWING BOWLERS' WEATHER! GET THE SLIPS IN!"],
+        "grog": [
+          "UNDER CLOUD THE BALL SWINGS. PITCH IT UP AND LET IT WORK.",
+          "LEAVE WELL OUTSIDE OFF TODAY. THE EDGES WILL CARRY."
+        ]
+      }
+    },
+    {
+      "situation": "weather",
+      "case": "humid",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["MUGGY. {temp} DEGREES AND HEAVY AIR.", "STICKY OUT THERE. THE BALL MAY GO ROUND CORNERS."],
+        "lorry": ["IT'S LIKE A SAUNA! AND THE BALL WILL SWING!", "HUMID! THE BOWLERS WILL BE LICKING THEIR LIPS!"],
+        "grog": [
+          "HUMIDITY HELPS THE SWING, NEW BALL OR OLD. KEEP ONE SIDE SHINY.",
+          "HEAVY AIR: THE OUTSWINGER WILL BE THE BALL TODAY."
+        ]
+      }
+    },
+    {
+      "situation": "weather",
+      "case": "hot",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{temp} DEGREES. THE FIELDERS WILL WANT SHADE.", "HOT AND DRY. THAT PITCH WILL CRACK."],
+        "lorry": ["A SCORCHER! {temp} DEGREES! BRING ON THE ICE CREAMS!", "BAKING HOT! THE BALL WILL FLY OFF THE BAT!"],
+        "grog": [
+          "HEAT LIKE THIS DRIES THE PITCH OUT: LITTLE SWING, MORE TURN AS IT GOES.",
+          "SHORT SPELLS FOR THE QUICKS IN THIS HEAT. SPIN DOES THE WORK."
+        ]
+      }
+    },
+    {
+      "situation": "weather",
+      "case": "rain",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["RAIN ABOUT. {temp} DEGREES AND DAMP.", "WET OUT THERE. THE COVERS HAVE BEEN BUSY."],
+        "lorry": ["THE RAIN! WE'LL GET SOME PLAY IN, SURELY!", "SHOWERS ABOUT! THE SEAMERS WILL LOVE IT!"],
+        "grog": [
+          "DAMP PITCH, SLOW OUTFIELD. THE SEAMERS WILL FIND MOVEMENT. BAT TIGHT.",
+          "WET GRASS SLOWS THE BALL. RUNS WILL BE HARD WORK."
+        ]
+      }
+    },
+    {
+      "situation": "day",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["DAY {day}."],
+        "lorry": ["DAY {day}!"],
+        "grog": ["DAY {day}."]
+      }
+    },
+    {
+      "situation": "rainLost",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["RAIN HAS COST US {lost} OVERS."],
+        "lorry": ["{lost} OVERS LOST TO THE RAIN!"],
+        "grog": ["THE RAIN HAS TAKEN {lost} OVERS."]
+      }
+    },
+    {
+      "situation": "rainCut",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["IT'S DOWN TO {overs} OVERS A SIDE."],
+        "lorry": ["{overs} OVERS A SIDE NOW!"],
+        "grog": ["REDUCED TO {overs} OVERS A SIDE."]
+      }
+    },
+    {
+      "situation": "break",
+      "case": "lunch",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["LUNCH. {team} {score}.", "THAT'S LUNCH. {team} ON {score}."],
+        "lorry": ["LUNCH! {team} {score}! WHAT A SESSION!", "TIME FOR A SANDWICH! {team} {score}!"],
+        "grog": [
+          "LUNCH WITH {team} {score}. THE NEXT SESSION SHAPES THE DAY.",
+          "{team} {score} AT LUNCH. THE BOWLERS GET A REST."
+        ]
+      }
+    },
+    {
+      "situation": "break",
+      "case": "tea",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["TEA. {team} {score}.", "THAT'S TEA. {team} ON {score}."],
+        "lorry": ["TEA! {team} {score}! ONE SESSION LEFT TODAY!", "TIME FOR A CUPPA! {team} {score}!"],
+        "grog": ["TEA WITH {team} {score}. THE EVENING SESSION AWAITS.", "{team} {score} AT TEA. FRESH LEGS AFTER THE BREAK."]
+      }
+    },
+    {
+      "situation": "break",
+      "case": "stumps",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["STUMPS ON DAY {day}. {team} {score}.", "THAT'S STUMPS. {team} {score}."],
+        "lorry": ["STUMPS! DAY {day} DONE! {team} {score}!", "THAT'S THE DAY! {team} {score}! SEE YOU TOMORROW!"],
+        "grog": [
+          "STUMPS, DAY {day}: {team} {score}. A NIGHT'S REST FOR THE BOWLERS.",
+          "{team} {score} AT STUMPS. THE MORNING WILL TELL."
+        ]
+      }
+    },
+    {
+      "situation": "declare",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THAT LOOKS LIKE ENOUGH. TIME TO DECLARE.", "THE CAPTAIN SHOULD DECLARE. THAT'S PLENTY."],
+        "lorry": ["DECLARE! GET THEM IN AND BOWL AT THEM!", "SURELY THAT'S A DECLARATION! ENOUGH RUNS!"],
+        "grog": [
+          "THE LEAD IS BIG ENOUGH. DECLARE AND GIVE THE BOWLERS TIME TO WIN IT.",
+          "TIME MATTERS NOW MORE THAN RUNS. I'D DECLARE."
+        ]
+      }
+    },
+    {
+      "situation": "rainStops",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["RAIN STOPS PLAY. ON COME THE COVERS.", "HERE COMES THE RAIN. OFF THEY GO."],
+        "lorry": ["IT'S POURING! EVERYONE OFF! COVERS ON!", "OH NO, THE RAIN! JUST AS IT WAS GETTING GOOD!"],
+        "grog": [
+          "RAIN. THE BOWLERS GET A REST AND THE BALL GETS WET. THAT CHANGES THINGS.",
+          "A BREAK FOR RAIN. THE BATTERS WILL HAVE TO START AGAIN."
+        ]
+      }
+    },
+    {
+      "situation": "rainCost",
+      "case": "lost",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{lost} OVERS LOST TO IT.", "THAT'S COST US {lost} OVERS."],
+        "lorry": ["{lost} OVERS GONE!", "WE'VE LOST {lost} OVERS!"],
+        "grog": ["{lost} OVERS LOST. THE CAPTAINS WILL BE DOING THEIR SUMS.", "{lost} OVERS OFF THE DAY. TIME IS RUNNING SHORT."]
+      }
+    },
+    {
+      "situation": "rainCost",
+      "case": "dayOver",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["NO MORE PLAY TODAY.", "THAT'S IT FOR THE DAY, I'M AFRAID."],
+        "lorry": ["THEY'VE CALLED IT OFF FOR THE DAY!", "NO MORE CRICKET TODAY!"],
+        "grog": [
+          "PLAY ABANDONED FOR THE DAY. THAT HELPS THE SIDE HOPING FOR A DRAW.",
+          "NO MORE TODAY. A DAY LOST IS A DAY LESS TO WIN IT."
+        ]
+      }
+    },
+    {
+      "situation": "rainCost",
+      "case": "target",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{target} OFF {overs} OVERS NOW.", "THE TARGET IS {target} OFF {overs}."],
+        "lorry": ["NEW TARGET: {target} OFF {overs} OVERS!", "{target} TO WIN OFF {overs}! GAME ON!"],
+        "grog": [
+          "REVISED: {target} OFF {overs} OVERS. WICKETS IN HAND MATTER MORE NOW.",
+          "{target} OFF {overs}. A SHORTER CHASE SUITS THE HITTERS."
+        ]
+      }
+    },
+    {
+      "situation": "rainCost",
+      "case": "overs",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{overs} OVERS A SIDE NOW.", "DOWN TO {overs} OVERS A SIDE."],
+        "lorry": ["{overs} OVERS A SIDE!", "IT'S {overs} OVERS A SIDE NOW!"],
+        "grog": ["{overs} OVERS A SIDE. THE BATTERS WILL HAVE TO GO SOONER.", "CUT TO {overs} OVERS A SIDE."]
+      }
+    },
+    {
+      "situation": "wrapUp",
+      "case": "break",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{team} FINISH ON {score}. {chasers} NEED {need}.", "SO, {need} TO WIN. WE'LL SEE IF THAT'S ENOUGH."],
+        "lorry": ["{score} FOR {team}! {chasers} NEED {need} TO WIN!", "{need} TO WIN! THIS IS SET UP BEAUTIFULLY!"],
+        "grog": ["{score}. {chasers} WILL WANT A GOOD START CHASING {need}.", "{need} TO WIN. WICKETS IN HAND WILL BE THE KEY."]
+      }
+    },
+    {
+      "situation": "wrapUp",
+      "case": "result",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{result}. AND THAT IS THAT.", "{result}. A FAIR RESULT, I THINK."],
+        "lorry": ["{result}! WHAT A GAME OF CRICKET!", "{result}! THEY'LL REMEMBER THIS ONE!"],
+        "grog": ["{result}. THEY EARNED IT WITH THE BALL AND THE BAT.", "{result}. THE KEY MOMENTS WENT THEIR WAY."]
+      }
+    },
+    {
+      "situation": "wrapUp",
+      "case": "finish",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THAT'S THE END OF IT. {team} {score}.", "{team} END ON {score}."],
+        "lorry": ["AND THAT'S IT! {team} {score}!", "ALL DONE! {team} ON {score}!"],
+        "grog": ["{team} CLOSE ON {score}. PLENTY TO TALK ABOUT THERE.", "{score} FOR {team}. A FAIR DAY'S WORK."]
+      }
+    },
+    {
+      "situation": "warning",
+      "case": "warning",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": [
+          "THIRD BOUNCER OF THE OVER. NO BALL, AND A FIRST AND FINAL WARNING FOR {w}.",
+          "THE UMPIRE HAS HAD A WORD. ONE MORE OF THOSE AND HE'S OFF."
+        ],
+        "lorry": ["THAT'S TOO MANY! NO BALL! FINAL WARNING FOR {w}!", "{w} HAS BEEN WARNED! HE'S PLAYING WITH FIRE!"],
+        "grog": [
+          "TWO BOUNCERS AN OVER IS THE LIMIT. {w} IS ON A FINAL WARNING FOR THE INNINGS.",
+          "A WARNING FOR {w}. HE'LL HAVE TO PITCH IT UP NOW."
+        ]
+      }
+    },
+    {
+      "situation": "warning",
+      "case": "suspended",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["THAT'S IT. {w} IS TAKEN OFF FOR THE REST OF THE INNINGS.", "HE WAS WARNED. NOW HE'S DONE FOR THE INNINGS."],
+        "lorry": ["HE'S BEEN TAKEN OFF! {w} CAN'T BOWL AGAIN TODAY!", "UNBELIEVABLE! TAKEN OFF FOR BOUNCERS!"],
+        "grog": [
+          "{w} IS OFF FOR THE INNINGS. SOMEONE ELSE HAS TO FINISH THE OVER.",
+          "THAT'S A BOWLER DOWN. THE CAPTAIN WON'T BE HAPPY."
+        ]
+      }
+    },
+    {
+      "situation": "review",
+      "case": "bat",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{b} IS GOING TO REVIEW. LET'S SEE.", "{b} WANTS A SECOND LOOK."],
+        "lorry": ["HE'S REVIEWING! {b} IS NOT HAVING THAT!", "THE BATTER REVIEWS! WAS THERE AN EDGE?"],
+        "grog": ["{b} REVIEWS. HE'LL BE HOPING FOR LINE OR HEIGHT.", "A BATTER'S REVIEW. HE MUST FEEL IT WAS MISSING."]
+      }
+    },
+    {
+      "situation": "review",
+      "case": "bowl",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THE FIELDING SIDE WILL REVIEW.", "THEY'RE GOING UPSTAIRS."],
+        "lorry": ["THEY'RE REVIEWING IT! THE BOWLER IS CONVINCED!", "UPSTAIRS WE GO! THE FIELDERS THINK IT'S OUT!"],
+        "grog": ["THE BOWLER TALKED HIS CAPTAIN INTO THAT ONE. WE'LL SEE.", "A FIELDING REVIEW. THEY MUST THINK IT WAS HITTING."]
+      }
+    },
+    {
+      "situation": "verdict",
+      "case": "overturnedOut",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["OVERTURNED. {b} HAS TO GO.", "THE DECISION IS REVERSED. OUT."],
+        "lorry": ["OVERTURNED! HE'S OUT! THE REVIEW WAS SPOT ON!", "THAT IS OUT! REVIEW SUCCESSFUL!"],
+        "grog": ["THE TECHNOLOGY HAS FOUND IT. GOOD REVIEW.", "OUT ON REVIEW. THE BOWLER KNEW."]
+      }
+    },
+    {
+      "situation": "verdict",
+      "case": "overturnedNotOut",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["OVERTURNED. {b} SURVIVES.", "THE DECISION IS REVERSED. NOT OUT."],
+        "lorry": ["NOT OUT! HE'S SURVIVED! WHAT A REVIEW!", "OVERTURNED! {b} LIVES ON!"],
+        "grog": ["A GOOD REVIEW. THE UMPIRE MISSED THE DETAIL ON THAT ONE.", "SAVED BY THE REVIEW. THAT'S WHAT IT'S FOR."]
+      }
+    },
+    {
+      "situation": "verdict",
+      "case": "stands",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THE DECISION STANDS.", "NO CHANGE. THE ORIGINAL CALL STANDS."],
+        "lorry": ["IT STANDS! THE REVIEW IS LOST!", "REVIEW UNSUCCESSFUL!"],
+        "grog": ["A WASTED REVIEW. THAT WAS ALWAYS GOING TO STAND.", "REVIEW LOST. THEY'LL REGRET THAT ONE."]
+      }
+    },
+    {
+      "situation": "verdict",
+      "case": "umpiresCall",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["UMPIRE'S CALL. THE DECISION STANDS, AND THEY KEEP THE REVIEW.", "UMPIRE'S CALL. NO CHANGE."],
+        "lorry": ["UMPIRE'S CALL! IT STAYS WITH THE ON-FIELD DECISION!", "SO CLOSE! UMPIRE'S CALL!"],
+        "grog": [
+          "MORE THAN HALF THE BALL HAS TO BE HITTING TO OVERTURN IT. UMPIRE'S CALL.",
+          "UMPIRE'S CALL: TOO CLOSE TO OVERTURN, SO THE REVIEW IS KEPT."
+        ]
+      }
+    }
+  ]
+}

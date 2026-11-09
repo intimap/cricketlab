@@ -1,0 +1,215 @@
+{
+  "about": "Banter: exchanges between the voices, each a few turns of [voice, text], for quiet passages (lull) and quiet overs ending (betweenOvers). Never over a wicket, a boundary or a finish. The one who opens is never the over's caller; the caller may answer.",
+  "groups": [
+    {
+      "situation": "betweenOvers",
+      "kind": "banter",
+      "exchanges": [
+        [
+          ["lorry", "THAT'S DRINKS, BY THE LOOK OF IT. I COULD MURDER A CUP OF TEA."],
+          ["bunnings", "YOU SAID THAT AN HOUR AGO, BILL. AND YOU HAD ONE."]
+        ],
+        [
+          ["grog", "I'VE BEEN WATCHING THE FIELD SETTINGS. FASCINATING STUFF."],
+          ["lorry", "YOU'VE BEEN WATCHING THE PIE STAND, TONY."]
+        ],
+        [
+          ["bunnings", "A QUIET OVER. ONE OF THE GAME'S UNDERRATED PLEASURES."],
+          ["grog", "QUIET FOR YOU, RICHIE. BILL'S BEEN SHOUTING AT A PIGEON."]
+        ],
+        [
+          ["lorry", "LOOK AT THE CROWD! THEY'RE DOING THE WAVE!"],
+          ["bunnings", "SO THEY ARE. IT'S COME ROUND TWICE AND MISSED US BOTH TIMES."]
+        ],
+        [
+          ["grog", "IN MY DAY WE BOWLED TWENTY OVERS BEFORE LUNCH."],
+          ["lorry", "IN YOUR DAY THE BALL WAS STITCHED BY HAND, TONY!"]
+        ],
+        [
+          ["bunnings", "THE UMPIRE HAS CHANGED HIS HAT."],
+          ["lorry", "RICHIE, THAT'S THE MOST EXCITING THING YOU'VE SAID ALL DAY!"]
+        ],
+        [
+          ["lorry", "I'VE GOT A GOOD FEELING ABOUT THE NEXT OVER!"],
+          ["grog", "YOU SAID THAT ABOUT THE LAST SIX, BILL."]
+        ],
+        [
+          ["grog", "THEY'LL BE CHECKING THE BALL. IT'S GONE A LITTLE SOFT."],
+          ["bunnings", "AS HAVE WE ALL, TONY."]
+        ],
+        {
+          "formats": ["t20"],
+          "turns": [
+            ["lorry", "THE MUSIC'S UP BETWEEN OVERS! I LOVE IT!"],
+            ["bunnings", "I'D LOVE IT TOO, BILL, IF I COULD HEAR MYSELF THINK."]
+          ]
+        },
+        {
+          "formats": ["test"],
+          "turns": [
+            ["bunnings", "A LOVELY DAY FOR IT. THE SHADOWS, THE QUIET."],
+            ["lorry", "THE QUIET! RICHIE, I'VE BEEN ASLEEP SINCE TEA!"]
+          ]
+        },
+        {
+          "formats": ["test"],
+          "turns": [
+            ["grog", "THE NEW BALL'S DUE SOON. THAT'LL CHANGE THINGS."],
+            ["lorry", "TONY, EVERY BALL CHANGES THINGS FOR YOU!"]
+          ]
+        },
+        [
+          ["bunnings", "THE GROUNDSMAN HAS MOWED A NEW STRIPE, I SEE."],
+          ["grog", "DIAGONALLY, RICHIE. A BOLD MAN."]
+        ],
+        [
+          ["lorry", "DID YOU SEE THAT CATCH IN THE CROWD?! ONE HAND!"],
+          ["bunnings", "HE DROPPED HIS PIE TO TAKE IT, BILL. PRIORITIES."]
+        ],
+        [
+          ["grog", "I'D HAVE A SHORT LEG IN FOR THIS BATTER."],
+          ["bunnings", "YOU'D HAVE A SHORT LEG IN FOR EVERYONE, TONY."]
+        ],
+        [
+          ["bunnings", "THE SCOREBOARD OPERATOR HAS HAD A BUSY OVER."],
+          ["lorry", "HE'S EARNED A CUP OF TEA, THAT FELLOW!"]
+        ],
+        [
+          ["lorry", "I'VE BEEN TO A LOT OF GROUNDS, BUT THIS ONE'S SPECIAL!"],
+          ["grog", "YOU SAY THAT ABOUT EVERY GROUND, BILL."]
+        ],
+        [
+          ["grog", "THE CAPTAIN'S HAVING A WORD WITH HIS BOWLER. I'D LOVE TO HEAR IT."],
+          ["bunnings", "PROBABLY DISCUSSING DINNER, TONY."]
+        ],
+        [
+          ["bunnings", "A PERFECTLY ORDINARY OVER. THE GAME NEEDS THEM."],
+          ["lorry", "ORDINARY?! RICHIE, I WAS ON THE EDGE OF MY SEAT!"]
+        ],
+        [
+          ["lorry", "THE CROWD'S IN GREAT VOICE TODAY!"],
+          ["grog", "THEY'RE SINGING ABOUT YOUR HAT, BILL."],
+          ["lorry", "I KNEW IT WAS A GOOD HAT!"]
+        ],
+        [
+          ["grog", "I PLAYED ON THIS GROUND YEARS AGO. IT WAS QUICKER THEN."],
+          ["bunnings", "SO WERE YOU, TONY."]
+        ],
+        {
+          "formats": ["t20"],
+          "turns": [
+            ["lorry", "LOOK AT THE DANCERS! WHAT ENERGY!"],
+            ["bunnings", "THEY'VE DONE MORE RUNNING THAN THE BATTERS, BILL."]
+          ]
+        },
+        {
+          "formats": ["t20"],
+          "turns": [
+            ["grog", "THE MIDDLE OVERS ARE WHERE A T20 IS WON. NOBODY BELIEVES ME."],
+            ["lorry", "I BELIEVE YOU, TONY! I JUST PREFER THE SIXES!"]
+          ]
+        },
+        {
+          "formats": ["test"],
+          "turns": [
+            ["bunnings", "TEA IS NOT FAR AWAY. ONE CAN SENSE IT."],
+            ["lorry", "I CAN SMELL THE SCONES FROM HERE!"]
+          ]
+        },
+        {
+          "formats": ["test"],
+          "turns": [
+            ["grog", "THIS IS PROPER CRICKET. FIVE DAYS, WHITE CLOTHES."],
+            ["lorry", "AND FIVE DAYS OF YOU TELLING US ABOUT IT, TONY!"]
+          ]
+        },
+        {
+          "formats": ["odi"],
+          "turns": [
+            ["lorry", "FIFTY OVERS! THE PERFECT LENGTH FOR A GAME!"],
+            ["bunnings", "AND FOR A LONG LUNCH, BILL. WHICH IS WHY YOU LIKE IT."]
+          ]
+        }
+      ]
+    },
+    {
+      "situation": "lull",
+      "kind": "banter",
+      "exchanges": [
+        [
+          ["lorry", "NOT MUCH HAPPENING OUT THERE."],
+          ["grog", "THAT'S THE BOWLERS WINNING, BILL. QUIETLY."]
+        ],
+        [
+          ["bunnings", "THE PIGEONS AT FINE LEG HAVEN'T MOVED IN AN HOUR."],
+          ["lorry", "THEY'RE BETTER AT LEAVING THAN SOME BATTERS I KNOW!"]
+        ],
+        [
+          ["grog", "DOT, DOT, DOT. SOMEONE HAS TO BREAK THIS."],
+          ["bunnings", "OR NOT. IT'S QUITE RESTFUL."]
+        ],
+        [
+          ["lorry", "I'VE COUNTED THE SEAGULLS. FORTY-ONE."],
+          ["bunnings", "FORTY. ONE OF THEM IS A CRISP PACKET, BILL."]
+        ],
+        {
+          "formats": ["test"],
+          "turns": [
+            ["bunnings", "TEST CRICKET. THE LONG GAME."],
+            ["grog", "SOME OF US ARE GETTING OLDER WATCHING IT."]
+          ]
+        },
+        {
+          "formats": ["t20"],
+          "turns": [
+            ["lorry", "THREE DOTS IN A ROW IN A T20! THE CROWD'S RESTLESS!"],
+            ["grog", "SO IS THE BATTER. THAT'S WHEN THE MISTAKE COMES."]
+          ]
+        },
+        [
+          ["grog", "THE BOWLERS ARE BUILDING SOMETHING. YOU HAVE TO BE PATIENT."],
+          ["lorry", "I'M PATIENT, TONY! I'M JUST PATIENT LOUDLY!"]
+        ],
+        [
+          ["bunnings", "THE BATTERS SEEM CONTENT. THE BOWLERS SEEM CONTENT."],
+          ["grog", "AND THE CROWD SEEMS ASLEEP."]
+        ],
+        [
+          ["lorry", "I THINK THAT MAN IN THE CROWD IS ASLEEP!"],
+          ["bunnings", "HE'S WATCHING CLOSELY, BILL. WITH HIS EYES SHUT."]
+        ],
+        [
+          ["grog", "THIS IS A CHESS MATCH NOW."],
+          ["lorry", "I WAS NEVER ANY GOOD AT CHESS!"],
+          ["bunnings", "WE KNOW, BILL."]
+        ],
+        [
+          ["bunnings", "A LONG SPELL WITHOUT INCIDENT."],
+          ["lorry", "THE CALM BEFORE THE STORM, RICHIE! MARK MY WORDS!"]
+        ],
+        [
+          ["lorry", "WAKE ME UP WHEN SOMETHING HAPPENS!"],
+          ["grog", "SOMETHING IS HAPPENING, BILL. IT'S CALLED BOWLING."]
+        ],
+        {
+          "formats": ["test"],
+          "turns": [
+            ["grog", "THE BALL'S GONE SOFT. THE BATTERS ARE HAPPY TO WAIT FOR THE NEW ONE."],
+            ["bunnings", "AS ARE WE ALL."]
+          ]
+        },
+        {
+          "formats": ["t20"],
+          "turns": [
+            ["bunnings", "QUIET, FOR A T20. ALMOST RESTFUL."],
+            ["lorry", "DON'T SAY THAT, RICHIE! YOU'LL JINX IT!"]
+          ]
+        },
+        [
+          ["grog", "THEY'RE PLAYING FOR A DRINKS BREAK, I THINK."],
+          ["lorry", "SO AM I, TONY! SO AM I!"]
+        ]
+      ]
+    }
+  ]
+}

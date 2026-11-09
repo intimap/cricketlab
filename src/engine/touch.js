@@ -1,4 +1,5 @@
 import { pressKey, releaseKey } from "./input.js";
+import { setStick, clearStick, setStickPresent } from "./analog.js";
 
 /**
  * On-screen buttons for phones and tablets: each one presses a key the game
@@ -11,7 +12,9 @@ import { pressKey, releaseKey } from "./input.js";
  * `touchEpoch` moves on (a new ball), since holding it down with a thumb
  * while playing a shot with the other is awkward. Batting, the d-pad becomes
  * a stick for the batter's feet (it presses the arrows, two at once on a
- * diagonal); POWER is a plain button the game reads as a tap to arm it.
+ * diagonal); POWER is a plain button the game reads as a tap to arm it. Batting
+ * with the bat on a stick ("batStick"), the shot buttons give way to a second
+ * stick, the analog one the scene reads for the swing (engine/analog.js).
  */
 const PAD = [
   ["▲", "ArrowUp", "up"],
@@ -22,11 +25,11 @@ const PAD = [
 
 // Small buttons along the top, for what the keyboard's letter keys do.
 const TOP = [
-  ["MENU", "Escape", ["bat", "bowl"]],
-  ["END", "KeyB", ["bat", "bowl"]],
-  ["FIELD", "KeyV", ["bat", "bowl"]],
-  ["SIM", "KeyO", ["bat", "bowl"]],
-  ["REVIEW", "KeyR", ["bat", "bowl"]],
+  ["MENU", "Escape", ["bat", "batStick", "bowl"]],
+  ["END", "KeyB", ["bat", "batStick", "bowl"]],
+  ["FIELD", "KeyV", ["bat", "batStick", "bowl"]],
+  ["SIM", "KeyO", ["bat", "batStick", "bowl"]],
+  ["REVIEW", "KeyR", ["bat", "batStick", "bowl"]],
   ["SOUND", "KeyM"],
 ];
 
@@ -49,6 +52,7 @@ const ACTIONS = {
     ["POWER", "ShiftLeft"],
     ["GO", "Space", "big"],
   ],
+  batStick: [["GO", "Space", "big"]],
   bowl: [
     ["1", "Digit1", "small"],
     ["2", "Digit2", "small"],
@@ -83,6 +87,7 @@ const CSS = `
 .tc-pad button { font-size: 16px; }
 .tc-stick { pointer-events: auto; touch-action: none; position: relative; width: 98px; height: 98px; margin: 0 auto;
   border-radius: 50%; border: 1px solid #b8862a; background: rgba(18, 50, 31, 0.8); }
+.tc-stick.swing { width: 104px; height: 104px; margin-top: 8px; }
 .tc-stick i { position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px;
   border-radius: 50%; background: #e8b931; opacity: 0.85; pointer-events: none; }
 .tc-grid button { height: 40px; }
@@ -163,10 +168,14 @@ export function initTouch() {
   for (const p of PAD) button(pad, p, null);
   shown.push({ el: pad, modes: ["menu", "entry", "bowl"] });
   const stick = feetStick(left);
-  shown.push({ el: stick.el, modes: ["bat"] });
+  shown.push({ el: stick.el, modes: ["bat", "batStick"] });
   const act = document.createElement("div");
   act.className = "tc-grid";
-  box("tc-act").appendChild(act);
+  const actions = box("tc-act");
+  actions.appendChild(act);
+  // The bat on a stick: under GO, where the thumb rests.
+  const swing = swingStick(actions);
+  shown.push({ el: swing.el, modes: ["batStick"] });
   for (const [mode, list] of Object.entries(ACTIONS)) {
     // Small buttons (the numbered balls) share a row along the top.
     if (list.some((a) => a[2] === "small")) {
@@ -190,7 +199,8 @@ export function initTouch() {
       for (const release of [...latched]) release();
     }
     if (mode === current) return;
-    if (current === "bat") stick.letGo();
+    if (current === "bat" || current === "batStick") stick.letGo();
+    if (current === "batStick") swing.letGo();
     current = mode;
     for (const s of shown) s.el.style.display = !s.modes || s.modes.includes(mode) ? "" : "none";
   };
@@ -243,6 +253,54 @@ function feetStick(parent) {
       el.setPointerCapture?.(e.pointerId);
     } catch {
       // A pointer the browser no longer tracks: it still steers until it lifts.
+    }
+    aim(e);
+  });
+  el.addEventListener("pointermove", (e) => {
+    if (e.pointerId === finger) aim(e);
+  });
+  for (const type of ["pointerup", "pointercancel"]) {
+    el.addEventListener(type, (e) => {
+      if (e.pointerId === finger) letGo();
+    });
+  }
+  return { el, letGo };
+}
+
+/**
+ * The swing stick (batting with the bat on a stick): a thumb on it sets the second analog stick, how far and
+ * which way; lifting it lets the stick spring back to the middle.
+ */
+function swingStick(parent) {
+  const el = document.createElement("div");
+  el.className = "tc-stick swing";
+  const knob = document.createElement("i");
+  el.appendChild(knob);
+  parent.appendChild(el);
+  setStickPresent("touch", true);
+  let finger = null;
+  const aim = (e) => {
+    const r = el.getBoundingClientRect();
+    let dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
+    let dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+    const k = Math.min(1, 1 / (Math.hypot(dx, dy) || 1));
+    dx *= k;
+    dy *= k;
+    knob.style.transform = `translate(${dx * 32}px, ${dy * 32}px)`;
+    setStick("touch", dx, dy);
+  };
+  const letGo = () => {
+    finger = null;
+    knob.style.transform = "";
+    clearStick("touch");
+  };
+  el.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    finger = e.pointerId;
+    try {
+      el.setPointerCapture?.(e.pointerId);
+    } catch {
+      // A pointer the browser no longer tracks: it still swings until it lifts.
     }
     aim(e);
   });

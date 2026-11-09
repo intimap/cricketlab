@@ -27,7 +27,7 @@ export function act(scene, action) {
   const inn = scene.inn;
   switch (action.type) {
     case "swing":
-      return scene.commitSwing(action.t, action.shot, action.power, action.feet, action.variant);
+      return scene.commitSwing(action.t, action.shot, action.power, action.feet, action.variant, action.lifted);
     case "defend":
       return scene.commitDefend(action.t, action.foot, action.feet);
     case "leave":

@@ -6,6 +6,7 @@ import { toggleMute, isMuted } from "../engine/audio.js";
 import { drawScorecard } from "../render/hud.js";
 import { commentaryLevel, cycleCommentary } from "./commentary-level.js";
 import { crtEnabled, setCrt } from "../engine/crt.js";
+import { CONTROL_NAMES, controlsSetting, cycleControls } from "./bat-stick.js";
 
 const ITEMS = [
   "RESUME",
@@ -14,6 +15,7 @@ const ITEMS = [
   "VIEW",
   "ASSIST",
   "COMMENTARY",
+  "CONTROLS",
   "SCREEN",
   "SOUND",
   "AUDIO MIX",
@@ -40,6 +42,22 @@ const PAGES = [
       ["UP / DOWN", "AFTER THE SHOT: RUN (AGAIN = KEEP RUNNING), OR BACK"],
       ["SPACE", "DIVE FOR THE CREASE WHEN IT FLASHES (DOWN A MOMENT)"],
       ["GAMEPAD", "STICK FEET  A ATTACK  X DEFEND  Y LOFT  B IMPROV  RB POWER"],
+    ],
+  },
+  {
+    title: "STICK",
+    rows: [
+      ["CONTROLS", "STICK (SETUP PAGE OR THIS MENU): THE BAT ON ONE STICK"],
+      ["", "A GAMEPAD'S RIGHT STICK, OR THE ROUND STICK ON A TOUCH SCREEN"],
+      ["LEFT STICK", "THE FEET, AS EVER"],
+      ["PULL BACK", "THE BAT GOES UP: A LITTLE = ATTACK, TO THE STOP = LOFT"],
+      ["OUT TO A SIDE", "SWEEP (TO LEG) OR REVERSE SWEEP (OFF SIDE); RAMP OFF THE BACK FOOT"],
+      ["PUSH FORWARD", "THE SWING, TIMED AS IT PASSES THE MIDDLE"],
+      ["NO BACKSWING", "PUSH FORWARD FROM THE MIDDLE = BLOCK"],
+      ["FLICK", "SNAP IT FORWARD FROM WELL BACK = POWER"],
+      ["LET GO", "PULL BACK AND LET GO, OR DO NOTHING = LEAVE"],
+      ["A / CROSS", "FACE UP, SKIP, DIVE"],
+      ["", "THE GAUGE BESIDE HIM SHOWS THE SHOT (NOT ON HARD)"],
     ],
   },
   {
@@ -152,6 +170,9 @@ export class PauseMenu {
       case "SCREEN":
         setCrt(!crtEnabled());
         return null;
+      case "CONTROLS":
+        cycleControls();
+        return null;
       case "SOUND":
         toggleMute();
         return null;
@@ -193,7 +214,9 @@ export class PauseMenu {
                 ? `COMMENTARY: ${commentaryLevel()}`
                 : item === "SCREEN"
                   ? `SCREEN: ${crtEnabled() ? "CRT" : "SHARP"}`
-                  : item;
+                  : item === "CONTROLS"
+                    ? `CONTROLS: ${CONTROL_NAMES[controlsSetting()]}`
+                    : item;
       drawText(label, WIDTH / 2, y, { align: "center", color: selected ? COLORS.gold : COLORS.cream });
     });
   }

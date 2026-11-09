@@ -30,11 +30,17 @@ function keyFeet(scene, type, foot, t) {
   return { stride: back ? "back" : "forward", across: scene.cur.footwork ?? 0, from: t };
 }
 
-export function commitSwing(scene, t, type, power, given = null, variant = null) {
+/**
+ * Commit a swing pressed at t. `lifted`: the bat's already up (the bat's stick, scenes/bat-stick.js), so it
+ * comes down from t rather than lifting first.
+ */
+export function commitSwing(scene, t, type, power, given = null, variant = null, lifted = false) {
   const cur = scene.cur;
   cur.swingType = type;
-  cur.backliftAt = t;
-  cur.swingAt = t + (power ? POWER_BACKLIFT_TIME : BACKLIFT_TIME);
+  const backlift = power ? POWER_BACKLIFT_TIME : BACKLIFT_TIME;
+  // Lifted, it's as if the backlift had started its usual time before (the stroke clips time from it).
+  cur.backliftAt = lifted ? t - backlift : t;
+  cur.swingAt = lifted ? t : t + backlift;
   const feet = given ?? keyFeet(scene, type, null, t);
   // A heavier bat takes longer to come down (sim/bats.js).
   const swing = SWING_TIME[type] * swingTimeOf(scene.inn?.bat?.[scene.inn.striker]?.p.blade);

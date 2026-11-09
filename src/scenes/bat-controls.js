@@ -5,6 +5,7 @@ import { strokeFor } from "../sim/strokes.js";
 import { PLAYER_ACROSS, contactFor } from "../sim/feet.js";
 import { assistOf } from "./assists.js";
 import { act } from "./player-actions.js";
+import { batWithStick, stickShot } from "./bat-stick.js";
 
 /**
  * The batter's controls (TODO.md, Batting): the arrows (a gamepad's stick or d-pad, the touch stick) are his
@@ -18,6 +19,8 @@ import { act } from "./player-actions.js";
  *   the crease.
  * - Buttons: A defend, S attack, W loft, D improvise. The feet and the ball make the stroke (sim/strokes.js).
  *   Shift held for power, or tapped to arm it for this ball (tap again to disarm). No button: he leaves it.
+ *   With CONTROLS: STICK, a gamepad's right stick or the touch screen's second stick does it all
+ *   (scenes/bat-stick.js).
  *
  * What the feet set travels in the swing, defend or leave action that commits the shot.
  */
@@ -89,6 +92,8 @@ export function updateFeet(scene) {
   updatePower(scene);
   const feet = feetSoFar(cur);
   cur.footwork = feet.across;
+  // The bat can go up on its stick while he runs in (nothing's played till the ball's let go).
+  if (!cur.delivery && batWithStick()) stickShot(scene);
   if (!cur.delivery) return;
   const t = Math.max(0, scene.clock());
   const dt = Math.max(0, t - (cur.feetT ?? t));
@@ -106,23 +111,32 @@ export function updateFeet(scene) {
   cur.footwork = feet.across;
 }
 
-/** The buttons once the ball's on its way, and the leave if none is pressed in time. */
+/**
+ * The buttons (or, with CONTROLS: STICK, the bat's stick: scenes/bat-stick.js) once the ball's on its way,
+ * and the leave if no shot is played in time. The keyboard's buttons work whatever the setting.
+ */
 export function updateButtons(scene) {
   if (scene.human !== "bat" || !scene.cur || scene.cur.shot || !scene.cur.delivery) return;
   const cur = scene.cur;
   const t = scene.clock();
   const own = feetSoFar(cur);
   const feet = assistOf(scene).feet === "auto" ? easyFeet(cur.delivery, own.across) : feetToSend(own);
-  for (const [code, button] of Object.entries(BAT_BUTTONS)) {
-    if (!keys.pressed(code)) continue;
+  const play = (button, power, at, side = null, lifted = false) => {
     // The ball where his feet will meet it picks the stroke too (a pull at one up around the waist).
     const footwork = scene.inn.bat?.[scene.inn.striker]?.p.bat.footwork;
     const ball = contactFor(cur.delivery, feet, footwork).at;
-    const power = powered(cur);
-    const shot = strokeFor(button, feet, ball, power);
-    if (shot.type === "defend") act(scene, { type: "defend", t, foot: shot.foot, feet });
-    else act(scene, { type: "swing", t, shot: shot.type, power, feet, variant: shot.variant ?? null });
-    return;
+    const shot = strokeFor(button, feet, ball, power, side);
+    if (shot.type === "defend") act(scene, { type: "defend", t: at, foot: shot.foot, feet });
+    else act(scene, { type: "swing", t: at, shot: shot.type, power, feet, variant: shot.variant ?? null, lifted });
+  };
+  for (const [code, button] of Object.entries(BAT_BUTTONS)) {
+    if (!keys.pressed(code)) continue;
+    return play(button, powered(cur), t);
+  }
+  if (batWithStick()) {
+    const swing = stickShot(scene);
+    // The bat's already up: it comes down from the moment the stick went forward.
+    if (swing) return play(swing.button, swing.power, swing.t, swing.side, true);
   }
   if (t > scene.arrival("drive", null, feet) + 0.05) act(scene, { type: "leave", feet });
 }

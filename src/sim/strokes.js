@@ -27,14 +27,18 @@ const FEND_HEIGHT = 1.15;
 /** Gone this far across (m) and his angles have turned. */
 const TURNED = 0.12;
 
-/** The stroke for a button, the feet and the ball where they meet it (`ball`: { y }, or null). */
-export function strokeFor(button, feet, ball = null, power = false) {
+/**
+ * The stroke for a button, the feet and the ball where they meet it (`ball`: { y }, or null). `side` ("off"
+ * or "leg"), from the bat's stick, says which way an improvised shot goes; without it, the feet say.
+ */
+export function strokeFor(button, feet, ball = null, power = false, side = null) {
   const back = feet.stride === "back";
   if (button === "defend") return { type: "defend", foot: back ? "back" : "front" };
   if (button === "attack") return { type: back || (ball && ball.y >= PULL_HEIGHT) ? "cutpull" : "drive" };
   if (button === "loft") return back ? { type: "cutpull", variant: "aerial" } : { type: "loft" };
   if (back) return { type: "ramp" };
-  const type = (feet.across ?? 0) > 0.05 ? "reverseSweep" : "sweep";
+  const reverse = side ? side === "off" : (feet.across ?? 0) > 0.05;
+  const type = reverse ? "reverseSweep" : "sweep";
   return power ? { type, variant: "slog" } : { type };
 }
 

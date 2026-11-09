@@ -2,8 +2,8 @@ import { load, save } from "../engine/storage.js";
 import { lookFor, DEFAULT_EFFECTS } from "../render/lighting.js";
 
 /**
- * The lighting effects this machine runs (render/lighting.js EFFECTS; FULL to start with). "auto" starts a
- * match on full and, if the first couple of seconds draw slowly, steps down to simple for good on this machine.
+ * The lighting effects this machine runs (render/lighting.js EFFECTS). "auto", the default, starts a match
+ * on full and, if the first couple of seconds draw slowly, steps down to simple for good on this machine.
  */
 
 /** Frames left out while the match settles, then frames timed before AUTO decides. */

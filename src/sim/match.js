@@ -21,6 +21,7 @@ import { bearingOf } from "./geometry.js";
 import { TestClock, TEST_WEAR, testOverEnded, testNextInnings, testResult } from "./test-match.js";
 import { showerComes, limitedRain, revisedTarget } from "./rain.js";
 import { callBouncer } from "./bouncer-law.js";
+import { practicePlan, keepPractice } from "./practice.js";
 
 /** How often the on-field umpire gets an LBW wrong, either way. */
 const UMPIRE_ERROR = 0.15;
@@ -139,6 +140,8 @@ export class Match {
 
   aiPlan() {
     const plan = pickDeliveryPlan(this.inn, this.rng);
+    // Practice: the ball the player asked for, its line allowed for (sim/practice.js).
+    if (this.practice) return practicePlan(this, plan, this.rng);
     // The computer's lines are set for where the ball should arrive; deliver() allows for the turn.
     return { ...plan, intent: { ...plan.intent, byComputer: true } };
   }
@@ -173,8 +176,8 @@ export class Match {
     );
     const d = { ...(flip < 0 ? mirrorDelivery(world) : world), intent, facing, arm };
     inn.spendStamina(intent.effort, releaseError);
-    // Too many bouncers (sim/bouncer-law.js).
-    callBouncer(inn, bowler, d);
+    // Too many bouncers (sim/bouncer-law.js); not in the nets.
+    if (!this.nets) callBouncer(inn, bowler, d);
     // Disguised deliveries: does the striker pick it out of the hand?
     if (d.disguised) {
       const bat = inn.bat[inn.striker].p.bat;
@@ -387,6 +390,7 @@ export class Match {
     const applied = inn.apply(rec);
     this.comm.remember(rec, inn);
     if (applied.overEnded) this.needOver = true;
+    if (this.practice) keepPractice(this);
     // A bowler taken off mid-over: another finishes it.
     if (rec.bouncerWarning === "suspended" && !applied.overEnded && !inn.isOver) this.needOver = true;
     if (applied.overEnded && this.clock) testOverEnded(this, applied);

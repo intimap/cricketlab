@@ -6,6 +6,8 @@ import { drawEasedBar } from "./feedback.js";
 export const BATTER_PANEL = { x: 4, y: 4, w: 108, h: 48 };
 /** Default pressure-bar position, also re-exported by hud.js for existing callers. */
 export const PRESSURE_BAR = { x: 10, y: 41, w: 96 };
+/** The panel's height with the eye alone (practice: no pressure). */
+const EYE_ONLY_H = 25;
 
 export function meterAnchors(top = BATTER_PANEL.y) {
   const center = BATTER_PANEL.x + BATTER_PANEL.w / 2;
@@ -14,7 +16,7 @@ export function meterAnchors(top = BATTER_PANEL.y) {
 
 /**
  * The striker's eye and bowling pressure share a compact, two-row panel; `tag` (e.g. a weakness he's given
- * away) sits in a strip under it.
+ * away) sits in a strip under it. `pressure` null (practice) leaves just the eye.
  */
 export function drawBatterMeters({
   eye,
@@ -25,7 +27,8 @@ export function drawBatterMeters({
   top = BATTER_PANEL.y,
   tag = "",
 }) {
-  const { x, w, h } = BATTER_PANEL;
+  const { x, w } = BATTER_PANEL;
+  const h = pressure === null ? EYE_ONLY_H : BATTER_PANEL.h;
   const full = eye >= 1;
   drawPanel(x, top, w, h, "rgba(10,28,18,0.88)", full ? COLORS.gold : COLORS.gold2);
   drawText("EYE", x + 6, top + 5, { color: COLORS.gold });
@@ -35,10 +38,12 @@ export function drawBatterMeters({
   });
   const glow = full && Math.floor(now * 4) % 2 === 0;
   drawEasedBar(x + 6, top + 15, w - 12, 5, eyeShown, eye, glow ? COLORS.white : eyeShown > 0.6 ? COLORS.gold : "#7ec8ff");
-  const pressureColor = pressure > 0.6 ? COLORS.red : pressure > 0.35 ? COLORS.gold : "#7ec8ff";
-  drawText("PRESSURE", x + 6, top + 27, { color: COLORS.dim });
-  drawText(`${Math.round(pressure * 100)}%`, x + w - 6, top + 27, { color: pressureColor, align: "right" });
-  drawEasedBar(PRESSURE_BAR.x, top + 37, PRESSURE_BAR.w, 5, pressureShown, pressure, pressureColor);
+  if (pressure !== null) {
+    const pressureColor = pressure > 0.6 ? COLORS.red : pressure > 0.35 ? COLORS.gold : "#7ec8ff";
+    drawText("PRESSURE", x + 6, top + 27, { color: COLORS.dim });
+    drawText(`${Math.round(pressure * 100)}%`, x + w - 6, top + 27, { color: pressureColor, align: "right" });
+    drawEasedBar(PRESSURE_BAR.x, top + 37, PRESSURE_BAR.w, 5, pressureShown, pressure, pressureColor);
+  }
   if (tag) {
     drawPanel(x, top + h + 2, w, 13, "rgba(60,18,10,0.9)", COLORS.red);
     drawText(tag, x + w / 2, top + h + 5, { align: "center", color: COLORS.gold });

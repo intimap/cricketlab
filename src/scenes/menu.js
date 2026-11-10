@@ -11,6 +11,7 @@ import { prepareVenue } from "../render/venue/venue-build.js";
 import { ballKindFor } from "./match-light.js";
 import { LIGHTS } from "../render/light.js";
 import { updateTeams, drawTeams } from "./menu-teams.js";
+import { updatePractice, drawPractice } from "./menu-practice.js";
 import { endTime } from "./match-light.js";
 import { ASSISTS, ASSIST_NAMES, assistSetting } from "./assists.js";
 import { EFFECTS, EFFECT_NAMES, DEFAULT_EFFECTS } from "../render/lighting.js";
@@ -116,12 +117,10 @@ export class Menu {
       // When play starts, and (in a Test or a long game) the time it goes on to.
       const end = endTime(cfg);
       const time = `${LIGHTS[cfg.light].name}${end !== cfg.light ? ` TO ${LIGHTS[end].name}` : ""}`;
+      // Practice chooses batting or bowling on its own page (scenes/menu-practice.js).
+      const mode = ["mode", "YOU", cfg.mode === "bat" ? "BAT FIRST" : "BOWL FIRST"];
       return [
-        [
-          "mode",
-          this.practice ? "PRACTISE" : "YOU",
-          this.practice ? (cfg.mode === "bat" ? "BATTING" : "BOWLING") : cfg.mode === "bat" ? "BAT FIRST" : "BOWL FIRST",
-        ],
+        ...(this.practice ? [] : [mode]),
         ["pitch", "PITCH", PITCH_TYPES[cfg.pitch].name],
         ["ground", "GROUND", GROUNDS[cfg.ground].name],
         ["light", "TIME", time],
@@ -150,7 +149,7 @@ export class Menu {
     this.t += dt;
     // A ground built from a map draws its scenery while you choose, so the match starts straight away.
     prepareVenue(GROUNDS[this.cfg.ground], ballKindFor(this.cfg), 4, this.game.images);
-    if (this.page === "teams") return updateTeams(this);
+    if (this.page === "teams") return this.practice ? updatePractice(this) : updateTeams(this);
     const rows = this.rows;
     if (keys.pressed("ArrowUp")) {
       this.sel = (this.sel + rows.length - 1) % rows.length;
@@ -220,10 +219,11 @@ export class Menu {
     const cfg = this.cfg;
     const what = this.practice ? "PRACTICE" : typeOf(cfg).name;
     const heading =
-      { teams: `${what}: CHOOSE THE TEAMS`, setup: `${what}: WHERE AND WHEN` }[this.page] ??
-      "16-BIT TEST CRICKET  -  PROTOTYPE V0.1";
+      { teams: this.practice ? "PRACTICE: WHO BATS, WHO BOWLS" : `${what}: CHOOSE THE TEAMS`, setup: `${what}: WHERE AND WHEN` }[
+        this.page
+      ] ?? "16-BIT TEST CRICKET  -  PROTOTYPE V0.1";
     drawText(heading, WIDTH / 2, 78, { align: "center", color: COLORS.cream });
-    if (this.page === "teams") return drawTeams(this);
+    if (this.page === "teams") return this.practice ? drawPractice(this) : drawTeams(this);
 
     const rows = this.rows;
     if (this.sel >= rows.length) this.sel = rows.length - 1;

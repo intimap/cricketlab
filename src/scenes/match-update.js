@@ -27,16 +27,20 @@ export function updateMatch(scene, dt) {
   scene.commT += dt;
 
   if (scene.phase === "pause") {
-    const action = scene.pauseMenu.update();
+    const action = scene.pauseMenu.update(scene);
     if (action === "view") scene.toggleCloseEnd();
     if (action === "assist") setAssist(scene, ASSISTS[(ASSISTS.indexOf(scene.assist) + 1) % ASSISTS.length]);
-    if (action === "resume") scene.setPhase(scene.pausedFrom);
+    // Practice changed before the ball was bowled: set it up again (scenes/practice-session.js).
+    if (action === "resume" && scene.practiceRedo) {
+      scene.practiceRedo = false;
+      scene.nextBall();
+    } else if (action === "resume") scene.setPhase(scene.pausedFrom);
     else if (action === "quit") scene.game.toMenu();
     return;
   }
   if (keys.pressed("Escape") && scene.phase !== "inningsEnd" && scene.phase !== "fieldEdit") {
     scene.pausedFrom = scene.phase;
-    scene.pauseMenu.open();
+    scene.pauseMenu.open(scene.nets);
     scene.setPhase("pause");
     return;
   }

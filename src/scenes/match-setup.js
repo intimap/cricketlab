@@ -15,11 +15,12 @@ import { updateDeclareKey } from "./match-test.js";
 
 /** Keys available between balls: simulate, look at the field, or (a Test) declare. */
 export function betweenBalls(scene) {
-  if (keys.pressed("KeyO")) {
+  // Practice has no overs to sim.
+  if (!scene.nets && keys.pressed("KeyO")) {
     act(scene, { type: "simulate", overs: 1 });
     return true;
   }
-  if (keys.pressed("KeyP")) {
+  if (!scene.nets && keys.pressed("KeyP")) {
     act(scene, { type: "simulate", overs: 5 });
     return true;
   }

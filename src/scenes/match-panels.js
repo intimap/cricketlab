@@ -156,9 +156,9 @@ export function drawPanels(scene) {
   }
 
   if (scene.feedback && (scene.phase === "after" || scene.phase === "return")) drawCoachCard(scene);
-  if (!scene.nets && SPEED_GUN_PHASES.has(scene.phase)) drawSpeedGun(scene);
+  if (SPEED_GUN_PHASES.has(scene.phase)) drawSpeedGun(scene);
   if (METER_PHASES.has(scene.phase)) drawBatterPanel(scene);
-  if (scene.phase === "pause") scene.pauseMenu.draw(inn, scene.closeEnd, ASSIST_NAMES[scene.assist]);
+  if (scene.phase === "pause") scene.pauseMenu.draw(inn, scene.closeEnd, ASSIST_NAMES[scene.assist], scene);
 
   if (scene.phase === "inningsEnd") {
     const ending = scene.ending;
@@ -212,7 +212,8 @@ function drawBatterPanel(scene) {
   drawBatterMeters({
     tag,
     eye,
-    pressure: scene.inn.pressure,
+    // Practice has no pressure to show.
+    pressure: scene.nets ? null : scene.inn.pressure,
     eyeShown: scene.juice.shown.eye ?? eye,
     pressureShown: scene.juice.shown.pressure ?? scene.inn.pressure,
     now: scene.now,

@@ -1,3 +1,4 @@
+import { BALL_RADIUS } from "./geometry.js";
 import { clamp, toRad } from "../math.js";
 import { BAT_BLADE } from "./bat-impact.js";
 
@@ -15,8 +16,8 @@ import { BAT_BLADE } from "./bat-impact.js";
  */
 
 export const BALL_MASS = 0.156;
-/** The real ball's radius (m), for its spin (geometry.js BALL_RADIUS is padded for contact). */
-const BALL_R = 0.036;
+/** The ball's radius (m), for its spin. */
+const BALL_R = BALL_RADIUS;
 /** The bat until each batter has his own (stream 5): weight (kg), how much its weight sits in the blade. */
 export const DEFAULT_BAT = Object.freeze({ mass: 1.25, inertia: 0.05, balance: 0.28 });
 /** How much of the slide across the face friction takes (and turns into spin). */

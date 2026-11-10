@@ -4,7 +4,7 @@ import { bowlingGeometry, armOf } from "../sim/bowling-side.js";
 import { drawMatchBroadcast } from "../render/match-broadcast.js";
 import { WIDTH, HEIGHT, COLORS, ctx, fillRect, drawLine } from "../engine/screen.js";
 import { clamp } from "../math.js";
-import { CREASE, PITCH_LENGTH, MID_PITCH } from "../sim/geometry.js";
+import { BALL_RADIUS, CREASE, PITCH_LENGTH, MID_PITCH } from "../sim/geometry.js";
 import { deliveryName, SPIN_EFFORT_NAMES, sampleAtTime } from "../sim/delivery.js";
 import { keeperSpot } from "../sim/field.js";
 import { walkInSpot } from "../sim/fielder-motion.js";
@@ -216,7 +216,8 @@ function drawClose(scene) {
       draw: () => {
         const ground = projectClose(ball.x, 0, ball.z);
         const p = projectClose(ball.x, ball.y, ball.z);
-        const radius = Math.max(1.5, 0.036 * 880 * p.s * 1.25);
+        // True to scale (a 36 mm radius), never under 1.5 px so it can always be seen.
+        const radius = Math.max(1.5, BALL_RADIUS * 880 * p.s);
         if (p.y < HUD_Y + 6) {
           drawShadow(ground.x, ground.y, radius);
           const trail = ballTrail(scene);

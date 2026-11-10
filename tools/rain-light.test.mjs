@@ -34,7 +34,9 @@ test("no dice are rolled for rain on a dry day", () => {
 
 test("rain in the first innings cuts both sides' overs and the chase is scaled", () => {
   const m = oneDay(5);
-  for (let i = 0; i < 120; i++) m.simBall();
+  // The rain comes ten overs in, while the first innings is still going.
+  while (m.inn.legal < 60) m.simBall();
+  assert.ok(!m.inn.isOver);
   const rain = limitedRain(m);
   assert.ok(rain.lost >= 1 && rain.overs < 50 && rain.overs >= MIN_OVERS);
   assert.equal(m.overs, rain.overs);

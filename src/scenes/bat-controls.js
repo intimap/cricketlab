@@ -19,8 +19,8 @@ import { batWithStick, stickShot } from "./bat-stick.js";
  *   the crease.
  * - Buttons: A defend, S attack, W loft, D improvise. The feet and the ball make the stroke (sim/strokes.js).
  *   Shift held for power, or tapped to arm it for this ball (tap again to disarm). No button: he leaves it.
- *   With CONTROLS: STICK, a gamepad's right stick or the touch screen's second stick does it all
- *   (scenes/bat-stick.js).
+ *   With CONTROLS: STICK (or STICK PLUS, which aims), a gamepad's right stick or the touch screen's second
+ *   stick does it all (scenes/bat-stick.js).
  *
  * What the feet set travels in the swing, defend or leave action that commits the shot.
  */
@@ -121,13 +121,13 @@ export function updateButtons(scene) {
   const t = scene.clock();
   const own = feetSoFar(cur);
   const feet = assistOf(scene).feet === "auto" ? easyFeet(cur.delivery, own.across) : feetToSend(own);
-  const play = (button, power, at, side = null, lifted = false) => {
+  const play = (button, power, at, side = null, lifted = false, aim = null) => {
     // The ball where his feet will meet it picks the stroke too (a pull at one up around the waist).
     const footwork = scene.inn.bat?.[scene.inn.striker]?.p.bat.footwork;
     const ball = contactFor(cur.delivery, feet, footwork).at;
     const shot = strokeFor(button, feet, ball, power, side);
-    if (shot.type === "defend") act(scene, { type: "defend", t: at, foot: shot.foot, feet });
-    else act(scene, { type: "swing", t: at, shot: shot.type, power, feet, variant: shot.variant ?? null, lifted });
+    if (shot.type === "defend") act(scene, { type: "defend", t: at, foot: shot.foot, feet, aim });
+    else act(scene, { type: "swing", t: at, shot: shot.type, power, feet, variant: shot.variant ?? null, lifted, aim });
   };
   for (const [code, button] of Object.entries(BAT_BUTTONS)) {
     if (!keys.pressed(code)) continue;
@@ -136,7 +136,7 @@ export function updateButtons(scene) {
   if (batWithStick()) {
     const swing = stickShot(scene);
     // The bat's already up: it comes down from the moment the stick went forward.
-    if (swing) return play(swing.button, swing.power, swing.t, swing.side, true);
+    if (swing) return play(swing.button, swing.power, swing.t, swing.side, true, swing.aim);
   }
   if (t > scene.arrival("drive", null, feet) + 0.05) act(scene, { type: "leave", feet });
 }

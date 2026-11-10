@@ -18,10 +18,17 @@ import { assistOf } from "./assists.js";
  * Pull back and let go (the stick springs back to the middle) and the bat comes down: no shot. The feet stay
  * on the other stick (scenes/bat-controls.js), and the feet and the ball pick the stroke as they do for the
  * buttons (sim/strokes.js); where it goes still comes from the timing. The keyboard always has the buttons.
+ *
+ * CONTROLS: STICK PLUS is the same bat with two changes (readSwingPlus):
+ *
+ * - the sweeps are a roll: out at one side, round through the back, up at the other side. The ball goes the way
+ *   the stick finishes, so from leg round to off is the reverse sweep, from off round to leg the sweep;
+ * - the follow-through aims: the way the stick travels as it's pushed through the middle (from straight back
+ *   up is the shot's own line; pulled round to a corner first and pushed across, it goes that way).
  */
 
-export const CONTROLS = ["buttons", "stick"];
-export const CONTROL_NAMES = { buttons: "BUTTONS", stick: "STICK" };
+export const CONTROLS = ["buttons", "stick", "stickplus"];
+export const CONTROL_NAMES = { buttons: "BUTTONS", stick: "STICK", stickplus: "STICK PLUS" };
 
 /** A new player bats with the stick (a pad with no right stick, and the keyboard, still have buttons). */
 export const DEFAULT_CONTROLS = "stick";
@@ -31,10 +38,16 @@ export function setControls(value) {
   setting = CONTROLS.includes(value) ? value : "buttons";
   save("controls", setting);
 }
-export const cycleControls = (dir = 1) => setControls(CONTROLS[(CONTROLS.indexOf(setting) + dir + 2) % 2]);
+export const cycleControls = (dir = 1) =>
+  setControls(CONTROLS[(CONTROLS.indexOf(setting) + dir + CONTROLS.length) % CONTROLS.length]);
+
+/** The setting puts the bat on a stick (STICK or STICK PLUS). */
+export const stickSetting = () => setting !== "buttons";
+/** STICK PLUS: rolled sweeps and an aimed follow-through. */
+export const stickPlus = () => setting === "stickplus";
 
 /** Batting with the stick: the setting, and a stick to bat with (a pad with no right stick keeps the buttons). */
-export const batWithStick = () => setting === "stick" && hasSecondStick();
+export const batWithStick = () => stickSetting() && hasSecondStick();
 
 /** Pulled this far from the middle (not forward), the bat is up: the backswing. */
 export const BACK = 0.3;
@@ -46,6 +59,18 @@ export const FORWARD = 0.3;
 export const DROP = 0.15;
 /** From well back to forward in this long (s) or less: a flick, power. */
 export const FLICK = 0.07;
+
+/** STICK PLUS. A roll's ends: this far out to a side, and no further back than SIDE_LEVEL of that (near level). */
+export const SIDE = 0.6;
+const SIDE_LEVEL = 0.5;
+/** Its middle: this far back, round the bottom of the stick. */
+export const ROLL_BACK = 0.6;
+/** From leaving one side to reaching the other in this long (s) or less: a flicked roll, power (the slog-sweep). */
+export const ROLL_FLICK = 0.15;
+/** A follow-through within this many degrees of straight up is the shot's own line... */
+export const AIM_DEAD = 10;
+/** ...and this many or more is aimed all the way (the diagonal from a corner). */
+export const AIM_FULL = 45;
 
 /**
  * Read the swing, one sample of the stick at a time: `track` is this ball's memory, the sample { x, y, t }
@@ -94,6 +119,87 @@ export function readSwing(track, { x, y, t }, armed = true) {
   return null;
 }
 
+/** Out at a side, near level: a roll's end (-1 the screen's left, +1 its right, 0 not). */
+const sideOf = (x, y) => (Math.abs(x) >= SIDE && y <= SIDE_LEVEL * Math.abs(x) ? Math.sign(x) : 0);
+
+/** The follow-through's angle (degrees, + the screen's right) as aim, -1..1: 0 within AIM_DEAD of straight. */
+export function aimOf(degrees) {
+  const off = Math.abs(degrees) - AIM_DEAD;
+  return off <= 0 ? 0 : Math.sign(degrees) * clamp(off / (AIM_FULL - AIM_DEAD));
+}
+
+/** Let the backswing go: the bat comes down, nothing's held. */
+function letGo(track) {
+  track.depth = 0;
+  track.lift = 0;
+  track.from = null;
+  track.rollFrom = 0;
+  track.rollBack = false;
+}
+
+/**
+ * STICK PLUS's swing (as readSwing): the shot once, { button, power, side, aim, t }. How far back is the
+ * straight-back part only, so moving round to a corner doesn't make it a loft. A roll from one side round the
+ * back to the other is the sweep, played (and timed) as it reaches the far side: `side` is that side, and the
+ * ball goes that way. Pushed forward, `aim` (-1..1, + the screen's right) is the way the stick travelled, from
+ * where it last was out at the edge in the back half (or the middle, for a block) to where it crossed forward.
+ */
+export function readSwingPlus(track, { x, y, t }, armed = true) {
+  if (track.done) return null;
+  const pulled = Math.hypot(x, y);
+  if (y <= -FORWARD) {
+    if (!armed) {
+      letGo(track);
+      return null;
+    }
+    track.done = true;
+    const depth = track.depth ?? 0;
+    const button = depth < BACK ? "defend" : depth >= FULL ? "loft" : "attack";
+    const power = button !== "defend" && track.lastBack !== undefined && t - track.lastBack <= FLICK;
+    const from = track.from ?? { x: 0, y: 0 };
+    const aim = aimOf((Math.atan2(x - from.x, from.y - y) * 180) / Math.PI);
+    track.lift = 0;
+    return { button, power, side: 0, aim, t };
+  }
+  if (pulled >= BACK) {
+    track.depth = Math.max(track.depth ?? 0, y);
+    // Where the follow-through starts: the last place out at the edge in the back half (a push that
+    // curves round the edge on its way forward still aims the way it set off).
+    if (y >= 0) track.from = { x, y };
+    if (y >= BACK) track.lastBack = t;
+    track.idleSince = null;
+    track.lift = clamp(Math.max(y, pulled * 0.6));
+    // The roll: a side, round the back, the other side.
+    const side = sideOf(x, y);
+    if (side && side === -track.rollFrom && track.rollBack) {
+      const power = t - track.sideLeft <= ROLL_FLICK;
+      if (!armed) {
+        // Rolled before the ball's let go: nothing played, but he can roll back again.
+        track.rollFrom = side;
+        track.rollBack = false;
+        track.sideLeft = t;
+        return null;
+      }
+      track.done = true;
+      track.lift = 0;
+      return { button: "improvise", power, side, aim: 0, t };
+    }
+    if (side) {
+      track.rollFrom = side;
+      track.rollBack = false;
+      track.sideLeft = t;
+    } else if (track.rollFrom && y >= ROLL_BACK) track.rollBack = true;
+    return null;
+  }
+  // In the middle: the roll's broken, and a backswing held a moment here is let go.
+  track.rollFrom = 0;
+  track.rollBack = false;
+  track.idleSince ??= t;
+  if (track.depth && t - track.idleSince > DROP) letGo(track);
+  track.lift = Math.max(0, (track.lift ?? 0) - 0.12);
+  return null;
+}
+
 /** This ball's swing so far (reset each ball with `cur`). */
 export const swingTrack = (cur) => (cur.stickSwing ??= {});
 
@@ -106,15 +212,18 @@ export function stickShot(scene) {
   const cur = scene.cur;
   const track = swingTrack(cur);
   const { x, y } = secondStick();
-  const shot = readSwing(track, { x, y, t: scene.now }, !!cur.delivery);
+  const read = stickPlus() ? readSwingPlus : readSwing;
+  const shot = read(track, { x, y, t: scene.now }, !!cur.delivery);
   cur.stickLift = track.lift ?? 0;
   cur.stickDepth = track.depth ?? 0;
   if (!shot) return null;
   if (shot.power) scene.flash("POWER!", COLORS.gold);
-  track.played = { label: labelOf(shot.button, shot.side, scene), power: shot.power, at: scene.now };
-  // Off side or leg side, as the batter stands to the camera.
-  const side = shot.side * (scene.screenTurn ?? 1) > 0 ? "off" : shot.side ? "leg" : null;
-  return { ...shot, side, t: scene.clock() };
+  track.played = { label: labelOf(shot.button, shot.side, scene), power: shot.power, aim: shot.aim ?? null, at: scene.now };
+  // Off side or leg side, as the batter stands to the camera (the aim too: + is his off side).
+  const turn = scene.screenTurn ?? 1;
+  const side = shot.side * turn > 0 ? "off" : shot.side ? "leg" : null;
+  const aim = shot.aim ? shot.aim * turn : null;
+  return { ...shot, side, aim, t: scene.clock() };
 }
 
 /** What a backswing will play, as the gauge names it. */
@@ -139,15 +248,33 @@ export function swingGauge(scene) {
   if (cur.shot && (!played || scene.now - played.at > GAUGE_AFTER)) return null;
   const { x, y } = secondStick();
   const depth = played ? 0 : (track.depth ?? 0);
-  const side = Math.abs(x) > Math.max(0, y) && Math.hypot(x, y) >= BACK ? Math.sign(x) : 0;
-  const ready =
-    depth >= BACK ? labelOf(side || track.side ? "improvise" : depth >= FULL ? "loft" : "attack", side || track.side, scene) : "";
+  const plus = stickPlus();
+  const ready = plus ? plusReady(track, x, y, depth, scene) : sideReady(track, x, y, depth, scene);
   return {
     y: played ? -1 : y,
     depth,
     back: BACK,
     full: FULL,
-    label: played ? `${played.label}${played.power ? " + POWER" : ""}` : ready,
+    label: played ? `${played.label}${played.power ? " + POWER" : ""}` : ready.label,
     colour: played ? COLORS.gold : COLORS.cream,
+    // STICK PLUS: where it'll go (-1..1 as the screen shows it): pushed now through the middle, or as played.
+    aim: plus ? (played ? played.aim : ready.aim) : null,
   };
+}
+
+/** STICK: what the backswing will play, a sweep if it's out to the side. */
+function sideReady(track, x, y, depth, scene) {
+  const side = Math.abs(x) > Math.max(0, y) && Math.hypot(x, y) >= BACK ? Math.sign(x) : 0;
+  if (depth < BACK) return { label: "" };
+  return { label: labelOf(side || track.side ? "improvise" : depth >= FULL ? "loft" : "attack", side || track.side, scene) };
+}
+
+/** STICK PLUS: rolling round the back, the sweep it'll be; else what a push from here plays, and its aim. */
+function plusReady(track, x, y, depth, scene) {
+  if (track.rollFrom && track.rollBack) return { label: labelOf("improvise", -track.rollFrom, scene), aim: null };
+  const out = Math.hypot(x, y) >= BACK;
+  // Pushed from here straight through the middle, it travels from where the stick is to the centre.
+  const aim = out ? aimOf((Math.atan2(-x, y) * 180) / Math.PI) : null;
+  if (depth < BACK) return { label: "", aim };
+  return { label: labelOf(depth >= FULL ? "loft" : "attack", 0, scene), aim };
 }

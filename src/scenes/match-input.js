@@ -32,9 +32,9 @@ function keyFeet(scene, type, foot, t) {
 
 /**
  * Commit a swing pressed at t. `lifted`: the bat's already up (the bat's stick, scenes/bat-stick.js), so it
- * comes down from t rather than lifting first.
+ * comes down from t rather than lifting first. `aim`: STICK PLUS's follow-through (sim/shot-direction.js).
  */
-export function commitSwing(scene, t, type, power, given = null, variant = null, lifted = false) {
+export function commitSwing(scene, t, type, power, given = null, variant = null, lifted = false, aim = null) {
   const cur = scene.cur;
   cur.swingType = type;
   const backlift = power ? POWER_BACKLIFT_TIME : BACKLIFT_TIME;
@@ -54,11 +54,12 @@ export function commitSwing(scene, t, type, power, given = null, variant = null,
     footwork: feet.across,
     feet,
     variant,
+    aim,
   };
   cur.play = scene.match.resolve(cur.intent, cur.delivery, cur.shot);
 }
 
-export function commitDefend(scene, t, foot, given = null) {
+export function commitDefend(scene, t, foot, given = null, aim = null) {
   const cur = scene.cur;
   const feet = given ?? keyFeet(scene, "defend", foot, t);
   const arrive = scene.arrival("defend", foot, feet);
@@ -71,6 +72,7 @@ export function commitDefend(scene, t, foot, given = null) {
     windowMult: PLAYER_TIMING_WINDOW * assistOf(scene).window,
     footwork: feet.across,
     feet,
+    aim,
   };
   cur.play = scene.match.resolve(cur.intent, cur.delivery, cur.shot);
 }

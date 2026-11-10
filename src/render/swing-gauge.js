@@ -1,4 +1,4 @@
-import { COLORS, fillRect } from "../engine/screen.js";
+import { COLORS, fillRect, drawLine } from "../engine/screen.js";
 import { drawText } from "../engine/text.js";
 
 /**
@@ -7,8 +7,13 @@ import { drawText } from "../engine/text.js";
  * stop: loft), a needle where the stick is now, and the shot it will be underneath.
  *
  * `g`: { y (the stick, -1 forward .. 1 back), depth (the backswing so far, 0..1), back, full (the zones'
- * starts), label, colour }.
+ * starts), label, colour, aim }. STICK PLUS gives `aim` (-1..1 as the screen shows it, or null): an arrow
+ * under the label, where a push from here would go, then where the shot went.
  */
+
+/** The aim arrow: its length (px), and the angle (radians) of an aim of 1 (AIM_FULL's diagonal). */
+const ARROW = 9;
+const ARROW_TURN = Math.PI / 4;
 
 const R = 20;
 /** The arc runs from straight up (forward) round the right-hand side to straight down (back). */
@@ -40,4 +45,18 @@ export function drawSwingGauge(x, y, g) {
   }
   fillRect(x - 1, y - 1, 3, 3, COLORS.cream);
   if (g.label) drawText(g.label, x + R / 2, y + R + 6, { align: "center", color: g.colour ?? COLORS.cream });
+  if (g.aim !== null && g.aim !== undefined) drawAim(x + R / 2, y + R + 30, g.aim, g.colour ?? COLORS.cream);
+}
+
+/** An arrow up from (x, y), turned by the aim, on a dark plate: straight up is the shot's own line. */
+function drawAim(x, y, aim, colour) {
+  fillRect(x - 8, y - ARROW - 4, 17, ARROW + 7, "rgba(10, 30, 18, 0.55)");
+  const a = aim * ARROW_TURN;
+  const tip = { x: Math.round(x + Math.sin(a) * ARROW), y: Math.round(y - Math.cos(a) * ARROW) };
+  drawLine(x, y, tip.x, tip.y, 1, colour);
+  // The head: two short strokes back from the tip.
+  for (const side of [-1, 1]) {
+    const b = a + Math.PI + side * 0.7;
+    drawLine(tip.x, tip.y, Math.round(tip.x + Math.sin(b) * 4), Math.round(tip.y - Math.cos(b) * 4), 1, colour);
+  }
 }

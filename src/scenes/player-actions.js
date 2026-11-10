@@ -13,7 +13,8 @@ import { takeAdvice } from "./bowling-advice.js";
  * Held controls (the batter's feet, aftertouch, the aiming crosshair) are read where they're used, and what
  * they set travels in the action that commits them (a shot's `feet`: sim/feet.js).
  *
- *   swing { t, shot, power, feet, variant }   defend { t, foot, feet }   leave { feet }
+ *   swing { t, shot, power, feet, variant, lifted, aim }   defend { t, foot, feet, aim }   leave { feet }
+ *   (aim: STICK PLUS's follow-through, -1..1, + his off side; sim/shot-direction.js)
  *   run { end } (the way he's already going: keep running)   dive {}
  *   bowl { plan }                beat { index, error }    release { error, rhythm }        appeal {}         review { side }   accept {}
  *   chooseBowler { bowler }      delivery { delivery }    effort { effort } field { preset }
@@ -27,9 +28,9 @@ export function act(scene, action) {
   const inn = scene.inn;
   switch (action.type) {
     case "swing":
-      return scene.commitSwing(action.t, action.shot, action.power, action.feet, action.variant, action.lifted);
+      return scene.commitSwing(action.t, action.shot, action.power, action.feet, action.variant, action.lifted, action.aim);
     case "defend":
-      return scene.commitDefend(action.t, action.foot, action.feet);
+      return scene.commitDefend(action.t, action.foot, action.feet, action.aim);
     case "leave":
       return scene.commitLeave(action.feet);
     case "run":

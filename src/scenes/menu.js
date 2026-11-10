@@ -51,6 +51,8 @@ const BAT_HELP = [
 /** Batting with CONTROLS: STICK (scenes/bat-stick.js): the second line says what the bat's stick does. */
 const STICK_HELP = "RIGHT STICK = THE BAT: BACK = ATTACK, RIGHT BACK = LOFT, TO A SIDE = SWEEP";
 const STICK_HELP_2 = "FORWARD = SWING.  NO BACKSWING = BLOCK.  FLICK = POWER.  BACK AND LET GO = LEAVE";
+const STICK_PLUS_HELP = "RIGHT STICK = THE BAT: BACK = ATTACK, RIGHT BACK = LOFT, ROLL ROUND THE BACK = SWEEP";
+const STICK_PLUS_HELP_2 = "FORWARD = SWING, AIMED THE WAY YOU PUSH.  NO BACKSWING = BLOCK.  FLICK = POWER";
 const BOWL_HELP = [
   "BOWLING: ARROWS SET LINE & LENGTH, NUMBERS PICK THE BALL, E EFFORT, F FIELD",
   "SPACE TO RUN IN, SPACE AGAIN IN THE GOLD ZONE OF THE METER TO RELEASE",
@@ -252,6 +254,7 @@ export class Menu {
     const role = cfg.format === "classic" ? this.classic.human : cfg.mode;
     const help = [...(role === "bat" ? BAT_HELP : BOWL_HELP)];
     if (role === "bat" && controlsSetting() === "stick") help.splice(1, 1, STICK_HELP, STICK_HELP_2);
+    if (role === "bat" && controlsSetting() === "stickplus") help.splice(1, 1, STICK_PLUS_HELP, STICK_PLUS_HELP_2);
     if (cfg.format === "test")
       help.push(role === "bat" ? "TEST: L = SIM TO THE BREAK   C TWICE = DECLARE" : "TEST: L = SIM TO THE BREAK");
     help.forEach((line, i) =>

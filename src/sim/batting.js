@@ -5,7 +5,7 @@ import { CREASE, STUMPS_HALF_WIDTH, BALL_RADIUS } from "./geometry.js";
 import { simulateFlight, crossingAtZ, sampleAtTime, hitsStumps, isWide } from "./delivery.js";
 import { isSweep, playsBack, shotSuitability, backFootShot } from "./shot-choice.js";
 import { STRIDES, REACH, STANCE_X, feetOf, contactFor, batRange, padDepth, weightInto, batDescent } from "./feet.js";
-import { driveBearing, shotBearing, intoGap } from "./shot-direction.js";
+import { driveBearing, shotBearing, intoGap, aimOffset, aimWindow, aimCross, AIM_STRAY } from "./shot-direction.js";
 import { strokeName, turnedBy } from "./strokes.js";
 import { batBody, swingSpeedOf, windowOf, reachOf } from "./bats.js";
 
@@ -254,10 +254,10 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
   const reachedUp = Math.max(0, wanted - high);
   // Early or late, the bat meets the ball where it has got to by then. A straight bat swung through the line
   // follows most of the ball's climb and angle (the better his technique, the more); a cross bat can't
-  // follow the climb, so a mistimed pull or cut finds an edge.
+  // follow the climb, so a mistimed pull or cut finds an edge. Aimed across its line, early or late is off sideways too.
   const off = clamp(shot.timingError ?? 0, -TIMING_REACH, TIMING_REACH);
   const follow = 0.5 + 0.4 * bat.technique;
-  const latErr = at.x + at.vx * off * (1 - follow) - batX;
+  const latErr = at.x + at.vx * off * (1 - follow) - batX - aimCross(shot.aim, shot.type === "defend", off);
   // Played late, a bat coming down steeply is still above where he meant it: a low ball goes under it.
   const descent = batDescent(feet, meet.made, crossBat) * Math.max(0, off);
   const vErr = at.y + at.vy * off * (crossBat ? 1 - 0.3 * bat.technique : 1 - follow) - batY - descent;
@@ -281,6 +281,7 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
       (spinner ? 1.25 : 1) *
       (shot.type === "ramp" || (isSweep(shot.type) && !spinner) ? 0.7 : 1) *
       (shot.variant === "slog" ? SLOG_WINDOW : 1) *
+      aimWindow(shot.aim) *
       windowOf(shot.blade);
   const timing = shot.timingError / (window * (shot.windowMult ?? 1) * eyeEase);
   if (Math.abs(timing) > 2.4) return { ...noContact(timing < 0 ? "early" : "late"), timing };
@@ -321,11 +322,12 @@ function batContact(d, shot, bat, state, ball, spinner, meet, feet, pitchZ, rng,
     const batSpeed = defending
       ? BLOCK_PUSH * (1.2 - 0.5 * bat.defence)
       : swing * (0.5 + 0.5 * quality) * (mistimed ? 0.8 : 1) * (hooking ? 0.75 : 1) * Math.max(0.4, 1 - CRAMPED * reachedUp);
-    // Timing turns the face (late goes finer, early squarer) and a scratchy hit strays; a good batter's
-    // wrists still work it towards a gap. A block goes where it's pushed.
+    // Timing turns the face (late goes finer, early squarer) and a scratchy hit strays, more so aimed away
+    // from its line (STICK PLUS); a good batter's wrists still work it towards a gap. A block goes where it's pushed.
     const finer = natural < -45 ? -1 : 1;
-    const turn = finer * FACE_TURN * clamp(shot.timingError, -TURN_ERROR, TURN_ERROR) + rng.normal(0, 5 + 18 * (1 - quality));
-    const meant = natural + turn * (isSweep(shot.type) ? 0.5 : 1);
+    const stray = (5 + 18 * (1 - quality)) * (1 + AIM_STRAY * Math.abs(shot.aim ?? 0));
+    const turn = finer * FACE_TURN * clamp(shot.timingError, -TURN_ERROR, TURN_ERROR) + rng.normal(0, stray);
+    const meant = natural + aimOffset(shot.aim, defending) + turn * (isSweep(shot.type) ? 0.5 : 1);
     const aim = defending ? meant : intoGap(meant, field, MAX_PLACEMENT * quality * (0.4 + 0.6 * bat.technique));
     const tilt =
       faceTilt(shot.type, back, height, shot.charge, Math.max(0, -timing), shot.variant) +

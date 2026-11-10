@@ -40,11 +40,55 @@ const SEAM_LIKE = new Set(["seam", "bouncer", "yorker", "slower", "cutter"]);
  * strength: extra sideways swing (m/s^2) for seamers, extra turn (m/s) for
  * spinners, and how much it costs in accuracy (spray multiplier).
  */
-const AFTERTOUCH_SWING = 2.2;
+const AFTERTOUCH_SWING = 1.6;
 const AFTERTOUCH_SPIN = 0.8;
 const AFTERTOUCH_SPRAY = 0.6;
 
 const SPEED_FACTOR = { slower: 0.78, cutter: 0.9, armBall: 1.06 };
+
+/**
+ * Swing in the air. A good swing bowler doing it well moves a new ball 30-40 cm; much more only when
+ * everything lines up. SWING_REACH is how far a perfect swing bowler moves it sideways over SWING_OVER
+ * metres of flight (to a good length) with a new ball, in neutral conditions, at a pace
+ * that swings; the ball's age, the air (pitch and weather), his skill and his pace scale it. A fuller ball
+ * is in the air longer and swings more, a shorter one less; none more than SWING_MOST.
+ *
+ * Pace: conventional swing needs the air over the shiny side to stay smooth while the seam side's goes
+ * turbulent. Above SWING_FADE's first speed the shiny side goes turbulent too, and the swing fades fast. An
+ * old, roughed-up ball turns that into reverse swing, which grows with pace from REVERSE_FROM km/h.
+ */
+const SWING_REACH = 0.4;
+const SWING_OVER = 12;
+const SWING_MOST = 0.7;
+const SWING_FADE = [
+  [138, 1],
+  [142, 0.85],
+  [146, 0.62],
+  [150, 0.45],
+  [155, 0.32],
+  [165, 0.25],
+];
+const REVERSE_FROM = 128;
+const REVERSE_FULL = 145;
+/** How much the air helps (pitch and weather, `swingAir`): softened, so a green top under cloud adds rather than multiplies. */
+const airHelp = (swingAir) => 1 + 0.45 * (swingAir - 1);
+
+/** Conventional swing's share at this pace (km/h). */
+export function conventionalAt(kmh) {
+  if (kmh <= SWING_FADE[0][0]) return 1;
+  for (let i = 1; i < SWING_FADE.length; i++) {
+    const [k1, v1] = SWING_FADE[i];
+    const [k0, v0] = SWING_FADE[i - 1];
+    if (kmh <= k1) return v0 + ((v1 - v0) * (kmh - k0)) / (k1 - k0);
+  }
+  return SWING_FADE[SWING_FADE.length - 1][1];
+}
+
+/** Reverse swing's share at this pace (km/h), with a ball old enough to reverse. */
+export const reverseAt = (kmh) => clamp((kmh - REVERSE_FROM) / (REVERSE_FULL - REVERSE_FROM));
+
+/** The sideways acceleration (m/s^2) that moves the ball `reach` metres over SWING_OVER metres at `speed`. */
+const swingAccFor = (reach, speed) => (2 * reach * speed * speed) / (SWING_OVER * SWING_OVER);
 
 /** A mistimed release moves the line this far (m) per second of error, mostly wide of off. */
 const LOOSE_LINE = 1.2;
@@ -149,21 +193,26 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
     const drift = { offspin: 0.9, legspin: -0.9, googly: -0.9, armBall: -0.6 }[type] ?? 0;
     swingAcc = drift * skills.spin * ball.grip * 0.6 * (intent.effort === "low" ? 1.3 : 1);
   } else {
-    const conventional = ball.swing * pitch.swingAir;
-    const reverse = speed > 32.5 ? ball.reverse * pitch.swingAir : 0;
+    const kmh = speed * 3.6;
+    const conventional = ball.swing * airHelp(pitch.swingAir) * conventionalAt(kmh);
+    const reverse = ball.reverse * reverseAt(kmh);
+    // How far it moves over SWING_OVER metres (m), before his consistency (and tiredness) on the day.
+    let reach;
     if (reverse > conventional * 0.8 && reverse > 0.12) {
       reversing = true;
-      swingAcc = -swingDir * 9.5 * skills.swing * reverse;
+      reach = -swingDir * SWING_REACH * skills.swing * reverse;
     } else {
-      swingAcc = swingDir * 8.5 * skills.swing * conventional;
+      reach = swingDir * SWING_REACH * skills.swing * conventional;
     }
-    swingAcc *= (speed / 36) * (1 + rng.normal(0, 0.25 * (1.2 - skills.consistency)) + tiredness * rng.normal(0, 0.2));
+    const wobble = 1 + rng.normal(0, 0.12 + 0.18 * (1 - skills.consistency)) + tiredness * rng.normal(0, 0.12);
+    swingAcc = swingAccFor(reach * clamp(wobble, 0.4, 1.4), speed);
   }
 
-  // How much of the swing the batter reads out of the hand.
-  let read = rng.normal(0.75, 0.3);
+  // How much of the swing the batter reads out of the hand. It's the late movement that beats him, not the
+  // size of it; the better the swing bowler, the more often he's fooled into playing for the other way.
+  let read = rng.normal(0.5, 0.3);
   if (reversing) read = rng.normal(0.25, 0.4);
-  else if (!spinner && rng.chance(0.12)) read = -0.4;
+  else if (!spinner && rng.chance(0.14 + 0.1 * skills.swing)) read = -0.4;
   const expectedSwingAcc = swingAcc * read;
 
   // Sideways kick off the pitch (m/s).
@@ -199,12 +248,15 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
   // Solve the release velocity that lands the ball at (line, length).
   const hand = { x: bowlingGeometry(spinner, intent.wicketSide).releaseX, y: spinner ? 1.95 : 2.18, z: 18.7 };
   const flightTime = (hand.z - length) / speed;
+  // However everything lines up, no ball swings more than SWING_MOST before it pitches.
+  const mostAcc = (2 * SWING_MOST) / (flightTime * flightTime);
+  if (!spinner) swingAcc = clamp(swingAcc, -mostAcc, mostAcc);
   const vy = (0.5 * GRAVITY * flightTime * flightTime - hand.y) / flightTime;
   const vx = (line - hand.x - 0.5 * swingAcc * 0.85 * flightTime * flightTime) / flightTime;
   const release = { t: 0, x: hand.x, y: hand.y, z: hand.z, vx, vy, vz: -speed };
   // Aftertouch: extra movement put on after the aim was set (and unread by the batter).
   if (touch && spinner) spinKick += AFTERTOUCH_SPIN * touch;
-  else if (touch) swingAcc += AFTERTOUCH_SWING * touch;
+  else if (touch) swingAcc = clamp(swingAcc + AFTERTOUCH_SWING * touch, -mostAcc, mostAcc);
 
   let flight = simulateFlight(release, swingAcc, seamKick, spinKick, bounce, paceKept, []);
   // Landing in the footmarks: spin grips and rips, anything else does something odd.

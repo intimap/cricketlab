@@ -8,11 +8,14 @@
  * Returns { kind, n, k } (the numbers worth quoting), with `also` (another such moment) for a wicket
  * that is more than one thing, or null.
  */
-/** Movement worth a comment (metres), and pace (km/h). A jaffa needs less, as long as it beats the bat. */
-const BIG_SWING = 0.6;
+/**
+ * Movement worth a comment (metres), and pace (km/h). A jaffa needs less, as long as it beats the bat. Big
+ * swing is the top few in a hundred of a good swing bowler's with the new ball (sim/delivery.js).
+ */
+const BIG_SWING = 0.48;
 const BIG_TURN = 0.7;
 const RAPID_KMH = 157;
-const JAFFA_SWING = 0.4;
+const JAFFA_SWING = 0.34;
 const JAFFA_SEAM = 0.07;
 const JAFFA_TURN = 0.45;
 /** Balls before the same movement remark can come round again. */

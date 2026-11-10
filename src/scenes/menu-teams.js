@@ -17,7 +17,7 @@ const TOP = 92;
 
 /** Squads are built once for showing (sim/team-list.js builds a fresh one for each match). */
 const shown = new Map();
-const squad = (id) => {
+export const squad = (id) => {
   if (!shown.has(id)) shown.set(id, (TEAMS[id] ?? TEAMS.AUS)());
   return shown.get(id);
 };
@@ -25,6 +25,8 @@ const squad = (id) => {
 export function updateTeams(menu) {
   const cfg = menu.cfg;
   menu.side ??= 0;
+  // Practice may have made your squad the computer's side: it takes the next one.
+  if (cfg.opponent === cfg.team) cfg.opponent = TEAM_IDS[(TEAM_IDS.indexOf(cfg.team) + 1) % TEAM_IDS.length];
   if (keys.pressed("ArrowUp") || keys.pressed("ArrowDown") || keys.pressed("Tab")) {
     menu.side = 1 - menu.side;
     sfx.click();

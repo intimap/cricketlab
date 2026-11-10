@@ -21,8 +21,9 @@ function roleOf(p) {
 /**
  * One side's sheet: who it is (YOU, OPPONENTS), the flag and name, and the XI in batting order with each
  * player's hand, his bat (weight in kg, + big edges, L or S a long or short handle: sim/bats.js) and job. `active` is the side the arrows change, shown with its arrows and a bright edge.
+ * `marks` ({ index: colour }) lights players' rows: practice's batter and bowler.
  */
-export function drawTeamSheet(team, x, y, { label, active, now }) {
+export function drawTeamSheet(team, x, y, { label, active, now, marks = {} }) {
   const { w, h } = SHEET;
   drawPanel(x, y, w, h, active ? "#12321f" : "#0d2318", active ? COLORS.gold : COLORS.gold2);
   drawText(label, x + w / 2, y + 7, { align: "center", color: active ? COLORS.gold : COLORS.dim });
@@ -37,6 +38,7 @@ export function drawTeamSheet(team, x, y, { label, active, now }) {
   team.players.forEach((p, i) => {
     const row = top + i * ROW;
     const left = p.hand === "left";
+    if (marks[i]) fillRect(x + 6, row - 3, w - 12, ROW - 1, marks[i]);
     drawText(String(i + 1).padStart(2), x + COLUMNS.number, row, { color: COLORS.dim });
     drawText(p.name.toUpperCase(), x + COLUMNS.name, row, { color: COLORS.cream });
     drawText(left ? "LH" : "RH", x + COLUMNS.hand, row, { color: left ? COLORS.gold : COLORS.dim });

@@ -32,6 +32,7 @@ import * as ending from "./match-ending.js";
 import * as test from "./match-test.js";
 import { updateLight, ballKindFor } from "./match-light.js";
 import { assistSetting, noteAssist } from "./assists.js";
+import { changePractice, practiceLine } from "./practice-session.js";
 
 /**
  * One innings, played ball by ball. Phases:
@@ -109,7 +110,7 @@ export class MatchScene {
     this.kitBowl = teamKit(inn.bowlTeam, coloured);
     const pitch = inn.pitch.type;
     this.commentary = this.nets
-      ? `Nets: ${this.human === "bat" ? "face as many as you like" : "bowl as many as you like"}. The coach rates every ball.`
+      ? practiceLine(this)
       : inn.target !== null
         ? `${inn.batTeam.name} need ${inn.runsNeeded} to win off ${inn.ballsLeft} balls.`
         : `${inn.batTeam.name} to bat on a ${pitch.name.toLowerCase()}. ${pitch.blurb}`;
@@ -300,6 +301,11 @@ export class MatchScene {
 
   commitSwing(t, type, power, feet, variant, lifted = false, aim = null) {
     return input.commitSwing(this, t, type, power, feet, variant, lifted, aim);
+  }
+
+  /** Practice: new settings and (or) another pitch (scenes/practice-session.js). */
+  changePractice(settings, pitch) {
+    return changePractice(this, settings, pitch);
   }
 
   commitDefend(t, foot, feet, aim = null) {

@@ -7,6 +7,7 @@ import { drawScorecard } from "../render/hud.js";
 import { commentaryLevel, cycleCommentary } from "./commentary-level.js";
 import { crtEnabled, setCrt } from "../engine/crt.js";
 import { CONTROL_NAMES, controlsSetting, cycleControls } from "./bat-stick.js";
+import { updatePracticeScreen, drawPracticeScreen } from "./practice-session.js";
 
 const ITEMS = [
   "RESUME",
@@ -119,22 +120,32 @@ const inside = (x, y, w, h) => mouse.x >= x && mouse.x < x + w && mouse.y >= y &
 /** The Esc menu: resume, scorecard, instructions, sound, quit. */
 export class PauseMenu {
   sel = 0;
-  /** "menu", "card", "help" or "mix". */
+  /** "menu", "card", "help", "mix" or "practice" (scenes/practice-session.js). */
   screen = "menu";
   page = 0;
+  /** The menu's items: practice has PRACTICE where a match has its SCORECARD. */
+  items = ITEMS;
 
   lastMouse = { x: 0, y: 0 };
 
-  open() {
+  open(practice = false) {
     this.sel = 0;
     this.screen = "menu";
+    this.items = practice ? ITEMS.map((item) => (item === "SCORECARD" ? "PRACTICE" : item)) : ITEMS;
     this.lastMouse = { x: mouse.x, y: mouse.y };
   }
 
-  /** Handle input; returns "resume", "view" (swap the close camera's end), "assist" (the next level), "quit" or null. */
-  update() {
+  /**
+   * Handle input (`scene`: the match, for the PRACTICE screen); returns "resume", "view" (swap the close
+   * camera's end), "assist" (the next level), "quit" or null.
+   */
+  update(scene) {
     if (this.screen === "mix") {
       updateAudioMix(this);
+      return null;
+    }
+    if (this.screen === "practice") {
+      updatePracticeScreen(this, scene);
       return null;
     }
     if (this.screen !== "menu") {
@@ -152,23 +163,28 @@ export class PauseMenu {
     }
 
     if (keys.pressed("Escape")) return "resume";
-    if (keys.pressed("ArrowUp")) this.sel = (this.sel + ITEMS.length - 1) % ITEMS.length;
-    if (keys.pressed("ArrowDown")) this.sel = (this.sel + 1) % ITEMS.length;
+    const items = this.items;
+    if (keys.pressed("ArrowUp")) this.sel = (this.sel + items.length - 1) % items.length;
+    if (keys.pressed("ArrowDown")) this.sel = (this.sel + 1) % items.length;
     let chosen = keys.pressed("Enter") || keys.pressed("Space");
     // The pointer only takes over the selection when it moves (or clicks), so a resting mouse doesn't fight the arrows.
     const moved = mouse.x !== this.lastMouse.x || mouse.y !== this.lastMouse.y;
     this.lastMouse = { x: mouse.x, y: mouse.y };
-    ITEMS.forEach((_, i) => {
+    items.forEach((_, i) => {
       if (!inside(MENU_X + 6, MENU_TOP + 22 + i * ROW_H - 4, MENU_W - 12, ROW_H)) return;
       if (moved || mouse.pressed) this.sel = i;
       if (mouse.pressed) chosen = true;
     });
     if (!chosen) return null;
-    switch (ITEMS[this.sel]) {
+    switch (items[this.sel]) {
       case "RESUME":
         return "resume";
       case "SCORECARD":
         this.screen = "card";
+        return null;
+      case "PRACTICE":
+        this.screen = "practice";
+        this.prow = 0;
         return null;
       case "INSTRUCTIONS":
         this.screen = "help";
@@ -197,10 +213,17 @@ export class PauseMenu {
     }
   }
 
-  /** `closeEnd`: which end the close camera is at ("bat" or "bowl"), for the VIEW label; `assist` its level's name. */
-  draw(inn, closeEnd, assist = "NORMAL") {
+  /**
+   * `closeEnd`: which end the close camera is at ("bat" or "bowl"), for the VIEW label; `assist` its level's
+   * name; `scene` the match (the PRACTICE screen).
+   */
+  draw(inn, closeEnd, assist = "NORMAL", scene = null) {
     if (this.screen === "mix") {
       drawAudioMix(this);
+      return;
+    }
+    if (this.screen === "practice") {
+      drawPracticeScreen(this, scene);
       return;
     }
     if (this.screen === "card") {
@@ -213,9 +236,9 @@ export class PauseMenu {
       return;
     }
     fillRect(0, 0, WIDTH, 360, "rgba(0,0,0,0.45)");
-    drawPanel(MENU_X, MENU_TOP, MENU_W, 22 + ITEMS.length * ROW_H + 6, "#0d2318");
+    drawPanel(MENU_X, MENU_TOP, MENU_W, 22 + this.items.length * ROW_H + 6, "#0d2318");
     drawText("PAUSED", WIDTH / 2, MENU_TOP + 7, { align: "center", color: COLORS.gold });
-    ITEMS.forEach((item, i) => {
+    this.items.forEach((item, i) => {
       const y = MENU_TOP + 22 + i * ROW_H;
       const selected = i === this.sel;
       if (selected) fillRect(MENU_X + 6, y - 4, MENU_W - 12, 15, "#24563a");

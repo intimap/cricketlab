@@ -25,6 +25,8 @@ import { shakeOffset } from "./match-feedback.js";
 import { STRIKER_X } from "./batter-pose.js";
 import { HUD_Y, drawScoreBar, drawScoreBox, drawMiniMap, drawBanners, drawSpeechBubble } from "../render/hud.js";
 import { drawCallLine } from "../render/call-line.js";
+import { drawPracticeBar } from "../render/practice-bar.js";
+import { practiceBarOf } from "./practice-session.js";
 import { LEFT_CREASE, drawStriker } from "./match-striker.js";
 import { BACKED_UP_Z, NEAR_PIXELS_PER_METRE, nonStrikerDepth, bowlerState, walkInShare } from "./match-positions.js";
 import { drawWide } from "./match-wide.js";
@@ -81,10 +83,12 @@ export function drawMatch(scene) {
   // The caller's call for the ball on the bottom line (or, between times, the plain text), typing itself out.
   const booth = boothShowing(scene.booth, scene.now);
   const typed = scene.callLine ? "" : scene.commentary.slice(0, Math.floor(scene.commT * 70));
-  drawScoreBar(scene.inn, typed, label, statusLine(scene));
+  // Practice has no score: its own strip (render/practice-bar.js).
+  if (scene.nets) drawPracticeBar(practiceBarOf(scene, label, typed));
+  else drawScoreBar(scene.inn, typed, label, statusLine(scene));
   if (scene.callLine) drawCallLine(scene.callLine, scene.now, HUD_Y + 31);
   // The score in the corner (and the weather beside it), except over the full scorecard and the pause menu.
-  if (scene.phase !== "pause" && scene.phase !== "inningsEnd") {
+  if (!scene.nets && scene.phase !== "pause" && scene.phase !== "inningsEnd") {
     drawScoreBox(scene.inn);
     if (scene.match.weather) drawWeatherTile(scene.match.weather.id, SCORE_BOX_LEFT - ICON.w - 8, 4);
   }

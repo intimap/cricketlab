@@ -317,8 +317,11 @@ export class Innings {
       this.legal++;
       bowler.balls++;
       bowler.seq++;
-      this.ball.age(1);
-      this.pitch.addOvers(1 / 6);
+      // The nets keep the ball and the pitch as they were chosen.
+      if (!this.nets) {
+        this.ball.age(1);
+        this.pitch.addOvers(1 / 6);
+      }
       if (rec.boundary) this.ball.hitFence();
     }
 
@@ -329,7 +332,8 @@ export class Innings {
     if (!rec.wicket && before.part < 100 && this.partnership.runs >= 100) result.milestones.push("100 PARTNERSHIP");
 
     if (rec.legal && this.legal % 6 === 0) {
-      result.overEnded = true;
+      // The nets have no overs: the books are kept, but nobody's told.
+      result.overEnded = !this.nets;
       if (bowler.overRuns === 0) bowler.maidens++;
       bowler.lastOver = this.overNo - 1;
       bowler.spell++;

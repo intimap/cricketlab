@@ -22,6 +22,7 @@ import { takeAdvice } from "./bowling-advice.js";
  *   simulate { overs }           catchPress {}            throwCall { end }
  *   declare {}                   followOn { enforce }     (a Test: scenes/match-test.js)
  *   takeAdvice { plan }          (the keeper's suggested ball: scenes/bowling-advice.js)
+ *   practice { settings, pitch } (practice: who bats and bowls, the ball asked for, the pitch: scenes/practice-session.js)
  */
 export function act(scene, action) {
   (scene.actions ??= []).push({ ...action, at: scene.now, ball: scene.inn.legal });
@@ -41,6 +42,8 @@ export function act(scene, action) {
     case "bowl":
       scene.cur = scene.newBall(action.plan, 0);
       return scene.setPhase("runup");
+    case "practice":
+      return scene.changePractice(action.settings ?? null, action.pitch ?? null);
     case "takeAdvice":
       takeAdvice(scene, action.plan);
       return scene.flash("THE KEEPER'S BALL", "#9fd0ff");

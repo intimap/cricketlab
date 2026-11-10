@@ -2,6 +2,7 @@ import { Match } from "./match.js";
 import { australia, england } from "./teams.js";
 import { TEAMS } from "./team-list.js";
 import { rollWeather } from "./weather.js";
+import { setPractice } from "./practice.js";
 
 /**
  * How a game is played, as data:
@@ -102,6 +103,17 @@ export const CLASSICS = [
 /** Nets go on as long as you like. */
 const NETS_OVERS = 9999;
 
+/**
+ * Practice: one squad (cfg.team) at both ends, the batter and bowler from cfg.practice (sim/practice.js), and
+ * the player batting or bowling (cfg.mode).
+ */
+function practiceMatch(cfg, rng) {
+  const squad = TEAMS[cfg.team] ?? australia;
+  const match = new Match(squad(), squad(), cfg.pitch, NETS_OVERS, rng, cfg.mode, { nets: true });
+  setPractice(match, cfg.practice ?? {});
+  return match;
+}
+
 /** Overs choices on the menu, per format. */
 export const OVERS_CHOICES = { match: [5, 10, 20, 50] };
 
@@ -125,7 +137,7 @@ export function createMatch(cfg, rng) {
   const mine = (TEAMS[cfg.team] ?? australia)();
   const theirs = (TEAMS[cfg.opponent] ?? england)();
   const [bat, bowl] = cfg.mode === "bat" ? [mine, theirs] : [theirs, mine];
-  if (cfg.format === "nets") return new Match(bat, bowl, cfg.pitch, NETS_OVERS, rng, cfg.mode, { nets: true });
+  if (cfg.format === "nets") return practiceMatch(cfg, rng);
   if (cfg.format === "test") return new Match(bat, bowl, cfg.pitch, 0, rng, cfg.mode, { test: true, ground: cfg.ground });
   const weather = rollWeather(rng, cfg.ground);
   const overs = Math.max(Math.min(cfg.overs, MIN_RAIN_OVERS), Math.round(cfg.overs * (1 - weather.lost)));

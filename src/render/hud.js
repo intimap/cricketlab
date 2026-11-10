@@ -70,10 +70,7 @@ export function drawBanners(banners, now) {
     const y = b.y ?? 110;
     const fade = age > b.dur - 0.25 ? (b.dur - age) / 0.25 : 1;
     if (fade <= 0.05) continue;
-    const w = textWidth(b.text, scale) + 24;
-    fillRect(WIDTH / 2 - w / 2, y - 6, w, 7 * scale + 12, "rgba(10,30,20,0.72)");
-    fillRect(WIDTH / 2 - w / 2, y - 6, w, 2, COLORS.gold);
-    fillRect(WIDTH / 2 - w / 2, y + 7 * scale + 4, w, 2, COLORS.gold);
+    // The words only, outlined: no strip behind them to hide the play.
     drawText(b.text, WIDTH / 2, y, { scale, color: b.color, outline: COLORS.black, align: "center" });
     if (b.sub) drawText(b.sub, WIDTH / 2, y + 7 * scale + 10, { align: "center", color: COLORS.cream, outline: COLORS.black });
   }
@@ -186,16 +183,20 @@ export function drawSpeechBubble(text, x, y) {
   lines.forEach((line, i) => drawText(line, left + 4, top + 3 + i * 9, { color: "#151515", shadow: null }));
 }
 
-/** Broadcast card fitted to the pixel frame, with a short arcade pop. */
+/**
+ * A broadcast caption near the top, with a short arcade pop: the title in outlined letters and a line under
+ * it, and no card behind them, so the picture (the walk-off, the fielders' chirps) stays in view.
+ * `skippable` adds the skip hint under them.
+ */
 export function drawBroadcastBanner(title, color, sub, pop = 1, skippable = false) {
-  const scale = Math.min(4, Math.max(1, Math.floor(584 / Math.max(1, textWidth(title, 1)))));
-  const y = 102 + Math.round((1 - pop) * 12);
-  // Score celebrations use the same green, brass and cream as the score HUD.
-  const trim = skippable ? COLORS.gold : color;
-  const ink = skippable ? COLORS.cream : color;
-  drawPanel(16, y - 12, WIDTH - 32, skippable ? 104 : 82, COLORS.green, skippable ? COLORS.gold2 : color);
-  fillRect(20, y - 8, WIDTH - 40, 3, trim);
-  drawText(title, WIDTH / 2, y + 5, { scale, align: "center", color: ink, outline: COLORS.black });
-  drawText(sub, WIDTH / 2, y + 43, { align: "center", color: COLORS.cream });
-  if (skippable) drawText("SPACE / ENTER / TAP TO SKIP", WIDTH / 2, y + 72, { align: "center", color: COLORS.dim });
+  const scale = Math.min(3, Math.max(1, Math.floor(584 / Math.max(1, textWidth(title, 1)))));
+  const y = 46 + Math.round((1 - pop) * 8);
+  drawText(title, WIDTH / 2, y, { scale, align: "center", color, outline: COLORS.black });
+  if (sub) drawText(sub, WIDTH / 2, y + 7 * scale + 6, { align: "center", color: COLORS.cream, outline: COLORS.black });
+  if (skippable)
+    drawText("SPACE / ENTER / TAP TO SKIP", WIDTH / 2, y + 7 * scale + 18, {
+      align: "center",
+      color: COLORS.dim,
+      outline: COLORS.black,
+    });
 }

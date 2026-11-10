@@ -13,7 +13,7 @@ import { LIGHTS } from "../render/light.js";
 import { updateTeams, drawTeams } from "./menu-teams.js";
 import { endTime } from "./match-light.js";
 import { ASSISTS, ASSIST_NAMES, assistSetting } from "./assists.js";
-import { EFFECTS, EFFECT_NAMES } from "../render/lighting.js";
+import { EFFECTS, EFFECT_NAMES, DEFAULT_EFFECTS } from "../render/lighting.js";
 import { crtEnabled, setCrt } from "../engine/crt.js";
 import { CONTROL_NAMES, controlsSetting, cycleControls } from "./bat-stick.js";
 
@@ -22,6 +22,8 @@ const PITCHES = ["green", "dust", "cracked"];
 const CLASSIC_IDS = CLASSICS.map((c) => c.id);
 const GROUND_IDS = GROUND_CHOICES;
 const LIGHT_IDS = Object.keys(LIGHTS);
+/** A new player's matches start in the afternoon. */
+const DEFAULT_LIGHT = "afternoon";
 
 /** The overs a side in the start-up match, the one friends compete on. */
 const DEFAULT_MATCH_OVERS = 10;
@@ -70,7 +72,7 @@ export class Menu {
     overs: DEFAULT_MATCH_OVERS,
     classic: CLASSIC_IDS[0],
     ground: DEFAULT_GROUND,
-    light: LIGHT_IDS[0],
+    light: DEFAULT_LIGHT,
     ...load("menu", {}),
   };
   t = 0;
@@ -82,7 +84,7 @@ export class Menu {
     if (!FORMATS[this.cfg.format]) this.cfg.format = "match";
     if (!CLASSIC_IDS.includes(this.cfg.classic)) this.cfg.classic = CLASSIC_IDS[0];
     if (!GROUND_IDS.includes(this.cfg.ground)) this.cfg.ground = DEFAULT_GROUND;
-    if (!LIGHTS[this.cfg.light]) this.cfg.light = LIGHT_IDS[0];
+    if (!LIGHTS[this.cfg.light]) this.cfg.light = DEFAULT_LIGHT;
     // The game opens on the 10-over match everyone's high scores are set in, with NEXT picked.
     this.cfg.format = "match";
     this.cfg.overs = DEFAULT_MATCH_OVERS;
@@ -99,7 +101,7 @@ export class Menu {
 
   /** Lighting effects: this machine's setting, kept apart from the match choices (render/lighting.js). */
   get effectsRow() {
-    const setting = load("effects", "auto");
+    const setting = load("effects", DEFAULT_EFFECTS);
     const stepped = setting === "auto" && load("effectsAuto", "full") === "simple";
     return ["effects", "EFFECTS", `${EFFECT_NAMES[setting] ?? EFFECT_NAMES.auto}${stepped ? " (SIMPLE)" : ""}`];
   }
@@ -179,7 +181,7 @@ export class Menu {
       if (key === "light") cfg.light = cycle(LIGHT_IDS, cfg.light, dir);
       if (key === "assist") save("assist", cycle(ASSISTS, assistSetting(), dir));
       if (key === "effects") {
-        save("effects", cycle(EFFECTS, load("effects", "auto"), dir));
+        save("effects", cycle(EFFECTS, load("effects", DEFAULT_EFFECTS), dir));
         // Choosing AUTO again lets it try full effects afresh.
         save("effectsAuto", "full");
       }

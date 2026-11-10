@@ -1,5 +1,5 @@
 import { load, save } from "../engine/storage.js";
-import { lookFor } from "../render/lighting.js";
+import { lookFor, DEFAULT_EFFECTS } from "../render/lighting.js";
 
 /**
  * The lighting effects this machine runs (render/lighting.js EFFECTS). "auto", the default, starts a match
@@ -13,7 +13,7 @@ const SAMPLE = 120;
 const SLOW_MS = 9;
 
 export function effectsSetting() {
-  return load("effects", "auto");
+  return load("effects", DEFAULT_EFFECTS);
 }
 
 /** The look a new match starts with for its time of day (`light`, from render/light.js). */

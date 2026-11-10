@@ -23,7 +23,9 @@ import { assistOf } from "./assists.js";
 export const CONTROLS = ["buttons", "stick"];
 export const CONTROL_NAMES = { buttons: "BUTTONS", stick: "STICK" };
 
-let setting = CONTROLS.includes(load("controls", "buttons")) ? load("controls", "buttons") : "buttons";
+/** A new player bats with the stick (a pad with no right stick, and the keyboard, still have buttons). */
+export const DEFAULT_CONTROLS = "stick";
+let setting = CONTROLS.includes(load("controls", DEFAULT_CONTROLS)) ? load("controls", DEFAULT_CONTROLS) : DEFAULT_CONTROLS;
 export const controlsSetting = () => setting;
 export function setControls(value) {
   setting = CONTROLS.includes(value) ? value : "buttons";

@@ -24,6 +24,14 @@ with tempfile.TemporaryDirectory() as tmp:
             src = os.path.join(root, item)
             (shutil.copytree if os.path.isdir(src) else shutil.copy)(src, os.path.join(tmp, item))
 
+    # The menu's LAST VERSION: the date of the last merge in what's being built.
+    merged = subprocess.run(["git", "-C", root, "log", "-1", "--merges", "--format=%cs", args.ref or "HEAD"],
+                            capture_output=True, text=True).stdout.strip()
+    if merged:
+        version_js = os.path.join(tmp, "src", "version.js")
+        code = open(version_js).read()
+        open(version_js, "w").write(re.sub(r'LAST_VERSION = "[^"]*"', f'LAST_VERSION = "{merged}"', code))
+
     # new URL("../assets/x.png", import.meta.url) can't be bundled: turn each into an import.
     assets_js = os.path.join(tmp, "src", "assets.js")
     code = open(assets_js).read()

@@ -147,6 +147,7 @@ src/
   main.js             boot, asset loading, game loop, scene switching
   assets.js           every image the game loads, by id
   math.js             clamp, easing, angle helpers
+  version.js          the last merge's date, for the menu's LAST VERSION (the build fills it in from git)
   engine/             browser plumbing, no cricket in here
     screen.js         640x360 pixel frame buffer, scaling, drawing primitives
     analog.js         a second analog stick (a pad's right stick, the touch swing stick), read as how far, not keys

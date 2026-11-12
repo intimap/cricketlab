@@ -1,6 +1,6 @@
-# Cricket Lab
+# BitWicket
 
-A 16-bit style cricket game (Australia, England, New Zealand, South Africa, India, Pakistan, Sri Lanka and the West Indies) for the browser. Play a five-day
+(The repository is still `cricketlab`.) A 16-bit style cricket game (Australia, England, New Zealand, South Africa, India, Pakistan, Sri Lanka and the West Indies) for the browser. Play a five-day
 Test, a limited-overs match or a Classic Match, or practise in the nets, on a green top, a dust bowl or a cracked
 pitch, with a physics-based ball, wearing pitch and ageing ball, the weather, AI field placings and ball-by-ball
 commentary.
@@ -298,7 +298,10 @@ src/
       batter-shots/     drive, back-foot, sweep/ramp and touch-shot pose families; variants.js builds strokes on them
                         (upper cut, front-foot pull, slog-sweep, switch hit, smother, jab, fend, sway, duck)
       batter-catalog.js  input-family and shot-label routes to the 37 clips (charging and inside-out play their stroke's)
-    hud.js            HUD entry points, mini-map, banners, scorecard, speech bubbles
+    hud.js            HUD entry points, mini-map, banners, scorecard, speech bubbles; the announcements' banner
+    display-font.js   the display font: the title and announcements (FOUR!, SIX!, WICKET!, LBW!, OUT) at any scale,
+                      two-tone fill, line, base, outline and shadow, in a palette for each
+    display-glyphs.js the display font's letters, digits and punctuation, as rows of cells
     score-bar.js      two-line batting/bowling strip with partnership; the bottom line's plain text
     practice-bar.js   practice's strip in place of the score bar: batter, bowler, the ball asked for, the count
     practice-panel.js practice's settings panel (the menu's practice page, the Esc menu's PRACTICE)

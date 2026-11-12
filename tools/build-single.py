@@ -1,6 +1,6 @@
 """Build Cricket Lab into one self-contained HTML file (images inlined).
 
-    python3 tools/build-single.py OUT.html [--ref main] [--title "Cricket Lab"] [--stamp]
+    python3 tools/build-single.py OUT.html [--ref main] [--title "BitWicket"] [--stamp]
 
 Builds the working tree, or a git ref with --ref. Needs esbuild (on PATH, or via npx).
 --stamp adds "Build: <ref> @ <commit>" to the key strip under the game.
@@ -10,7 +10,7 @@ import argparse, os, re, shutil, subprocess, sys, tempfile
 ap = argparse.ArgumentParser()
 ap.add_argument("out")
 ap.add_argument("--ref")
-ap.add_argument("--title", default="Cricket Lab")
+ap.add_argument("--title", default="BitWicket")
 ap.add_argument("--stamp", action="store_true")
 args = ap.parse_args()
 root = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True, check=True).stdout.strip()
@@ -43,7 +43,7 @@ with tempfile.TemporaryDirectory() as tmp:
 
     html = open(os.path.join(tmp, "index.html")).read()
     js = open(bundle).read().replace("</script", "<\\/script")
-    html = html.replace("<title>Cricket Lab</title>", f"<title>{args.title}</title>")
+    html = re.sub(r"<title>.*?</title>", lambda _: f"<title>{args.title}</title>", html, count=1)
     html = html.replace('<script type="module" src="src/main.js"></script>', f"<script>{js}</script>")
     if args.stamp:
         commit = subprocess.run(["git", "-C", root, "rev-parse", "--short", args.ref or "HEAD"], capture_output=True, text=True).stdout.strip()

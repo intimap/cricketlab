@@ -4,6 +4,10 @@ import { clamp } from "../math.js";
 export { PRESSURE_BAR } from "./batter-meters.js";
 import { MID_PITCH, BOUNDARY, distFromCentre } from "../sim/geometry.js";
 import { viewFacing } from "./camera.js";
+import { drawDisplayText, displaySize } from "./display-font.js";
+
+/** The announcements' size in the display font (px a cell): letters as tall as the captions' were. */
+const ANNOUNCE_SCALE = 3;
 
 // Preserve the HUD entry points while the bottom strip owns its layout.
 export { HUD_Y, staminaColor, drawScoreBar } from "./score-bar.js";
@@ -70,7 +74,18 @@ export function drawBanners(banners, now) {
     const y = b.y ?? 110;
     const fade = age > b.dur - 0.25 ? (b.dur - age) / 0.25 : 1;
     if (fade <= 0.05) continue;
-    // The words only, outlined: no strip behind them to hide the play.
+    // The words only, outlined: no strip behind them to hide the play. An announcement (b.display, a palette)
+    // is in the display font.
+    if (b.display) {
+      drawDisplayText(b.text, WIDTH / 2, y - scale, { scale, palette: b.display, align: "center" });
+      if (b.sub)
+        drawText(b.sub, WIDTH / 2, y + displaySize(b.text, scale).h + 2, {
+          align: "center",
+          color: COLORS.cream,
+          outline: COLORS.black,
+        });
+      continue;
+    }
     drawText(b.text, WIDTH / 2, y, { scale, color: b.color, outline: COLORS.black, align: "center" });
     if (b.sub) drawText(b.sub, WIDTH / 2, y + 7 * scale + 10, { align: "center", color: COLORS.cream, outline: COLORS.black });
   }
@@ -181,6 +196,20 @@ export function drawSpeechBubble(text, x, y) {
   fillRect(tx + 2, ty + 2, 1, 1, ink);
   fillRect(tx + 1, ty + 3, 1, 1, ink);
   lines.forEach((line, i) => drawText(line, left + 4, top + 3 + i * 9, { color: "#151515", shadow: null }));
+}
+
+/**
+ * The big announcements (FOUR!, SIX!, WICKET!, LBW!, OUT, NOT OUT) in the display font (render/display-font.js)
+ * and its palette for each, near the top with the same pop as a caption, the line and the skip hint under them.
+ */
+export function drawDisplayBanner(title, palette, sub, pop = 1, skippable = false) {
+  const scale = Math.min(ANNOUNCE_SCALE, Math.max(1, Math.floor(584 / displaySize(title, 1).w)));
+  const y = 40 + Math.round((1 - pop) * 8);
+  drawDisplayText(title, WIDTH / 2, y, { scale, palette, align: "center" });
+  const below = y + displaySize(title, scale).h + 3;
+  if (sub) drawText(sub, WIDTH / 2, below, { align: "center", color: COLORS.cream, outline: COLORS.black });
+  if (skippable)
+    drawText("SPACE / ENTER / TAP TO SKIP", WIDTH / 2, below + 12, { align: "center", color: COLORS.dim, outline: COLORS.black });
 }
 
 /**

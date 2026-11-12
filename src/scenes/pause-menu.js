@@ -5,9 +5,10 @@ import { keys, mouse } from "../engine/input.js";
 import { toggleMute, isMuted } from "../engine/audio.js";
 import { drawScorecard } from "../render/hud.js";
 import { commentaryLevel, cycleCommentary } from "./commentary-level.js";
-import { CRT_PRESET_NAMES, crtPreset, cycleCrtPreset } from "../engine/crt-settings.js";
+import { CRT_PRESET_NAMES, crtPreset } from "../engine/crt-settings.js";
 import { CONTROL_NAMES, controlsSetting, cycleControls } from "./bat-stick.js";
 import { updatePracticeScreen, drawPracticeScreen } from "./practice-session.js";
+import { updateScreenPage, drawScreenPage } from "./pause-screen.js";
 
 const ITEMS = [
   "RESUME",
@@ -120,7 +121,7 @@ const inside = (x, y, w, h) => mouse.x >= x && mouse.x < x + w && mouse.y >= y &
 /** The Esc menu: resume, scorecard, instructions, sound, quit. */
 export class PauseMenu {
   sel = 0;
-  /** "menu", "card", "help", "mix" or "practice" (scenes/practice-session.js). */
+  /** "menu", "card", "help", "mix", "practice" (scenes/practice-session.js) or "crt" (scenes/pause-screen.js). */
   screen = "menu";
   page = 0;
   /** The menu's items: practice has PRACTICE where a match has its SCORECARD. */
@@ -146,6 +147,10 @@ export class PauseMenu {
     }
     if (this.screen === "practice") {
       updatePracticeScreen(this, scene);
+      return null;
+    }
+    if (this.screen === "crt") {
+      updateScreenPage(this);
       return null;
     }
     if (this.screen !== "menu") {
@@ -200,7 +205,8 @@ export class PauseMenu {
         cycleCommentary();
         return null;
       case "SCREEN":
-        cycleCrtPreset();
+        this.screen = "crt";
+        this.srow = 0;
         return null;
       case "CONTROLS":
         cycleControls();
@@ -224,6 +230,10 @@ export class PauseMenu {
     }
     if (this.screen === "practice") {
       drawPracticeScreen(this, scene);
+      return;
+    }
+    if (this.screen === "crt") {
+      drawScreenPage(this, scene?.now ?? 0);
       return;
     }
     if (this.screen === "card") {

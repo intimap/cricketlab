@@ -5,7 +5,7 @@ import { keys, mouse } from "../engine/input.js";
 import { toggleMute, isMuted } from "../engine/audio.js";
 import { drawScorecard } from "../render/hud.js";
 import { commentaryLevel, cycleCommentary } from "./commentary-level.js";
-import { crtEnabled, setCrt } from "../engine/crt.js";
+import { CRT_PRESET_NAMES, crtPreset, cycleCrtPreset } from "../engine/crt-settings.js";
 import { CONTROL_NAMES, controlsSetting, cycleControls } from "./bat-stick.js";
 import { updatePracticeScreen, drawPracticeScreen } from "./practice-session.js";
 
@@ -200,7 +200,7 @@ export class PauseMenu {
         cycleCommentary();
         return null;
       case "SCREEN":
-        setCrt(!crtEnabled());
+        cycleCrtPreset();
         return null;
       case "CONTROLS":
         cycleControls();
@@ -252,7 +252,7 @@ export class PauseMenu {
               : item === "COMMENTARY"
                 ? `COMMENTARY: ${commentaryLevel()}`
                 : item === "SCREEN"
-                  ? `SCREEN: ${crtEnabled() ? "CRT" : "SHARP"}`
+                  ? `SCREEN: ${CRT_PRESET_NAMES[crtPreset()]}`
                   : item === "CONTROLS"
                     ? `CONTROLS: ${CONTROL_NAMES[controlsSetting()]}`
                     : item;

@@ -138,6 +138,7 @@ export function drawWide(scene) {
   sprites.sort((a, b) => a.y - b.y);
   for (const s of sprites) s.draw();
   if (live) drawSledges(scene, live);
+  if (live) drawChirp(scene, live);
   if (live) drawInvolved(live);
   setShadowCast(null);
 }
@@ -151,6 +152,19 @@ function drawInvolved(live) {
   const p = projectWide(f.pos.x, 0, f.pos.z);
   const name = f.player.name.split(" ").at(-1).toUpperCase();
   drawText(name, p.x, p.y - 16 * p.s - 10, { align: "center", color: COLORS.cream, shadow: "rgba(0,0,0,0.85)" });
+}
+
+/** How long the keeper's chirp at a beaten batter stays up (s). */
+const CHIRP_TIME = 2.2;
+
+/** Beaten the bat (scene.chirp): the keeper lets him know. Only on the wide view, where the fielders are. */
+function drawChirp(scene, live) {
+  const chirp = scene.chirp;
+  if (!chirp || scene.now < chirp.t0 || scene.now - chirp.t0 > CHIRP_TIME) return;
+  const keeper = live.fielders.find((f) => f.role === "keeper");
+  if (!keeper) return;
+  const p = projectWide(keeper.pos.x, 0, keeper.pos.z);
+  drawSpeechBubble(chirp.text, p.x, p.y - 16 * p.s - 4);
 }
 
 function drawSledges(scene, live) {

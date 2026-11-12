@@ -23,7 +23,7 @@ import { drawBooth, boothShowing } from "../render/booth.js";
 import { drawBallTrail, drawPitchReticle } from "../render/ball-trail.js";
 import { shakeOffset } from "./match-feedback.js";
 import { STRIKER_X } from "./batter-pose.js";
-import { HUD_Y, drawScoreBar, drawScoreBox, drawMiniMap, drawBanners, drawSpeechBubble } from "../render/hud.js";
+import { HUD_Y, drawScoreBar, drawScoreBox, drawMiniMap, drawBanners } from "../render/hud.js";
 import { drawCallLine } from "../render/call-line.js";
 import { drawPracticeBar } from "../render/practice-bar.js";
 import { practiceBarOf } from "./practice-session.js";
@@ -293,8 +293,6 @@ function drawClose(scene) {
       keeper,
     );
   }
-  const chirp = scene.chirp;
-  if (chirp && scene.now >= chirp.t0 && scene.now - chirp.t0 < 2.2) drawSpeechBubble(chirp.text, 430, 150);
 }
 
 /** The bowler from his rig (render/bowler/): projected at his pelvis, held to the striker's size near the camera. */

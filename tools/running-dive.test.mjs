@@ -5,6 +5,7 @@ import {
   queueRun,
   recall,
   dive,
+  atRisk,
   canDive,
   moveRunners,
   runnerTimeTo,
@@ -12,7 +13,8 @@ import {
   DIVE_GAIN,
   DIVE_DOWN,
 } from "../src/sim/running.js";
-import { RUN_LENGTH } from "../src/sim/geometry.js";
+import { RUN_LENGTH, ENDS } from "../src/sim/geometry.js";
+import { runnerSpot } from "../src/scenes/match-positions.js";
 
 /** Just enough of a ball in play for the running: two batters, a clock and its events. */
 function fakeLive() {
@@ -123,4 +125,50 @@ test("keep running: the next run starts as they make this one, and turning back 
   assert.equal(back.runs, 0);
   // Nothing to keep running from when they're not running.
   assert.equal(queueRun(fakeLive()), false);
+});
+
+test("the player's dive: only the batter in danger dives, not both", () => {
+  /** Both batters close to home on a single (the striker 1.8 m out, his partner, off first, nearer), the ball where `ball` says. */
+  const nearlyIn = (ball) => {
+    const live = fakeLive();
+    requestRun(live);
+    advance(live, 0.3 + (RUN_LENGTH - 1.8) / 7);
+    live.ball = { held: -1, ...ball };
+    assert.ok(
+      live.runners.every((r) => canDive(live, r)),
+      "both could dive",
+    );
+    return live;
+  };
+  // Thrown to the bowler's end: the one making for it dives.
+  let live = nearlyIn({ throwing: { end: 1, t1: 0.2 } });
+  live.ball.throwing.t1 += live.t;
+  assert.deepEqual(atRisk(live), [live.runners[0]]);
+  assert.ok(dive(live, atRisk(live)));
+  assert.ok(live.runners[0].diving && !live.runners[1].diving);
+  // Thrown to the keeper's end: the other one.
+  live = nearlyIn({ throwing: { end: 0, t1: 0.2 } });
+  live.ball.throwing.t1 += live.t;
+  assert.deepEqual(atRisk(live), [live.runners[1]]);
+  // Loose near the keeper's end: the one making for it.
+  live = nearlyIn({ pos: { x: ENDS[0].x + 3, z: ENDS[0].z + 2 } });
+  assert.deepEqual(atRisk(live), [live.runners[1]]);
+});
+
+test("on the wide view the non-striker angles into his lane and stays in it once home", () => {
+  const scene = { cur: { delivery: {} }, phase: "flight" };
+  const live = fakeLive();
+  live.setup = { strikerIdx: 0, nonStrikerIdx: 1 };
+  live.runnerPos = (r) => ({ x: r.bat === 0 ? -1.1 : 1.1, z: 1.22 + r.progress * RUN_LENGTH });
+  const standX = -1.05;
+  const non = live.runners[1];
+  assert.equal(runnerSpot(scene, live, non, standX).x, standX, "standing out of the bowler's way");
+  non.progress = 0.95;
+  const setting = runnerSpot(scene, live, non, standX).x;
+  assert.ok(setting > standX && setting < 1.1, "angling across as he sets off");
+  non.progress = 0.5;
+  assert.equal(runnerSpot(scene, live, non, standX).x, 1.1);
+  // Sent back, and home again: still in his lane, no jump across.
+  non.progress = 1;
+  assert.equal(runnerSpot(scene, live, non, standX).x, 1.1);
 });

@@ -29,3 +29,23 @@ export function walkInShare(scene) {
   if (scene.phase === "runup" && cur) return clamp(cur.tRun / cur.runupDur);
   return scene.phase === "flight" ? 1 : 0;
 }
+
+/** Over how much of the pitch (a share of it) the non-striker angles from where he stood into his running lane. */
+const LANE_BLEND = 0.15;
+
+/**
+ * A batter's spot (striker's frame) on the wide view and the mini-map while the ball's live: his running lane
+ * (sim/running.js runnerPos). The non-striker stands out of the bowler's way (`standX`), angles into his lane as
+ * he sets off and stays in it, even once he's home, until the next ball (when the close view puts him back),
+ * rather than jumping across the pitch as he gets in.
+ */
+export function runnerSpot(scene, live, runner, standX) {
+  const pos = live.runnerPos(runner);
+  if (runner.bat !== live.setup.nonStrikerIdx) return pos;
+  const left = (scene.cur.leftCrease ??= new Set());
+  if (runner.progress < 1 - LANE_BLEND) left.add(runner.bat);
+  if (left.has(runner.bat)) return pos;
+  const k = clamp((1 - runner.progress) / LANE_BLEND);
+  const standZ = nonStrikerDepth(scene);
+  return { x: standX + (pos.x - standX) * k, z: standZ + (pos.z - standZ) * k };
+}

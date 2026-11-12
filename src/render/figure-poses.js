@@ -12,7 +12,7 @@ export function figurePose(pose, phase) {
     { x: -4, y: -1 },
     { x: 4, y: -1 },
   ];
-  if (pose === "run" || pose === "walk" || pose === "backup") {
+  if (pose === "run" || pose === "walk") {
     const swing = Math.sin(phase * Math.PI * 2) * (pose === "run" ? 1 : 0.5);
     feet = [
       { x: -3 - swing * 2, y: -1 - Math.max(0, swing) * 6 },
@@ -97,7 +97,6 @@ export function figurePose(pose, phase) {
         { x: 6, y: top - 16 },
       ];
       break;
-    case "backup":
     case "walk": {
       const swing = Math.sin(phase * Math.PI * 2);
       hands = [

@@ -30,8 +30,13 @@ import { assistOf } from "./assists.js";
 export const CONTROLS = ["buttons", "stick", "stickplus"];
 export const CONTROL_NAMES = { buttons: "BUTTONS", stick: "STICK", stickplus: "STICK PLUS" };
 
-/** A new player bats with the stick (a pad with no right stick, and the keyboard, still have buttons). */
-export const DEFAULT_CONTROLS = "stick";
+/** A touch screen (the touch controls show for one: engine/touch.js). */
+const touchScreen = () => typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
+/**
+ * A new player at a desktop bats with the buttons; on a touch screen, with the stick (the second round stick).
+ * Either can be changed, and the choice is kept.
+ */
+export const DEFAULT_CONTROLS = touchScreen() ? "stick" : "buttons";
 let setting = CONTROLS.includes(load("controls", DEFAULT_CONTROLS)) ? load("controls", DEFAULT_CONTROLS) : DEFAULT_CONTROLS;
 export const controlsSetting = () => setting;
 export function setControls(value) {

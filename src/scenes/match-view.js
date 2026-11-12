@@ -28,7 +28,14 @@ import { drawCallLine } from "../render/call-line.js";
 import { drawPracticeBar } from "../render/practice-bar.js";
 import { practiceBarOf } from "./practice-session.js";
 import { LEFT_CREASE, drawStriker } from "./match-striker.js";
-import { BACKED_UP_Z, NEAR_PIXELS_PER_METRE, nonStrikerDepth, bowlerState, walkInShare, runnerSpot } from "./match-positions.js";
+import {
+  NON_STRIKER_Z,
+  NEAR_PIXELS_PER_METRE,
+  nonStrikerDepth,
+  bowlerState,
+  walkInShare,
+  runnerSpot,
+} from "./match-positions.js";
 import { drawWide } from "./match-wide.js";
 import { gradeFrame } from "../render/lighting.js";
 import { castShadows, closeStreak } from "./match-shadows.js";
@@ -154,7 +161,7 @@ function drawClose(scene) {
     // drawn batting). Depths run from the crease to where the non-striker backed up, so nobody jumps.
     for (const [i, r] of runners.entries()) {
       if (i === 0 && r.progress <= LEFT_CREASE) continue;
-      const z = CREASE + r.progress * (BACKED_UP_Z - CREASE);
+      const z = CREASE + r.progress * (NON_STRIKER_Z - CREASE);
       const x = i === 0 ? STRIKER_X + (nonStrikerX - STRIKER_X) * clamp(r.progress / 0.15) : nonStrikerX;
       const kit = playerKit(scene.kitBat, inn.bat[r.bat].p);
       const moving = r.target !== null && live.t >= r.startAt;
@@ -176,8 +183,7 @@ function drawClose(scene) {
       draw: () =>
         figure(nonStrikerX, nonStrikerZ, nonStrikerKit.height, {
           kit: nonStrikerKit,
-          pose: scene.phase === "runup" ? "backup" : "stand",
-          phase: scene.now * 1.4,
+          pose: "stand",
           bat: true,
         }),
     });

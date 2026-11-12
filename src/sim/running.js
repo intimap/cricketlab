@@ -60,6 +60,18 @@ export function canDive(live, runner) {
   return Math.abs(runner.target - runner.progress) * RUN_LENGTH <= DIVE_RANGE;
 }
 
+/**
+ * The batter in danger, as a list for dive(): of those who can dive, the one with least time to spare before the
+ * ball could be at the end he's making for (both can dive only when they're both close to home). The other one
+ * runs it in.
+ */
+export function atRisk(live) {
+  const able = live.runners.filter((r) => canDive(live, r));
+  if (able.length < 2) return able;
+  const spare = (r) => ballAt(live, r.target, true) - runnerTimeTo(live, r, r.target);
+  return [able.reduce((a, b) => (spare(b) < spare(a) ? b : a))];
+}
+
 /** Dive for it: each of `runners` who can, does. True if anyone did. */
 export function dive(live, runners = live.runners) {
   let any = false;
@@ -159,22 +171,33 @@ function throwBack(live, end) {
 const AI_THROW_SPEED = 24;
 const RELAY_BACK = 0.7;
 
+/** A loose ball's guess (s): its gather, before the throw. */
+const LOOSE_GATHER = 1;
+
+/**
+ * Seconds until the ball could be at `end`, as the batters reckon it: thrown there (or relayed), or thrown from
+ * the fielder holding it. A loose ball counts as never, unless `loose`: then a gather and a throw from where it is.
+ */
+function ballAt(live, end, loose = false) {
+  const b = live.ball;
+  if (b.throwing) return throwBack(live, end);
+  if (b.held >= 0) {
+    const f = live.fielders[b.held].pos;
+    return Math.max(0, live.pickupAt - live.t) + Math.hypot(f.x - ENDS[end].x, f.z - ENDS[end].z) / AI_THROW_SPEED + 0.25;
+  }
+  if (!loose) return Infinity;
+  return LOOSE_GATHER + Math.hypot(b.pos.x - ENDS[end].x, b.pos.z - ENDS[end].z) / AI_THROW_SPEED;
+}
+
 /**
  * The computer's batters dive when it's close: the ball would be at the end one of them is making for within
  * AI_DIVE_MARGIN of him getting there.
  */
 function aiDive(live) {
-  const b = live.ball;
   for (const r of live.runners) {
     if (!canDive(live, r)) continue;
     const end = r.target;
-    let ballAt = Infinity;
-    if (b.throwing) ballAt = throwBack(live, end);
-    else if (b.held >= 0) {
-      const f = live.fielders[b.held].pos;
-      ballAt = Math.max(0, live.pickupAt - live.t) + Math.hypot(f.x - ENDS[end].x, f.z - ENDS[end].z) / AI_THROW_SPEED + 0.25;
-    }
-    if (r.diveRead || ballAt >= runnerTimeTo(live, r, end) + AI_DIVE_MARGIN) continue;
+    if (r.diveRead || ballAt(live, end) >= runnerTimeTo(live, r, end) + AI_DIVE_MARGIN) continue;
     r.diveRead = true;
     const runner = r.bat === live.setup.strikerIdx ? live.setup.striker : live.setup.nonStriker;
     if (live.setup.rng.chance(AI_DIVE_READ + AI_DIVE_SKILL * (runner?.bat.running ?? 0.5))) dive(live, [r]);

@@ -28,7 +28,7 @@ import { drawCallLine } from "../render/call-line.js";
 import { drawPracticeBar } from "../render/practice-bar.js";
 import { practiceBarOf } from "./practice-session.js";
 import { LEFT_CREASE, drawStriker } from "./match-striker.js";
-import { BACKED_UP_Z, NEAR_PIXELS_PER_METRE, nonStrikerDepth, bowlerState, walkInShare } from "./match-positions.js";
+import { BACKED_UP_Z, NEAR_PIXELS_PER_METRE, nonStrikerDepth, bowlerState, walkInShare, runnerSpot } from "./match-positions.js";
 import { drawWide } from "./match-wide.js";
 import { gradeFrame } from "../render/lighting.js";
 import { castShadows, closeStreak } from "./match-shadows.js";
@@ -275,11 +275,7 @@ function drawClose(scene) {
       : inn.placements.map((p) => walkInSpot(p.pos, walkInShare(scene)));
     const keeper = live ? live.fielders[0].pos : keeperSpot(scene.spinner);
     const runners = live
-      ? live.runners.map((r) =>
-          r.bat === live.setup.nonStrikerIdx && r.target === null && r.progress === 1
-            ? { x: nonStrikerX, z: nonStrikerDepth(scene) }
-            : live.runnerPos(r),
-        )
+      ? live.runners.map((r) => runnerSpot(scene, live, r, nonStrikerX))
       : [
           { x: -0.3, z: 1.2 },
           { x: nonStrikerX, z: 19 },

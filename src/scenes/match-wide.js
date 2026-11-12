@@ -10,7 +10,7 @@ import { projectWide, projectWideThrow, viewFacing } from "../render/camera.js";
 import { drawTinyFigure, fielderPose, drawBall, drawShadow, drawFigure, playerKit } from "../render/sprites.js";
 import { wideViewNow } from "../render/camera.js";
 import { drawSpeechBubble } from "../render/hud.js";
-import { nonStrikerDepth, bowlerState, walkInShare } from "./match-positions.js";
+import { nonStrikerDepth, bowlerState, walkInShare, runnerSpot } from "./match-positions.js";
 import { setShadowCast } from "../render/sprites.js";
 import { shadowSlope } from "../render/lighting.js";
 import { drawWideArt, drawWideBoard, drawGroundScoreboard } from "./venue-view.js";
@@ -74,9 +74,7 @@ export function drawWide(scene) {
     }
     for (const r of live.runners) {
       const out = cur?.done?.rec.wicket?.batter === r.bat;
-      let pos = live.runnerPos(r);
-      if (r.bat === live.setup.nonStrikerIdx && r.target === null && r.progress === 1)
-        pos = { x: nonStrikerX, z: nonStrikerDepth(scene) };
+      let pos = runnerSpot(scene, live, r, nonStrikerX);
       if (out && scene.walkOff) {
         // Off towards the pavilion.
         const k = clamp((scene.now - scene.walkOff.t0) / WALK_OFF_TIME);
@@ -86,8 +84,12 @@ export function drawWide(scene) {
       const down = !out && (r.diving || live.t < (r.downUntil ?? 0));
       const phase = out && scene.walkOff ? scene.now * 1.4 : scene.now * 3.5;
       const kit = playerKit(scene.kitBat, inn.bat[r.bat]?.p);
+      // Diving (or down after it), flat out along the pitch towards the crease he's making for.
+      const dir = down ? diveDirection(pos, r.target ?? r.from) : null;
       add(pos.x, 0, pos.z, (x, y, s) =>
-        wideFigure(x, y, s, down ? "dive" : moving ? "run" : "batter", scene.kitBat.cap, phase + r.bat, batting, kit),
+        down
+          ? drawTinyFigure(x, y, s, "diveAlong", scene.kitBat.cap, 0, { ...batting, dir })
+          : wideFigure(x, y, s, moving ? "run" : "batter", scene.kitBat.cap, phase + r.bat, batting, kit),
       );
     }
     const ball = live.ball;
@@ -141,6 +143,14 @@ export function drawWide(scene) {
   if (live) drawChirp(scene, live);
   if (live) drawInvolved(live);
   setShadowCast(null);
+}
+
+/** The way along the pitch, on screen, towards `end` from a batter at `pos`: a unit vector. */
+function diveDirection(pos, end) {
+  const a = projectWide(pos.x, 0, pos.z);
+  const b = projectWide(pos.x, 0, pos.z + (end === 1 ? 2 : -2));
+  const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+  return { x: (b.x - a.x) / len, y: (b.y - a.y) / len };
 }
 
 /** The fielder in the thick of it (going for it, holding it, throwing it) gets his name over his head. */

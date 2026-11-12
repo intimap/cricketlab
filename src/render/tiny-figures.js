@@ -5,7 +5,8 @@ import { BAT_FACE, PAD, groundShadow } from "./kit.js";
 
 /**
  * A tiny figure for the wide view, feet at (x, y).
- * pose: idle | run | dive | down | celebrate | throw | keeper | batter. opts: { bat?, shirt?, pants? }
+ * pose: idle | run | dive | down | diveAlong | celebrate | throw | keeper | batter. opts: { bat?, shirt?, pants?, dir? }
+ * `diveAlong` is a batter diving for his crease, stretched out along opts.dir (a unit vector on screen).
  */
 export function drawTinyFigure(x, y, scale, pose, cap, phase = 0, opts = {}) {
   const k = Math.max(1, scale * 1.45);
@@ -15,6 +16,20 @@ export function drawTinyFigure(x, y, scale, pose, cap, phase = 0, opts = {}) {
   const rect = (rx, ry, w, h, color) =>
     fillRect(x + rx * k, y + ry * k, Math.max(1, Math.round(w * k)), Math.max(1, Math.round(h * k)), color);
   groundShadow(x, y, 3 * k, 1, 0.35);
+  if (pose === "diveAlong") {
+    // Legs trailing, the body flat, the cap and then the bat reaching out ahead.
+    const { x: dx, y: dy } = opts.dir;
+    const along = (from, to, size, color) => {
+      const px = Math.max(1, Math.round(size * k));
+      for (let t = from; t <= to; t += 0.5)
+        fillRect(Math.round(x + dx * t * k - px / 2), Math.round(y - 1.5 * k + dy * t * k - px / 2), px, px, color);
+    };
+    along(-5, -2, 1.5, pants);
+    along(-2, 2, 2, shirt);
+    along(2.5, 3.5, 2, cap);
+    if (opts.bat) along(4.5, 7, 1, BAT_FACE);
+    return;
+  }
   if (pose === "dive" || pose === "down") {
     rect(-4, -3, 8, 2, shirt);
     rect(-5, -4, 2, 2, cap);

@@ -152,8 +152,9 @@ export class BallInPlay {
   }
 
   /** Dive for the crease, any batter in range (sim/running.js). */
+  /** The player's dive: the batter in danger dives (sim/running.js atRisk), not both. */
   dive() {
-    return running.dive(this);
+    return running.dive(this, running.atRisk(this));
   }
 
   recall() {

@@ -3,7 +3,7 @@ import { drawText } from "../engine/text.js";
 import { clamp } from "../math.js";
 import { hitsStumps } from "../sim/delivery.js";
 import { projectClose } from "./camera.js";
-import { drawBroadcastBanner } from "./hud.js";
+import { drawBroadcastBanner, drawDisplayBanner } from "./hud.js";
 
 /**
  * The DRS broadcast's beats (s into the review phases): the on-field call; REPLAY on screen, then the ball
@@ -50,35 +50,30 @@ export function drawMatchBroadcast(scene) {
     else if (scene.phaseT < TRACKING_TIME) drawReview(scene, scene.phaseT - REPLAY_TIME);
     else {
       const { out, changed } = reviewResult(cur);
-      const title =
-        scene.phaseT < TRACKING_TIME + 1.5
-          ? changed
-            ? "DECISION OVERTURNED"
-            : "ORIGINAL DECISION STANDS"
-          : out
-            ? "OUT"
-            : "NOT OUT";
-      drawBroadcastBanner(
-        title,
-        out ? COLORS.red : SAFE,
+      const sub =
         cur.tracking.verdict === "umpiresCall"
           ? "UMPIRE'S CALL - REVIEW RETAINED"
-          : (!out && SAVED_BY[cur.tracking.reason]) || "THIRD UMPIRE",
-        1,
-      );
+          : (!out && SAVED_BY[cur.tracking.reason]) || "THIRD UMPIRE";
+      // The call first, in words; then the verdict, in the display font.
+      if (scene.phaseT < TRACKING_TIME + 1.5)
+        drawBroadcastBanner(changed ? "DECISION OVERTURNED" : "ORIGINAL DECISION STANDS", out ? COLORS.red : SAFE, sub, 1);
+      else drawDisplayBanner(out ? "OUT" : "NOT OUT", out ? "out" : "notOut", sub, 1);
     }
   }
   const rec = cur?.done?.rec;
   if (scene.phase === "after" && (rec?.wicket || rec?.boundary)) {
     const batter = scene.inn.bat[rec.wicket ? rec.wicket.batter : rec.striker];
-    const title = rec.wicket ? "WICKET!" : rec.boundary === 6 ? "SIX!" : "FOUR!";
+    // An LBW says so (in white); any other wicket is a WICKET! (red).
+    const lbw = rec.wicket?.how === "lbw";
+    const title = lbw ? "LBW!" : rec.wicket ? "WICKET!" : rec.boundary === 6 ? "SIX!" : "FOUR!";
+    const palette = lbw ? "lbw" : rec.wicket ? "out" : rec.boundary === 6 ? "six" : "four";
     const how = rec.wicket
       ? (rec.wicket.how === "runout" ? "RUN OUT" : rec.wicket.caughtBehind ? "CAUGHT BEHIND" : rec.wicket.how.toUpperCase()) +
         "  -  "
       : "";
-    drawBroadcastBanner(
+    drawDisplayBanner(
       title,
-      rec.wicket ? COLORS.red : COLORS.gold,
+      palette,
       `${how}${batter.p.short.toUpperCase()} ${batter.runs} (${batter.balls})`,
       Math.min(1, scene.phaseT / 0.15),
       scene.phaseT >= CELEBRATION_HOLD,

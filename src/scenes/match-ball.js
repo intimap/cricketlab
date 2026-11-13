@@ -223,7 +223,10 @@ export function completeBall(scene) {
     scene.feedback = scene.coachFeedback(done.rec);
     scene.netsTally.balls++;
     if (scene.feedback.grade === "good") scene.netsTally.good++;
-    if (done.rec.wicket) scene.big("OUT!", COLORS.red, done.rec.wicket.how.toUpperCase(), 1.6);
+    if (done.rec.wicket) {
+      const lbw = done.rec.wicket.how === "lbw";
+      scene.big(lbw ? "LBW!" : "OUT!", COLORS.red, done.rec.wicket.how.toUpperCase(), 1.6, lbw ? "lbw" : "out");
+    }
     scene.setPhase("after");
     return;
   }

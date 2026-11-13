@@ -241,8 +241,9 @@ export class MatchScene {
   }
 
   /** Big centre-screen announcement. */
-  big(text, color, sub, dur = 1.8) {
-    this.banners.push({ text, sub, color, t0: this.now, dur, scale: 4, y: 96 });
+  /** `display`: a display-font palette (render/display-font.js) for an announcement such as OUT!. */
+  big(text, color, sub, dur = 1.8, display = null) {
+    this.banners.push({ text, sub, color, t0: this.now, dur, scale: 4, y: 96, display });
   }
 
   betweenBalls() {

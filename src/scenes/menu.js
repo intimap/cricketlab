@@ -11,6 +11,7 @@ import { prepareVenue } from "../render/venue/venue-build.js";
 import { ballKindFor } from "./match-light.js";
 import { LIGHTS } from "../render/light.js";
 import { updateTeams, drawTeams } from "./menu-teams.js";
+import { drawDisplayText } from "../render/display-font.js";
 import { updatePractice, drawPractice } from "./menu-practice.js";
 import { endTime } from "./match-light.js";
 import { ASSISTS, ASSIST_NAMES, assistSetting } from "./assists.js";
@@ -221,8 +222,7 @@ export class Menu {
     ctx.drawImage(this.game.images.wide, 0, 0, WIDTH, HEIGHT);
     fillRect(0, 0, WIDTH, HEIGHT, "rgba(6,18,10,0.55)");
     const bob = Math.round(Math.sin(this.t * 2) * 2);
-    drawText("CRICKET LAB", WIDTH / 2 + 3, 26 + bob + 3, { scale: 6, color: COLORS.black, align: "center", shadow: null });
-    drawText("CRICKET LAB", WIDTH / 2, 26 + bob, { scale: 6, color: COLORS.gold, align: "center", outline: "#3a2a08" });
+    drawDisplayText("BITWICKET", WIDTH / 2, 12 + bob, { scale: 6, palette: "title", align: "center" });
     const cfg = this.cfg;
     const what = this.practice ? "PRACTICE" : typeOf(cfg).name;
     const heading =

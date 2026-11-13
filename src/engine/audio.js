@@ -121,12 +121,16 @@ export function setAudioLevels(next) {
   }
 }
 
-/** A generic layered sound; cricket-specific profiles live in the scene layer. */
-export function playSound({ tones = [], bursts = [], bus = "effects" }) {
+/**
+ * A generic layered sound (tones, noise bursts and clicks: each layer a voice's arguments, engine/audio-synth.js);
+ * cricket-specific profiles live in the scene layer.
+ */
+export function playSound({ tones = [], bursts = [], clicks = [], bus = "effects" }) {
   if (!ac || muted || ac.state === "suspended") return;
   const synth = bus === "cues" ? cues : effects;
   for (const layer of tones) synth.tone(...layer);
   for (const layer of bursts) synth.burst(...layer);
+  for (const layer of clicks) synth.click(...layer);
 }
 
 function noiseBurst(...args) {
@@ -138,11 +142,6 @@ function tone(...args) {
 }
 
 export const sfx = {
-  bat(quality) {
-    tone(520 + quality * 260, 0.09, 0.3 + quality * 0.18, "triangle", 0, -180);
-    tone(1250, 0.045, 0.12 * quality, "sine", 0.002, -260);
-    noiseBurst(0.045, 2200, 1.2, 0.4 + quality * 0.2);
-  },
   edge() {
     tone(1500, 0.04, 0.2, "square", 0, -600);
     noiseBurst(0.03, 3500, 2, 0.3);

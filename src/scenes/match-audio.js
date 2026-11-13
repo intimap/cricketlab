@@ -1,28 +1,26 @@
 import { playSound, sfx } from "../engine/audio.js";
+import { batSound, powerOf } from "./bat-sound.js";
 import { TRACKING_TIME, REPLAY_TIME } from "../render/match-broadcast.js";
 
-/** Match contact data selects timbre here; the audio engine only synthesises voices. */
+/**
+ * Match contact data selects timbre here; the audio engine only synthesises voices. Bat on ball is its own
+ * profile (scenes/bat-sound.js): how clean it was, how hard it left the bat, and where on the bat it hit.
+ */
 export function playContact(contact) {
   if (contact.kind === "gloved") return sfx.gloves();
   if (contact.kind === "padPop") {
     sfx.edge();
     return sfx.pad();
   }
-  if (contact.kind !== "middle") {
-    const thick = contact.impact?.thickness ?? 0.4;
-    playSound({
-      tones: [[1900 - 700 * thick, 0.035 + 0.025 * thick, 0.12 + 0.08 * thick, "triangle", 0, -500]],
-      bursts: [[0.025 + 0.025 * thick, 3300 - 1200 * thick, 1.8, 0.18 + 0.15 * thick]],
-    });
-    return;
-  }
-  const region = contact.impact?.region;
-  if (region !== "toe" && region !== "splice") return sfx.bat(contact.quality);
-  const toe = region === "toe";
-  playSound({
-    tones: [[toe ? 300 : 210, toe ? 0.075 : 0.05, 0.3, "triangle", 0, -100]],
-    bursts: [[0.045, toe ? 1400 : 850, 0.8, 0.35]],
-  });
+  playSound(
+    batSound({
+      kind: contact.kind,
+      quality: contact.quality,
+      power: powerOf(contact.exit),
+      region: contact.impact?.region,
+      thickness: contact.impact?.thickness ?? 0.4,
+    }),
+  );
 }
 
 /** Short broadcast stings leave room for the ball sounds and crowd. */

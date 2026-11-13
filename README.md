@@ -160,7 +160,7 @@ src/
     touch.js          on-screen buttons for phones (a stick for the batter's feet), pressing the same keys
     gamepad.js        the browser's gamepads: stick and d-pad as arrows, buttons as each screen's keys
     audio.js          synthesised sound effects, stereo crowd and audio mix
-    audio-synth.js    generic enveloped oscillator and noise voices
+    audio-synth.js    generic enveloped oscillator and noise voices, and a sharp click
     storage.js        small settings kept in this browser
     scores.js         high-score tables: the artifact's shared database, or this browser
   sim/                the cricket model, no drawing in here
@@ -356,6 +356,7 @@ src/
     match-rain.js     rain stopping play in the scene: the covers, the panel, carrying on
     match-feedback.js what feedback to show and when: shot words, +/-EYE and PRESSURE, hit-stop, shake
     match-audio.js    contact timbres and broadcast sound cues
+    bat-sound.js      bat on ball as synth layers: click, the blade's ring, knock, thump, the stands' slap back
     strike-presentation.js  full-pace launch after contact and the close-to-wide broadcast cut
     celebrations.js   skipping a wicket's or boundary's celebration
     broadcast-commentary.js  the caller's and the box's calls for each ball

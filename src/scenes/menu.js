@@ -19,6 +19,7 @@ import { EFFECTS, EFFECT_NAMES, DEFAULT_EFFECTS } from "../render/lighting.js";
 import { CRT_PRESET_NAMES, crtPreset, cycleCrtPreset } from "../engine/crt-settings.js";
 import { screenRows, stepScreenRow, screenBlurb } from "./menu-screen.js";
 import { CONTROL_NAMES, controlsSetting, cycleControls } from "./bat-stick.js";
+import { LAST_VERSION } from "../version.js";
 
 const MODES = ["bat", "bowl"];
 const PITCHES = ["green", "dust", "cracked"];
@@ -45,23 +46,12 @@ const typeOf = (cfg) =>
 
 const cycle = (list, value, dir) => list[(list.indexOf(value) + dir + list.length) % list.length];
 
-const BAT_HELP = [
-  "BATTING: ARROWS ARE THE FEET (UP = FORWARD FROM BEHIND HIM), FORWARD TWICE = CHARGE",
-  "S ATTACK  A DEFEND  W LOFT  D IMPROVISE.  SHIFT POWER (HOLD OR TAP).  NO BUTTON = LEAVE",
-  "UP/DOWN AFTER THE SHOT TO RUN (AGAIN TO KEEP RUNNING), SPACE TO DIVE WHEN IT FLASHES",
-  "O = SIM OVER   B = BATTER/BOWLER END   ESC = MENU",
-];
-/** Batting with CONTROLS: STICK (scenes/bat-stick.js): the second line says what the bat's stick does. */
-const STICK_HELP = "RIGHT STICK = THE BAT: BACK = ATTACK, RIGHT BACK = LOFT, TO A SIDE = SWEEP";
-const STICK_HELP_2 = "FORWARD = SWING.  NO BACKSWING = BLOCK.  FLICK = POWER.  BACK AND LET GO = LEAVE";
-const STICK_PLUS_HELP = "RIGHT STICK = THE BAT: BACK = ATTACK, RIGHT BACK = LOFT, ROLL ROUND THE BACK = SWEEP";
-const STICK_PLUS_HELP_2 = "FORWARD = SWING, AIMED THE WAY YOU PUSH.  NO BACKSWING = BLOCK.  FLICK = POWER";
-const BOWL_HELP = [
-  "BOWLING: ARROWS SET LINE & LENGTH, NUMBERS PICK THE BALL, E EFFORT, F FIELD",
-  "SPACE TO RUN IN, SPACE AGAIN IN THE GOLD ZONE OF THE METER TO RELEASE",
-  "FIND EACH BATTER'S WEAKNESS. SET HIM UP, THEN CHANGE IT.  H = APPEAL  R = REVIEW",
-  "V = FIELD   O = SIM OVER   B = BATTER/BOWLER END   ESC = MENU",
-];
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+/** The last version's date as the menu shows it: 12 NOV 2026. */
+const versionDate = (iso) => {
+  const [y, m, d] = iso.split("-").map(Number);
+  return `${d} ${MONTHS[m - 1]} ${y}`;
+};
 
 export class Menu {
   sel = 0;
@@ -230,8 +220,10 @@ export class Menu {
         teams: this.practice ? "PRACTICE: WHO BATS, WHO BOWLS" : `${what}: CHOOSE THE TEAMS`,
         setup: `${what}: WHERE AND WHEN`,
         screen: "SCREEN: THE CRT LOOK",
-      }[this.page] ?? "16-BIT TEST CRICKET  -  PROTOTYPE V0.1";
-    drawText(heading, WIDTH / 2, 78, { align: "center", color: COLORS.cream });
+      }[this.page] ?? "";
+    if (heading) drawText(heading, WIDTH / 2, 78, { align: "center", color: COLORS.cream });
+    // At the foot of every page: when this version was made (the last merge).
+    drawText(`LAST VERSION ${versionDate(LAST_VERSION)}`, WIDTH / 2, 346, { align: "center", color: COLORS.dim });
     if (this.page === "teams") return this.practice ? drawPractice(this) : drawTeams(this);
 
     const rows = this.rows;
@@ -265,24 +257,6 @@ export class Menu {
     wrapText(blurb, 60).forEach((line, i) =>
       drawText(line, 320, top + rows.length * step + 3 + i * 10, { align: "center", color: COLORS.dim }),
     );
-
-    // The SCREEN page leaves the picture behind clear, to see the look on.
-    if (this.page === "screen") return drawText("ARROWS + ENTER   ESC = BACK", 320, 330, { align: "center", color: COLORS.dim });
-    drawPanel(40, 238, 560, 84, "#0d2318");
-    const role = cfg.format === "classic" ? this.classic.human : cfg.mode;
-    const help = [...(role === "bat" ? BAT_HELP : BOWL_HELP)];
-    if (role === "bat" && controlsSetting() === "stick") help.splice(1, 1, STICK_HELP, STICK_HELP_2);
-    if (role === "bat" && controlsSetting() === "stickplus") help.splice(1, 1, STICK_PLUS_HELP, STICK_PLUS_HELP_2);
-    if (cfg.format === "test")
-      help.push(role === "bat" ? "TEST: L = SIM TO THE BREAK   C TWICE = DECLARE" : "TEST: L = SIM TO THE BREAK");
-    help.forEach((line, i) =>
-      drawText(line, 320, 248 + i * 12, { align: "center", color: i === 0 ? COLORS.gold : COLORS.cream }),
-    );
-    drawText(this.page === "setup" ? "ARROWS + ENTER   ESC = BACK" : "ARROWS + ENTER", 320, 330, {
-      align: "center",
-      color: COLORS.dim,
-    });
-    drawText("M = SOUND ON/OFF", 320, 342, { align: "center", color: COLORS.dim });
   }
 }
 

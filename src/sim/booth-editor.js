@@ -33,6 +33,18 @@ const REUSE_AFTER = 30;
 /** Chance of an exchange between overs, in a quiet passage (the recap said first). */
 const BETWEEN_OVERS = 0.3;
 
+/**
+ * Stories told two ways share a cooldown: the match memory's let-off cost with the drop's cost, its powerplay
+ * end with the over's opening word on it (and every chase topic with the others, by name).
+ */
+const SHARED = { letoffCost: "dropCost", phasePowerplayEnd: "powerplay:end" };
+/** An over's opening word waits at least this many balls after the same story was told. */
+const OVER_START_REST = 6;
+
+/** The match memory's moments as the box's options (sim/match-memory.js), their payloads as the facts. */
+const momentOptions = (moments) =>
+  moments.map((m) => ({ topic: m.type, case: m.payload?.ahead, priority: m.priority, facts: m.payload, key: m.key }));
+
 /** The situation and case an option's lines are under (the dot-pressure rungs are one situation). */
 function situationOf(option) {
   const dots = /^dotPressure(\d+)$/.exec(option.topic);
@@ -59,6 +71,10 @@ export class BoothEditor {
   runupOver = null;
   /** Each batter's weakness the bowlers have read (sim/scouting.js), by batting index. */
   weak = new Map();
+  /** The match memory's moments for the coming ball (Commentary.onMoments), used once. */
+  moments = [];
+  /** Moments that came on a ball the box spent recapping the over: offered once more, on the next ball. */
+  carried = [];
 
   /**
    * The ball's calls: first the caller's (topic "ballCall", fitting `context.fitsCall`, the HUD line), then
@@ -138,10 +154,19 @@ export class BoothEditor {
     if (rec.dropped && !rec.freeHit && rec.extra?.type !== "nb" && inn) {
       this.drops.push({ batter: rec.striker, on: inn.bat[rec.striker].runs });
     }
-    if (silent) return { calls: [] };
+    const moments = this.moments;
+    this.moments = [];
+    if (silent) {
+      this.carried = moments.filter((m) => !m.carried).map((m) => ({ ...m, carried: true }));
+      return { calls: [] };
+    }
     const format = formatOf(inn);
     const chatty = rng.random() < TALK;
-    const options = boothContext(rec, inn, this, beforePressure, { narrative, light, match, format });
+    const options = [
+      ...boothContext(rec, inn, this, beforePressure, { narrative, light, match, format }),
+      ...momentOptions(moments),
+    ];
+    options.sort((a, b) => b.priority - a.priority);
     for (const option of only ? options.filter((o) => o.topic === only) : options) {
       if (option.priority < EVERYDAY && !chatty) break;
       const { situation, kase } = situationOf(option);
@@ -151,7 +176,7 @@ export class BoothEditor {
       const key = kase !== undefined ? `${situation}:${kase}` : situation;
       if (this.ball - (this.topics.get(key) ?? -Infinity) < rest) continue;
       // Closely related story names cannot evade a topic cooldown.
-      const group = situation.startsWith("chase") ? "chase" : situation;
+      const group = situation.startsWith("chase") ? "chase" : (SHARED[situation] ?? situation);
       if (this.ball - (this.topics.get(group) ?? -Infinity) < rest) continue;
       if (!option.key && option.topic === this.lastTopic && rest > 0) continue;
       const kind = kindOf(situation);
@@ -242,7 +267,7 @@ export class BoothEditor {
   overStart(inn, match, { caller, rng, fits = () => true } = {}) {
     const format = formatOf(inn);
     for (const option of overStartSituations(inn, match, format)) {
-      const rest = SITUATIONS[option.topic]?.rest ?? 0;
+      const rest = Math.max(OVER_START_REST, SITUATIONS[option.topic]?.rest ?? 0);
       const key = option.case !== undefined && option.case !== null ? `${option.topic}:${option.case}` : option.topic;
       if (this.ball - (this.topics.get(key) ?? -Infinity) < rest) continue;
       const facts = { b: inn.bat[inn.striker]?.p.short, w: inn.bowler?.p.short, ...option.facts };

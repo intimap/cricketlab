@@ -8,6 +8,7 @@ import scene from "./lines/scene.json" with { type: "json" };
 import reads from "./lines/reads.json" with { type: "json" };
 import finishes from "./lines/finishes.json" with { type: "json" };
 import banter from "./lines/banter.json" with { type: "json" };
+import memory from "./lines/memory.json" with { type: "json" };
 import { SITUATIONS } from "./situations.js";
 
 /**
@@ -25,7 +26,7 @@ import { SITUATIONS } from "./situations.js";
  * { "turns": [...], "formats": [...] } to narrow one to a format.
  */
 
-export const LINE_FILES = { calls, results, overs, stories, moments, colour, scene, reads, finishes, banter };
+export const LINE_FILES = { calls, results, overs, stories, moments, colour, scene, reads, finishes, banter, memory };
 export const VOICES = ["bunnings", "lorry", "grog"];
 export const KINDS = ["call", "shot", "bowling", "match", "players", "banter"];
 export const FORMATS = ["t20", "odi", "test"];

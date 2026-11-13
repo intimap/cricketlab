@@ -36,6 +36,16 @@ export class Commentary extends OverSummary {
     return trackBall(this.narrative, rec, inn);
   }
 
+  /**
+   * The match memory's moments for the ball about to be called (sim/match-memory.js): the box weighs them with
+   * everything else it could say (a wicket's or a boundary's call still comes first).
+   */
+  onMoments(moments) {
+    // A moment the box couldn't say last ball (it was recapping the over) is offered again with this one's.
+    this.booth.moments = [...this.booth.carried, ...(moments ?? [])];
+    this.booth.carried = [];
+  }
+
   overSummary(inn, over) {
     return getOverSummary(inn, over) || super.overSummary(inn);
   }

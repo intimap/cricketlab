@@ -1,0 +1,160 @@
+{
+  "about": "The match memory's moments (sim/match-memory.js): turning points, duels, let-offs, the chase's equation and the phases of the game. Two sample lines for each voice; add more freely.",
+  "groups": [
+    {
+      "situation": "turningPoint",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THAT MAY BE THE BALL WE TALK ABOUT LATER.", "THE MATCH HAS JUST LEANED. QUITE A LOT."],
+        "lorry": ["THAT COULD BE THE TURNING POINT! WHAT A MOMENT!", "EVERYTHING JUST CHANGED! {team} WILL FEEL THAT!"],
+        "grog": ["THAT SHIFTS THE BALANCE. {team} WERE {before} PER CENT, NOW {after}.", "ONE BALL, AND THE PLANS ALL CHANGE."]
+      }
+    },
+    {
+      "situation": "partnershipSwing",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THIS STAND OF {stand} HAS QUIETLY MOVED THE MATCH.", "{stand} TOGETHER. THE GAME LOOKS DIFFERENT NOW."],
+        "lorry": ["{stand} RUNS TOGETHER! THEY'VE TURNED THIS AROUND!", "WHAT A PARTNERSHIP! {stand} OFF {balls}!"],
+        "grog": ["{stand} OFF {balls} BALLS. THE BOWLERS NEED A NEW IDEA.", "THIS PAIR HAS CHANGED THE SHAPE OF THE GAME."]
+      }
+    },
+    {
+      "situation": "duelBeaten",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["{w} HAS BEATEN {b} {beaten} TIMES NOW.", "{b} AND {w}. ONE OF THEM IS ENJOYING THIS MORE."],
+        "lorry": ["BEATEN AGAIN! {w} HAS {b} ON A STRING!", "{beaten} TIMES {w} HAS GONE PAST THE EDGE!"],
+        "grog": ["{w} HAS FOUND {b}'S WEAK SPOT. {beaten} PLAYS AND MISSES.", "SAME LINE, SAME RESULT. {w} WILL KEEP GOING THERE."]
+      }
+    },
+    {
+      "situation": "duelDominance",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["{b} HAS {runs} OFF {w} FROM {balls} BALLS.", "{w} MAY BE SEEING {b} IN HIS SLEEP."],
+        "lorry": ["{runs} OFF {balls} AGAINST {w}! {b} OWNS HIM!", "{b} JUST LOVES FACING {w}!"],
+        "grog": ["{runs} FROM {balls}. {w} NEEDS A DIFFERENT PLAN.", "TIME TO TAKE {w} OFF AGAINST {b}, I'D SAY."]
+      }
+    },
+    {
+      "situation": "duelRepeatDismissal",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["{w} HAS HIM AGAIN. THAT'S {times} TIMES.", "{b} WON'T BE SENDING {w} A CARD."],
+        "lorry": ["HE'S GOT HIM AGAIN! {times} TIMES THIS MATCH!", "{w} HAS {b}'S NUMBER!"],
+        "grog": ["{times} TIMES NOW. {w} KNOWS EXACTLY WHERE TO BOWL.", "SAME BOWLER, SAME BATTER, SAME ENDING."]
+      }
+    },
+    {
+      "situation": "duelDotSqueeze",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["{dots} DOTS IN A ROW FROM {w} TO {b}.", "{b} HASN'T SCORED OFF {w} IN A WHILE."],
+        "lorry": ["{dots} DOTS! {w} IS SQUEEZING HIM!", "NOTHING DOING! {b} CAN'T GET {w} AWAY!"],
+        "grog": ["{dots} DOTS. {w} IS BUILDING THE PRESSURE NICELY.", "{b} NEEDS TO ROTATE THE STRIKE AGAINST {w}."]
+      }
+    },
+    {
+      "situation": "letoffCost",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["{b} WAS ON {droppedOn} AT {letoff}. HE'S {nowOn} NOW.", "{letoff} HAS COST {cost} RUNS SO FAR."],
+        "lorry": ["{cost} RUNS SINCE {letoff}! THAT'S HURTING!", "{b} WAS ON {droppedOn}! NOW HE'S {nowOn}!"],
+        "grog": ["{letoff} ON {droppedOn}. {cost} RUNS LATER, IT MATTERS.", "THAT'S {cost} SINCE {letoff}. CHANCES COST."]
+      }
+    },
+    {
+      "situation": "chaseRrrThreshold",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THE RATE HAS CLIMBED PAST {threshold} AN OVER.", "{need} OFF {left}. THE ASKING RATE IS {rrr}."],
+        "lorry": ["OVER {threshold} AN OVER NOW! THIS IS GETTING TIGHT!", "THEY NEED {rrr} AN OVER! COME ON!"],
+        "grog": ["{rrr} AN OVER. THEY CAN'T WAIT MUCH LONGER.", "PAST {threshold} AN OVER. SOMEONE HAS TO GO."]
+      }
+    },
+    {
+      "situation": "chaseCheckpoint",
+      "case": "ahead",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{runs} AFTER {over} OVERS. {diff} AHEAD OF THE PACE.", "AFTER {over}, {team} ARE ON TRACK."],
+        "lorry": ["{diff} AHEAD OF THE RATE AFTER {over}! LOVELY STUFF!", "{team} ARE WELL IN THIS AFTER {over} OVERS!"],
+        "grog": ["{over} OVERS GONE, {runs} ON THE BOARD. GOOD PLATFORM.", "AHEAD BY {diff}. NOW DON'T THROW IT AWAY."]
+      }
+    },
+    {
+      "situation": "chaseCheckpoint",
+      "case": "behind",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{runs} AFTER {over} OVERS. {diff} BEHIND THE PACE.", "AFTER {over}, {team} HAVE WORK TO DO."],
+        "lorry": ["{diff} BEHIND AFTER {over}! THEY'VE GOT TO GO!", "{team} ARE FALLING BEHIND! {over} OVERS GONE!"],
+        "grog": ["{diff} BEHIND AT {over} OVERS. TIME TO ACCELERATE.", "{runs} AFTER {over}. THE BACK END WILL BE BUSY."]
+      }
+    },
+    {
+      "situation": "chaseBoundaryPerOver",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["A BOUNDARY AN OVER NOW, OR THEY FALL BEHIND.", "{rrr} AN OVER. SINGLES WON'T DO IT."],
+        "lorry": ["THEY NEED A BOUNDARY EVERY OVER! EVERY ONE!", "{rrr} AN OVER! FIND THE ROPE!"],
+        "grog": ["AT {rrr}, THEY NEED A FOUR EVERY OVER. {overs} LEFT.", "SINGLES AND A BOUNDARY AN OVER. THAT'S THE PLAN."]
+      }
+    },
+    {
+      "situation": "phaseNewBall",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["A NEW BALL AFTER {overs} OVERS. SHINY.", "THE NEW BALL. THE BATTERS WILL NOTICE."],
+        "lorry": ["NEW BALL! HERE COMES THE SWING!", "THE NEW BALL'S HERE! LOOK OUT!"],
+        "grog": ["NEW BALL. EXPECT THE QUICKS AND A SLIP OR TWO.", "IT'LL COME ON QUICKER NOW. NEW BALL."]
+      }
+    },
+    {
+      "situation": "phaseReverse",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["THE OLD BALL HAS STARTED TO REVERSE.", "{overs} OVERS OLD, AND GOING THE OTHER WAY."],
+        "lorry": ["IT'S REVERSING! THE OLD BALL IS TALKING!", "REVERSE SWING! THIS COULD GET LIVELY!"],
+        "grog": ["REVERSE SWING NOW. FULL AND STRAIGHT IS THE PLAN.", "ONE SIDE ROUGH, ONE SIDE SHINY. IT'S REVERSING."]
+      }
+    },
+    {
+      "situation": "phaseTurn",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["THE PITCH HAS STARTED TO TURN.", "SOME DUST ABOUT NOW. THE SPINNERS WILL SMILE."],
+        "lorry": ["IT'S TURNING NOW! SPINNERS' TIME!", "LOOK AT THAT GRIP! THE PITCH IS BREAKING UP!"],
+        "grog": ["THE SURFACE IS WEARING. SPIN FROM BOTH ENDS, I'D SAY.", "IT'S TURNING. GET THE SPINNER ON."]
+      }
+    },
+    {
+      "situation": "phasePowerplayEnd",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{runs} FOR {wkts} FROM THE POWERPLAY.", "THE POWERPLAY ENDS. THE FIELD SPREADS."],
+        "lorry": ["{runs} FOR {wkts} IN THE POWERPLAY! WHAT A START!", "POWERPLAY DONE! NOW IT GETS HARDER!"],
+        "grog": ["{runs} FOR {wkts} AFTER {overs}. NOW FOR THE MIDDLE OVERS.", "FIELDERS BACK. SINGLES ARE THE CURRENCY NOW."]
+      }
+    },
+    {
+      "situation": "phaseLight",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["WE'RE INTO {light} NOW.", "THE LIGHT HAS CHANGED. SO MIGHT THE CRICKET."],
+        "lorry": ["{light}! WHAT A SIGHT!", "AND NOW {light}! LOVELY!"],
+        "grog": ["{light}. THE BALL CAN DO MORE NOW.", "A CHANGE OF LIGHT. HARDER TO PICK UP OFF THE HAND."]
+      }
+    },
+    {
+      "situation": "phaseLastOverBeforeBreak",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THE LAST OVER BEFORE {brk}.", "ONE MORE OVER, THEN {brk}."],
+        "lorry": ["LAST OVER BEFORE {brk}! DON'T GET OUT NOW!", "ONE MORE BEFORE {brk}! HANG ON!"],
+        "grog": ["LAST OVER BEFORE {brk}. A WICKET NOW WOULD BE GOLD.", "BATTERS JUST WANT TO SEE THIS ONE OUT BEFORE {brk}."]
+      }
+    }
+  ]
+}

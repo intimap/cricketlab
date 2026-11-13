@@ -47,6 +47,28 @@ const SAMPLE = {
   event: "A WIDE",
   extra: "",
   dismissal: "CAUGHT",
+  // The match memory's facts (sim/match-memory.js).
+  before: "48",
+  after: "71",
+  swing: "23",
+  toward: "bat",
+  balls: "34",
+  from: "41",
+  to: "68",
+  beaten: "3",
+  times: "2",
+  letoff: "THE MISSED RUN-OUT",
+  kind: "drop",
+  droppedOn: "12",
+  nowOn: "74",
+  cost: "62",
+  rrr: "12.5",
+  threshold: "12",
+  over: "30",
+  par: "152",
+  diff: "14",
+  light: "THE LIGHTS",
+  brk: "STUMPS",
 };
 // The wrap-up's result is a whole sentence.
 const SAMPLE_FOR = { wrapUp: { result: "AUSTRALIA WON BY 4 WICKETS" } };

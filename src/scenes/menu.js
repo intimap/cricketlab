@@ -15,7 +15,8 @@ import { updatePractice, drawPractice } from "./menu-practice.js";
 import { endTime } from "./match-light.js";
 import { ASSISTS, ASSIST_NAMES, assistSetting } from "./assists.js";
 import { EFFECTS, EFFECT_NAMES, DEFAULT_EFFECTS } from "../render/lighting.js";
-import { crtEnabled, setCrt } from "../engine/crt.js";
+import { CRT_PRESET_NAMES, crtPreset, cycleCrtPreset } from "../engine/crt-settings.js";
+import { screenRows, stepScreenRow, screenBlurb } from "./menu-screen.js";
 import { CONTROL_NAMES, controlsSetting, cycleControls } from "./bat-stick.js";
 
 const MODES = ["bat", "bowl"];
@@ -113,6 +114,7 @@ export class Menu {
   get rows() {
     const cfg = this.cfg;
     if (this.page === "teams") return [];
+    if (this.page === "screen") return screenRows();
     if (this.page === "setup") {
       // When play starts, and (in a Test or a long game) the time it goes on to.
       const end = endTime(cfg);
@@ -126,7 +128,7 @@ export class Menu {
         ["light", "TIME", time],
         ["assist", "ASSIST", ASSIST_NAMES[assistSetting()]],
         this.effectsRow,
-        ["screen", "SCREEN", crtEnabled() ? "CRT" : "SHARP"],
+        ["screen", "SCREEN", CRT_PRESET_NAMES[crtPreset()]],
         ["controls", "CONTROLS", CONTROL_NAMES[controlsSetting()]],
         ["start", "", "START  >"],
         ["back", "", "<  BACK"],
@@ -186,12 +188,17 @@ export class Menu {
         // Choosing AUTO again lets it try full effects afresh.
         save("effectsAuto", "full");
       }
-      if (key === "screen") setCrt(!crtEnabled());
+      if (key === "screen") cycleCrtPreset(dir);
+      if (this.page === "screen") stepScreenRow(key, dir);
       if (key === "controls") cycleControls(dir);
       if (key === "classic") cfg.classic = cycle(CLASSIC_IDS, cfg.classic, dir);
     }
     const go = keys.pressed("Enter") || keys.pressed("Space");
     if (keys.pressed("Escape") && this.page === "setup") return this.turn("teams");
+    // The SCREEN page: Enter on DONE (or Esc) goes back; Enter on SCREEN goes to it.
+    if (this.page === "screen" && (keys.pressed("Escape") || (go && key === "done"))) return this.turn("setup", "screen");
+    if (this.page === "screen") return;
+    if (go && key === "screen") return this.turn("screen", "crtPreset");
     if (!go) return;
     save("menu", cfg);
     sfx.click();
@@ -219,9 +226,11 @@ export class Menu {
     const cfg = this.cfg;
     const what = this.practice ? "PRACTICE" : typeOf(cfg).name;
     const heading =
-      { teams: this.practice ? "PRACTICE: WHO BATS, WHO BOWLS" : `${what}: CHOOSE THE TEAMS`, setup: `${what}: WHERE AND WHEN` }[
-        this.page
-      ] ?? "16-BIT TEST CRICKET  -  PROTOTYPE V0.1";
+      {
+        teams: this.practice ? "PRACTICE: WHO BATS, WHO BOWLS" : `${what}: CHOOSE THE TEAMS`,
+        setup: `${what}: WHERE AND WHEN`,
+        screen: "SCREEN: THE CRT LOOK",
+      }[this.page] ?? "16-BIT TEST CRICKET  -  PROTOTYPE V0.1";
     drawText(heading, WIDTH / 2, 78, { align: "center", color: COLORS.cream });
     if (this.page === "teams") return this.practice ? drawPractice(this) : drawTeams(this);
 
@@ -237,19 +246,28 @@ export class Menu {
       if (selected) fillRect(138, y - 4, 364, step - 1, "#24563a");
       drawText(label, 150, y, { color: COLORS.dim });
       const color = selected ? COLORS.gold : COLORS.cream;
-      if (!BUTTONS.has(key)) drawText(`< ${value} >`, 210, y, { color, align: "left" });
+      // The SCREEN page's labels are longer (BRIGHTNESS).
+      const valueX = this.page === "screen" ? 230 : 210;
+      if (!BUTTONS.has(key)) drawText(`< ${value} >`, valueX, y, { color, align: "left" });
       else drawText(value, 320, y, { color, align: "center" });
     });
+    const selectedKey = rows[this.sel]?.[0];
     const blurb =
-      this.page === "setup"
-        ? PITCH_TYPES[cfg.pitch].blurb
-        : cfg.format === "classic"
-          ? `${this.classic.blurb} YOU ${this.classic.human === "bat" ? "BAT" : "BOWL"}.`
-          : FORMATS[cfg.format].blurb;
+      this.page === "screen"
+        ? screenBlurb(selectedKey)
+        : this.page === "setup" && selectedKey === "screen"
+          ? "LEFT/RIGHT: A PRESET.  ENTER: ADJUST THE CRT PART BY PART"
+          : this.page === "setup"
+            ? PITCH_TYPES[cfg.pitch].blurb
+            : cfg.format === "classic"
+              ? `${this.classic.blurb} YOU ${this.classic.human === "bat" ? "BAT" : "BOWL"}.`
+              : FORMATS[cfg.format].blurb;
     wrapText(blurb, 60).forEach((line, i) =>
       drawText(line, 320, top + rows.length * step + 3 + i * 10, { align: "center", color: COLORS.dim }),
     );
 
+    // The SCREEN page leaves the picture behind clear, to see the look on.
+    if (this.page === "screen") return drawText("ARROWS + ENTER   ESC = BACK", 320, 330, { align: "center", color: COLORS.dim });
     drawPanel(40, 238, 560, 84, "#0d2318");
     const role = cfg.format === "classic" ? this.classic.human : cfg.mode;
     const help = [...(role === "bat" ? BAT_HELP : BOWL_HELP)];
@@ -269,4 +287,4 @@ export class Menu {
 }
 
 /** Rows that are pressed rather than changed with left and right. */
-const BUTTONS = new Set(["next", "start", "back", "scores"]);
+const BUTTONS = new Set(["next", "start", "back", "scores", "done"]);

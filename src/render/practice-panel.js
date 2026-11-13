@@ -2,8 +2,8 @@ import { COLORS, fillRect, drawPanel } from "../engine/screen.js";
 import { drawText, textWidth } from "../engine/text.js";
 
 /**
- * The practice settings panel: on the menu's practice page (scenes/menu-practice.js) and in a session's Esc
- * menu (scenes/practice-session.js). A title, then rows of label and value; the chosen row is lit, its value
+ * A settings panel: practice's, on the menu's practice page (scenes/menu-practice.js) and in a session's Esc
+ * menu (scenes/practice-session.js), and the Esc menu's SCREEN page (scenes/pause-screen.js). A title, then rows of label and value; the chosen row is lit, its value
  * between arrows. A row with no label is a button (DONE).
  *
  * rows: [key, label, value]; `sel` the chosen row; `step` the rows' spacing.

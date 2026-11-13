@@ -93,6 +93,8 @@ export function endReview(scene) {
   const won = cur.reviewBy === "bat" ? !out : out;
   // Umpire's call: the on-field decision stands and the review is kept.
   if (!won && t.verdict !== "umpiresCall") scene.inn.reviews[cur.reviewBy]--;
+  // The bowlers' review lost: the batter survives, a let-off for the match memory.
+  cur.lostReview = !won && t.verdict !== "umpiresCall" && cur.reviewBy === "bowl";
   beats.onVerdict(scene, { onField: cur.onField, out, verdict: t.verdict });
   cur.onField = out;
   scene.endDecision();

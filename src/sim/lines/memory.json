@@ -1,0 +1,866 @@
+{
+  "about": "The match memory's moments (sim/match-memory.js): turning points, duels, let-offs, the chase's equation and the phases of the game. The first group for each is two sample lines a voice; the rest are the five scene moments' lines (plain, interesting, unorthodox). Add more freely.",
+  "groups": [
+    {
+      "situation": "turningPoint",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THAT MAY BE THE BALL WE TALK ABOUT LATER.", "THE MATCH HAS JUST LEANED. QUITE A LOT."],
+        "lorry": ["THAT COULD BE THE TURNING POINT! WHAT A MOMENT!", "EVERYTHING JUST CHANGED! {team} WILL FEEL THAT!"],
+        "grog": ["THAT SHIFTS THE BALANCE. {team} WERE {before} PER CENT, NOW {after}.", "ONE BALL, AND THE PLANS ALL CHANGE."]
+      }
+    },
+    {
+      "situation": "partnershipSwing",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THIS STAND OF {stand} HAS QUIETLY MOVED THE MATCH.", "{stand} TOGETHER. THE GAME LOOKS DIFFERENT NOW."],
+        "lorry": ["{stand} RUNS TOGETHER! THEY'VE TURNED THIS AROUND!", "WHAT A PARTNERSHIP! {stand} OFF {balls}!"],
+        "grog": ["{stand} OFF {balls} BALLS. THE BOWLERS NEED A NEW IDEA.", "THIS PAIR HAS CHANGED THE SHAPE OF THE GAME."]
+      }
+    },
+    {
+      "situation": "duelBeaten",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["{w} HAS BEATEN {b} {beaten} TIMES NOW.", "{b} AND {w}. ONE OF THEM IS ENJOYING THIS MORE."],
+        "lorry": ["BEATEN AGAIN! {w} HAS {b} ON A STRING!", "{beaten} TIMES {w} HAS GONE PAST THE EDGE!"],
+        "grog": [
+          "{w} HAS FOUND {b}'S WEAK SPOT. {beaten} PLAYS AND MISSES.",
+          "SAME LINE, SAME RESULT. {w} WILL KEEP GOING THERE."
+        ]
+      }
+    },
+    {
+      "situation": "duelDominance",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["{b} HAS {runs} OFF {w} FROM {balls} BALLS.", "{w} MAY BE SEEING {b} IN HIS SLEEP."],
+        "lorry": ["{runs} OFF {balls} AGAINST {w}! {b} OWNS HIM!", "{b} JUST LOVES FACING {w}!"],
+        "grog": ["{runs} FROM {balls}. {w} NEEDS A DIFFERENT PLAN.", "TIME TO TAKE {w} OFF AGAINST {b}, I'D SAY."]
+      }
+    },
+    {
+      "situation": "duelRepeatDismissal",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["{w} HAS HIM AGAIN. THAT'S {times} TIMES.", "{b} WON'T BE SENDING {w} A CARD."],
+        "lorry": ["HE'S GOT HIM AGAIN! {times} TIMES THIS MATCH!", "{w} HAS {b}'S NUMBER!"],
+        "grog": ["{times} TIMES NOW. {w} KNOWS EXACTLY WHERE TO BOWL.", "SAME BOWLER, SAME BATTER, SAME ENDING."]
+      }
+    },
+    {
+      "situation": "duelDotSqueeze",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["{dots} DOTS IN A ROW FROM {w} TO {b}.", "{b} HASN'T SCORED OFF {w} IN A WHILE."],
+        "lorry": ["{dots} DOTS! {w} IS SQUEEZING HIM!", "NOTHING DOING! {b} CAN'T GET {w} AWAY!"],
+        "grog": ["{dots} DOTS. {w} IS BUILDING THE PRESSURE NICELY.", "{b} NEEDS TO ROTATE THE STRIKE AGAINST {w}."]
+      }
+    },
+    {
+      "situation": "letoffCost",
+      "kind": "players",
+      "lines": {
+        "bunnings": ["{b} WAS ON {droppedOn} AT {letoff}. HE'S {nowOn} NOW.", "{letoff} HAS COST {cost} RUNS SO FAR."],
+        "lorry": ["{cost} RUNS SINCE {letoff}! THAT'S HURTING!", "{b} WAS ON {droppedOn}! NOW HE'S {nowOn}!"],
+        "grog": ["{letoff} ON {droppedOn}. {cost} RUNS LATER, IT MATTERS.", "THAT'S {cost} SINCE {letoff}. CHANCES COST."]
+      }
+    },
+    {
+      "situation": "chaseRrrThreshold",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THE RATE HAS CLIMBED PAST {threshold} AN OVER.", "{need} OFF {left}. THE ASKING RATE IS {rrr}."],
+        "lorry": ["OVER {threshold} AN OVER NOW! THIS IS GETTING TIGHT!", "THEY NEED {rrr} AN OVER! COME ON!"],
+        "grog": ["{rrr} AN OVER. THEY CAN'T WAIT MUCH LONGER.", "PAST {threshold} AN OVER. SOMEONE HAS TO GO."]
+      }
+    },
+    {
+      "situation": "chaseCheckpoint",
+      "case": "ahead",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{runs} AFTER {over} OVERS. {diff} AHEAD OF THE PACE.", "AFTER {over}, {team} ARE ON TRACK."],
+        "lorry": ["{diff} AHEAD OF THE RATE AFTER {over}! LOVELY STUFF!", "{team} ARE WELL IN THIS AFTER {over} OVERS!"],
+        "grog": ["{over} OVERS GONE, {runs} ON THE BOARD. GOOD PLATFORM.", "AHEAD BY {diff}. NOW DON'T THROW IT AWAY."]
+      }
+    },
+    {
+      "situation": "chaseCheckpoint",
+      "case": "behind",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{runs} AFTER {over} OVERS. {diff} BEHIND THE PACE.", "AFTER {over}, {team} HAVE WORK TO DO."],
+        "lorry": ["{diff} BEHIND AFTER {over}! THEY'VE GOT TO GO!", "{team} ARE FALLING BEHIND! {over} OVERS GONE!"],
+        "grog": ["{diff} BEHIND AT {over} OVERS. TIME TO ACCELERATE.", "{runs} AFTER {over}. THE BACK END WILL BE BUSY."]
+      }
+    },
+    {
+      "situation": "chaseBoundaryPerOver",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["A BOUNDARY AN OVER NOW, OR THEY FALL BEHIND.", "{rrr} AN OVER. SINGLES WON'T DO IT."],
+        "lorry": ["THEY NEED A BOUNDARY EVERY OVER! EVERY ONE!", "{rrr} AN OVER! FIND THE ROPE!"],
+        "grog": ["AT {rrr}, THEY NEED A FOUR EVERY OVER. {overs} LEFT.", "SINGLES AND A BOUNDARY AN OVER. THAT'S THE PLAN."]
+      }
+    },
+    {
+      "situation": "phaseNewBall",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["A NEW BALL AFTER {overs} OVERS. SHINY.", "THE NEW BALL. THE BATTERS WILL NOTICE."],
+        "lorry": ["NEW BALL! HERE COMES THE SWING!", "THE NEW BALL'S HERE! LOOK OUT!"],
+        "grog": ["NEW BALL. EXPECT THE QUICKS AND A SLIP OR TWO.", "IT'LL COME ON QUICKER NOW. NEW BALL."]
+      }
+    },
+    {
+      "situation": "phaseReverse",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["THE OLD BALL HAS STARTED TO REVERSE.", "{overs} OVERS OLD, AND GOING THE OTHER WAY."],
+        "lorry": ["IT'S REVERSING! THE OLD BALL IS TALKING!", "REVERSE SWING! THIS COULD GET LIVELY!"],
+        "grog": ["REVERSE SWING NOW. FULL AND STRAIGHT IS THE PLAN.", "ONE SIDE ROUGH, ONE SIDE SHINY. IT'S REVERSING."]
+      }
+    },
+    {
+      "situation": "phaseTurn",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["THE PITCH HAS STARTED TO TURN.", "SOME DUST ABOUT NOW. THE SPINNERS WILL SMILE."],
+        "lorry": ["IT'S TURNING NOW! SPINNERS' TIME!", "LOOK AT THAT GRIP! THE PITCH IS BREAKING UP!"],
+        "grog": ["THE SURFACE IS WEARING. SPIN FROM BOTH ENDS, I'D SAY.", "IT'S TURNING. GET THE SPINNER ON."]
+      }
+    },
+    {
+      "situation": "phasePowerplayEnd",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["{runs} FOR {wkts} FROM THE POWERPLAY.", "THE POWERPLAY ENDS. THE FIELD SPREADS."],
+        "lorry": ["{runs} FOR {wkts} IN THE POWERPLAY! WHAT A START!", "POWERPLAY DONE! NOW IT GETS HARDER!"],
+        "grog": ["{runs} FOR {wkts} AFTER {overs}. NOW FOR THE MIDDLE OVERS.", "FIELDERS BACK. SINGLES ARE THE CURRENCY NOW."]
+      }
+    },
+    {
+      "situation": "phaseLight",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["WE'RE INTO {light} NOW.", "THE LIGHT HAS CHANGED. SO MIGHT THE CRICKET."],
+        "lorry": ["{light}! WHAT A SIGHT!", "AND NOW {light}! LOVELY!"],
+        "grog": ["{light}. THE BALL CAN DO MORE NOW.", "A CHANGE OF LIGHT. HARDER TO PICK UP OFF THE HAND."]
+      }
+    },
+    {
+      "situation": "phaseLastOverBeforeBreak",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THE LAST OVER BEFORE {brk}.", "ONE MORE OVER, THEN {brk}."],
+        "lorry": ["LAST OVER BEFORE {brk}! DON'T GET OUT NOW!", "ONE MORE BEFORE {brk}! HANG ON!"],
+        "grog": ["LAST OVER BEFORE {brk}. A WICKET NOW WOULD BE GOLD.", "BATTERS JUST WANT TO SEE THIS ONE OUT BEFORE {brk}."]
+      }
+    },
+    {
+      "situation": "turningPoint",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          {
+            "text": "THAT'S THE MOMENT. {b} GONE, AND WITH HIM {team}'S GRIP.",
+            "when": {
+              "toward": "bowl"
+            }
+          },
+          "THE GAME HAS SHIFTED.",
+          {
+            "text": "A BIG WICKET. A VERY BIG WICKET.",
+            "when": {
+              "toward": "bowl"
+            }
+          },
+          {
+            "text": "{team} ARE ON TOP NOW.",
+            "when": {
+              "toward": "bat"
+            }
+          },
+          {
+            "text": "TEN MINUTES AGO THAT LOOKED COMFORTABLE. NOT ANY MORE.",
+            "when": {
+              "toward": "bowl"
+            }
+          },
+          "THE SCOREBOARD SAYS {score}. IT DOESN'T TELL YOU THAT THE MATCH HAS TURNED.",
+          {
+            "text": "{w} HAS BEEN BUILDING TO THAT WICKET FOR THREE OVERS.",
+            "when": {
+              "toward": "bowl"
+            }
+          },
+          "YOU COULD HEAR THE CROWD CHANGE THEIR MINDS.",
+          "SOMEWHERE, A SCORER HAS UNDERLINED THAT BALL TWICE.",
+          "AND THE PENDULUM, WHICH HAD BEEN RESTING, SWINGS.",
+          "HISTORY TENDS TO REMEMBER THE HUNDRED. IT SHOULD REMEMBER THIS.",
+          "IF YOU WERE MAKING A CUP OF TEA, YOU MISSED THE MATCH.",
+          "MARVELLOUS. QUIETLY, COMPLETELY MARVELLOUS."
+        ],
+        "lorry": [
+          {
+            "text": "GOT HIM! THAT COULD BE THE MATCH!",
+            "when": {
+              "toward": "bowl"
+            }
+          },
+          "MOMENTUM'S SWUNG, BIG TIME!",
+          {
+            "text": "{w} HAS RIPPED THE HEART OUT OF THIS CHASE!",
+            "when": {
+              "toward": "bowl"
+            }
+          },
+          "HUGE MOMENT, AND {team} KNOW IT!",
+          {
+            "text": "THEY WERE CRUISING, NOW THEY'RE IN A WORLD OF TROUBLE!",
+            "when": {
+              "toward": "bowl"
+            }
+          },
+          {
+            "text": "ONE BALL, THE WHOLE TEST FLIPPED ON ITS HEAD!",
+            "formats": ["test"]
+          },
+          {
+            "text": "THE DRESSING ROOM'S GONE VERY QUIET, I CAN TELL YOU!",
+            "when": {
+              "toward": "bowl"
+            }
+          },
+          {
+            "text": "THAT'S THE WICKET THEY'VE BEEN PRAYING FOR ALL SESSION!",
+            "when": {
+              "toward": "bowl"
+            }
+          },
+          "SOMEBODY CHECK THE SEISMOGRAPH, THE GROUND JUST MOVED!",
+          {
+            "text": "THAT'S NOT A WICKET, THAT'S A PLOT TWIST!",
+            "when": {
+              "toward": "bowl"
+            }
+          },
+          "THEY'LL BE MAKING A MINI-SERIES ABOUT THAT BALL!",
+          "I JUST AGED TEN YEARS, AND I LOVED EVERY SECOND!",
+          "HOLD ONTO YOUR PIES, THIS MATCH HAS GONE MAD!"
+        ],
+        "grog": [
+          {
+            "text": "SET BATTER'S OUT. THAT'S THE DAMAGE.",
+            "when": {
+              "toward": "bowl"
+            }
+          },
+          {
+            "text": "THAT'S THE WICKET THEY NEEDED.",
+            "when": {
+              "toward": "bowl"
+            }
+          },
+          {
+            "text": "LOSE HIM THERE AND THE TAIL'S EXPOSED.",
+            "when": {
+              "toward": "bowl"
+            }
+          },
+          {
+            "text": "TWO NEW BATTERS IN THE MIDDLE NOW. BOWL STRAIGHT, KEEP THE FIELD UP.",
+            "when": {
+              "toward": "bowl"
+            }
+          },
+          {
+            "text": "WIN THIS SESSION, WIN THE TEST. THEY JUST WON IT.",
+            "formats": ["test"]
+          },
+          {
+            "text": "BOWLING SIDE'S OUT OF PLANS. CAPTAIN NEEDS SOMETHING NEW.",
+            "when": {
+              "toward": "bat"
+            }
+          },
+          {
+            "text": "THEY GOT ONE WICKET AND TWO PLANS WORKED STRAIGHT AWAY.",
+            "when": {
+              "toward": "bowl"
+            }
+          },
+          "COACH IN THE ROOMS JUST CLOSED HIS LAPTOP.",
+          {
+            "text": "THAT WICKET'S WORTH FIFTY RUNS ON THE BOARD.",
+            "when": {
+              "toward": "bowl"
+            }
+          },
+          "I'D HAVE THAT BALL FRAMED FOR THE DRESSING ROOM.",
+          "WAKE THE TWELFTH MAN UP, IT'S ON NOW."
+        ]
+      }
+    },
+    {
+      "situation": "partnershipSwing",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "{stand} TOGETHER. CONTROL HAS CHANGED HANDS.",
+          {
+            "text": "PARTNERSHIPS LIKE THIS ONE DON'T SHOW UP IN THE HIGHLIGHTS, BUT THEY DECIDE TESTS.",
+            "formats": ["test"]
+          }
+        ],
+        "lorry": ["{stand} UP AND THEY'VE SNATCHED IT BACK!", "THIS STAND HAS TAKEN THE GAME RIGHT OUT OF THE BOWLERS' HANDS!"],
+        "grog": [
+          "THIS STAND'S TAKEN THE GAME AWAY.",
+          "THEY'RE AHEAD NOW. NOBODY NOTICED.",
+          "THAT'S {stand} TOGETHER WITH NO FUSS, AND THAT'S WHAT HURTS THE BOWLERS.",
+          "NOBODY WILL NOTICE HOW THEY WON THIS UNTIL THEY WATCH IT BACK."
+        ]
+      }
+    },
+    {
+      "situation": "duelBeaten",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": [
+          "BEATEN AGAIN. THAT'S {beaten} TIMES NOW.",
+          "{w} WILL ENJOY THAT.",
+          "{b} LOOKS AT {w} THE WAY MOST OF US LOOK AT A TAX RETURN.",
+          "A CONTEST WITHIN THE CONTEST, AND ONLY ONE MAN'S WINNING IT.",
+          "HE'S PLAYED AND MISSED {beaten} TIMES. HE HASN'T BEEN OUT YET.",
+          "{w} HAS BOWLED {balls} BALLS TO HIM. HE'S YET TO BE FORGIVEN.",
+          "THE BAT AND THE BALL HAVE NOW BEEN INTRODUCED {beaten} TIMES. NO CONTACT.",
+          "ONE SUSPECTS {w} DREAMS IN OUTSWINGERS TO {b}."
+        ],
+        "lorry": [
+          "HE'S BEATEN HIM AGAIN!",
+          "WHAT A BATTLE THIS IS!",
+          "EVERY TIME {w} COMES ON, {b} GOES PALE!",
+          "BEATEN, BEATEN, BEATEN, HOW IS HE STILL IN?!",
+          "{b}'S BAT MIGHT AS WELL BE A BROOMSTICK AGAINST THIS BLOKE!"
+        ],
+        "grog": [
+          "CAN'T PICK THE ONE GOING AWAY.",
+          "BOWLER'S WINNING THAT BATTLE.",
+          "KEEP {w} ON. ONE MORE OVER AND HE'LL GET HIM.",
+          "CHANGE THE ANGLE, GO ROUND THE WICKET, HE'S GOT HIM THERE.",
+          "GIVE {b} A SIGHT SCREEN AND A BLINDFOLD, SAME RESULT."
+        ]
+      }
+    },
+    {
+      "situation": "duelDominance",
+      "kind": "shot",
+      "lines": {
+        "bunnings": ["{runs} OFF {balls} FROM {w}.", "SOME RIVALRIES ARE MADE IN HEAVEN. THIS ONE, AT THE TOP OF THE MARK."],
+        "lorry": [
+          "{b} IS TREATING {w} LIKE A NET BOWLER!",
+          "{runs} OFF {balls}, HE'S TAKING HIM APART!",
+          "{b} HAS DECIDED THIS IS HIS BOWLER TO GO AFTER!",
+          "GET THESE TWO A BOXING RING!"
+        ],
+        "grog": ["{w}'S GONE FOR {runs}. TAKE HIM OFF.", "{b}'S DECIDED HE'S THE TARGET. SMART, ACTUALLY."]
+      }
+    },
+    {
+      "situation": "duelRepeatDismissal",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": [
+          "TWICE IN THE MATCH NOW. {w} HAS HIS NUMBER.",
+          "SAME BOWLER, SAME BATTER, SAME RESULT.",
+          "THEY MIGHT EXCHANGE CHRISTMAS CARDS AFTER THIS. PERHAPS NOT."
+        ],
+        "lorry": [
+          {
+            "text": "GOT HIM IN BOTH INNINGS!",
+            "formats": ["test"]
+          },
+          {
+            "text": "SECOND INNINGS, SAME TRAP, SAME RESULT, UNBELIEVABLE!",
+            "formats": ["test"]
+          },
+          "{w}'S GOT A VOODOO DOLL IN HIS POCKET, SURELY!",
+          "THIS FEUD'S GONNA OUTLIVE BOTH OF US!"
+        ],
+        "grog": [
+          {
+            "text": "SAME DISMISSAL AS THE FIRST INNINGS.",
+            "formats": ["test"]
+          },
+          "PUT {w} ON AT THE OTHER END TOO, I DON'T CARE.",
+          "HE'LL BE WATCHING THAT FOOTAGE AT THREE IN THE MORNING.",
+          "THAT'S NOT A DUEL, THAT'S AN OWNERSHIP ARRANGEMENT.",
+          "PAY {w} BY THE {b}."
+        ]
+      }
+    },
+    {
+      "situation": "duelDotSqueeze",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["{dots} DOTS IN A ROW.", "{b} IS SCORING OFF EVERYONE EXCEPT {w}."],
+        "lorry": ["{dots} DOTS AND THE CROWD'S RESTLESS!", "SOMEBODY GIVE {b} A MAP, HE'S LOST!"],
+        "grog": [
+          "HE'S TIED DOWN. SOMEONE HAS TO BREAK THAT.",
+          "HE'S DONE NOTHING WITH THE FEET. HE'S FROZEN IN THE CREASE AGAINST THIS BLOKE.",
+          "{dots} DOTS MEANS HE'LL TRY SOMETHING SILLY NEXT BALL."
+        ]
+      }
+    },
+    {
+      "situation": "letoffCost",
+      "kind": "players",
+      "lines": {
+        "bunnings": [
+          {
+            "text": "DROPPED ON {droppedOn}. HE'S {nowOn} NOW.",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          "THAT MISS HAS COST {cost}.",
+          "A REPRIEVE, WELL USED.",
+          "EXPENSIVE.",
+          {
+            "text": "AND THE LET-OFF ENDS AT {nowOn}.",
+            "when": {
+              "ended": "yes"
+            }
+          },
+          {
+            "text": "{fielder} WILL BE REMINDED OF THAT ONE AT DINNER.",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "{cost} RUNS. THAT CATCH WOULD HAVE CHANGED EVERYTHING.",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "THE REVIEW THEY WASTED WOULD HAVE BEEN HANDY RIGHT ABOUT NOW.",
+            "when": {
+              "kind": "wastedReview"
+            }
+          },
+          {
+            "text": "A MISSED RUN-OUT ON {droppedOn}. THE STUMPS WERE VERY MUCH AVAILABLE.",
+            "when": {
+              "kind": "missedRunOut"
+            }
+          },
+          {
+            "text": "EVERY RUN SINCE {droppedOn} BELONGS, IN A SENSE, TO {fielder}.",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "SOMEWHERE, {fielder} IS QUIETLY CALCULATING HIS SHARE OF THE HUNDRED.",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "ONE SHOULD NEVER DROP A MAN WHO IS ON {droppedOn}. OR ON ANYTHING.",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "THAT CATCH IS STILL UP THERE, IN A MANNER OF SPEAKING.",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "THE SCORERS OUGHT TO CREDIT {fielder} WITH AN ASSIST.",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          "LIFE IS SHORT. HIS SECOND ONE HAS BEEN RATHER LONG."
+        ],
+        "lorry": [
+          {
+            "text": "DROPPED ON {droppedOn}, NOW {nowOn}!",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "THAT'S {cost} RUNS OFF ONE SPILL!",
+            "when": {
+              "kind": "drop",
+              "ended": "no"
+            }
+          },
+          {
+            "text": "RUBBING SALT IN IT NOW!",
+            "when": {
+              "ended": "no"
+            }
+          },
+          {
+            "text": "SHOULD'VE BEEN GONE AGES AGO!",
+            "when": {
+              "ended": "no"
+            }
+          },
+          {
+            "text": "GOT HIM FINALLY, {cost} TOO LATE!",
+            "when": {
+              "ended": "yes"
+            }
+          },
+          {
+            "text": "{fielder}'S HIDING AT FINE LEG AND I DON'T BLAME HIM!",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "EVERY BOUNDARY NOW IS ANOTHER DAGGER!",
+            "when": {
+              "ended": "no"
+            }
+          },
+          {
+            "text": "THE WASTED REVIEW, OH, THEY'D KILL FOR IT NOW!",
+            "when": {
+              "kind": "wastedReview"
+            }
+          },
+          {
+            "text": "MISSED RUN-OUT, AND HE'S GONE ON TO {nowOn}!",
+            "when": {
+              "kind": "missedRunOut"
+            }
+          },
+          {
+            "text": "SECOND LIFE AND HE'S PARTYING LIKE IT'S HIS BIRTHDAY!",
+            "when": {
+              "ended": "no"
+            }
+          },
+          {
+            "text": "SOMEONE SEND {fielder} A BUCKET AND SOME GLUE!",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "THAT DROPPED CATCH HAS ITS OWN FAN CLUB NOW!",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "HE'S ON HIS NINTH LIFE, HE'S A CAT WITH PADS ON!",
+            "when": {
+              "ended": "no"
+            }
+          },
+          {
+            "text": "{fielder}'S GONNA GET A BILL FOR {cost} RUNS IN THE MAIL!",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "I'D BUY THAT DROP A BEER, IT'S HAD A BIG DAY!",
+            "when": {
+              "kind": "drop"
+            }
+          }
+        ],
+        "grog": [
+          {
+            "text": "CATCHES WIN MATCHES. THAT'S COST {cost}.",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "HIT THE STUMPS, MATE.",
+            "when": {
+              "kind": "missedRunOut"
+            }
+          },
+          {
+            "text": "BURNED A REVIEW, NOTHING LEFT.",
+            "when": {
+              "kind": "wastedReview"
+            }
+          },
+          "SECOND CHANCES MAKE HUNDREDS.",
+          {
+            "text": "GONE FOR {nowOn}. SHOULD'VE BEEN {droppedOn}.",
+            "when": {
+              "ended": "yes"
+            }
+          },
+          "YOU CAN'T GIVE A GOOD PLAYER LIVES. HE'LL MAKE YOU PAY EVERY TIME.",
+          {
+            "text": "THAT DROP'S THE DIFFERENCE IN THIS MATCH, I RECKON.",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "WASTED REVIEW EARLY, NOW THEY'VE GOT TO COP THE BAD DECISIONS.",
+            "when": {
+              "kind": "wastedReview"
+            }
+          },
+          {
+            "text": "FIELDING DRILLS TOMORROW AT SEVEN. GUARANTEED.",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          "{cost} RUNS. THAT'S A WHOLE SESSION'S WORK THROWN AWAY.",
+          {
+            "text": "PUT {fielder} AT SHORT LEG. MAKE HIM EARN IT BACK.",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "THAT CATCH WOULD'VE BEEN THE CHEAPEST {cost} RUNS THEY EVER SAVED.",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "SIGN HIM UP, HE'S THE BATTER'S BEST PLAYER.",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "I'VE SEEN SAFER HANDS ON A CLOCK.",
+            "when": {
+              "kind": "drop"
+            }
+          },
+          {
+            "text": "FINE HIM A CARTON FOR EVERY TEN RUNS SINCE.",
+            "when": {
+              "kind": "drop"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "situation": "chaseRrrThreshold",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "THEY NEED {rrr} AN OVER.",
+          "{need} FROM {left}.",
+          "WICKETS IN HAND. THAT'S THE COMFORT.",
+          "THE RATE HAS CREPT UP WHILE NOBODY WAS LOOKING.",
+          "THE ARITHMETIC IS UNFORGIVING, AND IT NEVER TAKES A DAY OFF.",
+          "{need} RUNS. MERELY A MATTER OF MAKING THEM.",
+          "MATHEMATICS, IT TURNS OUT, IS A SPECTATOR SPORT."
+        ],
+        "lorry": [
+          "OVER {rrr} AN OVER, IT'S TIGHT!",
+          {
+            "text": "TWO A BALL!",
+            "when": {
+              "threshold": [12, 15]
+            }
+          },
+          "{need} TO GET, CLOCK'S TICKING!",
+          "THE RATE'S CLIMBING LIKE A KITE IN A SOUTHERLY!",
+          "GET ME A CALCULATOR AND A DEFIBRILLATOR!",
+          "THE RUN RATE'S DOING THE MEXICAN WAVE!",
+          "{need} OFF {left}, I'VE SEEN GROCERY BILLS SCARIER!"
+        ],
+        "grog": [
+          "RATE'S AT {rrr}.",
+          "FIELD'S SPREAD. FIND THE TWOS, NOT THE SIXES.",
+          "RATE'S A LIAR. WICKETS IN HAND DECIDE THIS."
+        ]
+      }
+    },
+    {
+      "situation": "chaseCheckpoint",
+      "case": "ahead",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["AHEAD OF THE RATE."],
+        "lorry": [
+          "WELL AHEAD OF THE RATE!",
+          "THIS CHASE IS ALIVE, FOLKS!",
+          "THEY'RE {diff} AHEAD OF PAR AND LOVING IT!",
+          "RUN A BALL AND THEY'RE IN CONTROL, JUST KEEP GOING!"
+        ],
+        "grog": [
+          "AHEAD. DON'T LOSE WICKETS.",
+          "RUN A BALL'S FINE WITH WICKETS IN HAND. DON'T PANIC.",
+          "AHEAD OF THE RATE, SO BOWL TIGHT AND LET THEM MAKE THE MISTAKE."
+        ]
+      }
+    },
+    {
+      "situation": "chaseCheckpoint",
+      "case": "behind",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "BEHIND THE RATE.",
+          "THE SCOREBOARD IS NOT THEIR FRIEND AT THE MOMENT.",
+          "{diff} BEHIND WHERE THEY'D LIKE TO BE. NOT FATAL, BUT NOT IDEAL.",
+          "ONE COULD SAY THE CHASE IS ON. ONE COULD ALSO SAY IT'S LEAVING."
+        ],
+        "lorry": ["SOMEBODY TELL THE BATTERS THE BUS LEAVES SOON!"],
+        "grog": [
+          "{diff} BEHIND PAR.",
+          "DOTS ARE KILLING THEM.",
+          "THEY'VE LET IT DRIFT. SOMEONE HAS TO TAKE A RISK NOW.",
+          "I'D SEND THE TAILENDER IN TO HIT, HONESTLY.",
+          {
+            "text": "MAKE IT A T20 FOR FIVE OVERS AND SEE WHAT HAPPENS.",
+            "formats": ["odi"]
+          }
+        ]
+      }
+    },
+    {
+      "situation": "chaseBoundaryPerOver",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["A BOUNDARY AN OVER, NOW.", "SINGLES ARE NO LONGER ENOUGH.", "SOMEWHERE A CALCULATOR IS GETTING VERY WARM."],
+        "lorry": [
+          "SINGLES WON'T DO IT!",
+          "FOURS NEEDED EVERY OVER, CAN THEY DO IT?!",
+          "STRAP IN, THE EQUATION'S JUST PUT THE BOOT DOWN!"
+        ],
+        "grog": [
+          "NEED A BOUNDARY AN OVER.",
+          "ONE BIG OVER FIXES ALL THIS. PICK YOUR BOWLER.",
+          "CHUCK THE BOWLING PLANS OUT, IT'S A SLOG NOW.",
+          "SOMEBODY'S GOTTA HIT ONE INTO THE CAR PARK."
+        ]
+      }
+    },
+    {
+      "situation": "phaseNewBall",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": ["NEW BALL TAKEN.", "A FRESH BALL, AND A FRESH SET OF PROBLEMS FOR THE BATTERS."],
+        "lorry": ["NEW BALL, LOOK OUT!", "SHINY NEW CHERRY AND THE QUICKS ARE LICKING THEIR LIPS!"],
+        "grog": ["NEW BALL, QUICKS ON.", "NEW BALL, ATTACK THE STUMPS, TWO SLIPS AND A GULLY."]
+      }
+    },
+    {
+      "situation": "phaseReverse",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": [
+          "THAT'S REVERSING.",
+          "THE ROUGH SIDE'S STARTING TO WORK. OLD-BALL SKILLS NOW.",
+          "THE BALL HAS GONE SOFT. RATHER LIKE THE BATTING.",
+          "A REVERSE-SWINGING BALL DOES WHAT IT LIKES. MOST UNSPORTING."
+        ],
+        "lorry": ["REVERSE SWING!", "IT'S GOING THE WRONG WAY, THE BATTERS CAN'T READ IT!", "THAT BALL'S GONE ROGUE!"],
+        "grog": [
+          "REVERSE IS HERE.",
+          "REVERSE IS HERE. PITCH IT UP, TARGET THE PADS.",
+          "REVERSE MEANS THE BATTERS CAN'T TELL WHICH WAY IT'LL GO. USE IT."
+        ]
+      }
+    },
+    {
+      "situation": "phaseTurn",
+      "kind": "bowling",
+      "lines": {
+        "bunnings": [
+          "TURNING NOW.",
+          "THE PITCH IS STARTING TO TURN. THE SPINNER LOOKS INTERESTED.",
+          "THE PITCH HAS STARTED TO TALK. IT HAS A LOT TO SAY."
+        ],
+        "lorry": ["THAT SPUN A MILE!", "DUST IS FLYING, SPINNERS' PARADISE!", "THE PITCH HAS TURNED INTO A BEACH!"],
+        "grog": [
+          "IT'S TURNING, SPINNER ON.",
+          "IT'S SPINNING OUT OF THE ROUGH. BOWL INTO IT, DON'T OVERTHINK IT.",
+          "GET THE PART-TIMER ON AND ROLL THE DICE."
+        ]
+      }
+    },
+    {
+      "situation": "phasePowerplayEnd",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["POWERPLAY DONE."],
+        "lorry": ["POWERPLAY'S OVER!", "FIELDERS BACK, THE GAPS HAVE PACKED UP AND LEFT!"],
+        "grog": ["FIELD'S BACK."]
+      }
+    },
+    {
+      "situation": "phaseLight",
+      "kind": "match",
+      "lines": {
+        "bunnings": ["THE LIGHT IS FADING, AND SO, PERHAPS, IS THE BATTING.", "THE SHADOWS ARE LENGTHENING. SO IS THE FIELD."],
+        "lorry": [
+          {
+            "text": "THE LIGHTS ARE ON AND THE BALL'S SWINGING EVEN MORE!",
+            "when": {
+              "light": "THE LIGHTS"
+            }
+          },
+          {
+            "text": "LIGHTS ON AND IT'S A DISCO OUT THERE!",
+            "when": {
+              "light": "THE LIGHTS"
+            }
+          }
+        ],
+        "grog": [
+          "LIGHT'S CHANGED. BOWL THE QUICK GUY NOW WHILE IT'S HARD TO SEE.",
+          "CAPTAIN SHOULD BE LOOKING AT THE SKY, NOT THE FIELD.",
+          "BOWL A BOUNCER FIRST BALL AFTER THE CHANGE AND SAY HELLO."
+        ]
+      }
+    },
+    {
+      "situation": "phaseLastOverBeforeBreak",
+      "kind": "match",
+      "lines": {
+        "bunnings": [
+          "LAST OVER BEFORE {brk}.",
+          "ONE OVER TO SURVIVE BEFORE {brk}. EASIER SAID.",
+          "SURVIVE THIS OVER AND {brk} WILL FEEL LIKE A HOLIDAY."
+        ],
+        "lorry": [
+          "ONE OVER TO {brk}!",
+          "ONE OVER TO SEE OFF BEFORE {brk}, CAN HE HANG ON?!",
+          "LAST OVER BEFORE {brk}, SOMEONE HIDE THE SNACKS!"
+        ],
+        "grog": [
+          "SEE OUT THE OVER.",
+          "LAST OVER BEFORE {brk}. DEFEND EVERYTHING, KEEP YOUR WICKET.",
+          {
+            "text": "NIGHTWATCHMAN? SEND IN THE TOUGHEST BLOKE YOU'VE GOT.",
+            "when": {
+              "brk": "STUMPS"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

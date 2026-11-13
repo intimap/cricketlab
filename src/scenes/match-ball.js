@@ -23,6 +23,7 @@ import { act } from "./player-actions.js";
 import { readWord } from "../sim/plans.js";
 import { rainDue, openRain, stopForRain } from "./match-rain.js";
 import { updateLight } from "./match-light.js";
+import { rememberBall } from "./broadcast-commentary.js";
 
 /** How long (real s) before the computer lets go the length cue flashes, batting (assists.js cue). */
 export const LENGTH_CUE = 0.5;
@@ -358,6 +359,8 @@ export function simulate(scene, overs) {
   scene.simLines = [];
   for (let i = 0; !inn.isOver && inn.overNo < until && i++ < 2000; ) {
     const { rec, applied } = scene.match.simBall();
+    // Remembered, not said: a simulated passage still counts for the duels and the chase.
+    rememberBall(scene, { rec }, { quiet: true });
     if (rec.wicket || rec.boundary || applied.milestones.length || applied.overEnded) {
       const result = rec.wicket ? "OUT! " + rec.wicket.text : rec.boundary ? rec.boundary + "!" : rec.total;
       let line = `${rec.over}.${rec.ball} ${inn.bowl[rec.bowler].p.short} to ${inn.bat[rec.striker].p.short}: ${result}`;

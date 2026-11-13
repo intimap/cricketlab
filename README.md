@@ -216,12 +216,20 @@ src/
     call.js           the plain call (HPD): what was bowled, the shot, the result; what the commentary is checked against
     commentary.js     simulation commentary records, over summaries and sledges
     moments.js        spots situations worth talking about (droughts, pressure, near run-outs...)
+    match-memory.js   the match memory: ball by ball, named moments for the commentary (turning points, duels,
+                      let-offs, the chase, phases); detectors in families, once per situation, cooldowns, a short wait list
+    memory-moments.js the memory's moment types and each one's priority, cooldown and how long it may wait
+    memory-duels.js   its duels (one bowler, one batter, across the match) and let-offs (drops, missed run-outs, lost reviews)
+    memory-phases.js  its chase (rate thresholds with hysteresis, a boundary an over, checkpoints) and phases (new
+                      ball, reverse swing, turn, powerplay's end, the light, the last over before a Test break)
+    memory-input.js   the memory's plain inputs from a played ball and the match
+    win-probability.js a simple, deterministic chance of winning, for the memory's turning points
     commentary-narrative.js  the innings' running story (spells, partnerships, pressure) for the box
     over-summary.js   a recap of the over just bowled
     commentators.js   commentary voices and compatible booth entry points
     lines.js          the commentary's words, loaded from lines/*.json: per voice, per case, by format
     lines/            the line files (JSON): calls, results, overs, stories, moments, colour, scene, reads,
-                      finishes, banter
+                      finishes, banter, memory (the match memory's moments)
     situations.js     every situation the lines are for: its rest, its {facts} and its cases
     booth-editor.js   every ball: the caller's call, then a remark (or an exchange) from the other two voices;
                       the run-up remark and the start-of-over remark; the voice lean and no-repeat memory

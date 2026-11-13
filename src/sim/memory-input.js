@@ -31,6 +31,8 @@ export function memoryInput(rec, inn, match, { lostReview = false, light = null 
     beaten: !!rec.beatBat,
     wicket: rec.wicket ? { batter: name(rec.wicket.batter), byBowler: rec.wicket.how !== "runout" } : null,
     letoff,
+    // Who put the catch down (a drop only).
+    fielder: validDrop && typeof rec.dropped === "string" ? rec.dropped : null,
   };
   const clock = match?.clock;
   const state = {

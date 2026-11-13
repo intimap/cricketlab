@@ -66,6 +66,7 @@ function detectSwings(mem, ball, state, emit) {
       before: pct(before),
       after: pct(after),
       swing: pct(Math.abs(after - before)),
+      score: `${state.runs}/${state.wkts}`,
       toward: after > before ? "bat" : "bowl",
       b: ball.batterShort ?? ball.batter,
       w: ball.bowlerShort ?? ball.bowler,
@@ -102,14 +103,15 @@ export function update(memory, ball, state) {
     mem.seen = { ...mem.seen, ballNumber: null, ballOvers: 0, reversing: false };
   }
   const fired = [];
-  const emit = (type, key, payload = {}) => {
+  /** `priority`: this one's, when it matters more than its type usually does. */
+  const emit = (type, key, payload = {}, priority = null) => {
     const rule = MOMENT_RULES[type];
     const id = `${type}|${key}`;
     if (mem.fired[id] !== undefined) return false;
     if (mem.ball - (mem.lastOfType[type] ?? -Infinity) < rule.cooldown) return false;
     mem.fired[id] = mem.ball;
     mem.lastOfType[type] = mem.ball;
-    fired.push({ type, key: id, priority: rule.priority, payload, ball: mem.ball });
+    fired.push({ type, key: id, priority: priority ?? rule.priority, payload, ball: mem.ball });
     return true;
   };
   for (const detect of DETECTORS) detect(mem, ball, state, emit);

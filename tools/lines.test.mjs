@@ -69,6 +69,8 @@ const SAMPLE = {
   diff: "14",
   light: "THE LIGHTS",
   brk: "STUMPS",
+  fielder: "STOKESY",
+  ended: "no",
 };
 // The wrap-up's result is a whole sentence.
 const SAMPLE_FOR = { wrapUp: { result: "AUSTRALIA WON BY 4 WICKETS" } };

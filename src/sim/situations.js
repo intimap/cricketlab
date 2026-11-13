@@ -225,13 +225,13 @@ export const SITUATIONS = {
 
   // --- The match memory's moments (sim/match-memory.js; lines in memory.json). The memory keeps its own
   // once-only keys and cooldowns, so the box's rest here is short. ---
-  turningPoint: { rest: 6, facts: ["team", "before", "after", "swing", "toward"] },
+  turningPoint: { rest: 6, facts: ["team", "before", "after", "swing", "toward", "score"] },
   partnershipSwing: { rest: 12, facts: ["team", "stand", "balls", "from", "to", "toward"] },
   duelBeaten: { rest: 6, facts: ["beaten", "balls"] },
   duelDominance: { rest: 6, facts: ["runs", "balls"] },
   duelRepeatDismissal: { rest: 0, facts: ["times"] },
   duelDotSqueeze: { rest: 6, facts: ["dots"] },
-  letoffCost: { rest: 6, facts: ["letoff", "kind", "droppedOn", "nowOn", "cost"] },
+  letoffCost: { rest: 6, facts: ["letoff", "kind", "fielder", "droppedOn", "nowOn", "cost", "ended"] },
   chaseRrrThreshold: { rest: 6, facts: ["team", "need", "left", "rrr", "threshold"] },
   chaseCheckpoint: { rest: 0, facts: ["team", "need", "left", "rrr", "over", "runs", "par", "diff"], cases: ["ahead", "behind"] },
   chaseBoundaryPerOver: { rest: 6, facts: ["team", "need", "left", "rrr", "overs"] },

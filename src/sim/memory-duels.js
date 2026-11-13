@@ -54,33 +54,42 @@ function detectDuels(mem, ball, state, emit) {
 /** The let-off's words, for the lines. */
 const LETOFF_WORDS = { drop: "THE DROP", missedRunOut: "THE MISSED RUN-OUT", wastedReview: "THE LOST REVIEW" };
 
+/** A let-off that ends with him out, once it has cost something, is worth more than the wicket's own remark. */
+export const LETOFF_ENDED_PRIORITY = 88;
+
 function detectLetoffs(mem, ball, state, emit) {
-  // Out: his let-offs are spent.
-  if (ball.wicket) mem.letoffs = mem.letoffs.filter((l) => !(l.batter === ball.wicket.batter && l.team === state.batTeam));
+  const told = (l, cost, nowOn, ended, key, priority = null) =>
+    emit(
+      MOMENT.LETOFF_COST,
+      `${l.team}:${l.batter}:${l.ball}:${key}`,
+      { b: l.short, letoff: LETOFF_WORDS[l.type], kind: l.type, fielder: l.fielder, droppedOn: l.scoreAt, nowOn, cost, ended },
+      priority,
+    );
+  // Out: his let-offs are spent, and one that cost something is told one last time.
+  if (ball.wicket) {
+    const out = (l) => l.batter === ball.wicket.batter && l.team === state.batTeam;
+    for (const l of mem.letoffs.filter(out)) {
+      const cost = ball.batterScore - l.scoreAt;
+      if (ball.wicket.batter === ball.batter && cost >= LETOFF_STEPS[0])
+        told(l, cost, ball.batterScore, "yes", "out", LETOFF_ENDED_PRIORITY);
+    }
+    mem.letoffs = mem.letoffs.filter((l) => !out(l));
+  }
   if (ball.letoff && !(ball.wicket && ball.wicket.batter === ball.batter)) {
     mem.letoffs.push({
       type: ball.letoff,
       batter: ball.batter,
       short: ball.batterShort ?? ball.batter,
+      fielder: ball.fielder ?? null,
       team: state.batTeam,
       scoreAt: ball.batterScore - ball.batRuns,
       ball: mem.ball,
     });
   }
-  for (const [i, l] of mem.letoffs.entries()) {
+  for (const l of mem.letoffs) {
     if (l.batter !== ball.batter || l.team !== state.batTeam || ball.batRuns === 0) continue;
     const cost = ball.batterScore - l.scoreAt;
-    for (const step of LETOFF_STEPS) {
-      if (cost < step) continue;
-      emit(MOMENT.LETOFF_COST, `${l.team}:${l.batter}:${l.ball}:${i}:${step}`, {
-        b: l.short,
-        letoff: LETOFF_WORDS[l.type],
-        kind: l.type,
-        droppedOn: l.scoreAt,
-        nowOn: ball.batterScore,
-        cost,
-      });
-    }
+    for (const step of LETOFF_STEPS) if (cost >= step) told(l, cost, ball.batterScore, "no", step);
   }
 }
 

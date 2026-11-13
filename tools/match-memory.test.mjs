@@ -289,3 +289,18 @@ test("the memory is plain data, and update leaves the one it's given alone", () 
   assert.deepEqual(JSON.parse(JSON.stringify(after)), after);
   for (const type of Object.values(MOMENT)) assert.ok(MOMENT_RULES[type], type);
 });
+
+test("LETOFF_COST: a let-off that has cost 20 or more is told once more when he's out, above a wicket's remark", () => {
+  const steps = [[{ letoff: "drop", batterScore: 10, fielder: "Stokesy" }, {}]];
+  steps.push([{ runs: 4, batRuns: 4, batterScore: 34 }, {}]);
+  steps.push(...quiet(MOMENT_RULES[MOMENT.LETOFF_COST].cooldown));
+  steps.push([{ wicket: { batter: "Ann Bat", byBowler: true }, batterScore: 34 }, { wkts: 1 }]);
+  const results = feed(steps, MOMENT.LETOFF_COST);
+  assert.deepEqual(firedAt(results), [1, steps.length - 1]);
+  const last = results.at(-1)[0];
+  assert.equal(last.payload.ended, "yes");
+  assert.equal(last.payload.fielder, "Stokesy");
+  assert.equal(last.payload.nowOn, 34);
+  assert.ok(last.priority > 80, "above the wicket's own remark");
+  assert.equal(results[1][0].payload.ended, "no");
+});

@@ -88,8 +88,6 @@ export function onContact(fb, now, res, shot, playerBatting, pitchZ = 5) {
 
 /** The ball is done: tags for the striker's eye (when the player bats) and the bowling pressure. */
 export function onBallDone(fb, now, eye, pressure) {
-  if (eye && Math.abs(eye.after - eye.before) >= NOTICEABLE)
-    float(fb, now, eye.after > eye.before ? "+EYE" : "-EYE", eye.after > eye.before ? "#ffe066" : "#e0283c", "eye");
   if (pressure && Math.abs(pressure.after - pressure.before) >= NOTICEABLE)
     float(
       fb,

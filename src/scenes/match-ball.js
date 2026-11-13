@@ -9,7 +9,6 @@ import { crossingAtZ } from "../sim/delivery.js";
 import { planRunup, releaseError } from "../sim/runup.js";
 import { battingFeedback, bowlingFeedback } from "../sim/coach.js";
 import { CONTACT_Z_FRONT, SWING_TIME } from "../sim/batting.js";
-import { eyeMultiplier } from "../sim/eye.js";
 import { pickSledges, pickChirp } from "../sim/field-chatter.js";
 import * as beats from "./booth-beats.js";
 import { onBallDone } from "./match-feedback.js";
@@ -296,7 +295,6 @@ export function completeBall(scene) {
 export function flashEye(scene, { before, after }) {
   if (after >= 1 && before < 1) scene.banner("EYE IN!", COLORS.gold, 1.4, 3, 40);
   else if (after === 0 && before >= 0.25) scene.flash("EYE LOST", COLORS.red);
-  else if (after > before) scene.flash(`EYE x${eyeMultiplier(after).toFixed(2)}`, COLORS.gold);
 }
 
 export function afterDuration(scene) {

@@ -51,10 +51,6 @@ export function drawPanels(scene) {
   if (scene.phase === "setup") drawSetupPanel(scene, selectedWicketSide(scene));
 
   if (scene.phase === "ready" && scene.human === "bat") {
-    if (Math.floor(scene.now * 2) % 2 === 0) {
-      drawText("PRESS SPACE TO FACE UP", WIDTH / 2, 6, { ...PANEL_TEXT, color: COLORS.gold, scale: 2 });
-    }
-    drawText("ESC = MENU & INSTRUCTIONS", WIDTH / 2, 24, { ...PANEL_TEXT, color: COLORS.dim });
     if (declareAdvice(scene)) {
       drawText("THE DRESSING ROOM SAYS DECLARE: PRESS C TWICE", WIDTH / 2, 36, { ...PANEL_TEXT, color: COLORS.gold });
     }

@@ -9,6 +9,8 @@ import { Menu } from "./scenes/menu.js";
 import { MatchScene } from "./scenes/match.js";
 import { ScoreboardScene } from "./scenes/scoreboard.js";
 import { warmScores } from "./engine/scores.js";
+import { SeasonScene } from "./scenes/season-scene.js";
+import { battingFirst } from "./sim/season.js";
 
 function loadImage(url) {
   return new Promise((resolve, reject) => {
@@ -87,6 +89,28 @@ class Game {
 
   startMatch(cfg) {
     this.scene = new MatchScene(this, cfg);
+  }
+
+  /** The season screen (scenes/season-scene.js), for a season new or saved. */
+  showSeason(season) {
+    this.season = season;
+    this.scene = new SeasonScene(this, season);
+  }
+
+  /** The player's match in the season: his club against this round's opponents, 20 overs, as the toss fell. */
+  startSeasonMatch(season, fixture) {
+    this.season = season;
+    const opponent = fixture.home === season.club ? fixture.away : fixture.home;
+    const mode = battingFirst(season, fixture) === season.club ? "bat" : "bowl";
+    this.scene = new MatchScene(this, {
+      ...this.menu.cfg,
+      format: "season",
+      team: season.club,
+      opponent,
+      mode,
+      overs: 20,
+      fixture: fixture.id,
+    });
   }
 
   showScores(cfg) {

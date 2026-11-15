@@ -33,6 +33,7 @@ import * as test from "./match-test.js";
 import { updateLight, ballKindFor } from "./match-light.js";
 import { assistSetting, noteAssist } from "./assists.js";
 import { changePractice, practiceLine } from "./practice-session.js";
+import { finishSeasonMatch } from "./season-match.js";
 
 /**
  * One innings, played ball by ball. Phases:
@@ -217,6 +218,7 @@ export class MatchScene {
 
   /** The innings is over and acknowledged: the next innings, the high scores, or the menu. `enforce`: the follow-on call. */
   leaveInnings(enforce) {
+    if (this.cfg.format === "season" && !this.match.hasNextInnings) return finishSeasonMatch(this);
     if (this.match.hasNextInnings) {
       this.match.nextInnings(enforce);
       this.game.scene = new MatchScene(this.game, this.cfg, this.match);

@@ -3,6 +3,7 @@ import { australia, england } from "./teams.js";
 import { TEAMS } from "./team-list.js";
 import { rollWeather } from "./weather.js";
 import { setPractice } from "./practice.js";
+import { CLUBS } from "./season-clubs.js";
 
 /**
  * How a game is played, as data:
@@ -29,6 +30,11 @@ export const FORMATS = {
   match: { name: "FULL MATCH", innings: 2, blurb: "BOTH SIDES BAT. THE SECOND CHASES THE TOTAL." },
   classic: { name: "CLASSIC MATCHES", innings: 1, blurb: "WIN FROM A TIGHT SPOT." },
   nets: { name: "NETS", innings: 1, blurb: "PRACTICE AS LONG AS YOU LIKE. THE COACH RATES EVERY BALL." },
+  season: {
+    name: "SEASON",
+    innings: 2,
+    blurb: "EIGHT MELBOURNE CLUBS, HOME AND AWAY, 20 OVERS. TOP FOUR PLAY THE FINALS. SAVED AS YOU GO.",
+  },
 };
 
 export const CLASSICS = [
@@ -132,6 +138,12 @@ export function createMatch(cfg, rng) {
     const c = CLASSICS.find((x) => x.id === cfg.classic) ?? CLASSICS[0];
     const [bat, bowl] = c.batting === "aus" ? [aus, eng] : [eng, aus];
     return new Match(bat, bowl, c.pitch, c.overs, rng, c.human, { start: c.start, target: c.target });
+  }
+  // A season match: two clubs (sim/season-clubs.js), 20 overs a side.
+  if (cfg.format === "season") {
+    const [mine, theirs] = [CLUBS[cfg.team](), CLUBS[cfg.opponent]()];
+    const [bat, bowl] = cfg.mode === "bat" ? [mine, theirs] : [theirs, mine];
+    return new Match(bat, bowl, cfg.pitch, 20, rng, cfg.mode, { innings: 2 });
   }
   // The player's side (cfg.team) and the other (cfg.opponent), by abbreviation (sim/team-list.js).
   const mine = (TEAMS[cfg.team] ?? australia)();

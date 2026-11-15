@@ -176,13 +176,25 @@ export class Innings {
     return { settled, concentration: clamp(concentration, 0.4, 1), fatigue: clamp(b.balls / 420) };
   }
 
+  /** In a limited-overs game, the most balls one bowler may bowl: a fifth of the overs (4 in a T20, 10 in 50). */
+  get bowlerQuota() {
+    return this.test || !Number.isFinite(this.oversLimit) ? Infinity : Math.ceil(this.oversLimit / 5) * 6;
+  }
+
   /**
-   * Not the bowler of the last over, nor one taken off for too many bouncers (Law 41.6). Should a side run
-   * out of bowlers that way, the rules give way rather than stop the game.
+   * Not the bowler of the last over, nor one taken off for too many bouncers (Law 41.6), nor (limited overs) one
+   * who has bowled his share. Should a side run out of bowlers that way, the rules give way rather than stop.
    */
   canBowl(index) {
     if (this.nets) return true;
-    const levels = [(i) => i !== this.lastOverBowler && !this.bowl[i].suspended, (i) => !this.bowl[i].suspended, () => true];
+    const quota = this.bowlerQuota;
+    const left = (i) => this.bowl[i].balls < quota;
+    const levels = [
+      (i) => i !== this.lastOverBowler && !this.bowl[i].suspended && left(i),
+      (i) => !this.bowl[i].suspended && left(i),
+      (i) => !this.bowl[i].suspended,
+      () => true,
+    ];
     const rule = levels.find((ok) => this.bowl.some((_, i) => ok(i)));
     return rule(index);
   }

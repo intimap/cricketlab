@@ -162,7 +162,13 @@ export function drawPanels(scene) {
     drawText(ending.sub, WIDTH / 2, 284, { align: "center", color: COLORS.cream });
     if (ending.followOn) drawFollowOnChoice(scene.followOn.enforce, 296);
     else {
-      const prompt = ending.prompt ?? (scene.hasScoreboard ? "ENTER = HIGH SCORES" : "ENTER = MENU");
+      const prompt =
+        ending.prompt ??
+        (scene.cfg.format === "season"
+          ? "ENTER = BACK TO THE SEASON"
+          : scene.hasScoreboard
+            ? "ENTER = HIGH SCORES"
+            : "ENTER = MENU");
       drawText(prompt, WIDTH / 2, 296, { align: "center", color: COLORS.gold });
     }
   }

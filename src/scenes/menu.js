@@ -20,6 +20,9 @@ import { CRT_PRESET_NAMES, crtPreset, cycleCrtPreset } from "../engine/crt-setti
 import { screenRows, stepScreenRow, screenBlurb } from "./menu-screen.js";
 import { CONTROL_NAMES, controlsSetting, cycleControls } from "./bat-stick.js";
 import { LAST_VERSION } from "../version.js";
+import { CLUB_IDS, CLUB_NAMES } from "../sim/season-clubs.js";
+import { createSeason } from "../sim/season.js";
+import { hasSeason, loadSeason } from "./season-store.js";
 
 const MODES = ["bat", "bowl"];
 const PITCHES = ["green", "dust", "cracked"];
@@ -125,8 +128,18 @@ export class Menu {
         ["back", "", "<  BACK"],
       ];
     }
-    const play = ["play", "PLAY", this.practice ? "PRACTICE" : "A MATCH"];
+    const play = ["play", "PLAY", { nets: "PRACTICE", season: "A SEASON" }[cfg.format] ?? "A MATCH"];
     if (this.practice) return [play, ["next", "", "NEXT  >"]];
+    // A season (scenes/season-scene.js): carry on with the saved one, or start another as a club.
+    if (cfg.format === "season") {
+      const saved = hasSeason();
+      return [
+        play,
+        ...(saved ? [["continueSeason", "", "CONTINUE SEASON  >"]] : []),
+        ["club", "CLUB", CLUB_NAMES[cfg.club] ?? CLUB_NAMES[CLUB_IDS[0]]],
+        ["newSeason", "", saved ? "NEW SEASON (REPLACES SAVED)  >" : "NEW SEASON  >"],
+      ];
+    }
     const rows = [play, ["type", "MATCH", typeOf(cfg).name]];
     if (cfg.format === "classic") {
       const won = load("classicsWon", {});
@@ -157,7 +170,13 @@ export class Menu {
     const key = rows[this.sel][0];
     if (dir && !BUTTONS.has(key)) {
       sfx.click();
-      if (key === "play") cfg.format = this.practice ? "match" : "nets";
+      if (key === "play")
+        cfg.format = cycle(
+          ["match", "nets", "season"],
+          cfg.format === "nets" || cfg.format === "season" ? cfg.format : "match",
+          dir,
+        );
+      if (key === "club") cfg.club = cycle(CLUB_IDS, CLUB_IDS.includes(cfg.club) ? cfg.club : CLUB_IDS[0], dir);
       if (key === "type") {
         const type = cycle(MATCH_TYPES, typeOf(cfg), dir);
         cfg.format = type.format;
@@ -195,6 +214,9 @@ export class Menu {
     sfx.click();
     if (key === "scores") this.game.showScores({ ...cfg });
     else if (key === "next") this.turn("teams");
+    else if (key === "continueSeason") this.game.showSeason(loadSeason());
+    else if (key === "newSeason") this.game.showSeason(createSeason(CLUB_IDS.includes(cfg.club) ? cfg.club : CLUB_IDS[0]));
+    else if (key === "club" || cfg.format === "season") return;
     else if (key === "back") this.turn("teams");
     else if (key === "start" || keys.pressed("Enter")) this.game.startMatch({ ...cfg });
   }
@@ -261,4 +283,4 @@ export class Menu {
 }
 
 /** Rows that are pressed rather than changed with left and right. */
-const BUTTONS = new Set(["next", "start", "back", "scores", "done"]);
+const BUTTONS = new Set(["next", "start", "back", "scores", "done", "continueSeason", "newSeason"]);

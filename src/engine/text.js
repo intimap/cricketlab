@@ -1,21 +1,26 @@
 import { ctx, COLORS } from "./screen.js";
 import { GLYPHS, SMALL_GLYPHS, GAP, HEIGHT, CASED_HEIGHT } from "./font-glyphs.js";
+import { FIELD_GLYPHS } from "./font-field.js";
 
 /** The glyph for a character (capitals only; anything unknown is a question mark). */
 const capital = (ch) => GLYPHS[ch.toUpperCase()] ?? GLYPHS[ch] ?? GLYPHS["?"];
-/** `cased` text keeps its small letters; everything else is drawn in capitals however it's written. */
-const glyphOf = (ch, cased) => (cased && SMALL_GLYPHS[ch]) || capital(ch);
+/**
+ * A glyph in a style: false, the text font in capitals however it's written; true ("cased"), keeping small
+ * letters; "field", the field font (capitals, for words over the play).
+ */
+const glyphOf = (ch, style) =>
+  style === "field" ? (FIELD_GLYPHS[ch.toUpperCase()] ?? capital(ch)) : (style && SMALL_GLYPHS[ch]) || capital(ch);
 
 // Rendered strings are cached as small canvases, keyed by colour, scale and text.
 const cache = new Map();
 
 function renderText(text, color, scale, cased = false) {
-  const key = `${color}|${scale}|${cased ? 1 : 0}|${text}`;
+  const key = `${color}|${scale}|${cased || 0}|${text}`;
   let canvas = cache.get(key);
   if (canvas) return canvas;
   canvas = document.createElement("canvas");
   canvas.width = Math.max(1, textWidth(text, scale, cased));
-  canvas.height = (cased ? CASED_HEIGHT : HEIGHT) * scale;
+  canvas.height = (cased === true ? CASED_HEIGHT : HEIGHT) * scale;
   const c = canvas.getContext("2d");
   c.fillStyle = color;
   let x = 0;
@@ -53,12 +58,12 @@ const OUTLINE_OFFSETS = [
 
 /**
  * Draw text in the pixel font and return its width.
- * opts: scale, align ("left" | "center" | "right"), color, outline (colour), cased (keep small letters),
+ * opts: scale, align ("left" | "center" | "right"), color, outline (colour), cased (keep small letters), font ("field": the field font),
  * shadow (colour, or null for none; ignored when outlined).
  */
 export function drawText(text, x, y, opts = {}) {
   const scale = opts.scale ?? 1;
-  const cased = !!opts.cased;
+  const cased = opts.font === "field" ? "field" : !!opts.cased;
   const width = textWidth(text, scale, cased);
   let left = x;
   if (opts.align === "center") left = x - width / 2;

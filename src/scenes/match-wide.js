@@ -121,6 +121,7 @@ export function drawWide(scene) {
             align: "center",
             color: i === scene.dragIdx ? COLORS.gold : COLORS.cream,
             shadow: "rgba(0,0,0,0.8)",
+            font: "field",
           });
         }
       });
@@ -161,7 +162,7 @@ function drawInvolved(live) {
   if (!f || f.role === "bowler" || f.role === "keeper") return;
   const p = projectWide(f.pos.x, 0, f.pos.z);
   const name = f.player.name.split(" ").at(-1).toUpperCase();
-  drawText(name, p.x, p.y - 16 * p.s - 10, { align: "center", color: COLORS.cream, shadow: "rgba(0,0,0,0.85)" });
+  drawText(name, p.x, p.y - 16 * p.s - 10, { align: "center", color: COLORS.cream, outline: "rgba(0,0,0,0.8)", font: "field" });
 }
 
 /** How long the keeper's chirp at a beaten batter stays up (s). */

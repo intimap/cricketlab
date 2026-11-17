@@ -155,6 +155,7 @@ src/
     crt-settings.js   the CRT look's settings: SHARP/SUBTLE/CLASSIC/STRONG presets or each part LOW/MED/HIGH (CUSTOM)
     text.js           drawing, measuring and wrapping text in the game font
     font-glyphs.js    the text font's letters: bold serif capitals and figures, seven pixels tall, each its own width
+    font-field.js     the field font: wide, thin capitals for words that pop up over the play
     silhouette.js     cast shadows: a sprite's shape sheared onto the ground, all of a frame's in one layer
     outline.js        a sprite drawn with a 1px outline round its whole shape (the striker)
     input.js          keyboard and mouse state, polled per frame

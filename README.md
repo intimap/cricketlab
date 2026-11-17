@@ -141,7 +141,7 @@ Each computer batter has a hidden weakness (loose outside off, a compulsive hook
 ## How the code is organised
 
 ```
-index.html            page shell and key strip
+index.html            page shell
 assets/               venue art: each ground's layers for the close and wide views, wide perimeters, the MCG stadium
 src/
   main.js             boot, asset loading, game loop, scene switching
@@ -153,7 +153,9 @@ src/
     analog.js         a second analog stick (a pad's right stick, the touch swing stick), read as how far, not keys
     crt.js            the old-CRT look over the whole picture (WebGL): curved glass, scanlines, phosphor, glow
     crt-settings.js   the CRT look's settings: SHARP/SUBTLE/CLASSIC/STRONG presets or each part LOW/MED/HIGH (CUSTOM)
-    text.js           5x7 bitmap font
+    text.js           drawing, measuring and wrapping text in the game font
+    font-glyphs.js    the text font's letters: bold serif capitals and figures, seven pixels tall, each its own width
+    font-field.js     the field font: wide, thin capitals for words that pop up over the play
     silhouette.js     cast shadows: a sprite's shape sheared onto the ground, all of a frame's in one layer
     outline.js        a sprite drawn with a 1px outline round its whole shape (the striker)
     input.js          keyboard and mouse state, polled per frame
@@ -262,13 +264,18 @@ src/
     ground.js         the layer compositor: builds each view's background from a ground's data
     ground-paint.js   the compositor's kit: pitch sizes, colour helpers, noise, scenery layers, cracks
     stadium-ground.js a ground built round a stadium image (the MCG's wide view)
-    venue/            grounds built from a map of the ground, drawn through the game's cameras (Parklands)
+    venue/            grounds built from a map of the ground, drawn through the game's cameras (Parklands, the City Bowl, Bayside Oval)
       venue-map.js      the map's format: its frame, bearings, the ends turning with the bowling, fingerprints
       parklands-map.js  Parklands as a map: pavilion, terrace, stands, banks, scoreboard, trees, lights
       venue-cameras.js  the close camera and the wide TV camera as pinholes in the map's frame
       venue-raster.js   the small renderer: faces with a depth test, sprites, the ground; per-pixel normals and layers
       venue-geometry.js walls, slopes, boxes, roofs and arcs from plan points
       venue-parts.js    the parts kit: each kind of thing round a ground, drawn from its map entry
+      venue-bay.js      a ground by the water: the beach and the sea, a pier, yachts, bathing boxes
+      bayside-map.js    Bayside Oval's map: a clubhouse at one end, the bay at the other
+      venue-shade.js    soft shade from distance fields: banded shadow edges, darker ground at the foot of things
+      venue-stadium.js  a stadium's parts: the bowl (tiers, boxes, roof with lamps), the video screen, advertising boards
+      city-bowl-map.js  the City Bowl's map: a two-tier stadium, the members' pavilion at one end, the screen at the other
       venue-pavilion.js the pavilion: two storeys, verandah and balcony, clock gable, flag
       venue-materials.js the surfaces: weatherboard, brick, iron, windows, seating and crowd, pickets, boards
       venue-sprites.js  trees and spectators as pixel sprites
@@ -326,6 +333,7 @@ src/
     ball-trail.js     the delivery's fading trail and the pitch-map landing reticle (close view)
     feedback.js       arcade feedback drawn: timing meter and callout, floating words, eased bars
     booth.js          commentator portraits and the commentary popup (the box's remarks)
+    commentary-case.js  the commentary set in sentences: capitals to start, and on names, grounds and teams
     commentator-looks.js  each commentator's colours, for the portrait and the HUD's little head
     ball-ring.js      the ring round the ball in flight: length and movement
     run-bar.js        the run bar above the score bar: the pitch on its side, each batter along it, in or out of his ground
@@ -450,7 +458,7 @@ in degrees from the striker's stumps: 0 is straight back past the bowler and pos
   and `scenes/match-rain.js`; how each weather looks in `render/weather-look.js`; when the light changes in
   `scenes/match-light.js`.
 - **Ground art:** Parklands has no images: it's drawn from a map (see "Making a ground from a map"
-  below), and for now it's the only ground on the menu (`ON_MENU` in `src/render/grounds.js`; the others
+  below), and the City Bowl (a stadium) and Bayside Oval (on the foreshore, with a climate of its own in `sim/weather.js`) are drawn the same way, and the three are the grounds on the menu (`ON_MENU` in `src/render/grounds.js`; the others
   still work and come back by adding them there). The other grounds' images live in `assets/` (layer art in `assets/close/`), listed by id in `src/assets.js`;
   grounds pick their layers in `src/render/grounds.js` (`hidden: true` keeps a ground off the menu; The Oval is
   hidden for now). `tools/art/make_scenery.py` regenerates the
@@ -582,6 +590,9 @@ the bowling each over. To make another ground this way:
    the grass, the two ends' names (end 0 is bearing 0), and its parts by bearing and radius from the middle
    of the pitch: `pavilion`, `terrace`, `stand`, `bank` (with spectators), `scoreboard`, `tents`,
    `floodlight`, `sightscreen`, `trees` (`bush` for shrubs), `carpark`, `nets`, `shed`, `path`
+   and for a stadium `bowl` (a run of tiers and roof round the arc; `members: true` for a pavilion front),
+   a `scoreboard` with `style: "screen"`, and `fence.style: "boards"` (`venue-stadium.js`; the City Bowl's map shows them)
+   and by the water `shore`, `pier`, `yachts` and `bathingBoxes` (`venue-bay.js`; Bayside Oval's map shows them)
    (`venue-parts.js` lists what each takes). A new kind goes in `venue-parts.js`, and in `venue-light.js`
    `castersOf` if it should throw a shadow.
 2. **Add the ground** to `src/render/grounds.js` as Parklands (new) is (`parklandsNew`, which signing off

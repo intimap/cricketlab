@@ -62,6 +62,33 @@
       }
     },
     {
+      "situation": "venue",
+      "case": "cityBowl",
+      "kind": "match",
+      "lines": {
+        "any": [
+          "A FULL HOUSE AT THE CITY BOWL.",
+          "TWO TIERS ALL THE WAY ROUND, AND NOT A SEAT TO BE HAD.",
+          "THE CITY BOWL. THE NOISE DOESN'T GET OUT FROM UNDER THAT ROOF.",
+          "A BIG GROUND AND A BIG CROWD. THE CITY BOWL IS READY."
+        ]
+      }
+    },
+    {
+      "situation": "venue",
+      "case": "bayside",
+      "kind": "match",
+      "lines": {
+        "any": [
+          "BAYSIDE OVAL. THE WATER JUST OVER THE FENCE.",
+          "YACHTS ON THE BAY, CRICKET ON THE GREEN. BAYSIDE OVAL.",
+          "A BREEZE OFF THE WATER AT BAYSIDE. THE BOWLERS WON'T MIND THAT.",
+          "THE PIER, THE BATHING BOXES, AND A GAME OF CRICKET IN FRONT OF THEM.",
+          "HIT ONE BIG ENOUGH AT THE BAY END AND IT'S GETTING WET."
+        ]
+      }
+    },
+    {
       "situation": "pitch",
       "case": "green",
       "kind": "match",

@@ -7,6 +7,8 @@ import { MID_PITCH, BOUNDARY } from "../src/sim/geometry.js";
 import { closeCamera, tvCamera, tvWideCamera } from "../src/render/venue/venue-cameras.js";
 import { mapToWorld, worldToMap, bowlingEndOf, polar, fingerprint } from "../src/render/venue/venue-map.js";
 import { PARKLANDS_MAP } from "../src/render/venue/parklands-map.js";
+import { CITY_BOWL_MAP } from "../src/render/venue/city-bowl-map.js";
+import { BAYSIDE_MAP } from "../src/render/venue/bayside-map.js";
 import { venuePicture, clearVenueCache } from "../src/render/venue/venue-build.js";
 import { LAYER } from "../src/render/venue/venue-raster.js";
 import { turnLight, sunOf } from "../src/render/venue/venue-light.js";
@@ -197,7 +199,7 @@ test("the grounds' painted layers exist, fit their maps, and stay under 500 KB a
   }
 });
 
-test("signed off: Parklands (new) has taken over the old Parklands' id and name, alone on the menu", async () => {
+test("signed off: Parklands (new) has taken over the old Parklands' id and name; the map-built grounds are the menu", async () => {
   const { signOffParklands } = await import("../src/render/grounds.js");
   const grounds = { ...GROUNDS };
   signOffParklands(grounds);
@@ -205,10 +207,82 @@ test("signed off: Parklands (new) has taken over the old Parklands' id and name,
   assert.equal(grounds.parklands.name, GROUNDS.parklands.name);
   assert.ok(grounds.parklandsNew.hidden);
   assert.ok(!grounds.parklands.hidden);
-  // Signed off: Parklands is the one built from the map, and the menu offers it alone for now.
+  // Signed off: Parklands is the one built from the map, and the menu offers the grounds built from maps.
   const { GROUND_CHOICES, DEFAULT_GROUND } = await import("../src/render/grounds.js");
   assert.equal(GROUNDS.parklands.venue, PARKLANDS_MAP);
   assert.equal(GROUNDS.parklands.name, "PARKLANDS OVAL");
-  assert.deepEqual(GROUND_CHOICES, ["parklands"]);
+  assert.deepEqual(GROUND_CHOICES, ["parklands", "cityBowl", "bayside"]);
   assert.equal(DEFAULT_GROUND, "parklands");
+});
+
+test("the City Bowl: a stadium all the way round that never covers the field, with its screen in shot", () => {
+  for (const p of CITY_BOWL_MAP.parts) assert.ok(PART_KINDS.includes(p.kind), p.kind);
+  const bowl = GROUNDS.cityBowl;
+  assert.equal(bowl.venue, CITY_BOWL_MAP);
+  clearVenueCache();
+  // The TV camera looks over the near side of the bowl: everything inside the rope is still the field.
+  for (const end of [0, 1]) {
+    const pic = venuePicture(CITY_BOWL_MAP, bowl, pitch, "wide", end);
+    const cam = tvCamera(end, pic.w / 640);
+    for (let deg = 0; deg < 360; deg += 10) {
+      // (The near sightscreen stands in front of the rope, as at any ground.)
+      if (deg % 180 === 0) continue;
+      const at = polar(deg, BOUNDARY - 2);
+      const s = cam.project({ x: at.x, y: 0, z: at.z });
+      const layer = pic.layer[Math.round(s.y) * pic.w + Math.round(s.x)];
+      assert.equal(layer, LAYER.field, `the field at ${deg} from end ${end}`);
+    }
+  }
+  // From each end the close camera sees stands, not sky, straight ahead above the fence.
+  for (const far of [0, 1]) {
+    const pic = venuePicture(CITY_BOWL_MAP, bowl, pitch, "close", far);
+    const s = closeCamera(far).project({ ...polar(far * 180 + 20, 82), y: 3 });
+    const layer = pic.layer[Math.round(s.y) * pic.w + Math.round(s.x)];
+    assert.ok(layer === LAYER.buildings || layer === LAYER.crowd, `stands at end ${far}`);
+  }
+});
+
+test("soft shade: a shadow is full inside, clear outside and banded at its edge; things darken the ground at their foot", async () => {
+  const { footDistances, contactShade, softShadow } = await import("../src/render/venue/venue-shade.js");
+  const square = [
+    { x: -10, z: -10 },
+    { x: 10, z: -10 },
+    { x: 10, z: 10 },
+    { x: -10, z: 10 },
+  ];
+  const foot = footDistances([square], []);
+  // A shadow lying from the square out to x = 60.
+  const cover = softShadow((x, z) => x > -10 && x < 60 && Math.abs(z) < 10, foot);
+  assert.equal(cover(25, 0), 1);
+  assert.equal(cover(25, 40), 0);
+  const edge = [8, 9.5, 10.5, 12].map((z) => cover(40, z));
+  assert.ok(edge.every((v, i) => i === 0 || v <= edge[i - 1]) && edge[0] > edge[3], `fades across the edge: ${edge}`);
+  assert.ok(cover(40, 9.9) > 0 && cover(40, 9.9) < 1, "a band at the edge, inside the exact shadow");
+  const contact = contactShade(foot);
+  assert.ok(contact(11, 0) < contact(13, 0) && contact(13, 0) < 1);
+  assert.equal(contact(30, 0), 1);
+});
+
+test("Bayside Oval: the bay end is open to the water, and nothing on land stands in the sea", () => {
+  for (const p of BAYSIDE_MAP.parts) assert.ok(PART_KINDS.includes(p.kind), p.kind);
+  clearVenueCache();
+  // From the clubhouse end, beside the sightscreen and just under the horizon: the sea, bluer than it's green.
+  const pic = venuePicture(BAYSIDE_MAP, GROUNDS.bayside, pitch, "close", 1);
+  const cam = closeCamera(1);
+  for (const x of [-40, -22]) {
+    const s = cam.project({ x, y: 0, z: -150 });
+    const [r, g, b] = pixel(pic, Math.round(s.x), Math.round(s.y));
+    assert.ok(b > g && b > r, `the sea at ${x}: ${[r, g, b]}`);
+  }
+  // Everything that stands on land is short of the sand (86 m out towards the bay).
+  const shore = BAYSIDE_MAP.parts.find((p) => p.kind === "shore");
+  const afloat = ["shore", "pier", "yachts", "path"];
+  for (const p of BAYSIDE_MAP.parts.filter((q) => !afloat.includes(q.kind))) {
+    const reach = p.top ?? p.r1 ?? (p.radius ?? 0) + (p.depth ?? 4);
+    for (const b of p.bearing !== undefined ? [p.bearing] : [p.from, p.to]) {
+      const out = -polar(b, reach).z;
+      const between = p.from !== undefined && (180 - p.from + 360) % 360 < (p.to - p.from + 360) % 360;
+      assert.ok(out < shore.sand && !between, `${p.kind} at ${b} is ${out.toFixed(0)} m towards the bay`);
+    }
+  }
 });

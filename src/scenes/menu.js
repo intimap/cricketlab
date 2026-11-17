@@ -19,7 +19,7 @@ import { EFFECTS, EFFECT_NAMES, DEFAULT_EFFECTS } from "../render/lighting.js";
 import { CRT_PRESET_NAMES, crtPreset, cycleCrtPreset } from "../engine/crt-settings.js";
 import { screenRows, stepScreenRow, screenBlurb } from "./menu-screen.js";
 import { CONTROL_NAMES, controlsSetting, cycleControls } from "./bat-stick.js";
-import { LAST_VERSION } from "../version.js";
+import { LAST_VERSION, BUILD_STAMP } from "../version.js";
 import { CLUB_IDS, CLUB_NAMES } from "../sim/season-clubs.js";
 import { createSeason } from "../sim/season.js";
 import { hasSeason, loadSeason } from "./season-store.js";
@@ -245,7 +245,8 @@ export class Menu {
       }[this.page] ?? "";
     if (heading) drawText(heading, WIDTH / 2, 78, { align: "center", color: COLORS.cream });
     // At the foot of every page: when this version was made (the last merge).
-    drawText(`LAST VERSION ${versionDate(LAST_VERSION)}`, WIDTH / 2, 346, { align: "center", color: COLORS.dim });
+    const stamped = BUILD_STAMP ? `   BUILD ${BUILD_STAMP}` : "";
+    drawText(`LAST VERSION ${versionDate(LAST_VERSION)}${stamped}`, WIDTH / 2, 346, { align: "center", color: COLORS.dim });
     if (this.page === "teams") return this.practice ? drawPractice(this) : drawTeams(this);
 
     const rows = this.rows;

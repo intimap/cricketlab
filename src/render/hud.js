@@ -173,8 +173,8 @@ export function drawScorecard(inn, x, y, w, h, title) {
 
 /** Comic speech bubble whose tail points down at (x, y). */
 export function drawSpeechBubble(text, x, y) {
-  const lines = wrapText(text, 24);
-  const w = Math.max(...lines.map((l) => l.length)) * 6 + 7;
+  const lines = wrapText(text, 28, "field");
+  const w = Math.max(...lines.map((l) => textWidth(l, 1, "field"))) + 8;
   const h = lines.length * 9 + 5;
   const left = Math.round(clamp(x - w / 2, 3, WIDTH - w - 3));
   const top = Math.round(Math.max(3, y - h - 4));
@@ -195,7 +195,7 @@ export function drawSpeechBubble(text, x, y) {
   fillRect(tx, ty + 2, 1, 1, ink);
   fillRect(tx + 2, ty + 2, 1, 1, ink);
   fillRect(tx + 1, ty + 3, 1, 1, ink);
-  lines.forEach((line, i) => drawText(line, left + 4, top + 3 + i * 9, { color: "#151515", shadow: null }));
+  lines.forEach((line, i) => drawText(line, left + 4, top + 3 + i * 9, { color: "#151515", shadow: null, font: "field" }));
 }
 
 /**

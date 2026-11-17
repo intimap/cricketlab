@@ -44,6 +44,16 @@ export const TREES = {
     clumps: 9,
     low: true,
   },
+  // A Norfolk pine, as along a foreshore: tall and narrow, its tiers of branches open to the sky.
+  norfolk: {
+    tones: ["#162c22", "#1e3a2a", "#284a32", "#34603c", "#4a7a4e"].map(hex),
+    trunk: hex("#50402e"),
+    wide: 0.42,
+    tall: 1.75,
+    clumps: 12,
+    cone: true,
+    open: 0.16,
+  },
   pine: {
     tones: ["#172f1f", "#1f3e27", "#29502f", "#35623b", "#4a7a4c"].map(hex),
     trunk: hex("#4a3828"),

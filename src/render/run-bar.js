@@ -64,7 +64,12 @@ export function drawRunBar(bar, now = 0) {
     }
   }
   if (bar.dive && Math.floor(now * 6) % 2 === 0)
-    drawText("DIVE! SPACE", x + w / 2, y - 9, { align: "center", color: COLORS.gold, outline: "rgba(0,0,0,0.8)" });
+    drawText("DIVE! SPACE", x + w / 2, y - 9, { align: "center", color: COLORS.gold, outline: "rgba(0,0,0,0.8)", font: "field" });
   if (bar.queued > 0)
-    drawText(`+${bar.queued}`, x + w - 4, y - 9, { align: "right", color: COLORS.gold, outline: "rgba(0,0,0,0.8)" });
+    drawText(`+${bar.queued}`, x + w - 4, y - 9, {
+      align: "right",
+      color: COLORS.gold,
+      outline: "rgba(0,0,0,0.8)",
+      font: "field",
+    });
 }

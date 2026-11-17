@@ -40,7 +40,7 @@ export function drawTimingMeter(x, y, timing, fade) {
   const mark = toX(timing);
   fillRect(mark - 1, y - 3, 3, 11, COLORS.white);
   const call = timingCallout(timing);
-  drawText(call.text, x, y - 12, { align: "center", color: call.color, outline: "rgba(0,0,0,0.8)" });
+  drawText(call.text, x, y - 12, { align: "center", color: call.color, outline: "rgba(0,0,0,0.8)", font: "field" });
   ctx.restore();
 }
 
@@ -48,7 +48,7 @@ export function drawTimingMeter(x, y, timing, fade) {
 export function drawFloat(text, x, y, color, age, rise = 18) {
   ctx.save();
   ctx.globalAlpha = Math.max(0, 1 - age * age);
-  drawText(text, x, Math.round(y - rise * age), { align: "center", color, outline: "rgba(0,0,0,0.8)" });
+  drawText(text, x, Math.round(y - rise * age), { align: "center", color, outline: "rgba(0,0,0,0.8)", font: "field" });
   ctx.restore();
 }
 

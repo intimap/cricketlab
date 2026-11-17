@@ -4,6 +4,7 @@ import { drawText, wrapText } from "../engine/text.js";
 import { COMMENTATORS } from "../sim/commentators.js";
 import { HUD_Y } from "./hud.js";
 import { LOOKS } from "./commentator-looks.js";
+import { sentenceCase } from "./commentary-case.js";
 
 const BOX_W = 252;
 const BOX_H = 52;
@@ -138,17 +139,17 @@ function drawCall(call, now) {
   drawText(voice.name, x + 52, y + 5, { color: COLORS.gold });
   // Wrap the whole line first so words don't jump about as they're revealed.
   let left = spoken;
-  wrapText(call.text, LINE_CHARS)
+  wrapText(sentenceCase(call.text), LINE_CHARS, true)
     .slice(0, 4)
     .forEach((line, i) => {
       const shown = line.slice(0, Math.max(0, left));
       left -= line.length + 1;
-      if (shown) drawText(shown, x + 52, y + 15 + i * 9, { color: COLORS.cream });
+      if (shown) drawText(shown, x + 52, y + 15 + i * 9, { color: COLORS.cream, cased: true });
     });
 }
 
 /** Does this line fit the box without being cut off? */
-export const fitsBox = (text) => wrapText(text.toUpperCase(), LINE_CHARS).length <= 4;
+export const fitsBox = (text) => wrapText(sentenceCase(text), LINE_CHARS, true).length <= 4;
 
 /** Lay a list of { who, text } calls end to end from time `t0`. */
 export function scheduleCalls(calls, t0) {

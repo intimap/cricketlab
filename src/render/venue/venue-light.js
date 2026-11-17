@@ -2,6 +2,8 @@ import { FLAG, LAYER } from "./venue-raster.js";
 import { polar } from "./venue-map.js";
 import { frame } from "./venue-geometry.js";
 import { treePlacement } from "./venue-parts.js";
+import { bowlCasters } from "./venue-stadium.js";
+import { inHull, footDistances, contactShade, softShadow } from "./venue-shade.js";
 
 /**
  * A picture relit for a time of day and the weather (render/light.js, render/weather-look.js): each
@@ -60,24 +62,10 @@ export function castersOf(map) {
       const corners = [hf.point(-3.75, 0), hf.point(3.75, 0), hf.point(3.75, 0.8), hf.point(-3.75, 0.8)];
       boxes.push({ corners, height: p.height + 3.6, from: p.height - 1 });
     }
+    if (p.kind === "bowl") boxes.push(...bowlCasters(p));
     if (p.kind === "trees") for (let i = 0; i < p.count; i++) crowns.push(treePlacement(p, i));
   }
   return { boxes, crowns };
-}
-
-/** Is map point (x, z) inside the convex hull of `pts`? */
-function inHull(pts, x, z) {
-  let sign = 0;
-  for (let i = 0; i < pts.length; i++) {
-    const a = pts[i];
-    const b = pts[(i + 1) % pts.length];
-    const c = (b.x - a.x) * (z - a.z) - (b.z - a.z) * (x - a.x);
-    if (c !== 0) {
-      if (sign === 0) sign = Math.sign(c);
-      else if (Math.sign(c) !== sign) return false;
-    }
-  }
-  return true;
 }
 
 /** Convex hull (gift wrapping is plenty for eight points). */
@@ -102,6 +90,35 @@ function hull(points) {
  * shadow shapes so each point checks only the few near it.
  */
 export function shadowTest(casters, sun) {
+  const key = casterKey(casters);
+  const sunKey = sun ? `${key}:${sun.dir.x.toFixed(4)}:${sun.dir.z.toFixed(4)}:${sun.elevation.toFixed(4)}` : null;
+  if (sunKey && tests.has(sunKey)) return tests.get(sunKey);
+  if (!feet.has(key)) {
+    const stood = casters.boxes.filter((b) => b.foot || !b.from).map((b) => b.foot ?? b.corners);
+    feet.set(key, footDistances(stood, casters.crowns));
+  }
+  const foot = feet.get(key);
+  const test = hardShadowTest(casters, sun);
+  // The soft edge and the shade at the foot of things (venue-shade.js); the exact test is the function itself.
+  test.contact = contactShade(foot);
+  if (sun) {
+    test.cover = softShadow(test, foot);
+    if (tests.size > 12) tests.clear();
+    tests.set(sunKey, test);
+  }
+  return test;
+}
+/** The fields are worked out once for a ground and a sun. */
+const feet = new Map();
+const tests = new Map();
+function casterKey(casters) {
+  let sum = 0;
+  for (const b of casters.boxes) for (const c of b.corners) sum += c.x * 1.3 + c.z * 0.7 + b.height;
+  for (const t of casters.crowns) sum += t.x * 0.9 + t.z * 1.1 + t.height;
+  return `${casters.boxes.length}:${casters.crowns.length}:${sum.toFixed(2)}`;
+}
+
+function hardShadowTest(casters, sun) {
   if (!sun) return () => false;
   const reach = 1 / Math.tan(sun.elevation);
   const h = Math.hypot(sun.dir.x, sun.dir.z) || 1;
@@ -208,13 +225,15 @@ function lit(sun, n, inShadow) {
 
 /**
  * Relight `pic` into `image` (an ImageData-like { data } the picture's size): `look` the time and weather,
- * `shadowed(x, z)` from shadowTest, `haze` { from, per, most }: how far off (depth, m) things start to fade
+ * `shadowed(x, z)` from shadowTest (with its soft edge and the shade at the foot of things, if it has them), `haze` { from, per, most }: how far off (depth, m) things start to fade
  * towards the sky, how much more per metre, and at most. Where there's nothing, the sky goes in (`sky`:
  * { data, rows, foot } from venue-build.js), or it's left clear. Rows `y0` to `y1` only, so a big picture
  * can be relit a slice at a time.
  */
 export function relight(pic, image, look, shadowed, haze, y0 = 0, y1 = pic.h - 1, sky = null) {
   const L = lightingFor(look);
+  const soft = shadowed.cover;
+  const touch = shadowed.contact;
   const out = image.data;
   const src = pic.rgba;
   const { eye, right: R, up: U, forward: F, fx, fy, cx, cy } = pic.cam;
@@ -298,16 +317,20 @@ export function relight(pic, image, look, shadowed, haze, y0 = 0, y1 = pic.h - 1
       const flags = pic.flags[i];
       const layer = pic.layer[i];
       const depth = pic.depth[i];
-      let inShadow = false;
-      if (flags & FLAG.shadowed && L.sun) {
+      // How much in shadow (0 to 1, in bands at a shadow's edge), and the shade at the foot of things.
+      let cover = 0;
+      let contact = 1;
+      if (flags & FLAG.shadowed && (L.sun || touch)) {
         const a = (x + 0.5 - cx) / fx;
-        inShadow = shadowed(eye.x + (R.x * a + rx) * depth, eye.z + (R.z * a + rz) * depth);
+        const gx = eye.x + (R.x * a + rx) * depth;
+        const gz = eye.z + (R.z * a + rz) * depth;
+        if (L.sun) cover = soft ? soft(gx, gz) : shadowed(gx, gz) ? 1 : 0;
+        if (touch) contact = touch(gx, gz);
       }
       const f = pic.normal[i * 3 + 1] === 127 ? flat : factorOf(i);
-      const o = inShadow ? 3 : 0;
-      let r = src[j] * f[o];
-      let g = src[j + 1] * f[o + 1];
-      let bl = src[j + 2] * f[o + 2];
+      let r = src[j] * (f[0] + (f[3] - f[0]) * cover) * contact;
+      let g = src[j + 1] * (f[1] + (f[4] - f[1]) * cover) * contact;
+      let bl = src[j + 2] * (f[2] + (f[5] - f[2]) * cover) * contact;
       if (L.night) {
         // Floodlit: the field bright and cool, everything round it dark; windows and lamps lit.
         if (flags & FLAG.lamp) {

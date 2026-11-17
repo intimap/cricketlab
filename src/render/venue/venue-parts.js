@@ -23,6 +23,8 @@ import {
 } from "./venue-materials.js";
 import { treeSprite, personSprite, umbrellaSprite } from "./venue-sprites.js";
 import { pavilion, flagpole } from "./venue-pavilion.js";
+import { bowl, videoScreen, adBoards } from "./venue-stadium.js";
+import { shore, pier, yachts, bathingBoxes } from "./venue-bay.js";
 
 /**
  * The parts kit: each kind of thing round a ground, drawn into a picture from its entry in the map
@@ -36,7 +38,9 @@ import { pavilion, flagpole } from "./venue-pavilion.js";
  *   floodlight   { bearing, radius, height }               a lattice tower with a head of lamps
  *   sightscreen  { bearing, radius, width, height }        white, or black for the white ball
  *   trees        { from, to, r0, r1, count, height, kinds } a stand of trees, seeded
- *   fence        the map's picket fence (map.fence)
+ *   fence        the map's picket fence (map.fence), or advertising boards (style "boards")
+ *   bowl         a stadium's tiers and roof round the arc, and its video screen (venue-stadium.js)
+ *   shore, pier, yachts, bathingBoxes   a ground by the water (venue-bay.js)
  */
 
 const front = (bearing) => (bearing + 180) % 360;
@@ -173,7 +177,8 @@ function* bank(pic, p) {
   }
 }
 
-function scoreboard(pic, p) {
+function scoreboard(pic, p, ctx) {
+  if (p.style === "screen") return videoScreen(pic, p, ctx);
   const c = polar(p.bearing, p.radius);
   const facing = front(p.bearing);
   const f = frame(c, facing);
@@ -264,7 +269,7 @@ function* trees(pic, p) {
 
 function fence(pic, map) {
   const r = map.fence.radius;
-  const pk = pickets(map.fence.height);
+  const pk = map.fence.style === "boards" ? adBoards(map.fence.height) : pickets(map.fence.height);
   arc(0, 360, r, r, (a, b, _a1, _b1, u0) => wall(pic, a, b, 0, map.fence.height, pk, LAYER.fence, { twoSided: true, u0 }), 2.5);
 }
 
@@ -375,6 +380,11 @@ const KINDS = {
   nets,
   shed,
   path,
+  bowl,
+  shore,
+  pier,
+  yachts,
+  bathingBoxes,
 };
 
 /**
@@ -382,8 +392,9 @@ const KINDS = {
  * within the big ones (stands of trees, crowds on banks), so it can be spread over frames. ctx: { ballKind }.
  */
 export function* partsWork(pic, map, ctx = {}) {
+  const all = { ...ctx, map };
   for (const part of map.parts) {
-    const work = KINDS[part.kind](pic, part, ctx);
+    const work = KINDS[part.kind](pic, part, all);
     if (work?.next) yield* work;
     yield;
   }

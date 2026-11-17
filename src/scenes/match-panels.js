@@ -65,18 +65,6 @@ export function drawPanels(scene) {
     drawOverSummary({ title, dots, line: review.line, facing: scene.screenTurn }, scene.now);
   }
 
-  if (scene.phase === "flight" && scene.human === "bat" && scene.cur?.contactDone && scene.cur.play) {
-    const live = scene.cur.play.live;
-    const dir = scene.runDirection(live);
-    if (dir !== null && !live.wicket && !live.boundary) {
-      const running = live.runners[0].target !== null;
-      // `dir` is the key that acts now: run, or (running) send them back; the other way asks for another.
-      const [back, on] = dir === 1 ? ["UP", "DOWN"] : ["DOWN", "UP"];
-      const text = running ? `${back}: GET BACK   ${on}: ANOTHER` : `${back}: RUN`;
-      drawText(text, WIDTH / 2, 6, { ...PANEL_TEXT, color: running ? COLORS.cream : COLORS.gold, scale: 2 });
-    }
-  }
-
   if (scene.phase === "runup" && scene.human === "bowl" && scene.cur && scene.cur.tRun < 0.6) {
     drawText("SPACE ON HIS LAST TWO STRIDES, THEN AT THE DELIVERY STRIDE  -  HOLD LEFT/RIGHT FOR AFTERTOUCH", WIDTH / 2, 6, {
       ...PANEL_TEXT,

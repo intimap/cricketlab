@@ -156,10 +156,18 @@ export function bowl(pic, p, ctx) {
     ring(B.lower.depth, B.lower.depth, (a0, b0, _a, _b, u0) =>
       wall(pic, a0, b0, B.lower.top, B.boxes.top, mats.boxes, L, { u0 }),
     );
-    ring(B.upper.front, B.upper.front + B.upper.depth, (a0, b0, a1, b1, u0) => {
-      wall(pic, a0, b0, B.boxes.top, B.upper.parapet, mats.parapet, L, { u0 });
-      quad(a0, b0, B.upper.parapet, a1, b1, B.upper.top, mats.upper, 1, u0, { v0: lowerRise + 3 });
-    });
+    // The back rows are under the roof: each third of the tier a shade darker than the one in front.
+    const thirds = 3;
+    const rows = Math.hypot(B.upper.depth, B.upper.top - B.upper.parapet) / thirds;
+    for (let k = 0; k < thirds; k++) {
+      const d0 = B.upper.front + (B.upper.depth * k) / thirds;
+      const y0 = B.upper.parapet + ((B.upper.top - B.upper.parapet) * k) / thirds;
+      const y1 = B.upper.parapet + ((B.upper.top - B.upper.parapet) * (k + 1)) / thirds;
+      ring(d0, d0 + B.upper.depth / thirds, (a0, b0, a1, b1, u0) => {
+        if (k === 0) wall(pic, a0, b0, B.boxes.top, B.upper.parapet, mats.parapet, L, { u0 });
+        quad(a0, b0, y0, a1, b1, y1, mats.upper, 1, u0, { v0: lowerRise + 3 + rows * k, bright: 1 - 0.1 * k });
+      });
+    }
     ring(B.upper.front + B.upper.depth, 0, (a0, b0, _a, _b, u0) =>
       wall(pic, a0, b0, B.upper.top, B.roof.ridge, mats.back, L, { u0 }),
     );
@@ -183,7 +191,12 @@ export function bowlCasters(p) {
     p.to,
     p.r0 + inner,
     p.r0 + BOWL.roof.back,
-    (a0, b0, a1, b1) => blocks.push({ corners: [a0, b0, b1, a1], height }),
+    (a0, b0, a1, b1) => {
+      // It stands on the ground from its front wall back, though its shadow is thrown from under the roof.
+      const k = p.r0 / (p.r0 + inner);
+      const foot = [{ x: a0.x * k, z: a0.z * k }, { x: b0.x * k, z: b0.z * k }, b1, a1];
+      blocks.push({ corners: [a0, b0, b1, a1], height, foot });
+    },
     20,
   );
   return blocks;

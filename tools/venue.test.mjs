@@ -240,3 +240,24 @@ test("the City Bowl: a stadium all the way round that never covers the field, wi
     assert.ok(layer === LAYER.buildings || layer === LAYER.crowd, `stands at end ${far}`);
   }
 });
+
+test("soft shade: a shadow is full inside, clear outside and banded at its edge; things darken the ground at their foot", async () => {
+  const { footDistances, contactShade, softShadow } = await import("../src/render/venue/venue-shade.js");
+  const square = [
+    { x: -10, z: -10 },
+    { x: 10, z: -10 },
+    { x: 10, z: 10 },
+    { x: -10, z: 10 },
+  ];
+  const foot = footDistances([square], []);
+  // A shadow lying from the square out to x = 60.
+  const cover = softShadow((x, z) => x > -10 && x < 60 && Math.abs(z) < 10, foot);
+  assert.equal(cover(25, 0), 1);
+  assert.equal(cover(25, 40), 0);
+  const edge = [8, 9.5, 10.5, 12].map((z) => cover(40, z));
+  assert.ok(edge.every((v, i) => i === 0 || v <= edge[i - 1]) && edge[0] > edge[3], `fades across the edge: ${edge}`);
+  assert.ok(cover(40, 9.9) > 0 && cover(40, 9.9) < 1, "a band at the edge, inside the exact shadow");
+  const contact = contactShade(foot);
+  assert.ok(contact(11, 0) < contact(13, 0) && contact(13, 0) < 1);
+  assert.equal(contact(30, 0), 1);
+});

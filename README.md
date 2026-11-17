@@ -269,6 +269,7 @@ src/
       venue-raster.js   the small renderer: faces with a depth test, sprites, the ground; per-pixel normals and layers
       venue-geometry.js walls, slopes, boxes, roofs and arcs from plan points
       venue-parts.js    the parts kit: each kind of thing round a ground, drawn from its map entry
+      venue-shade.js    soft shade from distance fields: banded shadow edges, darker ground at the foot of things
       venue-stadium.js  a stadium's parts: the bowl (tiers, boxes, roof with lamps), the video screen, advertising boards
       city-bowl-map.js  the City Bowl's map: a two-tier stadium, the members' pavilion at one end, the screen at the other
       venue-pavilion.js the pavilion: two storeys, verandah and balcony, clock gable, flag

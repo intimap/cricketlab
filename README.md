@@ -141,7 +141,7 @@ Each computer batter has a hidden weakness (loose outside off, a compulsive hook
 ## How the code is organised
 
 ```
-index.html            page shell and key strip
+index.html            page shell
 assets/               venue art: each ground's layers for the close and wide views, wide perimeters, the MCG stadium
 src/
   main.js             boot, asset loading, game loop, scene switching

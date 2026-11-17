@@ -3,7 +3,7 @@
     python3 tools/build-single.py OUT.html [--ref main] [--title "BitWicket"] [--stamp]
 
 Builds the working tree, or a git ref with --ref. Needs esbuild (on PATH, or via npx).
---stamp adds "Build: <ref> @ <commit>" to the key strip under the game.
+--stamp adds "BUILD <ref> @ <commit>" after the date at the foot of the menu.
 """
 import argparse, os, re, shutil, subprocess, sys, tempfile
 
@@ -31,6 +31,11 @@ with tempfile.TemporaryDirectory() as tmp:
         version_js = os.path.join(tmp, "src", "version.js")
         code = open(version_js).read()
         open(version_js, "w").write(re.sub(r'LAST_VERSION = "[^"]*"', f'LAST_VERSION = "{merged}"', code))
+    if args.stamp:
+        commit = subprocess.run(["git", "-C", root, "rev-parse", "--short", args.ref or "HEAD"], capture_output=True, text=True).stdout.strip()
+        version_js = os.path.join(tmp, "src", "version.js")
+        code = open(version_js).read()
+        open(version_js, "w").write(code.replace('BUILD_STAMP = ""', f'BUILD_STAMP = "{args.ref or "working tree"} @ {commit}"'))
 
     # new URL("../assets/x.png", import.meta.url) can't be bundled: turn each into an import.
     assets_js = os.path.join(tmp, "src", "assets.js")
@@ -53,9 +58,5 @@ with tempfile.TemporaryDirectory() as tmp:
     js = open(bundle).read().replace("</script", "<\\/script")
     html = re.sub(r"<title>.*?</title>", lambda _: f"<title>{args.title}</title>", html, count=1)
     html = html.replace('<script type="module" src="src/main.js"></script>', f"<script>{js}</script>")
-    if args.stamp:
-        commit = subprocess.run(["git", "-C", root, "rev-parse", "--short", args.ref or "HEAD"], capture_output=True, text=True).stdout.strip()
-        html = html.replace("<span><b>Esc</b> menu &amp; instructions</span>",
-                            f"<span><b>Esc</b> menu &amp; instructions</span>\n      <span>Build: {args.ref or 'working tree'} @ {commit}</span>")
     open(args.out, "w").write(html)
 print(f"wrote {args.out}")

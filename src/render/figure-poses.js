@@ -1,3 +1,5 @@
+import { sprintPose } from "./figure-run.js";
+
 /** Close-view figures' poses: where the feet and hands go for each pose and phase. */
 
 /**
@@ -6,6 +8,7 @@
  * `top` is the top of the shoulders; bob lifts or sinks the whole body.
  */
 export function figurePose(pose, phase) {
+  if (pose === "sprint") return sprintPose(phase);
   let lean = 0;
   let bob = 0;
   let feet = [
@@ -14,11 +17,13 @@ export function figurePose(pose, phase) {
   ];
   if (pose === "run" || pose === "walk") {
     const swing = Math.sin(phase * Math.PI * 2) * (pose === "run" ? 1 : 0.5);
+    // Running at or away from the camera the feet stay under the hips; a knee comes up each stride.
+    const reach = pose === "run" ? 0.5 : 2;
     feet = [
-      { x: -3 - swing * 2, y: -1 - Math.max(0, swing) * 6 },
-      { x: 3 + swing * 2, y: -1 - Math.max(0, -swing) * 6 },
+      { x: -3.5 - swing * reach, y: -1 - Math.max(0, swing) * (pose === "run" ? 8 : 6) },
+      { x: 3.5 + swing * reach, y: -1 - Math.max(0, -swing) * (pose === "run" ? 8 : 6) },
     ];
-    bob = Math.abs(swing);
+    bob = pose === "run" ? 1.5 - 1.5 * Math.cos(4 * Math.PI * phase) : Math.abs(swing);
     if (pose === "run") lean = 1;
   } else if (pose === "bound") {
     feet = [
@@ -54,10 +59,11 @@ export function figurePose(pose, phase) {
       ];
       break;
     case "run": {
+      // Arms pumping against the legs, close in to the body.
       const swing = Math.sin(phase * Math.PI * 2);
       hands = [
-        { x: -8, y: top + 15 - swing * 6 },
-        { x: 8, y: top + 15 + swing * 6 },
+        { x: -6, y: top + 14 - swing * 5 },
+        { x: 6, y: top + 14 + swing * 5 },
       ];
       break;
     }

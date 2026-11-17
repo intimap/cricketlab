@@ -24,10 +24,11 @@ export { drawTinyFigure, fielderPose } from "./tiny-figures.js";
  * A full-size figure for the close view (bowler, umpire, non-striker), feet
  * at (x, y), `height` pixels tall, facing the camera. Built on the same kind
  * of jointed skeleton as the striker.
- * opts: { kit, pose, phase (animation cycle), umpire?, bat?, back? (seen from behind: mirrored, no face) }
+ * opts: { kit, pose, phase (animation cycle), umpire?, bat?, back? (seen from behind: mirrored, no face),
+ * flip? (mirrored: a side-on pose facing left) }
  */
 export function drawFigure(x, y, height, opts) {
-  if (opts.back) mirrored(x, () => drawFigureBody(x, y, height, opts));
+  if (!!opts.back !== !!opts.flip) mirrored(x, () => drawFigureBody(x, y, height, opts));
   else drawFigureBody(x, y, height, opts);
 }
 
@@ -58,13 +59,15 @@ function drawFigureBody(x, y, height, opts) {
   const pantsShade = umpire ? "#1c1e25" : (kit.pantsShade ?? kit.shade);
   const skinShade = darken(kit.skin, 35);
 
-  const { lean, top, feet, hands } = figurePose(opts.pose, opts.phase);
-  const pelvis = { x: lean * 0.4, y: top + 19 };
-  const hips = [
+  const pose = figurePose(opts.pose, opts.phase);
+  const { lean, top, feet, hands } = pose;
+  // A side-on pose (render/figure-run.js) brings its own joints; facing the camera they're worked out here.
+  const pelvis = pose.pelvis ?? { x: lean * 0.4, y: top + 19 };
+  const hips = pose.hips ?? [
     { x: pelvis.x - 3, y: pelvis.y },
     { x: pelvis.x + 3, y: pelvis.y },
   ];
-  const shoulders = [
+  const shoulders = pose.shoulders ?? [
     { x: lean - 7.5, y: top + 2 },
     { x: lean + 7.5, y: top + 2 },
   ];
@@ -72,12 +75,14 @@ function drawFigureBody(x, y, height, opts) {
   const outward = (side) => (a, b) => ((a.x - b.x) * side > 0 ? a : b);
   // Facing the camera a bent knee points at us, so it sits between hip and
   // foot, nudged outwards a little more the more the leg is folded.
-  const knees = [0, 1].map((i) => {
-    const fold = Math.max(0, 22.4 - Math.hypot(feet[i].x - hips[i].x, feet[i].y - hips[i].y));
-    const side = i ? 1 : -1;
-    return { x: (hips[i].x + feet[i].x) / 2 + side * fold * 0.15, y: (hips[i].y + feet[i].y) / 2 - fold * 0.1 };
-  });
-  const elbows = [0, 1].map((i) => joint(shoulders[i], hands[i], 9.5, 9, outward(i ? 1 : -1)));
+  const knees =
+    pose.knees ??
+    [0, 1].map((i) => {
+      const fold = Math.max(0, 22.4 - Math.hypot(feet[i].x - hips[i].x, feet[i].y - hips[i].y));
+      const side = i ? 1 : -1;
+      return { x: (hips[i].x + feet[i].x) / 2 + side * fold * 0.15, y: (hips[i].y + feet[i].y) / 2 - fold * 0.1 };
+    });
+  const elbows = pose.elbows ?? [0, 1].map((i) => joint(shoulders[i], hands[i], 9.5, 9, outward(i ? 1 : -1)));
 
   groundShadow(x, y, 9 * k, 2 * k, 0.3);
 
@@ -111,6 +116,7 @@ function drawFigureBody(x, y, height, opts) {
     pants,
   );
 
+  if (pose.side) drawArm(0);
   // Torso: broad shoulders, narrow waist; the umpire's coat hangs straighter.
   const waist = umpire ? 6.5 : 5;
   const torso = [
@@ -272,8 +278,9 @@ function drawFigureBody(x, y, height, opts) {
     );
   }
 
-  // Arms: players in short sleeves, the umpire in his coat.
-  for (const i of [0, 1]) {
+  // Arms: players in short sleeves, the umpire in his coat. Side-on, the far arm went in behind the body.
+  for (const i of pose.side ? [1] : [0, 1]) drawArm(i);
+  function drawArm(i) {
     const s = shoulders[i];
     const e = elbows[i];
     const sleeve = umpire ? e : { x: s.x + (e.x - s.x) * 0.6, y: s.y + (e.y - s.y) * 0.6 };

@@ -134,7 +134,8 @@ export function groundShade(map, pitch, { field = true } = {}) {
       if (r < map.fence.radius + 3.2) return (grain(out, r < map.fence.radius + 0.4 ? verge : path, px, py, 8), true);
       if (onDecal(x, z, r, out, px, py)) return true;
       // Mown and rough patches of grass (the trees' own shadows fall on it from the sun: venue-light.js).
-      const patch = smooth(x / 11, z / 11);
+      // Paved round a stadium: one colour, no patches.
+      const patch = map.grass.paved ? 0.5 : smooth(x / 11, z / 11);
       grain(out, patch < 0.32 ? mown : patch > 0.7 ? rough : beyond, px, py, 8);
       return true;
     }

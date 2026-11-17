@@ -62,6 +62,19 @@
       }
     },
     {
+      "situation": "venue",
+      "case": "cityBowl",
+      "kind": "match",
+      "lines": {
+        "any": [
+          "A FULL HOUSE AT THE CITY BOWL.",
+          "TWO TIERS ALL THE WAY ROUND, AND NOT A SEAT TO BE HAD.",
+          "THE CITY BOWL. THE NOISE DOESN'T GET OUT FROM UNDER THAT ROOF.",
+          "A BIG GROUND AND A BIG CROWD. THE CITY BOWL IS READY."
+        ]
+      }
+    },
+    {
       "situation": "pitch",
       "case": "green",
       "kind": "match",

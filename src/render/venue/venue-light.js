@@ -2,6 +2,7 @@ import { FLAG, LAYER } from "./venue-raster.js";
 import { polar } from "./venue-map.js";
 import { frame } from "./venue-geometry.js";
 import { treePlacement } from "./venue-parts.js";
+import { bowlCasters } from "./venue-stadium.js";
 
 /**
  * A picture relit for a time of day and the weather (render/light.js, render/weather-look.js): each
@@ -60,6 +61,7 @@ export function castersOf(map) {
       const corners = [hf.point(-3.75, 0), hf.point(3.75, 0), hf.point(3.75, 0.8), hf.point(-3.75, 0.8)];
       boxes.push({ corners, height: p.height + 3.6, from: p.height - 1 });
     }
+    if (p.kind === "bowl") boxes.push(...bowlCasters(p));
     if (p.kind === "trees") for (let i = 0; i < p.count; i++) crowns.push(treePlacement(p, i));
   }
   return { boxes, crowns };

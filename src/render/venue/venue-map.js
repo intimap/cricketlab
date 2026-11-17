@@ -12,7 +12,8 @@ import { MID_PITCH } from "../../sim/geometry.js";
  *   name, ends            the ground's name and its two ends' names (end 0 first)
  *   boundary              the rope's radius (m), the sim's 66 m circle
  *   fence                 { radius, height }: the picket fence round the outfield
- *   grass                 { light, dark, stripe }: the outfield and its mowing stripes (m wide, across the pitch)
+ *   grass                 { light, dark, stripe }: the outfield and its mowing stripes (m wide, across the pitch);
+ *                         beyond and path, the ground past the fence (paved: one colour, no patches of grass)
  *   parts                 [{ kind, ...}]: buildings, banks, trees, lights (see venue-parts.js for each kind)
  *   life                  spots kept for moving things later: flags, the scoreboard, the crowd's layer
  *   painted               { layerKey: { asset, fingerprint } }: layers painted over (venue-paint-over.js)

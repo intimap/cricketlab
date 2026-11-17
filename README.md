@@ -332,6 +332,7 @@ src/
     ball-trail.js     the delivery's fading trail and the pitch-map landing reticle (close view)
     feedback.js       arcade feedback drawn: timing meter and callout, floating words, eased bars
     booth.js          commentator portraits and the commentary popup (the box's remarks)
+    commentary-case.js  the commentary set in sentences: capitals to start, and on names, grounds and teams
     commentator-looks.js  each commentator's colours, for the portrait and the HUD's little head
     ball-ring.js      the ring round the ball in flight: length and movement
     run-bar.js        the run bar above the score bar: the pitch on its side, each batter along it, in or out of his ground

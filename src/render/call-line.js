@@ -2,6 +2,7 @@ import { WIDTH, COLORS, fillRect } from "../engine/screen.js";
 import { drawText, textWidth } from "../engine/text.js";
 import { COMMENTATORS } from "../sim/commentators.js";
 import { LOOKS } from "./commentator-looks.js";
+import { sentenceCase } from "./commentary-case.js";
 
 /**
  * The HUD's bottom line: the over's caller calling the ball as it happens (scenes/booth-beats.js), with his
@@ -55,5 +56,5 @@ export function drawCallLine(call, now, y) {
   const shown = shownOf(call, now);
   drawHead(COMMENTATORS[call.who].id, X, y - 2, shown < call.text.length, now);
   drawText(surnameOf(call.who), X + HEAD + 4, y, { color: COLORS.gold });
-  drawText(call.text.slice(0, shown).toUpperCase(), textX(call.who), y, { color: COLORS.cream });
+  drawText(sentenceCase(call.text).slice(0, shown), textX(call.who), y, { color: COLORS.cream, cased: true });
 }

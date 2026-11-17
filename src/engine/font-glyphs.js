@@ -1,7 +1,8 @@
 /**
  * The game's text font: bold serif capitals and figures, seven pixels tall, each letter as wide as it needs
  * (an I is narrow, an M wide; the figures all the same so columns of numbers line up). Thick upright
- * strokes, thin cross strokes and small serifs. Drawn for this game.
+ * strokes, thin cross strokes and small serifs. Drawn for this game. Most text is in capitals; the
+ * commentary is set in sentences, with small letters.
  *
  * Letters and figures are rows of # (ink) and . (clear). Symbols are rows of five-bit masks, most
  * significant bit on the left, and take the width of their ink (or five where it matters: arrows).
@@ -43,6 +44,39 @@ const LETTERS = {
   7: ["#####", "#..##", "...##", "..##.", "..##.", ".##..", ".##.."],
   8: [".###.", "##.##", "##.##", ".###.", "##.##", "##.##", ".###."],
   9: [".###.", "##.##", "##.##", ".####", "...##", "...##", ".###."],
+};
+
+/**
+ * Small letters, for text set in sentences (the commentary): nine rows, the last two below the line for
+ * the tails of g, j, p, q and y.
+ */
+const SMALL = {
+  a: [".....", ".....", ".###.", "...##", ".####", "#..##", ".####", ".....", "....."],
+  b: ["##...", "##...", "####.", "##.##", "##.##", "##.##", "####.", ".....", "....."],
+  c: ["....", "....", ".###", "##..", "##..", "##..", ".###", "....", "...."],
+  d: ["...##", "...##", ".####", "##.##", "##.##", "##.##", ".####", ".....", "....."],
+  e: [".....", ".....", ".###.", "##.##", "#####", "##...", ".####", ".....", "....."],
+  f: ["..##", ".##.", "####", ".##.", ".##.", ".##.", ".##.", "....", "...."],
+  g: [".....", ".....", ".####", "##.##", "##.##", "##.##", ".####", "...##", ".###."],
+  h: ["##...", "##...", "####.", "##.##", "##.##", "##.##", "##.##", ".....", "....."],
+  i: ["##", "..", "##", "##", "##", "##", "##", "..", ".."],
+  j: [".##", "...", ".##", ".##", ".##", ".##", ".##", ".##", "##."],
+  k: ["##...", "##...", "##.##", "##.#.", "###..", "##.#.", "##.##", ".....", "....."],
+  l: ["##", "##", "##", "##", "##", "##", "##", "..", ".."],
+  m: [".......", ".......", "######.", "##.#.##", "##.#.##", "##.#.##", "##.#.##", ".......", "......."],
+  n: [".....", ".....", "####.", "##.##", "##.##", "##.##", "##.##", ".....", "....."],
+  o: [".....", ".....", ".###.", "##.##", "##.##", "##.##", ".###.", ".....", "....."],
+  p: [".....", ".....", "####.", "##.##", "##.##", "##.##", "####.", "##...", "##..."],
+  q: [".....", ".....", ".####", "##.##", "##.##", "##.##", ".####", "...##", "...##"],
+  r: ["....", "....", "##.#", "###.", "##..", "##..", "##..", "....", "...."],
+  s: ["....", "....", ".###", "##..", ".##.", "..##", "###.", "....", "...."],
+  t: [".#..", ".##.", "####", ".##.", ".##.", ".##.", "..##", "....", "...."],
+  u: [".....", ".....", "##.##", "##.##", "##.##", "##.##", ".####", ".....", "....."],
+  v: [".....", ".....", "##.##", "##.##", "##.#.", ".###.", "..#..", ".....", "....."],
+  w: [".......", ".......", "##.#.##", "##.#.##", "##.#.##", "##.#.##", ".##.##.", ".......", "......."],
+  x: [".....", ".....", "##.##", ".###.", "..#..", ".###.", "##.##", ".....", "....."],
+  y: [".....", ".....", "##.##", "##.##", "##.##", ".####", "...##", "...##", ".###."],
+  z: ["....", "....", "####", "..##", ".##.", "##..", "####", "....", "...."],
 };
 
 const SYMBOLS = {
@@ -89,9 +123,10 @@ const FULL_WIDTH = "↑↓←→↗↖↘↙+=#";
 const SPACE = 3;
 
 /** Every glyph as { w, rows }: `rows` seven bit masks, the leftmost column the highest of `w` bits. */
+const mask = (row) => parseInt(row.replaceAll("#", "1").replaceAll(".", "0"), 2);
 export const GLYPHS = {};
 for (const [ch, art] of Object.entries(LETTERS)) {
-  GLYPHS[ch] = { w: art[0].length, rows: art.map((row) => parseInt(row.replaceAll("#", "1").replaceAll(".", "0"), 2)) };
+  GLYPHS[ch] = { w: art[0].length, rows: art.map(mask) };
 }
 for (const [ch, masks] of Object.entries(SYMBOLS)) {
   if (ch === " ") {
@@ -107,6 +142,11 @@ for (const [ch, masks] of Object.entries(SYMBOLS)) {
   }
   GLYPHS[ch] = { w: 5 - left - right, rows: masks.map((m) => m >> right) };
 }
-/** The gap (px) between letters, and how tall the font is. */
+/** The small letters, as GLYPHS is (their rows run two below the line). */
+export const SMALL_GLYPHS = {};
+for (const [ch, art] of Object.entries(SMALL)) SMALL_GLYPHS[ch] = { w: art[0].length, rows: art.map(mask) };
+
+/** The gap (px) between letters, how tall the capitals are, and how tall a line with small letters' tails is. */
 export const GAP = 1;
 export const HEIGHT = 7;
+export const CASED_HEIGHT = 9;

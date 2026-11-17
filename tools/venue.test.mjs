@@ -8,6 +8,7 @@ import { closeCamera, tvCamera, tvWideCamera } from "../src/render/venue/venue-c
 import { mapToWorld, worldToMap, bowlingEndOf, polar, fingerprint } from "../src/render/venue/venue-map.js";
 import { PARKLANDS_MAP } from "../src/render/venue/parklands-map.js";
 import { CITY_BOWL_MAP } from "../src/render/venue/city-bowl-map.js";
+import { BAYSIDE_MAP } from "../src/render/venue/bayside-map.js";
 import { venuePicture, clearVenueCache } from "../src/render/venue/venue-build.js";
 import { LAYER } from "../src/render/venue/venue-raster.js";
 import { turnLight, sunOf } from "../src/render/venue/venue-light.js";
@@ -210,7 +211,7 @@ test("signed off: Parklands (new) has taken over the old Parklands' id and name;
   const { GROUND_CHOICES, DEFAULT_GROUND } = await import("../src/render/grounds.js");
   assert.equal(GROUNDS.parklands.venue, PARKLANDS_MAP);
   assert.equal(GROUNDS.parklands.name, "PARKLANDS OVAL");
-  assert.deepEqual(GROUND_CHOICES, ["parklands", "cityBowl"]);
+  assert.deepEqual(GROUND_CHOICES, ["parklands", "cityBowl", "bayside"]);
   assert.equal(DEFAULT_GROUND, "parklands");
 });
 
@@ -260,4 +261,28 @@ test("soft shade: a shadow is full inside, clear outside and banded at its edge;
   const contact = contactShade(foot);
   assert.ok(contact(11, 0) < contact(13, 0) && contact(13, 0) < 1);
   assert.equal(contact(30, 0), 1);
+});
+
+test("Bayside Oval: the bay end is open to the water, and nothing on land stands in the sea", () => {
+  for (const p of BAYSIDE_MAP.parts) assert.ok(PART_KINDS.includes(p.kind), p.kind);
+  clearVenueCache();
+  // From the clubhouse end, beside the sightscreen and just under the horizon: the sea, bluer than it's green.
+  const pic = venuePicture(BAYSIDE_MAP, GROUNDS.bayside, pitch, "close", 1);
+  const cam = closeCamera(1);
+  for (const x of [-40, -22]) {
+    const s = cam.project({ x, y: 0, z: -150 });
+    const [r, g, b] = pixel(pic, Math.round(s.x), Math.round(s.y));
+    assert.ok(b > g && b > r, `the sea at ${x}: ${[r, g, b]}`);
+  }
+  // Everything that stands on land is short of the sand (86 m out towards the bay).
+  const shore = BAYSIDE_MAP.parts.find((p) => p.kind === "shore");
+  const afloat = ["shore", "pier", "yachts", "path"];
+  for (const p of BAYSIDE_MAP.parts.filter((q) => !afloat.includes(q.kind))) {
+    const reach = p.top ?? p.r1 ?? (p.radius ?? 0) + (p.depth ?? 4);
+    for (const b of p.bearing !== undefined ? [p.bearing] : [p.from, p.to]) {
+      const out = -polar(b, reach).z;
+      const between = p.from !== undefined && (180 - p.from + 360) % 360 < (p.to - p.from + 360) % 360;
+      assert.ok(out < shore.sand && !between, `${p.kind} at ${b} is ${out.toFixed(0)} m towards the bay`);
+    }
+  }
 });

@@ -5,6 +5,7 @@ import { FLAG, LAYER } from "./venue-raster.js";
 import { box } from "./venue-geometry.js";
 import { hash } from "./venue-materials.js";
 import { bearingOf, withinBearings } from "./venue-map.js";
+import { shoreGround } from "./venue-bay.js";
 
 /**
  * The ground itself in a map's frame: the outfield's mowing stripes across the pitch, the rope, the
@@ -104,7 +105,10 @@ export function groundShade(map, pitch, { field = true } = {}) {
   const colours = outfield(map);
   // The ground's own markings past the fence: paths, the car park, the nets' strips (venue-parts.js).
   const decals = map.parts.filter((p) => p.kind === "path" || p.kind === "carpark" || p.kind === "nets");
+  // A shore: sand and the sea, past everything else on that side (venue-bay.js).
+  const shores = map.parts.filter((p) => p.kind === "shore").map(shoreGround);
   const onDecal = (x, z, r, out, px, py) => {
+    for (const s of shores) if (s(x, z, px, py, out)) return true;
     const b = bearingOf(x, z);
     for (const d of decals) {
       if (d.kind === "path" && d.bearing !== undefined) {

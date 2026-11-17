@@ -24,6 +24,7 @@ import {
 import { treeSprite, personSprite, umbrellaSprite } from "./venue-sprites.js";
 import { pavilion, flagpole } from "./venue-pavilion.js";
 import { bowl, videoScreen, adBoards } from "./venue-stadium.js";
+import { shore, pier, yachts, bathingBoxes } from "./venue-bay.js";
 
 /**
  * The parts kit: each kind of thing round a ground, drawn into a picture from its entry in the map
@@ -39,6 +40,7 @@ import { bowl, videoScreen, adBoards } from "./venue-stadium.js";
  *   trees        { from, to, r0, r1, count, height, kinds } a stand of trees, seeded
  *   fence        the map's picket fence (map.fence), or advertising boards (style "boards")
  *   bowl         a stadium's tiers and roof round the arc, and its video screen (venue-stadium.js)
+ *   shore, pier, yachts, bathingBoxes   a ground by the water (venue-bay.js)
  */
 
 const front = (bearing) => (bearing + 180) % 360;
@@ -379,6 +381,10 @@ const KINDS = {
   shed,
   path,
   bowl,
+  shore,
+  pier,
+  yachts,
+  bathingBoxes,
 };
 
 /**

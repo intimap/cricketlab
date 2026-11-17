@@ -78,6 +78,8 @@ const CLIMATES = {
   lakshmi: { sunny: 3, overcast: 3, humid: 1, hot: 1, rain: 2 },
   theG: { sunny: 4, overcast: 2, humid: 1, hot: 3, rain: 1 },
   scg: { sunny: 4, overcast: 1, humid: 3, hot: 2, rain: 1 },
+  // By the water: fewer hot days, more grey and close ones, so the ball swings more often.
+  bayside: { sunny: 3, overcast: 3, humid: 3, hot: 1, rain: 1 },
   default: { sunny: 4, overcast: 2, humid: 2, hot: 2, rain: 1 },
 };
 

@@ -207,7 +207,7 @@ export const SITUATIONS = {
   betweenOvers: { rest: 0, exchanges: true },
 
   // --- The ground, the weather, the intervals, the rain, the umpire and the wrap-up (scene.json). ---
-  venue: { cases: ["theG", "lords", "scg", "lakshmi", "parklands", "cityBowl"] },
+  venue: { cases: ["theG", "lords", "scg", "lakshmi", "parklands", "cityBowl", "bayside"] },
   pitch: { cases: ["green", "dust", "cracked"] },
   light: { cases: ["afternoon", "evening", "night"] },
   weather: { facts: ["temp"], cases: ["sunny", "overcast", "humid", "hot", "rain"] },

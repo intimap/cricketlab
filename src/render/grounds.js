@@ -1,6 +1,7 @@
 import { MCG_CAMERA } from "./stadium-camera.js";
 import { PARKLANDS_MAP } from "./venue/parklands-map.js";
 import { CITY_BOWL_MAP } from "./venue/city-bowl-map.js";
+import { BAYSIDE_MAP } from "./venue/bayside-map.js";
 import { tvWideCamera } from "./venue/venue-cameras.js";
 /**
  * Grounds as data. Each view is built from layers (see ground.js):
@@ -317,7 +318,18 @@ GROUNDS.lakshmi = {
  * The grounds the menu offers, the first being the default. For now only Parklands, the ground built from
  * a map (TODO.md, Grounds); the others are kept and still work, and come back by adding them to ON_MENU.
  */
-const ON_MENU = ["parklands", "cityBowl"];
+/** Bayside Oval: a club ground on the foreshore, drawn from its map (render/venue/bayside-map.js). */
+GROUNDS.bayside = {
+  ...GROUNDS.parklandsNew,
+  hidden: false,
+  name: BAYSIDE_MAP.name,
+  ends: BAYSIDE_MAP.ends,
+  venue: BAYSIDE_MAP,
+  close: { ...GROUNDS.oval.close },
+  wide: { camera: tvWideCamera() },
+};
+
+const ON_MENU = ["parklands", "cityBowl", "bayside"];
 export const GROUND_CHOICES = Object.keys(GROUNDS).filter((id) => !GROUNDS[id].hidden && ON_MENU.includes(id));
 export const DEFAULT_GROUND = "parklands";
 

@@ -222,7 +222,6 @@ export function stickShot(scene) {
   cur.stickLift = track.lift ?? 0;
   cur.stickDepth = track.depth ?? 0;
   if (!shot) return null;
-  if (shot.power) scene.flash("POWER!", COLORS.gold);
   track.played = { label: labelOf(shot.button, shot.side, scene), power: shot.power, aim: shot.aim ?? null, at: scene.now };
   // Off side or leg side, as the batter stands to the camera (the aim too: + is his off side).
   const turn = scene.screenTurn ?? 1;

@@ -2,7 +2,7 @@ import { clamp, easeIn, easeOut } from "../math.js";
 import { CREASE } from "../sim/geometry.js";
 import { crossingAtZ } from "../sim/delivery.js";
 import { SWING_TIME, NORMAL_CHARGE, CONTACT_Z_BACK, backFootShot, driveBearing } from "../sim/batting.js";
-import { feetOf, strideTime, STRIDES } from "../sim/feet.js";
+import { feetOf, strideTime, STRIDES, PLAYER_ACROSS } from "../sim/feet.js";
 import { projectFromStriker } from "../render/camera.js";
 import { BATTER_POSES, lerpPose, reachPose } from "../render/batter/batter-rig.js";
 import { BATTER_CLIPS, sampleGameBatterMotion } from "../render/batter/batter-motion-all.js";
@@ -26,10 +26,37 @@ export function readyPose(scene, cur, t) {
   if (cur && t > -0.35) {
     const pose = lerpPose(BATTER_POSES.stance, BATTER_POSES.trigger, easeOut((t + 0.35) / 0.2));
     const { feet, made } = strideMade(scene, cur, t);
-    return made > 0 ? lerpPose(pose, { ...pose, ...PRESS[feet.stride] }, easeOut(made)) : pose;
+    const stood = made > 0 ? lerpPose(pose, { ...pose, ...PRESS[feet.stride] }, easeOut(made)) : pose;
+    return { ...stood, ...footLifts(feet?.stride, made, acrossStep(scene, cur, t)) };
   }
   const tap = Math.max(0, Math.sin(scene.now * 2.6)) ** 8;
   return { ...BATTER_POSES.stance, angle: BATTER_POSES.stance.angle + 12 * tap };
+}
+
+/** How high (rig units, about 2 cm each) a foot comes off the ground in a stride, and in a step across. */
+const STRIDE_LIFT = 4;
+const ACROSS_LIFT = 2.5;
+const arc = (k) => Math.sin(Math.PI * clamp(k));
+
+/**
+ * The feet off the ground as he moves: the striding foot through a stride (the front foot forward, the back
+ * foot back), and a step across as a shuffle, the foot on the side he's going first and the other after it.
+ */
+function footLifts(stride, made, across) {
+  let frontLift = 0;
+  let backLift = 0;
+  if (made > 0 && made < 1) {
+    if (stride === "back") backLift = STRIDE_LIFT * arc(made);
+    else frontLift = STRIDE_LIFT * arc(made);
+  }
+  if (across) {
+    const first = ACROSS_LIFT * arc(across.k * 2);
+    const second = ACROSS_LIFT * arc(across.k * 2 - 1);
+    // Towards the off side the front foot leads; away to leg, the back foot.
+    frontLift = Math.max(frontLift, across.dir > 0 ? first : second);
+    backLift = Math.max(backLift, across.dir > 0 ? second : first);
+  }
+  return { frontLift, backLift };
 }
 
 /**
@@ -113,8 +140,34 @@ export const STRIKER_SCREEN_X = 300;
  */
 export function footworkOf(scene, cur, t) {
   if (!cur) return 0;
-  if (scene.human === "bat") return cur.shot?.footwork ?? cur.footwork ?? 0;
-  return (cur.shot?.footwork ?? 0) * clamp(t / 0.3);
+  if (scene.human !== "bat") return (cur.shot?.footwork ?? 0) * clamp(t / AI_ACROSS_TIME);
+  // The player's move is made in an instant; it's drawn as a step that takes a moment (the picture only).
+  const target = cur.shot?.footwork ?? cur.footwork ?? 0;
+  const dt = Math.max(0, Math.min(0.1, scene.now - (cur.acrossAt ?? scene.now)));
+  cur.acrossAt = scene.now;
+  const shown = cur.acrossShown ?? 0;
+  if (shown === target) cur.acrossFrom = shown;
+  const most = (PLAYER_ACROSS.off / ACROSS_STEP_TIME) * dt;
+  cur.acrossShown = shown + clamp(target - shown, -most, most);
+  return cur.acrossShown;
+}
+
+/** How long (s) a full step across is drawn over, and the computer's batters take to shuffle across. */
+const ACROSS_STEP_TIME = 0.28;
+const AI_ACROSS_TIME = 0.3;
+
+/** The step across under way, if one is: { k (0..1 through it), dir (+1 to the off side, -1 to leg) }, or null. */
+export function acrossStep(scene, cur, t) {
+  if (!cur) return null;
+  if (scene.human !== "bat") {
+    const to = cur.shot?.footwork ?? 0;
+    return to && t > 0 && t < AI_ACROSS_TIME ? { k: t / AI_ACROSS_TIME, dir: Math.sign(to) } : null;
+  }
+  const target = cur.shot?.footwork ?? cur.footwork ?? 0;
+  const shown = cur.acrossShown ?? 0;
+  const from = cur.acrossFrom ?? 0;
+  if (shown === target || target === from) return null;
+  return { k: clamp((shown - from) / (target - from)), dir: Math.sign(target - from) };
 }
 
 /** Screen pixels the striker has moved from his guard, from the batter's end. */

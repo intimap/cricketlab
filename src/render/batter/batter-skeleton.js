@@ -25,8 +25,9 @@ function targets(p) {
     frontFootY: -9 + stride,
     backFootX: -3 - 2 * p.back - (drop > 8 ? 5 : 0),
     backFootY: -3,
-    frontLift: 0,
-    backLift: 0,
+    // A foot off the ground mid-step (scenes/batter-pose.js).
+    frontLift: p.frontLift ?? 0,
+    backLift: p.backLift ?? 0,
     pelvisX,
     pelvisY,
     chestX,

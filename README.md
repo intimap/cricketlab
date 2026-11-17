@@ -153,7 +153,8 @@ src/
     analog.js         a second analog stick (a pad's right stick, the touch swing stick), read as how far, not keys
     crt.js            the old-CRT look over the whole picture (WebGL): curved glass, scanlines, phosphor, glow
     crt-settings.js   the CRT look's settings: SHARP/SUBTLE/CLASSIC/STRONG presets or each part LOW/MED/HIGH (CUSTOM)
-    text.js           5x7 bitmap font
+    text.js           drawing, measuring and wrapping text in the game font
+    font-glyphs.js    the text font's letters: bold serif capitals and figures, seven pixels tall, each its own width
     silhouette.js     cast shadows: a sprite's shape sheared onto the ground, all of a frame's in one layer
     outline.js        a sprite drawn with a 1px outline round its whole shape (the striker)
     input.js          keyboard and mouse state, polled per frame

@@ -7,7 +7,7 @@ import { bladeLabel } from "../sim/bats.js";
 /** A team sheet's size on the team-selection screen (scenes/menu-teams.js). */
 export const SHEET = { w: 290, h: 216 };
 /** Where each column starts, from the sheet's left edge. */
-export const COLUMNS = { number: 10, name: 28, hand: 152, bat: 169, role: 208 };
+export const COLUMNS = { number: 10, name: 28, hand: 152, bat: 168, role: 205 };
 
 const ROW = 14;
 
@@ -39,7 +39,7 @@ export function drawTeamSheet(team, x, y, { label, active, now, marks = {} }) {
     const row = top + i * ROW;
     const left = p.hand === "left";
     if (marks[i]) fillRect(x + 6, row - 3, w - 12, ROW - 1, marks[i]);
-    drawText(String(i + 1).padStart(2), x + COLUMNS.number, row, { color: COLORS.dim });
+    drawText(String(i + 1), x + COLUMNS.number + 11, row, { align: "right", color: COLORS.dim });
     drawText(p.name.toUpperCase(), x + COLUMNS.name, row, { color: COLORS.cream });
     drawText(left ? "LH" : "RH", x + COLUMNS.hand, row, { color: left ? COLORS.gold : COLORS.dim });
     if (p.blade) drawText(bladeLabel(p.blade), x + COLUMNS.bat, row, { color: COLORS.cream });

@@ -202,10 +202,10 @@ function drawBatterPanel(scene) {
   drawBatterMeters({
     tag,
     eye,
-    // Practice has no pressure to show.
-    pressure: scene.nets ? null : scene.inn.pressure,
+    // Practice has no pressure: the eye alone moves it, between the middle and BAT.
+    pressure: scene.nets ? 0 : scene.inn.pressure,
     eyeShown: scene.juice.shown.eye ?? eye,
-    pressureShown: scene.juice.shown.pressure ?? scene.inn.pressure,
+    pressureShown: scene.nets ? 0 : (scene.juice.shown.pressure ?? scene.inn.pressure),
     now: scene.now,
     top: 4,
   });

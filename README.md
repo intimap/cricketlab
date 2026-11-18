@@ -99,7 +99,7 @@ with a red ball (pink if the day goes on under lights), limited-overs games with
 
 ## Batting: your eye
 
-The **EYE** meter (top left when you bat) fills as you get your eye in. Every well-timed shot fills it a little, and a perfectly
+The striker's **eye** fills as he gets his eye in (it pulls the **PRESSURE** meter, top left, towards **BAT**: see below). Every well-timed shot fills it a little, and a perfectly
 middled one fills it more; a well-timed block helps a bit. Being beaten (or bowled, or hit on the pad
 playing a shot) knocks 15% off what's left and an edge 5%, while an air swing empties it; leaves and mistimed shots leave
 it as it is. The fuller it is, the bigger the multiplier on every shot you play (up to x1.4): more bat
@@ -113,7 +113,7 @@ built and lost by the same rules, so a set batter is harder to bowl to. The numb
 Each computer batter has a hidden weakness (loose outside off, a compulsive hooker, hates the short ball, shaky against spin early on, or late on the full inswinger). Watch for plays and misses: the commentators will hint at it, then call it, and it's tagged under his panel once it's plain (or once he's faced 24 balls: by then your side has worked him out). Batting, they read the bowler's plan for each new over (READ: SHORT BALL COMING).
 
 - **Memory:** bowl the same ball over and over and he lines it up. Break a pattern (three going away, then one back in; three short, then a full one) and he's more likely to edge or miss. Switch between over and around the wicket with **T** while aiming; the target stays fixed and the release angle changes.
-- **Pressure:** dots and maidens build the pressure meter (below EYE in their shared panel); boundaries release it. Under pressure batters get impatient: slogs, charges and bad calls for runs.
+- **Pressure:** dots and maidens build the pressure; boundaries release it. The **PRESSURE** meter top left is one bar, **BAT** at the left end and **BALL** at the right: the striker's eye pulls its marker towards BAT and the pressure (counting one and a half times) towards BALL, and it glows at either end. Under pressure batters get impatient: slogs, charges and bad calls for runs.
 - **Seeing the battle:** the keeper suggests each ball from the computer's own plan for the over (using his
   weakness only once it's been given away); **Enter** takes it. Under the setup panel, a pitch map of the last 12
   balls to this batter (a wicket red, a boundary gold, beaten blue, runs cream, a dot green). After each ball a
@@ -328,7 +328,7 @@ src/
     call-line.js      the HUD's bottom line: the over's caller (little head and surname) calling the ball
     team-flag.js      pixel team flags framing the bottom score strip
     over-balls.js     shaded delivery spheres with runs, wickets and extras
-    batter-meters.js  shared eye and pressure panel
+    batter-meters.js  the PRESSURE meter: BAT vs BALL, one bar pulled by the striker's eye and the pressure
     swing-gauge.js    batting on the stick: the arc showing the backswing and the shot it will be, and the aim
     bowling-setup.js  target-aiming panel and over/around selector
     match-broadcast.js DRS tracking, verdict cards and celebrations, and the review's timings
@@ -377,7 +377,7 @@ src/
     match-light.js    the light through the day, with the weather over it; the ball's colour
     assists.js        the assist level (EASY, NORMAL, HARD) and what each changes
     match-rain.js     rain stopping play in the scene: the covers, the panel, carrying on
-    match-feedback.js what feedback to show and when: shot words, +/-EYE and PRESSURE, hit-stop, shake
+    match-feedback.js what feedback to show and when: shot words, +/-PRESSURE, hit-stop, shake
     match-audio.js    contact timbres and broadcast sound cues
     bat-sound.js      bat on ball as synth layers: click, the blade's ring, knock, thump, the stands' slap back
     strike-presentation.js  full-pace launch after contact and the close-to-wide broadcast cut

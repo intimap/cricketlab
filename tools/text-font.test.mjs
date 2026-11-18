@@ -56,3 +56,12 @@ test("the field font: capitals and figures seven rows tall, measured and wrapped
   const lines = wrapText("BOWLING, BIG FELLA! HE HAD NO IDEA ABOUT THAT ONE", 28, "field");
   assert.ok(lines.length >= 2 && lines.every((l) => textWidth(l, 1, "field") <= 28 * 6));
 });
+
+test("the PRESSURE meter: the eye pulls it to BAT, pressure (counting more) to BALL, level in the middle", async () => {
+  const { batVsBall, PRESSURE_WEIGHT } = await import("../src/render/batter-meters.js");
+  assert.equal(batVsBall(0, 0), 0);
+  assert.equal(batVsBall(1, 0), 1);
+  assert.equal(batVsBall(0, 1), -1);
+  assert.ok(Math.abs(batVsBall(0.6, 0.4) - (0.6 - 0.4 * PRESSURE_WEIGHT)) < 1e-9);
+  assert.equal(batVsBall(0.5, null), 0.5, "the nets: no pressure");
+});

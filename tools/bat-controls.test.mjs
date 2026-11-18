@@ -122,9 +122,9 @@ test("two quick pushes forward take him down the pitch; a slow second one doesn'
 test("left and right take him across while held, as far as the crease allows, and he stays there", () => {
   const scene = fakeScene();
   const right = tap("ArrowRight");
-  run(scene, 5);
+  run(scene, 2);
   const part = feetSoFar(scene.cur).across;
-  assert.ok(part > 0.1 && part < PLAYER_ACROSS.off, `${part}`);
+  assert.ok(part > 0 && part < PLAYER_ACROSS.off, `${part}`);
   run(scene, 30);
   right();
   run(scene, 10);

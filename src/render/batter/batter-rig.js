@@ -186,7 +186,7 @@ function drawBatterBody(x, y, scale, pose, kit, number, front, parts) {
     }
   };
   // A blade beyond the body from the camera goes down first, so the body covers it.
-  if (batBehind) drawBat({ bat }, poly, line, kit.grip);
+  if (batBehind) drawBat({ bat }, poly, line, kit.grip, kit.batGlow ?? 0);
 
   // Depth determines which leg overlaps the other, whichever camera is selected.
   if (frontLegNear) {
@@ -238,6 +238,6 @@ function drawBatterBody(x, y, scale, pose, kit, number, front, parts) {
   if (frontArmNear) arm(frontShoulder, frontElbow, frontWrist);
   else arm(backShoulder, backElbow, backWrist);
 
-  if (!batBehind) drawBat({ bat }, poly, line, kit.grip);
+  if (!batBehind) drawBat({ bat }, poly, line, kit.grip, kit.batGlow ?? 0);
   gloves();
 }

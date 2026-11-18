@@ -133,13 +133,27 @@ export function strikerFeet(scene) {
   return { x: place.x, y: place.y, heightPx: BATTER_HEIGHT_PX * place.scale, heightM: kit.height, worldX: STRIKER_X + moved };
 }
 
+/** How long (s) a power swing's bat glows, from the start of the downswing, and how long it fades at the end. */
+const GLOW_TIME = 0.5;
+const GLOW_FADE = 0.15;
+
+/** A power swing's glow on the bat (0..1): full through the downswing, fading out after half a second. */
+export function powerGlow(cur, t) {
+  if (!cur?.shot || !(cur.shot.charge > 0.7) || !Number.isFinite(cur.swingAt)) return 0;
+  const since = t - cur.swingAt;
+  if (since < 0 || since > GLOW_TIME) return 0;
+  return Math.min(1, (GLOW_TIME - since) / GLOW_FADE);
+}
+
 export function drawStriker(scene) {
   const cur = scene.cur;
   const inn = scene.inn;
   const fromBowler = closeFromBowlerEnd();
   const t = cur ? scene.clock() : 0;
-  // His own look; taller players are drawn bigger.
-  const kit = playerKit(scene.kitBat, inn.bat[inn.striker].p);
+  // His own look; taller players are drawn bigger. A power swing's bat glows red as it comes down.
+  const own = playerKit(scene.kitBat, inn.bat[inn.striker].p);
+  const glow = powerGlow(cur, t);
+  const kit = glow > 0 ? { ...own, batGlow: glow } : own;
   const place = strikerPlace(scene, kit, fromBowler, footworkOf(scene, cur, t));
   let pose = readyPose(scene, cur, t);
   if (cur) {

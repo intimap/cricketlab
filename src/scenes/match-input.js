@@ -45,7 +45,6 @@ export function commitSwing(scene, t, type, power, given = null, variant = null,
   // A heavier bat takes longer to come down (sim/bats.js).
   const swing = SWING_TIME[type] * swingTimeOf(scene.inn?.bat?.[scene.inn.striker]?.p.blade);
   const timingError = cur.swingAt + swing - scene.arrival(type, null, feet);
-  if (power) scene.flash("POWER!", COLORS.gold);
   cur.shot = {
     type,
     charge: power ? POWER_CHARGE : NORMAL_CHARGE,

@@ -26,6 +26,8 @@ const ITEMS = [
 const MENU_X = 220;
 const MENU_W = 200;
 const MENU_TOP = 92;
+/** The menu's top: 92 px down, or higher when it has more items, so it stays clear of the score bar. */
+const menuTop = (items) => Math.min(MENU_TOP, 326 - (22 + items.length * ROW_H + 6));
 const ROW_H = 18;
 
 // Instructions, a page per tab: [keys, what they do].
@@ -129,16 +131,22 @@ export class PauseMenu {
 
   lastMouse = { x: 0, y: 0 };
 
-  open(practice = false) {
+  /**
+   * `practice`: the nets (PRACTICE in place of the SCORECARD); `between`: paused between balls in a match,
+   * when the field can be set and an over simulated from here too (the touch screen has no keys for them).
+   */
+  open(practice = false, between = false) {
     this.sel = 0;
     this.screen = "menu";
-    this.items = practice ? ITEMS.map((item) => (item === "SCORECARD" ? "PRACTICE" : item)) : ITEMS;
+    const items = practice ? ITEMS.map((item) => (item === "SCORECARD" ? "PRACTICE" : item)) : [...ITEMS];
+    if (between && !practice) items.splice(2, 0, "SET THE FIELD", "SIM AN OVER");
+    this.items = items;
     this.lastMouse = { x: mouse.x, y: mouse.y };
   }
 
   /**
    * Handle input (`scene`: the match, for the PRACTICE screen); returns "resume", "view" (swap the close
-   * camera's end), "assist" (the next level), "quit" or null.
+   * camera's end), "assist" (the next level), "field", "sim", "quit" or null.
    */
   update(scene) {
     if (this.screen === "mix") {
@@ -176,7 +184,7 @@ export class PauseMenu {
     const moved = mouse.x !== this.lastMouse.x || mouse.y !== this.lastMouse.y;
     this.lastMouse = { x: mouse.x, y: mouse.y };
     items.forEach((_, i) => {
-      if (!inside(MENU_X + 6, MENU_TOP + 22 + i * ROW_H - 4, MENU_W - 12, ROW_H)) return;
+      if (!inside(MENU_X + 6, menuTop(items) + 22 + i * ROW_H - 4, MENU_W - 12, ROW_H)) return;
       if (moved || mouse.pressed) this.sel = i;
       if (mouse.pressed) chosen = true;
     });
@@ -196,6 +204,10 @@ export class PauseMenu {
         return null;
       case "VIEW":
         return "view";
+      case "SET THE FIELD":
+        return "field";
+      case "SIM AN OVER":
+        return "sim";
       case "ASSIST":
         return "assist";
       case "AUDIO MIX":
@@ -246,10 +258,11 @@ export class PauseMenu {
       return;
     }
     fillRect(0, 0, WIDTH, 360, "rgba(0,0,0,0.45)");
-    drawPanel(MENU_X, MENU_TOP, MENU_W, 22 + this.items.length * ROW_H + 6, "#0d2318");
-    drawText("PAUSED", WIDTH / 2, MENU_TOP + 7, { align: "center", color: COLORS.gold });
+    const top = menuTop(this.items);
+    drawPanel(MENU_X, top, MENU_W, 22 + this.items.length * ROW_H + 6, "#0d2318");
+    drawText("PAUSED", WIDTH / 2, top + 7, { align: "center", color: COLORS.gold });
     this.items.forEach((item, i) => {
-      const y = MENU_TOP + 22 + i * ROW_H;
+      const y = top + 22 + i * ROW_H;
       const selected = i === this.sel;
       if (selected) fillRect(MENU_X + 6, y - 4, MENU_W - 12, 15, "#24563a");
       const label =

@@ -36,11 +36,18 @@ export function updateMatch(scene, dt) {
       scene.nextBall();
     } else if (action === "resume") scene.setPhase(scene.pausedFrom);
     else if (action === "quit") scene.game.toMenu();
+    else if (action === "field") {
+      scene.setPhase("fieldEdit");
+      scene.view = "wide";
+    } else if (action === "sim") {
+      scene.setPhase(scene.pausedFrom);
+      act(scene, { type: "simulate", overs: 1 });
+    }
     return;
   }
   if (keys.pressed("Escape") && scene.phase !== "inningsEnd" && scene.phase !== "fieldEdit") {
     scene.pausedFrom = scene.phase;
-    scene.pauseMenu.open(scene.nets);
+    scene.pauseMenu.open(scene.nets, scene.phase === "ready" || scene.phase === "setup");
     scene.setPhase("pause");
     return;
   }

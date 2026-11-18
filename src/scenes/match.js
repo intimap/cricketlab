@@ -162,6 +162,10 @@ export class MatchScene {
   get padBinding() {
     return matchPad(this);
   }
+  /** The calls a touch screen offers as buttons just now: a review, an appeal (match-decisions.js). */
+  get touchCalls() {
+    return this.phase === "pause" ? [] : decisions.playerCalls(this);
+  }
 
   get spinner() {
     return isSpinner(this.inn.bowler?.p.bowl);

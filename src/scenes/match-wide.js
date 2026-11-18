@@ -31,9 +31,21 @@ const JOINTED_FROM = 14;
 function wideFigure(x, y, s, pose, cap, phase, opts = {}, kit = null) {
   const height = s * 11.6;
   if (!kit || height < JOINTED_FROM || !CLOSE_POSE[pose]) return drawTinyFigure(x, y, s, pose, cap, phase, opts);
-  drawFigure(x, y, height, { kit, pose: CLOSE_POSE[pose], phase, bat: opts.bat, umpire: opts.umpire });
+  // Running across the screen he's drawn side-on (render/figure-run.js), facing the way he's going.
+  const h = opts.heading;
+  const across = pose === "run" && !opts.bat && h && Math.abs(h.x) >= Math.abs(h.y) * 0.7;
+  const close = across ? "sprint" : CLOSE_POSE[pose];
+  drawFigure(x, y, height, { kit, pose: close, phase, bat: opts.bat, umpire: opts.umpire, flip: across && h.x < 0 });
 }
 const SLEDGE_TIME = 2.4;
+
+/** A fielder's heading (sim/fielder-motion.js) as a direction on screen, from a metre ahead of him. */
+function screenHeading(f) {
+  if (f.heading == null) return null;
+  const a = projectWide(f.pos.x, 0, f.pos.z);
+  const b = projectWide(f.pos.x + Math.sin(f.heading), 0, f.pos.z + Math.cos(f.heading));
+  return { x: b.x - a.x, y: b.y - a.y };
+}
 
 export function drawWide(scene) {
   drawWideArt(scene);
@@ -70,7 +82,10 @@ export function drawWide(scene) {
     for (const f of live.fielders) {
       const pose = fielderPose(f, live.t, scene.phase);
       const kit = playerKit(scene.kitBowl, f.player);
-      add(f.pos.x, 0, f.pos.z, (x, y, s) => wideFigure(x, y, s, pose, cap, scene.now * 3 + f.idx, field, kit));
+      // Which way he's running on screen, and his strides: about two a second, a touch quicker flat out.
+      const heading = pose === "run" ? screenHeading(f) : null;
+      const strides = scene.now * (1.8 + 0.06 * (f.curSpeed ?? 0)) + f.idx * 0.37;
+      add(f.pos.x, 0, f.pos.z, (x, y, s) => wideFigure(x, y, s, pose, cap, strides, { ...field, heading }, kit));
     }
     for (const r of live.runners) {
       const out = cur?.done?.rec.wicket?.batter === r.bat;

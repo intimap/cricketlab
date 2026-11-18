@@ -1,11 +1,13 @@
 import { COLORS, fillRect, plot } from "../engine/screen.js";
 import { BAT_FACE, PAD, groundShadow } from "./kit.js";
+import { drawTinyRun } from "./tiny-run.js";
 
 /** The wide view's tiny figures, and which pose a fielder's state shows. */
 
 /**
  * A tiny figure for the wide view, feet at (x, y).
- * pose: idle | run | dive | down | diveAlong | celebrate | throw | keeper | batter. opts: { bat?, shirt?, pants?, dir? }
+ * pose: idle | run | dive | down | diveAlong | celebrate | throw | keeper | batter. opts: { bat?, shirt?, pants?, dir?, heading? }
+ * A running figure (render/tiny-run.js) goes the way of opts.heading on screen ({ x, y }), if it's given.
  * `diveAlong` is a batter diving for his crease, stretched out along opts.dir (a unit vector on screen).
  */
 export function drawTinyFigure(x, y, scale, pose, cap, phase = 0, opts = {}) {
@@ -36,6 +38,8 @@ export function drawTinyFigure(x, y, scale, pose, cap, phase = 0, opts = {}) {
     rect(3, -3, 2, 1, pants);
     return;
   }
+  // A fielder running (a batter running keeps his pads and bat: the plain stride below).
+  if (pose === "run" && !opts.bat) return drawTinyRun(x, y, k, phase, opts.heading ?? null, { cap, shirt, pants });
   const stride = pose === "run" ? (Math.sin(phase * Math.PI * 2) > 0 ? 1 : -1) : 0;
   rect(-1 - (stride > 0 ? 1 : 0), -3, 1, 3, pants);
   rect(1 + (stride < 0 ? 1 : 0), -3, 1, 3, pants);

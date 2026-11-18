@@ -291,7 +291,9 @@ src/
     kit.js            kit colours, a player's looks (skin, hair, beard, height), mirroring, shadows
     figures.js        everyone else close up: bowler, keeper, fielders, umpires, runners
     figure-poses.js   where a close figure's feet and hands go for each pose
+    figure-run.js     a figure sprinting side-on: joint angles through the stride, arms pumping
     tiny-figures.js   the wide view's tiny figures, and the pose a fielder's state shows
+    tiny-run.js       the small figures' run: four frames, side-on or face-on, the way they're going
     bowler-motion.js  where the bowler is through a ball, on the chosen side: his action for the close view, poses for the wide
     keyframes.js      keyframed motion on smooth curves, shared by the batter's and bowler's rigs
     bowler/           the bowler

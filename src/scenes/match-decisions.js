@@ -45,6 +45,26 @@ export function decideLbw(scene) {
   scene.setPhase("decision");
 }
 
+/**
+ * The calls the player can make right now, for a touch screen's buttons (engine/touch.js): "review" while
+ * a decision against them can be reviewed, "appeal" while they're bowling and an appeal would be heard.
+ */
+export function playerCalls(scene) {
+  const calls = [];
+  const cur = scene.cur;
+  if (!cur) return calls;
+  if (scene.phase === "decision" && scene.phaseT >= ON_FIELD_TIME) {
+    const loser = cur.onField ? "bat" : "bowl";
+    const playerSide = scene.human === "bowl" ? "bowl" : "bat";
+    if (loser === playerSide && scene.inn.reviews[loser] > 0 && scene.phaseT <= REVIEW_WINDOW + ON_FIELD_TIME)
+      calls.push("review");
+  }
+  // An appeal: once the ball's struck the pad (in flight, or the moment after it's dead).
+  const onPad = scene.phase === "flight" && cur.contactDone && cur.play?.res?.padHit;
+  if (scene.human === "bowl" && !cur.appealed && (scene.phase === "appeal" || onPad)) calls.push("appeal");
+  return calls;
+}
+
 /** The side that lost the decision may review it: the player by pressing R, the computer if it smells a mistake. */
 export function updateDecision(scene) {
   const cur = scene.cur;

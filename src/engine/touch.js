@@ -5,7 +5,10 @@ import { setStick, clearStick, setStickPresent } from "./analog.js";
  * On-screen buttons for phones and tablets: each one presses a key the game
  * already reads, so the scenes don't know the difference. Only built on a
  * touch screen. The buttons shown follow what the player is doing (the
- * scene's `touchMode`: "menu", "entry" (typing a name), "bat" or "bowl").
+ * scene's `touchMode`: "menu", "entry" (typing a name), "bat" or "bowl"), and
+ * a REVIEW or APPEAL button appears only while one can be made (the scene's
+ * `touchCalls`). In a match a MENU button sits top left; batting, a tap on the
+ * picture is GO (face up, skip, dive), so the sticks have the sides to themselves.
  *
  * Buttons: [label, key code, modes they show in (all if omitted), style?]. A
  * "toggle" button stays pressed until tapped again or the scene's
@@ -23,15 +26,15 @@ const PAD = [
   ["▼", "ArrowDown", "down"],
 ];
 
-// Small buttons along the top, for what the keyboard's letter keys do.
-const TOP = [
-  ["MENU", "Escape", ["bat", "batStick", "bowl"]],
-  ["END", "KeyB", ["bat", "batStick", "bowl"]],
-  ["FIELD", "KeyV", ["bat", "batStick", "bowl"]],
-  ["SIM", "KeyO", ["bat", "batStick", "bowl"]],
-  ["REVIEW", "KeyR", ["bat", "batStick", "bowl"]],
-  ["SOUND", "KeyM"],
+/** In a match, top left: the pause menu (field, sim, sound and the rest are in it). */
+const MENU = ["MENU", "Escape"];
+/** Shown only while the call can be made: [label, key, the scene's name for it]. */
+const CALLS = [
+  ["REVIEW", "KeyR", "review"],
+  ["APPEAL", "KeyH", "appeal"],
 ];
+/** The modes where a tap on the picture is GO. */
+const TAP_GO = ["bat", "batStick"];
 
 const ACTIONS = {
   menu: [
@@ -50,9 +53,8 @@ const ACTIONS = {
     ["LOFT", "KeyW"],
     ["IMPROV", "KeyD"],
     ["POWER", "ShiftLeft"],
-    ["GO", "Space", "big"],
   ],
-  batStick: [["GO", "Space", "big"]],
+  batStick: [],
   bowl: [
     ["1", "Digit1", "small"],
     ["2", "Digit2", "small"],
@@ -61,8 +63,6 @@ const ACTIONS = {
     ["5", "Digit5", "small"],
     ["EFFORT", "KeyE"],
     ["SIDE", "KeyT"],
-    ["FIELD SET", "KeyF"],
-    ["APPEAL", "KeyH"],
     ["OK", "Enter"],
     ["GO", "Space", "big"],
   ],
@@ -81,8 +81,10 @@ const CSS = `
   width: ${SIDE - 10}px; display: flex; flex-direction: column; justify-content: space-between; }
 .tc-left { left: calc(5px + env(safe-area-inset-left)); }
 .tc-act { right: calc(5px + env(safe-area-inset-right)); justify-content: flex-end; }
-.tc-top, .tc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
-.tc-top button { height: 26px; font-size: 9px; }
+.tc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.tc-menu { height: 30px; width: 64px; font-size: 11px; }
+.tc-calls { display: flex; flex-direction: column; gap: 6px; margin-bottom: auto; }
+.tc-calls button { height: 58px; font-size: 15px; background: #e8b931; color: #0f2a1c; border-color: #f4ecd0; }
 .tc-pad { display: grid; grid-template: "a up b" 34px "left c right" 34px "d down e" 34px / 1fr 1fr 1fr; gap: 2px; }
 .tc-pad button { font-size: 16px; }
 .tc-stick { pointer-events: auto; touch-action: none; position: relative; width: 98px; height: 98px; margin: 0 auto;
@@ -159,12 +161,11 @@ export function initTouch() {
   };
 
   const left = box("tc-left");
-  const top = document.createElement("div");
-  top.className = "tc-top";
+  const menu = button(left, MENU, ["bat", "batStick", "bowl"]);
+  menu.classList.add("tc-menu");
   const pad = document.createElement("div");
   pad.className = "tc-pad";
-  left.append(top, pad);
-  for (const t of TOP) button(top, t, t[2]);
+  left.append(pad);
   for (const p of PAD) button(pad, p, null);
   shown.push({ el: pad, modes: ["menu", "entry", "bowl"] });
   const stick = feetStick(left);
@@ -172,6 +173,11 @@ export function initTouch() {
   const act = document.createElement("div");
   act.className = "tc-grid";
   const actions = box("tc-act");
+  // A call to make (a review, an appeal), big and at the top of the right-hand side while it can be made.
+  const calls = document.createElement("div");
+  calls.className = "tc-calls";
+  actions.appendChild(calls);
+  const callButtons = CALLS.map((c) => ({ name: c[2], el: button(calls, c, []) }));
   actions.appendChild(act);
   // The bat on a stick: under GO, where the thumb rests.
   const swing = swingStick(actions);
@@ -191,18 +197,40 @@ export function initTouch() {
   // The game's column has narrowed: let it fit itself again.
   window.dispatchEvent(new Event("resize"));
 
+  // Batting, a tap on the picture is GO: down with the finger, up as it lifts.
+  const game = document.getElementById("game");
+  let tapping = false;
+  game?.addEventListener("pointerdown", () => {
+    if (!TAP_GO.includes(current)) return;
+    tapping = true;
+    pressKey("Space");
+  });
+  for (const type of ["pointerup", "pointercancel"])
+    window.addEventListener(type, () => {
+      if (!tapping) return;
+      tapping = false;
+      releaseKey("Space");
+    });
+
   let current = null;
   let epoch;
-  return (mode, nextEpoch) => {
+  let callsShown = "";
+  return (mode, nextEpoch, wanted = []) => {
     if (nextEpoch !== epoch) {
       epoch = nextEpoch;
       for (const release of [...latched]) release();
+    }
+    const now = wanted.join(",");
+    if (now !== callsShown) {
+      callsShown = now;
+      for (const c of callButtons) c.el.style.display = wanted.includes(c.name) ? "" : "none";
     }
     if (mode === current) return;
     if (current === "bat" || current === "batStick") stick.letGo();
     if (current === "batStick") swing.letGo();
     current = mode;
     for (const s of shown) s.el.style.display = !s.modes || s.modes.includes(mode) ? "" : "none";
+    for (const c of callButtons) c.el.style.display = wanted.includes(c.name) ? "" : "none";
   };
 }
 

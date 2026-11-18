@@ -78,7 +78,7 @@ class Game {
       pollGamepads(this.scene.padBinding);
       if (keys.pressed("KeyM")) toggleMute();
       this.scene.update(dt);
-      touch(this.scene.touchMode, this.scene.touchEpoch);
+      touch(this.scene.touchMode, this.scene.touchEpoch, this.scene.touchCalls ?? []);
       this.scene.draw();
       present();
       endFrame();

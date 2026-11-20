@@ -47,6 +47,8 @@ export const ASSET_URLS = {
   "theg/close/skyline": new URL("../assets/theg/close/skyline.png", import.meta.url),
   "theg/close/stands": new URL("../assets/theg/close/stands.png", import.meta.url),
   "theg/close/fence-ads": new URL("../assets/theg/close/fence-ads.png", import.meta.url),
+  "venues/bayside/close-1-ground": new URL("../assets/venues/bayside/close-1-ground.png", import.meta.url),
+  "venues/bayside/close-1-buildings": new URL("../assets/venues/bayside/close-1-buildings.png", import.meta.url),
 };
 
 /** Load them all: resolves to { id: HTMLImageElement }. */

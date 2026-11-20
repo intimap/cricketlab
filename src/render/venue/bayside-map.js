@@ -61,5 +61,8 @@ export const BAYSIDE_MAP = {
     },
   ],
   life: { flags: ["pavilion", "scoreboard"], scoreboard: "scoreboard", crowd: "crowd" },
-  painted: {},
+  painted: {
+    "close-1-ground": { asset: "venues/bayside/close-1-ground", fingerprint: "44d5a29b" },
+    "close-1-buildings": { asset: "venues/bayside/close-1-buildings", fingerprint: "44d5a29b" },
+  },
 };

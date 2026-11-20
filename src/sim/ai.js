@@ -17,7 +17,7 @@ const AI_TIMING_SPREAD = 0.5;
  * How hard the computer's batters swing (1 = as it was). Wayward timing alone brings the runs down but
  * gives away far more edges and wickets; swinging softer as well keeps innings their old length.
  */
-const AI_SHOT_POWER = 0.64;
+const AI_SHOT_POWER = 0.8;
 // How much pressure makes computer batters impatient (tuned against simulated innings).
 const PRESSURE_AGGRESSION = 0.15;
 const SLOG_FROM = 0.45;

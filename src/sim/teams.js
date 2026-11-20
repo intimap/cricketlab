@@ -39,7 +39,7 @@ function fieldingSkills(rng, keeper = false) {
 
 const BOWLING_STYLES = {
   fast: {
-    pace: 0.88,
+    pace: 0.81,
     accuracy: 0.68,
     swing: 0.45,
     seam: 0.82,
@@ -51,7 +51,7 @@ const BOWLING_STYLES = {
     repertoire: ["seam", "outswing", "inswing", "bouncer", "yorker", "slower"],
   },
   swing: {
-    pace: 0.7,
+    pace: 0.67,
     accuracy: 0.78,
     swing: 0.88,
     seam: 0.62,
@@ -63,7 +63,7 @@ const BOWLING_STYLES = {
     repertoire: ["outswing", "inswing", "seam", "yorker", "slower"],
   },
   medium: {
-    pace: 0.5,
+    pace: 0.52,
     accuracy: 0.8,
     swing: 0.55,
     seam: 0.66,
@@ -141,8 +141,22 @@ export function styleName(skills) {
   return skills.style === "offspin" ? "LEFT-ARM SPIN" : `LEFT-ARM ${skills.style.toUpperCase()}`;
 }
 
+/**
+ * A seamer's release speed: pace 0..1 runs from PACE_KMH.from (a club medium-pacer) to PACE_KMH.to (the
+ * quickest there are). Real averages for scale: a medium-pacer about 125 km/h, a fast-medium swing bowler
+ * about 132, a Test fast bowler about 139, an express one about 145 (CricViz, Hawk-Eye; see README).
+ */
+export const PACE_KMH = Object.freeze({ from: 100, to: 148 });
+export const paceForKmh = (kmh) => clamp((kmh - PACE_KMH.from) / (PACE_KMH.to - PACE_KMH.from), 0, 1);
+
+/**
+ * A bowler's skills: his style's, scaled by his quality, with any overrides. `kmh` sets a seamer's stock
+ * speed directly (his pace from it).
+ */
 export function bowler(style, quality, overrides = {}) {
-  const s = { style, ...BOWLING_STYLES[style], ...overrides };
+  const { kmh, ...rest } = overrides;
+  const s = { style, ...BOWLING_STYLES[style], ...rest };
+  if (kmh) s.pace = paceForKmh(kmh);
   const scale = (v) => clamp(v * (0.85 + 0.3 * quality), 0.05, 0.98);
   return { ...s, accuracy: scale(s.accuracy), swing: scale(s.swing), seam: scale(s.seam), spin: scale(s.spin) };
 }
@@ -212,7 +226,7 @@ export function australia() {
       nick: "Greeny",
       role: "allround",
       flair: 0.1,
-      bowl: bowler("medium", 0.55, { pace: 0.66 }),
+      bowl: bowler("medium", 0.55, { kmh: 125 }),
     },
     {
       name: "Allan Corey",
@@ -227,14 +241,14 @@ export function australia() {
       look: look(1.92, "light", "darkBrown", "short", "stubble", 30, ["sweatbands"]),
       nick: "Crims",
       role: "tail",
-      bowl: bowler("fast", 0.85, { pace: 0.88 }),
+      bowl: bowler("fast", 0.85, { kmh: 138 }),
     },
     {
       name: "Jock Hazlenut",
       look: look(1.96, "fair", "brown", "buzz", "stubble", 38),
       nick: "Nutty",
       role: "tail",
-      bowl: bowler("swing", 0.85, { pace: 0.76, accuracy: 0.9 }),
+      bowl: bowler("swing", 0.85, { kmh: 137, accuracy: 0.9 }),
     },
     {
       name: "Michael Stork",
@@ -243,7 +257,7 @@ export function australia() {
       nick: "Storky",
       role: "tail",
       flair: 0.15,
-      bowl: bowler("fast", 0.8, { pace: 0.93, arm: "left" }),
+      bowl: bowler("fast", 0.8, { kmh: 143, arm: "left" }),
     },
     {
       name: "Nate Lewins",
@@ -267,14 +281,14 @@ export function australia() {
       look: look(1.88, "brown", "black", "short", "stubble", 18),
       nick: "Bolly",
       role: "bunny",
-      bowl: bowler("swing", 0.75, { pace: 0.7 }),
+      bowl: bowler("swing", 0.75, { kmh: 132 }),
     },
     {
       name: "Beau Websterly",
       look: look(2.0, "fair", "brown", "short", "full", 32),
       nick: "Webby",
       role: "allround",
-      bowl: bowler("medium", 0.5),
+      bowl: bowler("medium", 0.5, { kmh: 125 }),
     },
     {
       name: "Josh Ingleson",
@@ -328,7 +342,7 @@ export function england() {
       flair: 0.15,
       // A big, heavy bat with big edges, for clearing the ropes.
       blade: { weight: 1.38, edges: 44 },
-      bowl: bowler("fast", 0.6, { pace: 0.8, stamina: 0.5 }),
+      bowl: bowler("fast", 0.6, { kmh: 139, stamina: 0.5 }),
     },
     {
       name: "Jamie Smithey",
@@ -343,28 +357,28 @@ export function england() {
       look: look(1.85, "fair", "brown", "short", "stubble", 19),
       nick: "Woaksey",
       role: "allround",
-      bowl: bowler("swing", 0.7),
+      bowl: bowler("swing", 0.7, { kmh: 132 }),
     },
     {
       name: "Gus Atkinsonne",
       look: look(1.88, "light", "darkBrown", "curly", "none", 37),
       nick: "Gussie",
       role: "tail",
-      bowl: bowler("fast", 0.8, { pace: 0.88 }),
+      bowl: bowler("fast", 0.8, { kmh: 139 }),
     },
     {
       name: "Joffrey Archard",
       look: look(1.88, "dark", "black", "buzz", "stubble", 22, ["sunglasses"]),
       nick: "Archie",
       role: "tail",
-      bowl: bowler("fast", 0.85, { pace: 0.93 }),
+      bowl: bowler("fast", 0.85, { kmh: 145 }),
     },
     {
       name: "Mark Woot",
       look: look(1.78, "fair", "brown", "bald", "full", 33, ["sunglasses", "zinc"]),
       nick: "Woody",
       role: "bunny",
-      bowl: bowler("fast", 0.75, { pace: 0.97, stamina: 0.5 }),
+      bowl: bowler("fast", 0.75, { kmh: 148, stamina: 0.5 }),
     },
     // Reserves
     {
@@ -372,7 +386,7 @@ export function england() {
       look: look(1.88, "fair", "brown", "short", "full", 24),
       nick: "Stoney",
       role: "tail",
-      bowl: bowler("fast", 0.7, { pace: 0.9 }),
+      bowl: bowler("fast", 0.7, { kmh: 139 }),
     },
     {
       name: "Shoaib Bashley",
@@ -395,14 +409,15 @@ export function england() {
       look: look(1.9, "fair", "brown", "long", "stubble", 92),
       nick: "Carsey",
       role: "tail",
-      bowl: bowler("fast", 0.7, { pace: 0.88 }),
+      bowl: bowler("fast", 0.7, { kmh: 139 }),
     },
   ]);
 }
 
 export const isSpinner = (skills) => !!skills && (skills.style === "offspin" || skills.style === "legspin");
 
-/** Release speed in m/s. */
+/** Release speed in m/s, for his stock ball at medium effort. */
 export function bowlingSpeed(skills) {
-  return isSpinner(skills) ? 21 + 4.5 * skills.pace : 29 + 12.5 * skills.pace;
+  if (isSpinner(skills)) return 21 + 4.5 * skills.pace;
+  return (PACE_KMH.from + (PACE_KMH.to - PACE_KMH.from) * skills.pace) / 3.6;
 }

@@ -69,14 +69,14 @@ export function sriLanka() {
       look: look(1.83, "brown", "black", "short", "full", 95),
       nick: "Asitha",
       role: "bunny",
-      bowl: bowler("fast", 0.75),
+      bowl: bowler("fast", 0.75, { kmh: 139 }),
     },
     {
       name: "Dilshan Madushanko",
       look: look(1.85, "tan", "black", "short", "stubble", 98),
       nick: "Dilshan",
       role: "bunny",
-      bowl: bowler("fast", 0.76, { swing: 0.75, arm: "left" }),
+      bowl: bowler("fast", 0.76, { swing: 0.75, arm: "left", kmh: 139 }),
     },
     {
       name: "Charith Asalanka",

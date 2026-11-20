@@ -127,6 +127,14 @@ const SHAPE = [
   { role: "bunny", bowl: ["fast", "medium"] },
 ];
 
+/**
+ * Club pace: their fastest about 115-125 km/h, a swing bowler 110-120, a medium-pacer 100-112, the
+ * spinners a little slower than the internationals'. Varied by player, but not from the roster's dice,
+ * so the squads (names and all) stay as they were.
+ */
+const CLUB_KMH = { fast: [115, 125], swing: [110, 120], medium: [100, 112] };
+const clubVary = (seed, i) => ((seed * 31 + i * 17) % 100) / 100;
+
 /** The eleven of a club, from its seed. Club cricketers: a little below the internationals. */
 function roster(seed) {
   const rng = new Rng(seed);
@@ -156,7 +164,12 @@ function roster(seed) {
       keeper: slot.keeper,
       flair: Math.round(rng.next() * 30) / 100,
       bowl: style
-        ? bowler(style, 0.45 + rng.next() * 0.35, style === "offspin" && rng.next() < 0.3 ? { arm: "left" } : {})
+        ? bowler(style, 0.45 + rng.next() * 0.35, {
+            ...(style === "offspin" && rng.next() < 0.3 ? { arm: "left" } : {}),
+            ...(CLUB_KMH[style]
+              ? { kmh: CLUB_KMH[style][0] + (CLUB_KMH[style][1] - CLUB_KMH[style][0]) * clubVary(seed, i) }
+              : { pace: 0.1 + 0.15 * clubVary(seed, i) }),
+          })
         : undefined,
     };
   });

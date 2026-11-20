@@ -57,7 +57,7 @@ export function southAfrica() {
       nick: "Marco",
       role: "allround",
       flair: 0.15,
-      bowl: bowler("fast", 0.82, { pace: 0.86, seam: 0.88, arm: "left" }),
+      bowl: bowler("fast", 0.82, { kmh: 139, seam: 0.88, arm: "left" }),
     },
     {
       name: "Keshav Maharajh",
@@ -71,21 +71,21 @@ export function southAfrica() {
       look: look(1.85, "dark", "black", "buzz", "stubble", 25),
       nick: "KG",
       role: "tail",
-      bowl: bowler("fast", 0.9, { pace: 0.94 }),
+      bowl: bowler("fast", 0.9, { kmh: 139 }),
     },
     {
       name: "Lungi Ngidy",
       look: look(1.93, "dark", "black", "buzz", "none", 22, [], "stocky"),
       nick: "Lungi",
       role: "bunny",
-      bowl: bowler("fast", 0.78),
+      bowl: bowler("fast", 0.78, { kmh: 139 }),
     },
     {
       name: "Anrich Nortjie",
       look: look(1.88, "fair", "brown", "short", "full", 20, ["sunglasses"]),
       nick: "Nortjie",
       role: "bunny",
-      bowl: bowler("fast", 0.78, { pace: 0.98 }),
+      bowl: bowler("fast", 0.78, { kmh: 145 }),
     },
   ]);
 }

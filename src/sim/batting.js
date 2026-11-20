@@ -69,15 +69,22 @@ export const NORMAL_CHARGE = 0.23;
 
 const noContact = (missReason) => ({ kind: "none", quality: 0, missReason, shotName: "", at: null, exit: null });
 
+/**
+ * How much later than he'd like the batter stops tracking the ball. With bowling at real speeds and swing
+ * (sim/delivery.js) it's the late movement after this that beats the bat: edges and plays-and-misses.
+ */
+const REACTION_SCALE = 1.23;
+
 /** How long before contact the batter stops tracking the ball (seconds). */
 export function reactionTime(bat, state, spinner, speed) {
   const vsType = spinner ? 1.15 - 0.3 * bat.vsSpin : 1.15 - 0.3 * bat.vsPace;
   return clamp(
-    (0.2 - 0.06 * bat.technique - 0.035 * state.settled + 0.05 * (1 - state.concentration) + 0.025 * state.fatigue) *
+    REACTION_SCALE *
+      (0.2 - 0.06 * bat.technique - 0.035 * state.settled + 0.05 * (1 - state.concentration) + 0.025 * state.fatigue) *
       vsType *
       Math.sqrt(Math.max(speed, 18) / 36),
     0.07,
-    0.3,
+    0.36,
   );
 }
 

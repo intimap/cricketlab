@@ -56,7 +56,7 @@ export function westIndies() {
       look: look(2.01, "dark", "black", "buzz", "full", 98, [], "slim"),
       nick: "Big Jase",
       role: "allround",
-      bowl: bowler("medium", 0.8, { accuracy: 0.86 }),
+      bowl: bowler("medium", 0.8, { accuracy: 0.86, kmh: 125 }),
     },
     {
       name: "Gudakesh Motey",
@@ -70,21 +70,21 @@ export function westIndies() {
       look: look(1.91, "dark", "black", "short", "none", 7, [], "slim"),
       nick: "Alzarri",
       role: "tail",
-      bowl: bowler("fast", 0.8),
+      bowl: bowler("fast", 0.8, { kmh: 139 }),
     },
     {
       name: "Kemar Roache",
       look: look(1.8, "dark", "black", "buzz", "stubble", 39, [], "stocky"),
       nick: "Roachy",
       role: "bunny",
-      bowl: bowler("swing", 0.78, { accuracy: 0.84 }),
+      bowl: bowler("swing", 0.78, { accuracy: 0.84, kmh: 132 }),
     },
     {
       name: "Shamar Jozef",
       look: look(1.83, "dark", "black", "short", "none", 85),
       nick: "Shamar",
       role: "bunny",
-      bowl: bowler("fast", 0.84, { pace: 0.94 }),
+      bowl: bowler("fast", 0.84, { kmh: 145 }),
     },
   ]);
 }

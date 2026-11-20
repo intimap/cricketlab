@@ -35,14 +35,14 @@ export function pakistan() {
       look: look(1.98, "light", "black", "short", "full", 10),
       nick: "Shaheen",
       role: "tail",
-      bowl: bowler("fast", 0.9, { pace: 0.9, swing: 0.8, arm: "left" }),
+      bowl: bowler("fast", 0.9, { kmh: 139, swing: 0.8, arm: "left" }),
     },
     {
       name: "Naseem Shaah",
       look: look(1.83, "olive", "black", "short", "none", 71),
       nick: "Naseem",
       role: "tail",
-      bowl: bowler("fast", 0.84, { pace: 0.92 }),
+      bowl: bowler("fast", 0.84, { kmh: 145 }),
     },
     {
       name: "Abrar Ahmed",
@@ -56,7 +56,7 @@ export function pakistan() {
       look: look(1.8, "tan", "black", "short", "stubble", 97),
       nick: "Haris",
       role: "bunny",
-      bowl: bowler("fast", 0.74, { pace: 0.93 }),
+      bowl: bowler("fast", 0.74, { kmh: 145 }),
     },
     {
       name: "Fakhar Zamaan",

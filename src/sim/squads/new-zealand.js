@@ -69,28 +69,28 @@ export function newZealand() {
       look: look(1.92, "fair", "sandy", "short", "full", 38, ["zinc"]),
       nick: "Southy",
       role: "tail",
-      bowl: bowler("swing", 0.8),
+      bowl: bowler("swing", 0.8, { kmh: 132 }),
     },
     {
       name: "Matt Henri",
       look: look(1.84, "fair", "brown", "short", "stubble", 21),
       nick: "Henners",
       role: "tail",
-      bowl: bowler("fast", 0.82),
+      bowl: bowler("fast", 0.82, { kmh: 139 }),
     },
     {
       name: "Kyle Jameison",
       look: look(2.03, "fair", "brown", "short", "full", 64, [], "slim"),
       nick: "Jamo",
       role: "bunny",
-      bowl: bowler("fast", 0.78, { pace: 0.84, seam: 0.9 }),
+      bowl: bowler("fast", 0.78, { kmh: 139, seam: 0.9 }),
     },
     {
       name: "Will O'Rourk",
       look: look(1.93, "fair", "lightBrown", "short", "none", 82, [], "slim"),
       nick: "Rourky",
       role: "bunny",
-      bowl: bowler("fast", 0.7, { pace: 0.92 }),
+      bowl: bowler("fast", 0.7, { kmh: 146 }),
     },
   ]);
 }

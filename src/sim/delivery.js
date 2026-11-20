@@ -5,7 +5,8 @@ import { isSpinner, bowlingSpeed } from "./teams.js";
 import { rhythmEffect } from "./rhythm.js";
 
 export const EFFORTS = ["low", "med", "high"];
-const EFFORT_SPEED = { low: 0.93, med: 1, high: 1.055 };
+// High effort is a few km/h more, not a different bowler: about 4 km/h on a 140 km/h stock ball.
+const EFFORT_SPEED = { low: 0.94, med: 1, high: 1.03 };
 const EFFORT_SPRAY = { low: 0.8, med: 1, high: 1.4 };
 export const EFFORT_STAMINA = { low: 0.65, med: 1, high: 2.6 };
 
@@ -40,15 +41,16 @@ const SEAM_LIKE = new Set(["seam", "bouncer", "yorker", "slower", "cutter"]);
  * strength: extra sideways swing (m/s^2) for seamers, extra turn (m/s) for
  * spinners, and how much it costs in accuracy (spray multiplier).
  */
-const AFTERTOUCH_SWING = 1.6;
+const AFTERTOUCH_SWING = 0.6;
 const AFTERTOUCH_SPIN = 0.8;
 const AFTERTOUCH_SPRAY = 0.6;
 
 const SPEED_FACTOR = { slower: 0.78, cutter: 0.9, armBall: 1.06 };
 
 /**
- * Swing in the air. A good swing bowler doing it well moves a new ball 30-40 cm; much more only when
- * everything lines up. SWING_REACH is how far a perfect swing bowler moves it sideways over SWING_OVER
+ * Swing in the air, at real sizes: CricViz measures the average in Tests at about 1 degree (some 15 cm by
+ * the time a full ball arrives), the best swing bowlers 1.0-1.3 degrees, and 3 degrees (about 45 cm) is
+ * rare. SWING_REACH is how far a perfect swing bowler moves it sideways over SWING_OVER
  * metres of flight (to a good length) with a new ball, in neutral conditions, at a pace
  * that swings; the ball's age, the air (pitch and weather), his skill and his pace scale it. A fuller ball
  * is in the air longer and swings more, a shorter one less; none more than SWING_MOST.
@@ -57,9 +59,14 @@ const SPEED_FACTOR = { slower: 0.78, cutter: 0.9, armBall: 1.06 };
  * turbulent. Above SWING_FADE's first speed the shiny side goes turbulent too, and the swing fades fast. An
  * old, roughed-up ball turns that into reverse swing, which grows with pace from REVERSE_FROM km/h.
  */
-const SWING_REACH = 0.4;
+const SWING_REACH = 0.34;
 const SWING_OVER = 12;
-const SWING_MOST = 0.7;
+const SWING_MOST = 0.34;
+/**
+ * How much of the swing a batter reads out of the hand, on average (0: none, 1: all of it). Real swing is
+ * small (see above), so it's the late, unread part that beats the bat: batters pick only a little of it.
+ */
+const SWING_READ = 0.5;
 const SWING_FADE = [
   [138, 1],
   [142, 0.85],
@@ -210,7 +217,7 @@ export function bowlDelivery(intent, skills, stamina, ball, pitch, releaseError,
 
   // How much of the swing the batter reads out of the hand. It's the late movement that beats him, not the
   // size of it; the better the swing bowler, the more often he's fooled into playing for the other way.
-  let read = rng.normal(0.5, 0.3);
+  let read = rng.normal(SWING_READ, 0.3);
   if (reversing) read = rng.normal(0.25, 0.4);
   else if (!spinner && rng.chance(0.14 + 0.1 * skills.swing)) read = -0.4;
   const expectedSwingAcc = swingAcc * read;

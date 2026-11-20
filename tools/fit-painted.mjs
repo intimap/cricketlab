@@ -75,7 +75,7 @@ function writeAsset(id, add) {
 
 const tidy = (files) => spawnSync("npx", ["prettier", "--write", ...files], { cwd: ROOT, stdio: "ignore" });
 
-/** Painted layers' total size for the ground (the checks hold it under 500 KB). */
+/** Painted layers' total size for the ground (the checks hold it under 3 MB). */
 function paintedKB(painted) {
   let bytes = 0;
   for (const e of Object.values(painted)) {
@@ -161,6 +161,6 @@ if (flag("--install")) {
   tidy([writePainted(painted), writeAsset(asset, true)]);
   const kb = paintedKB(painted);
   console.log(
-    `  put in: ${path.relative(ROOT, dest)}, listed in src/assets.js and the map (${kb} KB of painted layers; 500 KB at most)`,
+    `  put in: ${path.relative(ROOT, dest)}, listed in src/assets.js and the map (${kb} KB of painted layers; 3 MB at most)`,
   );
 }

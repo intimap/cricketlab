@@ -44,7 +44,7 @@ It scales it to the layer, cuts it to the layer's shape, fills any holes from th
 colours to a palette (--colours n, --ground-palette, --no-palette), writes a before-and-after preview, and
 puts it in (assets/venues/, src/assets.js and the map's painted list, with the fingerprint below). Leave
 off --install to look at the preview first; --remove <layer> takes one out again. npm test checks it fits
-the map and that the painted layers stay under 500 KB.
+the map and that the painted layers stay under 3 MB a ground.
 If the map changes, the fingerprints change: a layer painted before then is left out until repainted.
 
 Fingerprints: ${Object.entries(t.views)

@@ -182,7 +182,7 @@ test("painting over: a painted layer replaces the drawn colours; one painted for
   assert.notEqual(viewFingerprint(PARKLANDS_MAP, "close"), viewFingerprint(PARKLANDS_MAP, "wide"));
 });
 
-test("the grounds' painted layers exist, fit their maps, and stay under 500 KB a ground", async () => {
+test("the grounds' painted layers exist, fit their maps, and stay under 3 MB a ground", async () => {
   const fs = await import("node:fs");
   const { ASSET_URLS } = await import("../src/assets.js");
   const { staleLayers } = await import("../src/render/venue/venue-paint-over.js");
@@ -195,7 +195,7 @@ test("the grounds' painted layers exist, fit their maps, and stay under 500 KB a
       assert.ok(url, `${id} ${key}: ${entry.asset} is listed in src/assets.js`);
       bytes += fs.statSync(url).size;
     }
-    assert.ok(bytes <= 500 * 1024, `${id}: ${Math.round(bytes / 1024)} KB of painted layers`);
+    assert.ok(bytes <= 3 * 1024 * 1024, `${id}: ${Math.round(bytes / 1024)} KB of painted layers`);
   }
 });
 

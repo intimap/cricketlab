@@ -620,7 +620,7 @@ the bowling each over. To make another ground this way:
 --install` fits it: scaled to the layer, cut to its shape, holes filled from the drawn layer, colours
    snapped to a palette, with a before-and-after preview (leave off `--install` to look first; `--remove`
    takes it out again). Painted layers are relit with the rest; one painted before the map changed is left
-   out until it's repainted. Keep them under 500 KB a ground.
+   out until it's repainted. Keep them under 3 MB a ground (a fully painted ground, every view, is about 2 MB).
 
 ### MCG wide-view prototype
 
